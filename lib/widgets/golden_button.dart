@@ -4,7 +4,7 @@ import 'package:astrocall/core/theme/app_colors.dart';
 
 class GoldenButton extends StatefulWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final IconData? icon;
   final double height;
   final double borderRadius;
@@ -14,7 +14,7 @@ class GoldenButton extends StatefulWidget {
   const GoldenButton({
     super.key,
     required this.text,
-    required this.onPressed,
+    this.onPressed,
     this.icon,
     this.height = 56,
     this.borderRadius = 18,
@@ -51,25 +51,33 @@ class _GoldenButtonState extends State<GoldenButton> with SingleTickerProviderSt
   }
 
   void _onTapDown(TapDownDetails details) {
-    _controller.forward();
+    if (widget.onPressed != null) {
+      _controller.forward();
+    }
   }
 
   void _onTapUp(TapUpDetails details) {
-    _controller.reverse();
-    widget.onPressed();
+    if (widget.onPressed != null) {
+      _controller.reverse();
+      widget.onPressed!();
+    }
   }
 
   void _onTapCancel() {
-    _controller.reverse();
+    if (widget.onPressed != null) {
+      _controller.reverse();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDisabled = widget.onPressed == null;
+
     return AnimatedBuilder(
       animation: _scaleAnimation,
       builder: (context, child) {
         return Transform.scale(
-          scale: _scaleAnimation.value,
+          scale: isDisabled ? 1.0 : _scaleAnimation.value,
           child: GestureDetector(
             onTapDown: _onTapDown,
             onTapUp: _onTapUp,
@@ -79,19 +87,25 @@ class _GoldenButtonState extends State<GoldenButton> with SingleTickerProviderSt
               height: widget.height,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(widget.borderRadius),
-                gradient: AppColors.buttonGradient,
+                gradient: isDisabled
+                    ? LinearGradient(
+                        colors: [Colors.grey.shade800, Colors.grey.shade900],
+                      )
+                    : AppColors.buttonGradient,
                 border: Border.all(
-                  color: AppColors.lightGold,
+                  color: isDisabled ? Colors.white24 : AppColors.lightGold,
                   width: 1.2,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primaryGold.withOpacity(0.4),
-                    blurRadius: 16,
-                    spreadRadius: 1,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                boxShadow: isDisabled
+                    ? []
+                    : [
+                        BoxShadow(
+                          color: AppColors.primaryGold.withOpacity(0.4),
+                          blurRadius: 16,
+                          spreadRadius: 1,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -112,7 +126,7 @@ class _GoldenButtonState extends State<GoldenButton> with SingleTickerProviderSt
                             if (widget.icon != null) ...[
                               Icon(
                                 widget.icon,
-                                color: AppColors.textDark,
+                                color: isDisabled ? Colors.white38 : AppColors.textDark,
                                 size: 18,
                               ),
                               const SizedBox(width: 6),
@@ -124,7 +138,7 @@ class _GoldenButtonState extends State<GoldenButton> with SingleTickerProviderSt
                                   widget.text,
                                   maxLines: 1,
                                   style: GoogleFonts.poppins(
-                                    color: AppColors.textDark,
+                                    color: isDisabled ? Colors.white38 : AppColors.textDark,
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 0.8,

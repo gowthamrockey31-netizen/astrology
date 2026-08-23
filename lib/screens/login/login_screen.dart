@@ -22,15 +22,28 @@ class _LoginScreenState extends State<LoginScreen> {
   final _nameController = TextEditingController(text: 'Divine Seeker');
   final _phoneController = TextEditingController(text: '+919876543210');
   final _passwordController = TextEditingController(text: 'password123');
+  final _cellController = TextEditingController();
   bool _rememberMe = true;
   bool _isLoading = false;
+  bool _showRegister = false;
 
   @override
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
+    _cellController.dispose();
     super.dispose();
+  }
+
+  String _selectedRole = 'User';
+
+  bool _isAdminCredential(String input) {
+    final clean = input.trim().toLowerCase();
+    return clean == 'admin@astrocare.com' ||
+        clean == 'admin@astro.com' ||
+        clean == 'admin' ||
+        (clean.contains('admin') && clean.contains('@'));
   }
 
   void _handleLogin() async {
@@ -39,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text.trim();
 
     if (phone.isEmpty) {
-      _showSnackBar("Please enter your phone number.", isError: true);
+      _showSnackBar("Please enter your phone number or email.", isError: true);
       return;
     }
     if (password.isEmpty) {
@@ -47,11 +60,13 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    final effectiveRole = _isAdminCredential(phone) ? 'Admin' : _selectedRole;
+
     setState(() {
       _isLoading = true;
     });
 
-    final result = await AuthService.login(phone, password);
+    final result = await AuthService.login(phone, password, role: effectiveRole);
 
     if (!mounted) return;
 
@@ -61,19 +76,139 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (result.isSuccess) {
       final userGreetingName = (result.userName != null && result.userName != 'Divine Seeker') ? result.userName! : name;
-      _showSnackBar("Welcome back, $userGreetingName!", isError: false);
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 600),
-          pageBuilder: (context, animation, secondaryAnimation) => DashboardScreen(username: userGreetingName),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+      _showSnackBar("Welcome back, $userGreetingName ($effectiveRole Mode)!", isError: false);
+
+      if (effectiveRole == 'Astrologer') {
+        Navigator.of(context).pushReplacementNamed('/astrologer_dashboard');
+      } else if (effectiveRole == 'Admin') {
+        Navigator.of(context).pushReplacementNamed('/admin_dashboard');
+      } else {
+        // Show Terms popup first, then navigate
+        await _showTermsDialog(userGreetingName);
+      }
     } else {
       _showSnackBar(result.message, isError: true);
     }
+  }
+
+  Future<void> _showTermsDialog(String userName) async {
+    if (!mounted) return;
+    final accepted = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        bool localAccepted = false;
+        return StatefulBuilder(
+          builder: (context, setDlgState) => AlertDialog(
+            backgroundColor: AppColors.backgroundMid,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
+              side: const BorderSide(color: AppColors.borderGold, width: 1.5),
+            ),
+            title: Row(
+              children: [
+                const Icon(Icons.gavel_rounded, color: AppColors.lightGold, size: 26),
+                const SizedBox(width: 10),
+                Text('Terms & Conditions',
+                    style: GoogleFonts.cinzel(
+                        color: AppColors.lightGold,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16)),
+              ],
+            ),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: 320,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Welcome to Astrocare Digital Astrology Centre!',
+                              style: GoogleFonts.cinzel(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14)),
+                          const SizedBox(height: 10),
+                          _termsPoint('1. All astrological consultations are for entertainment and guidance purposes only.'),
+                          _termsPoint('2. Payments made for consultations are non-refundable once the session has started.'),
+                          _termsPoint('3. Your personal birth chart data is kept strictly confidential and never shared.'),
+                          _termsPoint('4. AI Horoscope predictions are generated using Vedic algorithms and may vary.'),
+                          _termsPoint('5. Users must be 18+ years of age to use paid consultation services.'),
+                          _termsPoint('6. Astrocare reserves the right to modify services and pricing at any time.'),
+                          _termsPoint('7. By using this platform you agree to our Privacy Policy and Data Protection guidelines.'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: localAccepted,
+                        activeColor: AppColors.primaryGold,
+                        checkColor: AppColors.textDark,
+                        onChanged: (v) => setDlgState(() => localAccepted = v ?? false),
+                      ),
+                      Expanded(
+                        child: Text('I have read and accept the Terms & Conditions',
+                            style: GoogleFonts.poppins(
+                                color: AppColors.textSecondary, fontSize: 12)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: localAccepted ? AppColors.primaryGold : Colors.grey.shade700,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  minimumSize: const Size(double.infinity, 46),
+                ),
+                onPressed: localAccepted ? () => Navigator.of(context).pop(true) : null,
+                child: Text('✅ Accept & Continue',
+                    style: GoogleFonts.poppins(
+                        color: AppColors.textDark,
+                        fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    if (!mounted) return;
+    if (accepted == true) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 600),
+          pageBuilder: (context, anim, _) => DashboardScreen(username: userName),
+          transitionsBuilder: (context, animation, _, child) =>
+              FadeTransition(opacity: animation, child: child),
+        ),
+      );
+    }
+  }
+
+  Widget _termsPoint(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.star_rounded, color: AppColors.primaryGold, size: 14),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(text,
+                style: GoogleFonts.poppins(
+                    color: AppColors.textSecondary, fontSize: 12, height: 1.5)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _handleRegister() async {
@@ -82,34 +217,107 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text.trim();
 
     if (phone.isEmpty || password.isEmpty) {
-      _showSnackBar("Please fill in Phone Number and Password to register.", isError: true);
+      _showSnackBar("Please fill in User ID and Password to register.", isError: true);
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() { _isLoading = true; });
 
     final result = await AuthService.register(phone, password, name: name);
 
     if (!mounted) return;
-
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() { _isLoading = false; });
 
     if (result.isSuccess) {
-      final userGreetingName = result.userName ?? name;
+      final greetingName = result.userName ?? name;
       _showSnackBar(result.message, isError: false);
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 600),
-          pageBuilder: (context, animation, secondaryAnimation) => DashboardScreen(username: userGreetingName),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
+      _showSnackBar('Welcome, $greetingName! Please accept our terms.', isError: false);
+      // Show terms then go to profile setup
+      final accepted = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) {
+          bool localAccepted = false;
+          return StatefulBuilder(
+            builder: (context, setDlgState) => AlertDialog(
+              backgroundColor: AppColors.backgroundMid,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22),
+                side: const BorderSide(color: AppColors.borderGold, width: 1.5),
+              ),
+              title: Row(
+                children: [
+                  const Icon(Icons.gavel_rounded, color: AppColors.lightGold, size: 26),
+                  const SizedBox(width: 10),
+                  Text('Terms & Conditions',
+                      style: GoogleFonts.cinzel(
+                          color: AppColors.lightGold,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16)),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                height: 300,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Welcome to Astrocare!',
+                                style: GoogleFonts.cinzel(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 10),
+                            _termsPoint('All astrological consultations are for guidance purposes only.'),
+                            _termsPoint('Payments made are non-refundable once consultation has started.'),
+                            _termsPoint('Your personal data is kept strictly confidential.'),
+                            _termsPoint('Users must be 18+ to use paid services.'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: localAccepted,
+                          activeColor: AppColors.primaryGold,
+                          checkColor: AppColors.textDark,
+                          onChanged: (v) => setDlgState(() => localAccepted = v ?? false),
+                        ),
+                        Expanded(
+                          child: Text('I accept the Terms & Conditions',
+                              style: GoogleFonts.poppins(
+                                  color: AppColors.textSecondary, fontSize: 12)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: localAccepted ? AppColors.primaryGold : Colors.grey.shade700,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    minimumSize: const Size(double.infinity, 46),
+                  ),
+                  onPressed: localAccepted ? () => Navigator.of(context).pop(true) : null,
+                  child: Text('✅ Accept & Continue',
+                      style: GoogleFonts.poppins(
+                          color: AppColors.textDark, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          );
+        },
       );
+      if (!mounted) return;
+      if (accepted == true) {
+        Navigator.of(context).pushReplacementNamed('/profile');
+      }
     } else {
       _showSnackBar(result.message, isError: true);
     }
@@ -184,11 +392,13 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    final effectiveRole = _isAdminCredential(email) ? 'Admin' : _selectedRole;
+
     setState(() {
       _isLoading = true;
     });
 
-    final result = await AuthService.loginWithGoogle(email, currentName);
+    final result = await AuthService.loginWithGoogle(email, currentName, role: effectiveRole);
 
     if (!mounted) return;
 
@@ -199,15 +409,19 @@ class _LoginScreenState extends State<LoginScreen> {
     if (result.isSuccess) {
       final userGreetingName = result.userName ?? currentName;
       _showSnackBar(result.message, isError: false);
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 600),
-          pageBuilder: (context, animation, secondaryAnimation) => DashboardScreen(username: userGreetingName),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+      if (effectiveRole == 'Admin') {
+        Navigator.of(context).pushReplacementNamed('/admin_dashboard');
+      } else {
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 600),
+            pageBuilder: (context, animation, secondaryAnimation) => DashboardScreen(username: userGreetingName),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+          ),
+        );
+      }
     } else {
       _showSnackBar(result.message, isError: true);
     }
@@ -281,19 +495,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 24),
 
-                    // Circular Astrologer Illustration Header
+                    // Circular App Logo Header
                     Container(
-                      width: 100,
-                      height: 100,
+                      width: 110,
+                      height: 110,
                       padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: AppColors.goldBorderGradient,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primaryGold.withOpacity(0.4),
-                            blurRadius: 20,
-                            spreadRadius: 2,
+                            color: AppColors.primaryGold.withOpacity(0.5),
+                            blurRadius: 22,
+                            spreadRadius: 3,
                           ),
                         ],
                       ),
@@ -302,10 +516,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           shape: BoxShape.circle,
                           color: AppColors.backgroundMid,
                         ),
-                        child: const CircleAvatar(
-                          backgroundColor: AppColors.backgroundDeep,
-                          child: Icon(
-                            Icons.person,
+                        clipBehavior: Clip.antiAlias,
+                        child: Image.asset(
+                          AppConstants.appLogo,
+                          fit: BoxFit.cover,
+                          alignment: Alignment.center,
+                          errorBuilder: (context, error, stackTrace) => const Icon(
+                            Icons.auto_awesome,
                             size: 56,
                             color: AppColors.lightGold,
                           ),
@@ -336,18 +553,75 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ).animate().fade(duration: 600.ms, delay: 500.ms),
 
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 18),
 
-                    // Input Fields Container (Full Name, Phone Number, Password)
+                    // Choose Module / Role Pills
+                    Text(
+                      "Choose Login Module",
+                      style: GoogleFonts.outfit(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.lightGold,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: ['User', 'Astrologer'].map((roleName) {
+                        final isSel = _selectedRole == roleName;
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedRole = roleName;
+                                if (_selectedRole == 'Astrologer' && _phoneController.text == '+919876543210') {
+                                  _phoneController.text = 'acharya@astrocare.com';
+                                } else if (_selectedRole == 'User' && _phoneController.text == 'acharya@astrocare.com') {
+                                  _phoneController.text = '+919876543210';
+                                }
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: isSel ? AppColors.primaryGold.withOpacity(0.2) : AppColors.cardSurface,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isSel ? AppColors.lightGold : Colors.white12,
+                                  width: isSel ? 1.5 : 1,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  roleName,
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: isSel ? AppColors.lightGold : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Input Fields
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         GoldenTextField(
                           controller: _nameController,
-                          hintText: "Enter your full name / username",
+                          hintText: "Enter your full name",
+                          label: "Full Name",
                           prefixIcon: Icons.person_outline,
                           validator: (val) {
                             if (val == null || val.trim().isEmpty) {
-                              return "Full name / username is required";
+                              return "Full name is required";
                             }
                             return null;
                           },
@@ -355,12 +629,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 16),
                         GoldenTextField(
                           controller: _phoneController,
-                          hintText: "+91 Enter your phone number",
-                          prefixIcon: Icons.phone_android,
-                          keyboardType: TextInputType.phone,
+                          hintText: _selectedRole == 'Astrologer' ? "Unique Assigned Email or Mobile" : "Phone number or Email",
+                          label: _selectedRole == 'Astrologer' ? "Astrologer Email / Mobile" : "User ID",
+                          prefixIcon: _selectedRole == 'Astrologer' ? Icons.email_outlined : Icons.badge_outlined,
+                          keyboardType: TextInputType.emailAddress,
                           validator: (val) {
                             if (val == null || val.trim().isEmpty) {
-                              return "Phone number is required";
+                              return _selectedRole == 'Astrologer' ? "Assigned email is required" : "User ID is required";
                             }
                             return null;
                           },
@@ -369,6 +644,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         GoldenTextField(
                           controller: _passwordController,
                           hintText: "Enter your password",
+                          label: "Password",
                           prefixIcon: Icons.lock_outline,
                           isPassword: true,
                           validator: (val) {
@@ -378,6 +654,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                         ),
+                        if (_showRegister) ...[
+                          const SizedBox(height: 16),
+                            GoldenTextField(
+                            controller: _cellController,
+                            hintText: "Enter your mobile number",
+                            label: "Cell No",
+                            prefixIcon: Icons.phone_android_outlined,
+                            keyboardType: TextInputType.phone,
+                          ),
+                        ],
                       ],
                     ).animate().slideY(begin: 0.15, end: 0, duration: 600.ms, delay: 600.ms).fade(),
 
@@ -416,7 +702,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            _showSnackBar("Demo Account Credentials:\nPhone: +919876543210\nPassword: password123");
+                            _showSnackBar("Demo Credentials:\nPhone: +919876543210 (Password: password123)\nSpecial Admin Email: admin@astrocare.com");
                           },
                           child: Text(
                             "Forgot Password?",
@@ -490,16 +776,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Don't have an account? ",
+                          _showRegister ? "Already have an account? " : "Don't have an account? ",
                           style: GoogleFonts.poppins(
                             color: AppColors.textSecondary,
                             fontSize: 14,
                           ),
                         ),
                         GestureDetector(
-                          onTap: _handleRegister,
+                          onTap: () {
+                            if (_showRegister) {
+                              setState(() => _showRegister = false);
+                            } else {
+                              setState(() => _showRegister = true);
+                            }
+                          },
                           child: Text(
-                            "Register",
+                            _showRegister ? "Login" : "Register",
                             style: GoogleFonts.poppins(
                               color: AppColors.lightGold,
                               fontSize: 14,
@@ -510,6 +802,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ).animate().fade(delay: 1100.ms),
+
+                    if (_showRegister) ...[
+                      const SizedBox(height: 12),
+                      GoldenButton(
+                        text: "CREATE ACCOUNT",
+                        isLoading: _isLoading,
+                        onPressed: _handleRegister,
+                      ).animate().scale(duration: 400.ms, curve: Curves.easeOut),
+                    ],
                   ],
                 ),
               ),

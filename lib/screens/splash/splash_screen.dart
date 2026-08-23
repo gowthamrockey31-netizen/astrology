@@ -44,19 +44,19 @@ class _SplashScreenState extends State<SplashScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Astrology Wheel / Logo Icon Container
+                // App Logo Container with Golden Aura & Dynamic Animations
                 Container(
-                  width: 160,
-                  height: 160,
+                  width: 170,
+                  height: 170,
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: AppColors.goldBorderGradient,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primaryGold.withOpacity(0.5),
-                        blurRadius: 32,
-                        spreadRadius: 4,
+                        color: AppColors.primaryGold.withOpacity(0.6),
+                        blurRadius: 36,
+                        spreadRadius: 6,
                       ),
                     ],
                   ),
@@ -67,9 +67,9 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: Image.asset(
-                      AppConstants.astrologyWheelBanner,
+                      AppConstants.appLogo,
                       fit: BoxFit.cover,
-                      alignment: const Alignment(0.0, 0.38),
+                      alignment: Alignment.center,
                       errorBuilder: (context, error, stackTrace) => const Icon(
                         Icons.auto_awesome,
                         size: 80,
@@ -80,7 +80,8 @@ class _SplashScreenState extends State<SplashScreen> {
                 )
                     .animate()
                     .scale(duration: 1200.ms, curve: Curves.easeOutBack)
-                    .fade(duration: 1000.ms),
+                    .fade(duration: 1000.ms)
+                    .shimmer(duration: 1800.ms, delay: 600.ms, color: AppColors.lightGold.withOpacity(0.4)),
 
                 const SizedBox(height: 32),
 

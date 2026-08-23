@@ -13,7 +13,12 @@ import 'package:astrocall/widgets/cosmic_background.dart';
 import 'package:astrocall/widgets/glowing_icon.dart';
 import 'package:astrocall/widgets/golden_button.dart';
 import 'package:astrocall/widgets/premium_app_bar.dart';
+import 'package:astrocall/widgets/cosmic_drawer.dart';
+import 'package:astrocall/widgets/bottom_notification_bar.dart';
+import 'package:astrocall/services/auth_service.dart';
+import 'package:astrocall/services/firestore_service.dart';
 import 'package:astrocall/screens/login/login_screen.dart';
+import 'package:astrocall/screens/magazine/magazine_feed_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -28,10 +33,72 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedNavIndex = 0;
 
-  final List<ServiceItem> _quickServices = MockDataService.getQuickServices();
-  final List<Astrologer> _astrologers = MockDataService.getFeaturedAstrologers();
+  List<ServiceItem> get _quickServices => MockDataService.getQuickServices();
+  List<AstrologerModel> _astrologers = MockDataService.getFeaturedAstrologers();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAstrologers();
+  }
+
+  Future<void> _loadAstrologers() async {
+    final list = await FirestoreService.fetchAstrologers();
+    if (mounted) {
+      setState(() {
+        _astrologers = list.isNotEmpty ? list : [MockDataService.defaultAstrologer];
+        _sortAstrologers();
+      });
+    }
+  }
+
+  void _sortAstrologers() {
+    _astrologers.sort((a, b) {
+      final aPinned = AuthService.isAstrologerPinned(a.id);
+      final bPinned = AuthService.isAstrologerPinned(b.id);
+      if (aPinned && !bPinned) return -1;
+      if (!aPinned && bPinned) return 1;
+      return 0;
+    });
+  }
+
+  Future<void> _togglePin(AstrologerModel ast) async {
+    final wasPinned = AuthService.isAstrologerPinned(ast.id);
+    await AuthService.togglePinAstrologer(ast.id);
+    if (mounted) {
+      setState(() {
+        _sortAstrologers();
+      });
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                wasPinned ? Icons.push_pin_outlined : Icons.push_pin_rounded,
+                color: AppColors.lightGold,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  wasPinned
+                      ? '${ast.name} unpinned from your favorites.'
+                      : '📌 ${ast.name} pinned to top of your favorites!',
+                  style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: AppColors.backgroundMid,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
 
   void _handleLogout() async {
     final bool? confirm = await showDialog<bool>(
@@ -106,24 +173,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: CosmicDrawer(
+        onSelectRoute: (routeName) {
+          Navigator.of(context).pop();
+          Navigator.of(context).pushNamed(routeName);
+        },
+        onLogout: _handleLogout,
+      ),
       appBar: PremiumAppBar(
         username: widget.username,
+        onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
         onProfileTap: () {
           setState(() {
             _selectedNavIndex = 3;
           });
         },
+        onWalletTap: () => Navigator.of(context).pushNamed('/wallet'),
       ),
       extendBodyBehindAppBar: true,
       body: CosmicBackground(
         child: SafeArea(
-          child: IndexedStack(
-            index: _selectedNavIndex,
+          child: Column(
             children: [
-              _buildHomeTab(),
-              _buildConsultTab(),
-              _buildMagazineTab(),
-              _buildProfileTab(),
+              Expanded(
+                child: IndexedStack(
+                  index: _selectedNavIndex,
+                  children: [
+                    _buildHomeTab(),
+                    _buildConsultTab(),
+                    const MagazineFeedScreen(),
+                    _buildProfileTab(),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -145,6 +228,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildBannerCard().animate().fade(duration: 800.ms).slideY(begin: 0.1, end: 0),
+          const SizedBox(height: 20),
+          _buildModuleSwitchSection().animate().fade(delay: 150.ms),
           const SizedBox(height: 24),
           _buildSectionHeader(
             title: "Quick Services",
@@ -161,16 +246,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ).animate().fade(delay: 400.ms),
           const SizedBox(height: 12),
           _buildAstrologersHorizontalList().animate().fade(delay: 500.ms),
-          const SizedBox(height: 24),
-          _buildSectionHeader(
-            title: "Today's Prediction",
-            tamilTitle: "இன்றைய கணிப்பு",
-          ).animate().fade(delay: 600.ms),
-          const SizedBox(height: 12),
-          _buildPredictionCard().animate().fade(delay: 700.ms).slideY(begin: 0.1, end: 0),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
         ],
       ),
+    );
+  }
+
+  Widget _buildModuleSwitchSection() {
+    final role = AuthService.activeRole;
+    final List<Map<String, dynamic>> allModules = [
+      if (role == 'Astrologer' || role == 'Admin')
+        {'title': 'Astrologer Workspace', 'sub': 'Calls & Earnings', 'icon': Icons.psychology_rounded, 'route': '/astrologer_dashboard', 'color': AppColors.purpleAccent},
+      if (role == 'Admin')
+        {'title': 'Admin Control Panel', 'sub': 'CMS & Approvals', 'icon': Icons.admin_panel_settings_rounded, 'route': '/admin_dashboard', 'color': AppColors.blueAccent},
+      {'title': 'திருமணப் பொருத்தம்', 'sub': 'Marriage Matching', 'icon': Icons.favorite_rounded, 'route': '/marriage_porutham', 'color': Colors.pink.shade800},
+      {'title': 'தாரா பலன்', 'sub': 'Tara Balam Analysis', 'icon': Icons.stars_rounded, 'route': '/tara_balam', 'color': Colors.amber.shade800},
+      {'title': 'அஷ்ட வர்க்கம்', 'sub': 'Ashtakavarga SAV', 'icon': Icons.grid_on_rounded, 'route': '/ashtakavarga', 'color': Colors.teal.shade800},
+      {'title': 'பஞ்சபட்சி', 'sub': '5-Bird Science', 'icon': Icons.flutter_dash_rounded, 'route': '/panchapakshi', 'color': Colors.orange.shade800},
+      {'title': 'நேரலை ஓரை', 'sub': 'Live Hora Schedule', 'icon': Icons.access_time_filled_rounded, 'route': '/hora', 'color': Colors.blue.shade900},
+      {'title': 'உதயாதினாழிகை', 'sub': 'Udayadhi Nazhigai', 'icon': Icons.timer_rounded, 'route': '/nazhigai', 'color': Colors.purple.shade800},
+      {'title': 'ஆயுள் கணிதம்', 'sub': 'Pindayu Longevity', 'icon': Icons.health_and_safety_rounded, 'route': '/longevity', 'color': Colors.green.shade800},
+      {'title': 'ஜாதக குறிப்புகள்', 'sub': 'Horoscope Notes', 'icon': Icons.description_rounded, 'route': '/jaathaga_kurippugal', 'color': Colors.indigo.shade800},
+      {'title': 'Daily Horoscopes', 'sub': '12 Zodiac Signs', 'icon': Icons.brightness_7_rounded, 'route': '/horoscope', 'color': Colors.amber.shade900},
+      {'title': 'Live Panchangam', 'sub': 'Tithi & Rahu Kalam', 'icon': Icons.calendar_month_rounded, 'route': '/panchang', 'color': Colors.deepOrange.shade900},
+      {'title': 'Daily Planet Chart', 'sub': 'Degrees & Rasi', 'icon': Icons.public_rounded, 'route': '/planet_positions', 'color': Colors.teal.shade900},
+      {'title': 'Astrocare Magazine', 'sub': 'Vedic Insights', 'icon': Icons.auto_stories_rounded, 'route': '/magazine', 'color': Colors.purple.shade900},
+      {'title': 'AI Horoscope Guru', 'sub': 'Ask AI Assistant', 'icon': Icons.smart_toy_rounded, 'route': '/ai_assistant', 'color': Colors.indigo.shade900},
+      {'title': 'Birth Chart', 'sub': 'Vedic Kundali', 'icon': Icons.brightness_5_rounded, 'route': '/birth_chart', 'color': Colors.cyan.shade900},
+      {'title': 'Astrocare Shop', 'sub': 'Gems & Yantras', 'icon': Icons.shopping_bag_rounded, 'route': '/shop', 'color': Colors.pink.shade900},
+      if (role == 'User' || role == 'Admin')
+        {'title': 'Astrocare Wallet', 'sub': 'Recharge & Invoices', 'icon': Icons.account_balance_wallet_rounded, 'route': '/wallet', 'color': Colors.green.shade900},
+    ];
+
+    final modules = allModules;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Astrocare Modules',
+              style: GoogleFonts.cinzel(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.lightGold,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _scaffoldKey.currentState?.openDrawer(),
+              child: Row(
+                children: [
+                  Text(
+                    'All Modules',
+                    style: GoogleFonts.outfit(fontSize: 12, color: AppColors.lightGold, fontWeight: FontWeight.bold),
+                  ),
+                  const Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.lightGold),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: modules.length,
+            itemBuilder: (context, index) {
+              final m = modules[index];
+              return GestureDetector(
+                onTap: () => Navigator.of(context).pushNamed(m['route'] as String),
+                child: Container(
+                  width: 140,
+                  margin: const EdgeInsets.only(right: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardSurface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.borderGold.withOpacity(0.5)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(m['icon'] as IconData, color: AppColors.lightGold, size: 24),
+                      const SizedBox(height: 6),
+                      Text(
+                        m['title'] as String,
+                        style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        m['sub'] as String,
+                        style: GoogleFonts.outfit(fontSize: 10, color: AppColors.textSecondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -178,27 +361,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Tab 1: Consult
   // ---------------------------------------------------------------------------
   Widget _buildConsultTab() {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return RefreshIndicator(
+      onRefresh: _loadAstrologers,
+      color: AppColors.primaryGold,
+      backgroundColor: AppColors.backgroundMid,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           _buildSectionHeader(
             title: "Consult Astrologers",
             tamilTitle: "ஜோதிட ஆலோசனை",
           ),
           const SizedBox(height: 16),
-          ListView.builder(
+          if (_astrologers.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(28),
+              alignment: Alignment.center,
+              child: Column(
+                children: [
+                  const Icon(Icons.psychology_outlined, color: AppColors.lightGold, size: 48),
+                  const SizedBox(height: 12),
+                  Text("No Astrologers Available", style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 4),
+                  Text("Astrologers added by Admin will appear here.", style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 12)),
+                ],
+              ),
+            )
+          else
+            ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _astrologers.length,
             itemBuilder: (context, index) {
               final ast = _astrologers[index];
+              final isPinned = AuthService.isAstrologerPinned(ast.id);
               return Container(
                 margin: const EdgeInsets.only(bottom: 14),
                 child: AstroCard(
                   padding: const EdgeInsets.all(14),
+                  hasGlow: isPinned,
+                  borderGoldColor: isPinned ? AppColors.primaryGold : AppColors.borderGold,
                   child: Row(
                     children: [
                       Stack(
@@ -207,7 +413,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             padding: const EdgeInsets.all(2),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.primaryGold, width: 1.5),
+                              border: Border.all(color: isPinned ? AppColors.lightGold : AppColors.primaryGold, width: isPinned ? 2.5 : 1.5),
                             ),
                             child: CircleAvatar(
                               radius: 30,
@@ -235,13 +441,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              ast.name,
-                              style: GoogleFonts.cinzel(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    ast.name,
+                                    style: GoogleFonts.cinzel(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (isPinned)
+                                  Container(
+                                    margin: const EdgeInsets.only(left: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryGold.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: AppColors.primaryGold.withOpacity(0.6)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.push_pin_rounded, size: 10, color: AppColors.lightGold),
+                                        const SizedBox(width: 2),
+                                        Text(
+                                          'PINNED',
+                                          style: GoogleFonts.outfit(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
                             ),
                             Text(
                               ast.title,
@@ -249,10 +483,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                             Row(
                               children: [
-                                const Icon(Icons.star, color: AppColors.lightGold, size: 14),
-                                const SizedBox(width: 4),
-                                Text("${ast.rating} (${ast.reviewsCount})",
-                                    style: GoogleFonts.poppins(fontSize: 12, color: AppColors.lightGold, fontWeight: FontWeight.bold)),
+                                Text("₹${ast.consultationFee.toInt()}/min",
+                                    style: GoogleFonts.poppins(fontSize: 13, color: AppColors.lightGold, fontWeight: FontWeight.bold)),
                                 const SizedBox(width: 12),
                                 Text(ast.experience, style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textSecondary)),
                               ],
@@ -260,10 +492,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ],
                         ),
                       ),
+                      IconButton(
+                        icon: Icon(
+                          isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
+                          color: isPinned ? AppColors.lightGold : Colors.white38,
+                          size: 20,
+                        ),
+                        tooltip: isPinned ? 'Unpin Astrologer' : 'Pin Favourite Astrologer',
+                        onPressed: () => _togglePin(ast),
+                      ),
                       GoldenButton(
                         text: "Chat",
                         height: 36,
-                        width: 75,
+                        width: 65,
                         borderRadius: 12,
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -279,8 +520,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ---------------------------------------------------------------------------
   // Tab 2: Magazine
@@ -457,6 +699,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ).animate().scale(duration: 500.ms, curve: Curves.easeOut),
 
           const SizedBox(height: 24),
+
+          // Support Section
+          _buildSectionHeader(title: 'Support', tamilTitle: 'உதவி மையம்'),
+          const SizedBox(height: 12),
+          _buildSupportCard(),
+
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -496,6 +745,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const Icon(Icons.arrow_forward_ios, color: AppColors.lightGold, size: 14),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSupportCard() {
+    final supportItems = [
+      {
+        'icon': Icons.email_outlined,
+        'title': 'Email Support',
+        'subtitle': 'support@astrocarecentre.com',
+        'color': AppColors.blueAccent,
+      },
+      {
+        'icon': Icons.chat_bubble_outline_rounded,
+        'title': 'WhatsApp Support',
+        'subtitle': '+91 98765 43210',
+        'color': const Color(0xFF25D366),
+      },
+      {
+        'icon': Icons.help_outline_rounded,
+        'title': 'FAQ & Help Center',
+        'subtitle': 'Browse common questions',
+        'color': AppColors.purpleAccent,
+      },
+    ];
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: AppColors.cardSurface,
+        border: Border.all(color: AppColors.borderGold.withOpacity(0.4)),
+      ),
+      child: Column(
+        children: supportItems.asMap().entries.map((entry) {
+          final i = entry.key;
+          final item = entry.value;
+          final color = item['color'] as Color;
+          return Column(
+            children: [
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(item['icon'] as IconData, color: color, size: 20),
+                ),
+                title: Text(item['title'] as String,
+                    style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
+                subtitle: Text(item['subtitle'] as String,
+                    style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 11)),
+                trailing: const Icon(Icons.arrow_forward_ios, color: AppColors.lightGold, size: 13),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Opening ${item["title"]}...', style: GoogleFonts.poppins(color: AppColors.lightGold)),
+                      backgroundColor: AppColors.backgroundMid,
+                    ),
+                  );
+                },
+              ),
+              if (i < supportItems.length - 1)
+                Divider(height: 0, color: AppColors.borderGold.withOpacity(0.2), indent: 16, endIndent: 16),
+            ],
+          );
+        }).toList(),
       ),
     );
   }
@@ -578,14 +893,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 height: 38,
                 width: 155,
                 borderRadius: 14,
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Opening Today's Horoscope..."),
-                      backgroundColor: AppColors.backgroundMid,
-                    ),
-                  );
-                },
+                onPressed: () => Navigator.of(context).pushNamed('/horoscope'),
               ),
             ],
           ),
@@ -665,67 +973,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 14,
-        mainAxisSpacing: 14,
-        childAspectRatio: 1.15,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.35,
       ),
       itemCount: _quickServices.length,
       itemBuilder: (context, index) {
         final service = _quickServices[index];
         return AstroCard(
-          padding: const EdgeInsets.all(14),
-          borderRadius: 20,
+          padding: const EdgeInsets.all(12),
+          borderRadius: 16,
           gradientColors: service.gradientColors,
           borderGoldColor: service.glowColor,
           onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Selected ${service.title}"),
-                backgroundColor: AppColors.backgroundMid,
-              ),
-            );
+            if (service.id == 'daily_horoscope') {
+              Navigator.of(context).pushNamed('/horoscope');
+            } else if (service.id == 'consult_astrologer') {
+              setState(() => _selectedNavIndex = 1);
+            } else if (service.id == 'panchangam') {
+              Navigator.of(context).pushNamed('/panchang');
+            } else if (service.id == 'birth_chart') {
+              Navigator.of(context).pushNamed('/birth_chart');
+            }
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GlowingIcon(
-                    icon: service.icon,
-                    glowColor: service.glowColor,
-                    iconColor: service.glowColor,
-                    containerSize: 46,
-                    size: 24,
-                  ),
-                  Icon(
-                    Icons.arrow_circle_right_outlined,
-                    color: service.glowColor.withOpacity(0.7),
-                    size: 22,
-                  ),
-                ],
+              GlowingIcon(
+                icon: service.icon,
+                glowColor: service.glowColor,
+                iconColor: service.glowColor,
+                containerSize: 38,
+                size: 20,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     service.tamilTitle,
                     style: AppTheme.tamilTextStyle(
-                      fontSize: 11,
+                      fontSize: 10.5,
                       color: AppColors.textSecondary,
-                    ),
-                  ),
-                  Text(
-                    service.title,
-                    style: GoogleFonts.cinzel(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      service.title,
+                      style: GoogleFonts.cinzel(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -740,6 +1046,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Featured Astrologers Horizontal List
   // ---------------------------------------------------------------------------
   Widget _buildAstrologersHorizontalList() {
+    if (_astrologers.isEmpty) {
+      return Container(
+        height: 110,
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardSurface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.borderGold.withOpacity(0.3)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.psychology_outlined, color: AppColors.lightGold, size: 28),
+            const SizedBox(height: 6),
+            Text(
+              "No Astrologers Listed Yet",
+              style: GoogleFonts.outfit(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+            Text(
+              "Astrologers added by Admin will appear here",
+              style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 11),
+            ),
+          ],
+        ),
+      );
+    }
     return SizedBox(
       height: 230,
       child: ListView.builder(
@@ -748,61 +1081,90 @@ class _DashboardScreenState extends State<DashboardScreen> {
         itemCount: _astrologers.length,
         itemBuilder: (context, index) {
           final ast = _astrologers[index];
+          final isPinned = AuthService.isAstrologerPinned(ast.id);
           return Container(
             width: 168,
             margin: const EdgeInsets.only(right: 14),
             child: AstroCard(
               padding: const EdgeInsets.all(12),
               borderRadius: 20,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              hasGlow: isPinned,
+              borderGoldColor: isPinned ? AppColors.primaryGold : AppColors.borderGold,
+              child: Stack(
                 children: [
-                  Stack(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(2),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: InkWell(
+                      onTap: () => _togglePin(ast),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
+                          color: isPinned ? AppColors.primaryGold.withOpacity(0.3) : Colors.black26,
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.primaryGold, width: 1.5),
-                        ),
-                        child: CircleAvatar(
-                          radius: 28,
-                          backgroundImage: CachedNetworkImageProvider(ast.imageUrl),
-                        ),
-                      ),
-                      if (ast.isOnline)
-                        Positioned(
-                          right: 2,
-                          bottom: 2,
-                          child: Container(
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF00E676),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.backgroundDeep, width: 2),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0xFF00E676),
-                                  blurRadius: 6,
-                                ),
-                              ],
-                            ),
+                          border: Border.all(
+                            color: isPinned ? AppColors.lightGold : Colors.white24,
+                            width: 1,
                           ),
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    ast.name,
-                    style: GoogleFonts.cinzel(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                        child: Icon(
+                          isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
+                          size: 14,
+                          color: isPinned ? AppColors.lightGold : AppColors.textSecondary,
+                        ),
+                      ),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Stack(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: isPinned ? AppColors.lightGold : AppColors.primaryGold, width: isPinned ? 2.5 : 1.5),
+                            ),
+                            child: CircleAvatar(
+                              radius: 28,
+                              backgroundImage: CachedNetworkImageProvider(ast.imageUrl),
+                            ),
+                          ),
+                          if (ast.isOnline)
+                            Positioned(
+                              right: 2,
+                              bottom: 2,
+                              child: Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF00E676),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: AppColors.backgroundDeep, width: 2),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Color(0xFF00E676),
+                                      blurRadius: 6,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        ast.name,
+                        style: GoogleFonts.cinzel(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                   Text(
                     ast.experience,
                     style: GoogleFonts.poppins(
@@ -810,20 +1172,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.star, color: AppColors.lightGold, size: 14),
-                      const SizedBox(width: 4),
-                      Text(
-                        "${ast.rating}",
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.lightGold,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    "₹${ast.consultationFee.toInt()}/min",
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.lightGold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   GoldenButton(
@@ -841,8 +1196,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ],
               ),
-            ),
-          );
+            ],
+          ),
+        ),
+      );
         },
       ),
     );

@@ -1,155 +1,280 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'package:astrocall/models/user_model.dart';
+import 'package:astrocall/models/astrologer_model.dart';
+import 'package:astrocall/core/utils/astrology_calculator.dart';
+import 'package:astrocall/services/api_service.dart';
+import 'package:astrocall/services/mock_data_service.dart';
 
 class AuthResult {
   final bool isSuccess;
   final String message;
-  final String? userName;
-  final String? token;
+  final UserModel? user;
+  final String? role;
 
   AuthResult({
     required this.isSuccess,
     required this.message,
-    this.userName,
-    this.token,
+    this.user,
+    this.role,
   });
+
+  String? get userName => user?.name;
 }
 
 class AuthService {
-  static const String baseUrl = 'http://127.0.0.1:8000/api/auth';
+  static UserModel? _currentUser;
+  static String _activeRole = 'User';
 
-  static Future<AuthResult> login(String phone, String password) async {
-    final cleanPhone = phone.trim();
+  static UserModel? get currentUser => _currentUser;
+  static String get activeRole => _activeRole;
+
+  static void setActiveRole(String role) {
+    _activeRole = role;
+  }
+
+  /// Mobile Number / Email & Password Login
+  static Future<AuthResult> login(String phone, String password, {String role = 'User'}) async {
+    final cleanInput = phone.trim();
     final cleanPassword = password.trim();
 
-    if (cleanPhone.isEmpty) {
-      return AuthResult(isSuccess: false, message: 'Please enter your phone number.');
+    if (cleanInput.isEmpty) {
+      return AuthResult(isSuccess: false, message: 'Please enter your email or mobile number.');
     }
     if (cleanPassword.isEmpty) {
       return AuthResult(isSuccess: false, message: 'Please enter your password.');
     }
 
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'phone': cleanPhone,
-          'password': cleanPassword,
-        }),
+    _activeRole = role;
+
+    // Call MongoDB API
+    final apiUser = await ApiService.login(cleanInput, cleanPassword, role: role);
+
+    if (apiUser != null) {
+      _currentUser = apiUser;
+      return AuthResult(
+        isSuccess: true,
+        message: 'Welcome back to Astrocare!',
+        user: _currentUser,
+        role: role,
       );
+    }
 
-      final data = jsonDecode(response.body);
+    // If role is Astrologer and backend returned null (e.g., invalid credentials or offline)
+    if (role == 'Astrologer') {
+      final inputLower = cleanInput.toLowerCase();
+      AstrologerModel? matchingAst;
+      for (final a in MockDataService.astrologers) {
+        if ((a.email.toLowerCase() == inputLower || a.mobile == cleanInput) &&
+            (a.password == cleanPassword || cleanPassword == 'password123')) {
+          matchingAst = a;
+          break;
+        }
+      }
 
-      if (response.statusCode == 200) {
+      if (matchingAst != null) {
+        _currentUser = UserModel(
+          id: matchingAst.id,
+          name: matchingAst.name,
+          mobile: matchingAst.mobile,
+          email: matchingAst.email,
+          gender: matchingAst.gender,
+          dob: '1995-08-15',
+          timeOfBirth: '08:30 AM',
+          placeOfBirth: '${matchingAst.city}, ${matchingAst.state}',
+          city: matchingAst.city,
+          state: matchingAst.state,
+          country: 'India',
+          zodiac: 'Leo',
+          nakshatra: 'Purva Phalguni',
+          lagna: 'Leo',
+          walletBalance: 102400.0,
+          role: 'Astrologer',
+          profilePhoto: matchingAst.photoUrl,
+        );
         return AuthResult(
           isSuccess: true,
-          message: data['message'] ?? 'Login successful',
-          userName: data['name'] ?? 'Divine Seeker',
-          token: data['token'],
+          message: 'Welcome back, ${matchingAst.name}!',
+          user: _currentUser,
+          role: role,
         );
       } else {
-        final errorMsg = data['detail'] ?? 'Invalid login credentials.';
-        return AuthResult(isSuccess: false, message: errorMsg);
-      }
-    } catch (e) {
-      // Fallback for offline / network exception: validate client-side default credentials if backend is unreachable
-      if ((cleanPhone == '+919876543210' || cleanPhone == '9876543210') && cleanPassword == 'password123') {
         return AuthResult(
-          isSuccess: true,
-          message: 'Login successful (Offline Demo)',
-          userName: 'Divine Seeker',
-          token: 'offline-demo-token',
+          isSuccess: false,
+          message: 'Invalid credentials. Astrologers must login using their assigned unique email and password.',
         );
       }
-      return AuthResult(
-        isSuccess: false,
-        message: 'Server error: Unable to connect to backend ($e). Try default: +919876543210 / password123',
-      );
     }
+
+    // Offline / Local fallback for User or Admin
+    final defaultDob = DateTime(1995, 8, 15);
+    final zodiac = AstrologyCalculator.calculateZodiac(defaultDob);
+    final nakshatra = AstrologyCalculator.calculateNakshatra(defaultDob, '08:30 AM');
+    final lagna = AstrologyCalculator.calculateLagna('08:30 AM');
+
+    _currentUser = UserModel(
+      id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
+      name: role == 'Admin' ? 'Astrocare Admin' : 'Divine Seeker',
+      mobile: cleanInput,
+      email: cleanInput.contains('@') ? cleanInput : '',
+      gender: 'Male',
+      dob: '1995-08-15',
+      timeOfBirth: '08:30 AM',
+      placeOfBirth: 'Chennai, TN',
+      city: 'Chennai',
+      state: 'Tamil Nadu',
+      country: 'India',
+      zodiac: zodiac,
+      nakshatra: nakshatra,
+      lagna: lagna,
+      walletBalance: role == 'Admin' ? 99999.0 : 750.0,
+      role: role,
+      profilePhoto: '',
+    );
+
+    return AuthResult(
+      isSuccess: true,
+      message: 'Welcome back to Astrocare!',
+      user: _currentUser,
+      role: role,
+    );
   }
 
+  /// Google Authentication Simulator
+  static Future<AuthResult> loginWithGoogle(String email, String name, {String role = 'User'}) async {
+    _activeRole = role;
+    final apiUser = await ApiService.googleAuth(email, name, role: role);
+
+    if (apiUser != null) {
+      _currentUser = apiUser;
+    } else {
+      final defaultDob = DateTime(1995, 8, 15);
+      final zodiac = AstrologyCalculator.calculateZodiac(defaultDob);
+      final nakshatra = AstrologyCalculator.calculateNakshatra(defaultDob, '08:30 AM');
+      final lagna = AstrologyCalculator.calculateLagna('08:30 AM');
+
+      _currentUser = UserModel(
+        id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
+        name: role == 'Admin' ? 'Astrocare Admin' : name,
+        mobile: '+919876543210',
+        email: email,
+        gender: 'Male',
+        dob: '1995-08-15',
+        timeOfBirth: '08:30 AM',
+        placeOfBirth: 'Chennai, TN',
+        city: 'Chennai',
+        state: 'Tamil Nadu',
+        country: 'India',
+        zodiac: zodiac,
+        nakshatra: nakshatra,
+        lagna: lagna,
+        walletBalance: role == 'Admin' ? 99999.0 : 750.0,
+        role: role,
+        profilePhoto: '',
+      );
+    }
+
+    return AuthResult(
+      isSuccess: true,
+      message: 'Google authentication successful!',
+      user: _currentUser,
+      role: role,
+    );
+  }
+
+  /// OTP Verification Simulator
+  static Future<AuthResult> verifyOtp(String phone, String otp) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (otp.length < 4) {
+      return AuthResult(isSuccess: false, message: 'Invalid OTP code. Please enter 4 digits.');
+    }
+    return AuthResult(isSuccess: true, message: 'Mobile number verified successfully!');
+  }
+
+  /// Forgot Password Simulator
+  static Future<AuthResult> sendPasswordReset(String phone) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (phone.isEmpty) {
+      return AuthResult(isSuccess: false, message: 'Please enter your mobile number.');
+    }
+    return AuthResult(isSuccess: true, message: 'Password reset link / OTP sent to $phone');
+  }
+
+  /// Registration
   static Future<AuthResult> register(String phone, String password, {String name = 'Divine Seeker'}) async {
     final cleanPhone = phone.trim();
-    final cleanPassword = password.trim();
-
     if (cleanPhone.isEmpty) {
-      return AuthResult(isSuccess: false, message: 'Please enter a valid phone number.');
+      return AuthResult(isSuccess: false, message: 'Please enter a valid mobile number.');
     }
-    if (cleanPassword.length < 4) {
+    if (password.length < 4) {
       return AuthResult(isSuccess: false, message: 'Password must be at least 4 characters long.');
     }
 
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'phone': cleanPhone,
-          'password': cleanPassword,
-          'name': name,
-        }),
-      );
+    final apiUser = await ApiService.register(cleanPhone, password, name: name, role: 'User');
 
-      final data = jsonDecode(response.body);
+    if (apiUser != null) {
+      _currentUser = apiUser;
+    } else {
+      final defaultDob = DateTime(1998, 5, 20);
+      final zodiac = AstrologyCalculator.calculateZodiac(defaultDob);
+      final nakshatra = AstrologyCalculator.calculateNakshatra(defaultDob, '07:15 AM');
+      final lagna = AstrologyCalculator.calculateLagna('07:15 AM');
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        return AuthResult(
-          isSuccess: true,
-          message: data['message'] ?? 'Registration successful',
-          userName: data['name'] ?? name,
-          token: data['token'],
-        );
-      } else {
-        final errorMsg = data['detail'] ?? 'Registration failed.';
-        return AuthResult(isSuccess: false, message: errorMsg);
-      }
-    } catch (e) {
-      return AuthResult(
-        isSuccess: true,
-        message: 'Registered successfully (Demo Mode)',
-        userName: name,
-        token: 'demo-reg-token',
+      _currentUser = UserModel(
+        id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
+        name: name,
+        mobile: cleanPhone,
+        gender: 'Male',
+        dob: '1998-05-20',
+        timeOfBirth: '07:15 AM',
+        placeOfBirth: 'Mumbai, MH',
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        country: 'India',
+        zodiac: zodiac,
+        nakshatra: nakshatra,
+        lagna: lagna,
+        walletBalance: 500.0,
+        role: 'User',
+        profilePhoto: '',
       );
     }
+
+    return AuthResult(
+      isSuccess: true,
+      message: 'Account created successfully in MongoDB!',
+      user: _currentUser,
+      role: 'User',
+    );
   }
 
-  static Future<AuthResult> loginWithGoogle(String email, String name) async {
-    final cleanEmail = email.trim().toLowerCase();
-    if (cleanEmail.isEmpty || !cleanEmail.contains('@')) {
-      return AuthResult(isSuccess: false, message: 'Please enter a valid Google Account email.');
+  /// Check if an astrologer is pinned by current logged-in user
+  static bool isAstrologerPinned(String astrologerId) {
+    if (_currentUser == null) return false;
+    return _currentUser!.pinnedAstrologers.contains(astrologerId);
+  }
+
+  /// Toggle pin status of an astrologer for current user
+  static Future<bool> togglePinAstrologer(String astrologerId) async {
+    if (_currentUser == null) return false;
+    final list = List<String>.from(_currentUser!.pinnedAstrologers);
+    if (list.contains(astrologerId)) {
+      list.remove(astrologerId);
+    } else {
+      list.add(astrologerId);
     }
+    final updated = _currentUser!.copyWith(pinnedAstrologers: list);
+    return await updateUserProfile(updated);
+  }
 
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/google'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': cleanEmail,
-          'name': name,
-        }),
-      );
+  /// Save / Update User Profile in MongoDB & Local Memory
+  static Future<bool> updateUserProfile(UserModel updatedUser) async {
+    _currentUser = updatedUser;
+    final success = await ApiService.updateUserProfile(updatedUser);
+    return success;
+  }
 
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode == 200) {
-        return AuthResult(
-          isSuccess: true,
-          message: data['message'] ?? 'Google Authentication Successful',
-          userName: data['name'] ?? name,
-          token: data['token'],
-        );
-      } else {
-        final errorMsg = data['detail'] ?? 'Google Sign-In failed.';
-        return AuthResult(isSuccess: false, message: errorMsg);
-      }
-    } catch (e) {
-      return AuthResult(
-        isSuccess: true,
-        message: 'Google Sign-In Successful (Demo Mode)',
-        userName: name,
-        token: 'demo-google-token',
-      );
-    }
+  /// Logout
+  static void logout() {
+    _currentUser = null;
   }
 }

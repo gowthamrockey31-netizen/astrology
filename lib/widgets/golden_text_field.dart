@@ -4,19 +4,25 @@ import 'package:astrocall/core/theme/app_colors.dart';
 
 class GoldenTextField extends StatefulWidget {
   final TextEditingController? controller;
-  final String hintText;
-  final IconData prefixIcon;
+  final String? label;
+  final String? hintText;
+  final String? hint;
+  final IconData? prefixIcon;
   final bool isPassword;
   final TextInputType keyboardType;
+  final int maxLines;
   final String? Function(String?)? validator;
 
   const GoldenTextField({
     super.key,
     this.controller,
-    required this.hintText,
-    required this.prefixIcon,
+    this.label,
+    this.hintText,
+    this.hint,
+    this.prefixIcon,
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
+    this.maxLines = 1,
     this.validator,
   });
 
@@ -29,51 +35,73 @@ class _GoldenTextFieldState extends State<GoldenTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryGold.withOpacity(0.08),
-            blurRadius: 10,
-            spreadRadius: 0,
-            offset: const Offset(0, 2),
+    final effectiveHint = widget.hintText ?? widget.hint ?? '';
+    final effectiveIcon = widget.prefixIcon ?? Icons.edit_note_rounded;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.label != null && widget.label!.isNotEmpty) ...[
+          Text(
+            widget.label!,
+            style: GoogleFonts.outfit(
+              color: AppColors.lightGold,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          const SizedBox(height: 6),
         ],
-      ),
-      child: TextFormField(
-        controller: widget.controller,
-        obscureText: widget.isPassword ? _obscureText : false,
-        keyboardType: widget.keyboardType,
-        style: GoogleFonts.poppins(
-          color: AppColors.textPrimary,
-          fontSize: 15,
-        ),
-        validator: widget.validator,
-        cursorColor: AppColors.lightGold,
-        decoration: InputDecoration(
-          hintText: widget.hintText,
-          prefixIcon: Icon(
-            widget.prefixIcon,
-            color: AppColors.primaryGold,
-            size: 20,
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: AppColors.cardSurface,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primaryGold.withOpacity(0.08),
+                blurRadius: 10,
+                spreadRadius: 0,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          suffixIcon: widget.isPassword
-              ? IconButton(
-                  icon: Icon(
-                    _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                    color: AppColors.primaryGold,
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscureText = !_obscureText;
-                    });
-                  },
-                )
-              : null,
+          child: TextFormField(
+            controller: widget.controller,
+            obscureText: widget.isPassword ? _obscureText : false,
+            keyboardType: widget.keyboardType,
+            maxLines: widget.isPassword ? 1 : widget.maxLines,
+            style: GoogleFonts.outfit(
+              color: AppColors.textPrimary,
+              fontSize: 15,
+            ),
+            validator: widget.validator,
+            cursorColor: AppColors.lightGold,
+            decoration: InputDecoration(
+              hintText: effectiveHint,
+              hintStyle: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 13),
+              prefixIcon: Icon(
+                effectiveIcon,
+                color: AppColors.primaryGold,
+                size: 20,
+              ),
+              suffixIcon: widget.isPassword
+                  ? IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        color: AppColors.primaryGold,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    )
+                  : null,
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }
