@@ -386,7 +386,13 @@ class JaathagaKurippugalCalculator {
 
     // Amirthathi Yoga
     final amirthathiStr = _calculateAmirthathiYoga(dt.weekday, moon.nakshatraIndex);
-    final mukkunaStr = (dt.hour >= 6 && dt.hour < 12) ? "சாத்வீகம்" : ((dt.hour >= 12 && dt.hour < 18) ? "ராஜஸம்" : "தாமஸம்");
+
+    // Mukkuna Velai (extracted for future client-approved modifications)
+    final mukkunaStr = _calculateMukkunaVelai(dt);
+
+    // Dynamic Sunrise/Sunset from Central Engine
+    final sunriseFormatted = DateFormat('hh:mm a').format(astroData.sunrise);
+    final sunsetFormatted = DateFormat('hh:mm a').format(astroData.sunset);
 
     // Akas, Nendhiram, Jeevan
     final akasStr = "30 நாழிகை 0 வினாடி";
@@ -414,8 +420,8 @@ class JaathagaKurippugalCalculator {
       karanam: astroData.karanaNameTa,
       amirthathiYoga: amirthathiStr,
       mukkunaVelai: mukkunaStr,
-      sunrise: "06:15 AM",
-      sunset: "06:25 PM",
+      sunrise: sunriseFormatted,
+      sunset: sunsetFormatted,
       thithiSunyam: astroData.tithi.soonyamRasisTa.isNotEmpty ? astroData.tithi.soonyamRasisTa.join(', ') : 'இல்லை',
       nameLetters: nakAttr.nameLetters,
       avaYogi: avaYogiLord,
@@ -440,5 +446,22 @@ class JaathagaKurippugalCalculator {
     if (rem == 0) return "அமிர்த யோகம் (சுபம்)";
     if (rem == 1) return "சித்த யோகம் (நன்மை)";
     return "மரண யோகம் (கவனம் தேவை)";
+  }
+
+  /// Mukkuna Velai Calculation
+  /// TODO: Client has requested changes to this section but exact requirements are pending.
+  /// Current implementation uses basic time-of-day classification:
+  ///   6 AM–12 PM → சாத்வீகம் (Sattvic)
+  ///   12 PM–6 PM → ராஜஸம் (Rajasic)
+  ///   6 PM–6 AM  → தாமஸம் (Tamasic)
+  /// The architecture is ready for rule updates without affecting other modules.
+  static String _calculateMukkunaVelai(DateTime dt) {
+    if (dt.hour >= 6 && dt.hour < 12) {
+      return "சாத்வீகம்";
+    } else if (dt.hour >= 12 && dt.hour < 18) {
+      return "ராஜஸம்";
+    } else {
+      return "தாமஸம்";
+    }
   }
 }

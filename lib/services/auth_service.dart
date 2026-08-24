@@ -273,6 +273,11 @@ class AuthService {
     return success;
   }
 
+  /// Direct memory update
+  static void updateCurrentUser(UserModel user) {
+    _currentUser = user;
+  }
+
   /// Logout
   static void logout() {
     _currentUser = null;

@@ -6,17 +6,19 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
+import '../models/customer_pdf_settings_model.dart';
 import '../models/horoscope_calculation_result.dart';
 import '../models/jaathaga_kurippugal_model.dart';
 import '../models/user_model.dart';
 import 'astrology_calculator.dart';
 import 'jaathaga_kurippugal_calculator.dart';
+import 'pdf_settings_service.dart';
 
 class PdfGeneratorService {
   static pw.Font? _regularFont;
   static pw.Font? _boldFont;
 
-  /// Loads Tamil NotoSans font dynamically for crisp PDF rendering
+  /// Loads Tamil Unicode font reliably
   static Future<void> _loadFonts() async {
     if (_regularFont != null && _boldFont != null) return;
 
@@ -43,7 +45,7 @@ class PdfGeneratorService {
     _boldFont ??= pw.Font.helveticaBold();
   }
 
-  /// Generates the complete 1-page Tamil Sidereal Horoscope PDF
+  /// Generates the complete 1-page Tamil Sidereal Horoscope PDF with dynamic Customer / Astrologer details
   static Future<Uint8List> generateHoroscopePdf({
     required UserModel user,
   }) async {
@@ -57,6 +59,7 @@ class PdfGeneratorService {
       utcOffsetHours: user.timezone,
     );
     final notes = JaathagaKurippugalCalculator.calculateNotes(user: user);
+    final settings = PdfSettingsService.currentSettings;
 
     final fontReg = _regularFont ?? pw.Font.helvetica();
     final fontBold = _boldFont ?? pw.Font.helveticaBold();
@@ -76,16 +79,17 @@ class PdfGeneratorService {
             crossAxisAlignment: pw.CrossAxisAlignment.stretch,
             children: [
               // 1. Top Header Invocation Line
-              pw.Center(
-                child: pw.Text(
-                  'ஸ்ரீ பொம்மமையசுவாமி துணை',
-                  style: pw.TextStyle(font: fontBold, fontSize: 10),
+              if (settings.invocationText.isNotEmpty)
+                pw.Center(
+                  child: pw.Text(
+                    settings.invocationText,
+                    style: pw.TextStyle(font: fontBold, fontSize: 10),
+                  ),
                 ),
-              ),
               pw.SizedBox(height: 4),
 
-              // 2. Main Title Banner Box
-              _buildHeaderBanner(fontReg, fontBold),
+              // 2. Main Title Banner Box (Dynamic Company Settings)
+              _buildHeaderBanner(settings, fontReg, fontBold),
               pw.SizedBox(height: 6),
 
               // 3. Native Profile Box
@@ -129,7 +133,7 @@ class PdfGeneratorService {
               pw.SizedBox(height: 8),
 
               // 8. Dasha Summary & Footer
-              _buildDashaFooterBlock(astroData, notes, fontReg, fontBold),
+              _buildDashaFooterBlock(astroData, notes, settings, fontReg, fontBold),
             ],
           );
         },
@@ -139,8 +143,8 @@ class PdfGeneratorService {
     return pdf.save();
   }
 
-  /// 2. Header Banner
-  static pw.Widget _buildHeaderBanner(pw.Font fontReg, pw.Font fontBold) {
+  /// 2. Dynamic Header Banner
+  static pw.Widget _buildHeaderBanner(CustomerPdfSettings settings, pw.Font fontReg, pw.Font fontBold) {
     return pw.Container(
       decoration: pw.BoxDecoration(
         border: pw.Border.all(color: PdfColors.black, width: 1.2),
@@ -149,27 +153,35 @@ class PdfGeneratorService {
       child: pw.Column(
         children: [
           pw.Text(
-            'ஸ்ரீ கல்யாண விநாயகர் ஜோதிட நிலையயம்',
+            settings.companyName,
             style: pw.TextStyle(font: fontBold, fontSize: 14, color: PdfColors.black),
           ),
-          pw.SizedBox(height: 2),
-          pw.Text(
-            'ஜோதிஷ ஆதித்யா: R.செந்தில்குமார்',
-            style: pw.TextStyle(font: fontBold, fontSize: 10),
-          ),
-          pw.Text(
-            '12/5-24b பெத்தல் சுப்பையன் தெரு, மேட்டுப்பட்டி, சின்னாளபட்டி-624301 செல்:9500813709',
-            style: pw.TextStyle(font: fontReg, fontSize: 8.5),
-          ),
-          pw.Text(
-            'Software by AcharyaPaththathi Mobile App. For purchase, call @ 91-7200044010',
-            style: pw.TextStyle(font: fontBold, fontSize: 8.5),
-          ),
-          pw.SizedBox(height: 2),
-          pw.Text(
-            'ஜெணனீஜென்ம ஸௌக்யானாம் ! வர்த்தனி குலஸம்பதாம் ! பதவிபூர்வ புண்யானாம்!! லிக்யதே ஜென்ம பத்திரிகா!!',
-            style: pw.TextStyle(font: fontReg, fontSize: 7.5, fontStyle: pw.FontStyle.italic),
-          ),
+          if (settings.astrologerName.isNotEmpty) ...[
+            pw.SizedBox(height: 2),
+            pw.Text(
+              settings.astrologerName,
+              style: pw.TextStyle(font: fontBold, fontSize: 10),
+            ),
+          ],
+          if (settings.address.isNotEmpty || settings.phone.isNotEmpty) ...[
+            pw.Text(
+              '${settings.address} ${settings.phone.isNotEmpty ? "செல்: ${settings.phone}" : ""}',
+              style: pw.TextStyle(font: fontReg, fontSize: 8.5),
+            ),
+          ],
+          if (settings.softwareFooter.isNotEmpty) ...[
+            pw.Text(
+              settings.softwareFooter,
+              style: pw.TextStyle(font: fontBold, fontSize: 8.5),
+            ),
+          ],
+          if (settings.slokaFooter.isNotEmpty) ...[
+            pw.SizedBox(height: 2),
+            pw.Text(
+              settings.slokaFooter,
+              style: pw.TextStyle(font: fontReg, fontSize: 7.5, fontStyle: pw.FontStyle.italic),
+            ),
+          ],
         ],
       ),
     );
@@ -201,22 +213,28 @@ class PdfGeneratorService {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text(user.name, style: pw.TextStyle(font: fontBold, fontSize: 11)),
-                  pw.Text(
-                    '${user.dob} ${user.timeOfBirth} | ${notes.weekday} | ${notes.tamilDate} ( வருடம் )',
-                    style: pw.TextStyle(font: fontReg, fontSize: 8.5),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text('பெயர் : ${user.name.isNotEmpty ? user.name : "Divine Seeker"}', style: pw.TextStyle(font: fontBold, fontSize: 9.5)),
+                      pw.Text('வயது : ${user.calculatedAge} வருடம்', style: pw.TextStyle(font: fontBold, fontSize: 9.5)),
+                    ],
                   ),
-                  pw.Text(
-                    '${user.placeOfBirth},Tamilnadu,India | ${user.latitude} N, ${user.longitude} E | GMT+5:30',
-                    style: pw.TextStyle(font: fontReg, fontSize: 8.5),
+                  pw.SizedBox(height: 3),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text('பிறந்த தேதி : ${notes.englishDate} ( ${notes.tamilDate} )', style: pw.TextStyle(font: fontReg, fontSize: 8.5)),
+                      pw.Text('கிழமை : ${notes.weekday}', style: pw.TextStyle(font: fontReg, fontSize: 8.5)),
+                    ],
                   ),
-                  pw.Text(
-                    'லக்னம் : ${notes.lagna} | ராசி : ${notes.rasi} | நட்சத்திரம் : ${notes.nakshatra} | பாதம் : ${notes.pada}',
-                    style: pw.TextStyle(font: fontBold, fontSize: 9),
-                  ),
-                  pw.Text(
-                    'வயது : ${notes.age}',
-                    style: pw.TextStyle(font: fontReg, fontSize: 8.5),
+                  pw.SizedBox(height: 3),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text('பிறந்த நேரம் : ${notes.timeOfBirth}', style: pw.TextStyle(font: fontReg, fontSize: 8.5)),
+                      pw.Text('பிறந்த இடம் : ${notes.placeOfBirth}', style: pw.TextStyle(font: fontReg, fontSize: 8.5)),
+                    ],
                   ),
                 ],
               ),
@@ -227,48 +245,56 @@ class PdfGeneratorService {
     );
   }
 
-  /// 4. Panchangam 3-Column Attributes Grid
-  static pw.Widget _buildPanchangamGrid(HoroscopeCalculationResult astroData, JaathagaKurippugalResult notes, pw.Font fontReg, pw.Font fontBold) {
+  /// 4. Panchangam 3-Column Grid
+  static pw.Widget _buildPanchangamGrid(HoroscopeCalculationResult astro, JaathagaKurippugalResult notes, pw.Font fontReg, pw.Font fontBold) {
     return pw.Container(
       decoration: pw.BoxDecoration(
-        border: pw.Border.all(color: PdfColors.black, width: 1),
+        border: pw.Border.all(color: PdfColors.black, width: 0.8),
       ),
-      padding: const pw.EdgeInsets.all(6),
+      padding: const pw.EdgeInsets.all(4),
       child: pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
+          // Col 1
           pw.Expanded(
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                _kvRow('திதி (வளர்பிறை)', ': ${notes.thithi}', fontReg, fontBold),
-                _kvRow('நாமயோகம்', ': ${notes.yoga}', fontReg, fontBold),
-                _kvRow('கரணம்', ': ${notes.karanam}', fontReg, fontBold),
-                _kvRow('அமிர்தாதி யோகம்', ': ${notes.amirthathiYoga}', fontReg, fontBold),
-                _kvRow('முக்குண வேளை', ': ${notes.mukkunaVelai}', fontReg, fontBold),
+                _gridText('உதய லக்னம்', '${notes.lagna} (${notes.lagnaDegree})', fontReg, fontBold),
+                _gridText('ஜென்ம ராசி', notes.rasi, fontReg, fontBold),
+                _gridText('நட்சத்திரம்', '${notes.nakshatra} (${notes.pada})', fontReg, fontBold),
+                _gridText('நட்சத்திர நாதன்', notes.starLord, fontReg, fontBold),
+                _gridText('திதி', '${notes.paksha} ${notes.thithi}', fontReg, fontBold),
               ],
             ),
           ),
+          pw.Container(width: 0.8, height: 60, color: PdfColors.grey400),
+          pw.SizedBox(width: 6),
+          // Col 2
           pw.Expanded(
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                _kvRow('சூரிய உதயம்', ': ${notes.sunrise}', fontReg, fontBold),
-                _kvRow('சூரிய அஸ்தமனம்', ': ${notes.sunset}', fontReg, fontBold),
-                _kvRow('திதி சூன்யம்', ': ${notes.thithiSunyam}', fontReg, fontBold),
-                _kvRow('நாம எழுத்து', ': ${notes.nameLetters}', fontReg, fontBold),
-                _kvRow('அவ/அனு/யோகி', ': ${notes.avaYogi} / ${notes.anuYogi}', fontReg, fontBold),
+                _gridText('யோகம்', notes.yoga, fontReg, fontBold),
+                _gridText('கரணம்', notes.karanam, fontReg, fontBold),
+                _gridText('அமிர்தாதி யோகம்', notes.amirthathiYoga, fontReg, fontBold),
+                _gridText('சூரிய உதயம்', notes.sunrise, fontReg, fontBold),
+                _gridText('சூரிய அஸ்தமனம்', notes.sunset, fontReg, fontBold),
               ],
             ),
           ),
+          pw.Container(width: 0.8, height: 60, color: PdfColors.grey400),
+          pw.SizedBox(width: 6),
+          // Col 3
           pw.Expanded(
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                _kvRow('கணம்', ': ${notes.gana}', fontReg, fontBold),
-                _kvRow('யோனி', ': ${notes.yoni}', fontReg, fontBold),
-                _kvRow('ரஜ்ஜு', ': ${notes.rajju}', fontReg, fontBold),
-                _kvRow('பறவை', ': ${notes.bird}', fontReg, fontBold),
-                _kvRow('மரம்', ': ${notes.tree}', fontReg, fontBold),
+                _gridText('உதயாதி நாழிகை', notes.udayathiNazhi, fontReg, fontBold),
+                _gridText('திதி சூன்யம்', notes.thithiSunyam, fontReg, fontBold),
+                _gridText('அவயோகி', notes.avaYogi, fontReg, fontBold),
+                _gridText('அனுயோகி', notes.anuYogi, fontReg, fontBold),
+                _gridText('கணம் / யோனி', '${notes.gana} / ${notes.yoni}', fontReg, fontBold),
               ],
             ),
           ),
@@ -277,233 +303,170 @@ class PdfGeneratorService {
     );
   }
 
-  static pw.Widget _kvRow(String k, String v, pw.Font fontReg, pw.Font fontBold) {
+  static pw.Widget _gridText(String label, String value, pw.Font fontReg, pw.Font fontBold) {
     return pw.Padding(
       padding: const pw.EdgeInsets.symmetric(vertical: 1),
       child: pw.Row(
         children: [
-          pw.SizedBox(width: 80, child: pw.Text(k, style: pw.TextStyle(font: fontReg, fontSize: 8))),
-          pw.Expanded(child: pw.Text(v, style: pw.TextStyle(font: fontBold, fontSize: 8))),
+          pw.SizedBox(
+            width: 75,
+            child: pw.Text(label, style: pw.TextStyle(font: fontBold, fontSize: 7.5)),
+          ),
+          pw.Text(' : ', style: pw.TextStyle(font: fontReg, fontSize: 7.5)),
+          pw.Expanded(
+            child: pw.Text(value, style: pw.TextStyle(font: fontReg, fontSize: 7.5), maxLines: 1),
+          ),
         ],
       ),
     );
   }
 
-  /// 6. Planetary Positions Table
-  static pw.Widget _buildPlanetsTable(HoroscopeCalculationResult astroData, pw.Font fontReg, pw.Font fontBold) {
-    final planetKeys = ['Lagna', 'Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
-
-    final rows = <pw.TableRow>[
-      // Table Header
-      pw.TableRow(
-        decoration: const pw.BoxDecoration(color: PdfColors.grey300),
-        children: [
-          _cell('கிரகம்', fontBold, isHeader: true),
-          _cell('ராசி ஸ்புடம்', fontBold, isHeader: true),
-          _cell('நட்சத்திரம்', fontBold, isHeader: true),
-          _cell('ராசி', fontBold, isHeader: true),
-          _cell('சார நாதன்', fontBold, isHeader: true),
-          _cell('வீட்டு நாதன்', fontBold, isHeader: true),
-          _cell('பாவக மாற்றம் / கீலம்', fontBold, isHeader: true),
-        ],
-      ),
-    ];
-
-    for (var k in planetKeys) {
-      final p = k == 'Lagna' ? astroData.lagna : astroData.planets[k]!;
-      final formattedDms = "${p.degreeInRasi.toInt()}°${((p.degreeInRasi - p.degreeInRasi.toInt()) * 60).toInt()}'";
-      final starName = "${p.nakshatraNameTa}-${p.pada}";
-
-      rows.add(
+  /// 6. Planets Table
+  static pw.Widget _buildPlanetsTable(HoroscopeCalculationResult astro, pw.Font fontReg, pw.Font fontBold) {
+    final planets = ['Lagna', 'Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu', 'Mandi'];
+    
+    return pw.Table(
+      border: pw.TableBorder.all(color: PdfColors.black, width: 0.5),
+      columnWidths: {
+        0: const pw.FlexColumnWidth(2),
+        1: const pw.FlexColumnWidth(2),
+        2: const pw.FlexColumnWidth(2),
+        3: const pw.FlexColumnWidth(2.5),
+        4: const pw.FlexColumnWidth(2),
+        5: const pw.FlexColumnWidth(2),
+      },
+      children: [
         pw.TableRow(
+          decoration: const pw.BoxDecoration(color: PdfColors.grey100),
           children: [
-            _cell(p.tamilName, fontBold),
-            _cell(formattedDms, fontReg),
-            _cell(starName, fontReg),
-            _cell(p.rasiNameTa, fontBold),
-            _cell(p.starLord, fontReg),
-            _cell(p.subLord, fontReg),
-            _cell('-- / ------', fontReg),
+            _th('கிரகம்', fontBold),
+            _th('ராசி', fontBold),
+            _th('பாகை (Degree)', fontBold),
+            _th('நட்சத்திரம் - பாதம்', fontBold),
+            _th('சார நாதன்', fontBold),
+            _th('உப நாதன்', fontBold),
           ],
         ),
-      );
-    }
-
-    return pw.Table(
-      border: pw.TableBorder.all(color: PdfColors.black, width: 0.8),
-      children: rows,
+        ...planets.map((key) {
+          final p = astro.planets[key]!;
+          return pw.TableRow(
+            children: [
+              _td(p.tamilName, fontBold),
+              _td(p.rasiNameTa, fontReg),
+              _td(p.degreeFormatted, fontReg),
+              _td('${p.nakshatraNameTa}-${p.pada}', fontReg),
+              _td(p.tamilStarLord, fontReg),
+              _td(p.tamilSubLord, fontReg),
+            ],
+          );
+        }),
+      ],
     );
   }
 
-  static pw.Widget _cell(String txt, pw.Font font, {bool isHeader = false}) {
+  static pw.Widget _th(String text, pw.Font font) {
     return pw.Padding(
-      padding: const pw.EdgeInsets.symmetric(vertical: 2, horizontal: 3),
-      child: pw.Text(
-        txt,
-        style: pw.TextStyle(font: font, fontSize: isHeader ? 8 : 7.5),
-        textAlign: isHeader ? pw.TextAlign.center : pw.TextAlign.left,
+      padding: const pw.EdgeInsets.all(2.5),
+      child: pw.Center(
+        child: pw.Text(text, style: pw.TextStyle(font: font, fontSize: 7.5)),
       ),
     );
   }
 
-  /// 7. Side-by-Side South Indian Rasi & Navamsha Charts
-  static pw.Widget _buildSouthIndianChartBox(
-    String title,
-    HoroscopeCalculationResult astroData, {
-    required bool isNavamsa,
-    required pw.Font fontReg,
-    required pw.Font fontBold,
-  }) {
-    final Map<int, List<String>> gridPlanets = {for (var i = 0; i < 12; i++) i: <String>[]};
+  static pw.Widget _td(String text, pw.Font font) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.all(2),
+      child: pw.Center(
+        child: pw.Text(text, style: pw.TextStyle(font: font, fontSize: 7)),
+      ),
+    );
+  }
 
-    if (!isNavamsa) {
-      gridPlanets[astroData.lagna.rasiIndex]?.add('லக்');
-      astroData.planets.forEach((_, p) {
-        gridPlanets[p.rasiIndex]?.add(p.symbol);
-      });
-    } else {
-      gridPlanets[astroData.lagna.navamsaIndex]?.add('லக்');
-      astroData.planets.forEach((_, p) {
-        gridPlanets[p.navamsaIndex]?.add(p.symbol);
-      });
+  /// 7. South Indian 4x4 Chart Box for PDF
+  static pw.Widget _buildSouthIndianChartBox(String chartTitle, HoroscopeCalculationResult astro, {required bool isNavamsa, required pw.Font fontReg, required pw.Font fontBold}) {
+    final Map<int, List<String>> rasiSymbols = {};
+    for (final p in astro.planets.values) {
+      final idx = isNavamsa ? p.navamsaIndex : p.rasiIndex;
+      rasiSymbols.putIfAbsent(idx, () => []).add(p.symbol);
     }
+
+    final gridToRasi = [11, 0, 1, 2, 10, -1, -1, 3, 9, -1, -1, 4, 8, 7, 6, 5];
 
     return pw.Container(
-      decoration: pw.BoxDecoration(
-        border: pw.Border.all(color: PdfColors.black, width: 1),
-      ),
+      decoration: pw.BoxDecoration(border: pw.Border.all(color: PdfColors.black, width: 1)),
       child: pw.Column(
         children: [
           pw.Container(
-            padding: const pw.EdgeInsets.all(3),
             color: PdfColors.grey200,
+            padding: const pw.EdgeInsets.symmetric(vertical: 2),
             child: pw.Center(
-              child: pw.Text(title, style: pw.TextStyle(font: fontBold, fontSize: 9)),
+              child: pw.Text(chartTitle, style: pw.TextStyle(font: fontBold, fontSize: 9)),
             ),
           ),
-          pw.Container(height: 0.8, color: PdfColors.black),
           pw.Table(
             border: pw.TableBorder.all(color: PdfColors.black, width: 0.5),
+            children: List.generate(4, (row) {
+              return pw.TableRow(
+                children: List.generate(4, (col) {
+                  final idx = row * 4 + col;
+                  final rasiIdx = gridToRasi[idx];
+                  if (rasiIdx == -1) {
+                    if (row == 1 && col == 1) {
+                      return pw.Container(
+                        height: 32,
+                        child: pw.Center(
+                          child: pw.Text(chartTitle, style: pw.TextStyle(font: fontBold, fontSize: 8)),
+                        ),
+                      );
+                    }
+                    return pw.Container(height: 32);
+                  }
+
+                  final rasiName = AstrologyCalculator.rasiNamesTa[rasiIdx];
+                  final symbols = rasiSymbols[rasiIdx] ?? [];
+
+                  return pw.Container(
+                    height: 32,
+                    padding: const pw.EdgeInsets.all(1.5),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pw.Text(rasiName, style: pw.TextStyle(font: fontReg, fontSize: 5.5, color: PdfColors.grey700)),
+                        pw.Center(
+                          child: pw.Text(
+                            symbols.join(' '),
+                            style: pw.TextStyle(font: fontBold, fontSize: 6.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 8. Dasha Footer
+  static pw.Widget _buildDashaFooterBlock(HoroscopeCalculationResult astro, JaathagaKurippugalResult notes, CustomerPdfSettings settings, pw.Font fontReg, pw.Font fontBold) {
+    return pw.Container(
+      decoration: pw.BoxDecoration(border: pw.Border.all(color: PdfColors.black, width: 0.8)),
+      padding: const pw.EdgeInsets.all(4),
+      child: pw.Column(
+        children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.TableRow(children: [
-                _chartCell(gridPlanets[11]!, fontReg),
-                _chartCell(gridPlanets[0]!, fontReg),
-                _chartCell(gridPlanets[1]!, fontReg),
-                _chartCell(gridPlanets[2]!, fontReg),
-              ]),
-              pw.TableRow(children: [
-                _chartCell(gridPlanets[10]!, fontReg),
-                pw.Container(
-                  height: 24,
-                  child: pw.Center(
-                    child: pw.Text(title, style: pw.TextStyle(font: fontBold, fontSize: 9)),
-                  ),
-                ),
-                pw.Container(height: 24),
-                _chartCell(gridPlanets[3]!, fontReg),
-              ]),
-              pw.TableRow(children: [
-                _chartCell(gridPlanets[9]!, fontReg),
-                pw.Container(height: 24),
-                pw.Container(height: 24),
-                _chartCell(gridPlanets[4]!, fontReg),
-              ]),
-              pw.TableRow(children: [
-                _chartCell(gridPlanets[8]!, fontReg),
-                _chartCell(gridPlanets[7]!, fontReg),
-                _chartCell(gridPlanets[6]!, fontReg),
-                _chartCell(gridPlanets[5]!, fontReg),
-              ]),
+              pw.Text('பிறந்த நேர தசா இருப்பு : ${notes.starLord} தசை - இருப்பு கணிதம்', style: pw.TextStyle(font: fontBold, fontSize: 8)),
+              pw.Text('நட்சத்திர செல்லாகி நின்ற நாழிகை : ${notes.nakshatraNazhi}', style: pw.TextStyle(font: fontReg, fontSize: 8)),
             ],
           ),
         ],
       ),
     );
-  }
-
-  static pw.Widget _chartCell(List<String> planets, pw.Font font) {
-    return pw.Container(
-      height: 24,
-      padding: const pw.EdgeInsets.all(2),
-      child: pw.Center(
-        child: pw.Text(
-          planets.join(' '),
-          style: pw.TextStyle(font: font, fontSize: 7.5),
-          textAlign: pw.TextAlign.center,
-        ),
-      ),
-    );
-  }
-
-  /// 8. Dasha Summary & Footer
-  static pw.Widget _buildDashaFooterBlock(HoroscopeCalculationResult astroData, JaathagaKurippugalResult notes, pw.Font fontReg, pw.Font fontBold) {
-    return pw.Column(
-      children: [
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              'ஜெணன தசா சனி இருப்பு : 14 வ, 05 மா, 06 நா',
-              style: pw.TextStyle(font: fontReg, fontSize: 8),
-            ),
-            pw.Text(
-              'நடப்பு தசா சுக்கிரன் இருப்பு : 19 வ, 06 மா, 09 நா',
-              style: pw.TextStyle(font: fontReg, fontSize: 8),
-            ),
-          ],
-        ),
-        pw.SizedBox(height: 2),
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              'ஜெணன ஓரைநாதன் : ${astroData.birthHoraLordTa}',
-              style: pw.TextStyle(font: fontBold, fontSize: 8.5),
-            ),
-            pw.Text(
-              'நடப்பு புக்தி சுக்ரன் இருப்பு : 02 வ, 10 மா, 09 நா',
-              style: pw.TextStyle(font: fontReg, fontSize: 8),
-            ),
-          ],
-        ),
-        pw.SizedBox(height: 6),
-        pw.Center(
-          child: pw.Text(
-            '!!! வாழ்க வளமுடன் !!!',
-            style: pw.TextStyle(font: fontBold, fontSize: 10),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Downloads or Opens Printing/Sharing Dialog for the PDF
-  static Future<void> downloadOrPrintPdf({
-    required UserModel user,
-  }) async {
-    try {
-      final pdfBytes = await generateHoroscopePdf(user: user);
-      final filename = '${user.name}_Horoscope_Jathagam.pdf';
-
-      if (kIsWeb) {
-        // Web: Opens browser native print & save-as-PDF preview overlay
-        await Printing.layoutPdf(
-          onLayout: (PdfPageFormat format) async => pdfBytes,
-          name: filename,
-        );
-      } else {
-        // Android APK / Mobile / Desktop: Opens native system Share/Save sheet
-        await Printing.sharePdf(
-          bytes: pdfBytes,
-          filename: filename,
-        );
-      }
-    } catch (e) {
-      final pdfBytes = await generateHoroscopePdf(user: user);
-      await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => pdfBytes,
-        name: '${user.name}_Horoscope_Jathagam.pdf',
-      );
-    }
   }
 }

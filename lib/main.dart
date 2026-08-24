@@ -28,6 +28,13 @@ import 'screens/panchapakshi/panchapakshi_screen.dart';
 import 'screens/hora/live_hora_screen.dart';
 import 'screens/nazhigai/nazhigai_screen.dart';
 import 'screens/longevity/longevity_screen.dart';
+import 'screens/jamakol_arudam/jamakol_arudam_screen.dart';
+import 'screens/kp_astrology/kp_astrology_screen.dart';
+import 'screens/kp_horary/kp_horary_screen.dart';
+import 'screens/daily_planet_positions/daily_planet_positions_screen.dart';
+import 'screens/bhrigu_nandi_nadi/bhrigu_nandi_nadi_screen.dart';
+import 'screens/numerology/numerology_screen.dart';
+import 'screens/pdf_settings/customer_details_settings_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -201,6 +208,13 @@ class AstrocareApp extends StatelessWidget {
         '/hora': (context) => const LiveHoraScreen(),
         '/nazhigai': (context) => const NazhigaiScreen(),
         '/longevity': (context) => const LongevityScreen(),
+        '/jamakol_arudam': (context) => const JamakolArudamScreen(),
+        '/kp_astrology': (context) => const KpAstrologyScreen(),
+        '/kp_horary': (context) => const KpHoraryScreen(),
+        '/daily_planet_positions': (context) => const DailyPlanetPositionsScreen(),
+        '/bhrigu_nandi_nadi': (context) => const BhriguNandiNadiScreen(),
+        '/numerology': (context) => const NumerologyScreen(),
+        '/pdf_settings': (context) => const CustomerDetailsSettingsScreen(),
       },
     );
   }

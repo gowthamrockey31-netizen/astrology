@@ -43,7 +43,7 @@ class CosmicDrawer extends StatelessWidget {
                       border: Border.all(color: AppColors.lightGold, width: 2),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primaryGold.withOpacity(0.4),
+                          color: AppColors.primaryGold.withValues(alpha: 0.4),
                           blurRadius: 12,
                         ),
                       ],
@@ -72,9 +72,9 @@ class CosmicDrawer extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryGold.withOpacity(0.2),
+                            color: AppColors.primaryGold.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.primaryGold.withOpacity(0.6)),
+                            border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.6)),
                           ),
                           child: Text(
                             'Active Role: $role',
@@ -94,12 +94,12 @@ class CosmicDrawer extends StatelessWidget {
 
             const Divider(color: AppColors.borderGold, height: 1),
 
-            // Modules & Role Navigation List (Filtered strict by Role)
+            // Modules & Role Navigation List
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 children: [
-                  _buildSectionHeader('APPLICATION MODULES'),
+                  _buildSectionHeader('APPLICATION WORKSPACE'),
 
                   // Role-Based Drawer Filtering
                   if (role == 'User') ...[
@@ -108,9 +108,7 @@ class CosmicDrawer extends StatelessWidget {
                       title: 'User Dashboard',
                       subtitle: 'Consultations, Horoscope & Panchang',
                       isSelected: true,
-                      onTap: () {
-                        onSelectRoute('/user_dashboard');
-                      },
+                      onTap: () => onSelectRoute('/user_dashboard'),
                     ),
                   ] else if (role == 'Astrologer') ...[
                     _buildDrawerItem(
@@ -118,9 +116,7 @@ class CosmicDrawer extends StatelessWidget {
                       title: 'Astrologer Workspace',
                       subtitle: 'Dashboard, Calls, Kundli & Earnings',
                       isSelected: true,
-                      onTap: () {
-                        onSelectRoute('/astrologer_dashboard');
-                      },
+                      onTap: () => onSelectRoute('/astrologer_dashboard'),
                     ),
                   ] else if (role == 'Admin') ...[
                     _buildDrawerItem(
@@ -128,32 +124,77 @@ class CosmicDrawer extends StatelessWidget {
                       title: 'Admin Control Center',
                       subtitle: 'Approvals, CMS, T&C & Revenue',
                       isSelected: true,
-                      onTap: () {
-                        onSelectRoute('/admin_dashboard');
-                      },
+                      onTap: () => onSelectRoute('/admin_dashboard'),
                     ),
                   ],
 
                   const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: Divider(color: Colors.white12),
                   ),
 
-                  _buildSectionHeader('EXPLORE ASTROCARE'),
-                  if (role == 'User' || role == 'Admin') ...[
-                    _buildDrawerItem(
-                      icon: Icons.auto_stories_rounded,
-                      title: 'Astrocare Magazine',
-                      subtitle: 'Articles, Vedic insights & Videos',
-                      onTap: () => onSelectRoute('/magazine'),
-                    ),
-                    _buildDrawerItem(
-                      icon: Icons.brightness_7_rounded,
-                      title: 'Daily Horoscope Predictions',
-                      subtitle: '12 Zodiac Signs daily/weekly/yearly',
-                      onTap: () => onSelectRoute('/horoscope'),
-                    ),
-                  ],
+                  _buildSectionHeader('ஜாதக கணிதங்கள் & முறைகள் (ASTROLOGY SYSTEMS)'),
+                  _buildDrawerItem(
+                    icon: Icons.description_rounded,
+                    title: 'ஜாதக குறிப்புகள் (Horoscope Notes)',
+                    subtitle: 'வர்க்க சக்கரம் D1-D60, யோகி, கிரக நிலைகள் & தோஷங்கள்',
+                    onTap: () => onSelectRoute('/jaathaga_kurippugal'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.grid_4x4_rounded,
+                    title: 'ஜாதக சக்கரம் (Birth Chart)',
+                    subtitle: 'Rasi, Navamsha, Padasaram & Settings',
+                    onTap: () => onSelectRoute('/birth_chart'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.compass_calibration_rounded,
+                    title: 'ஜாமகோள் ஆருடம் (Jamakol Arudam)',
+                    subtitle: 'உதயம், ஆருடம், கவிப்பு பிரசன்ன ஆய்வு',
+                    onTap: () => onSelectRoute('/jamakol_arudam'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.hub_rounded,
+                    title: 'KP Astrology (உப நாத முறை)',
+                    subtitle: '12 Cusps, Placidus Sub & Sub-Sub Lords',
+                    onTap: () => onSelectRoute('/kp_astrology'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.help_center_rounded,
+                    title: 'KP Horary / பிரசன்னம் (1-249)',
+                    subtitle: 'பிரசன்ன எண் முறை துல்லிய ஜாதகம்',
+                    onTap: () => onSelectRoute('/kp_horary'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.auto_awesome_motion_rounded,
+                    title: 'பிருகு நந்தி நாடி முறை (Bhrigu Nandi Nadi)',
+                    subtitle: 'திசை திரிகோண கிரக சேர்க்கைகள் & ஜீவ-கர்ம பலன்',
+                    onTap: () => onSelectRoute('/bhrigu_nandi_nadi'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.calculate_rounded,
+                    title: 'எண்கணிதம் (Numerology)',
+                    subtitle: 'பிறவி, விதி & பெயர் எண்கள் (Chaldean / Pythagorean)',
+                    onTap: () => onSelectRoute('/numerology'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.wb_sunny_rounded,
+                    title: 'தினசரி கிரக நிலைகள் (Daily Ephemeris)',
+                    subtitle: 'தினசரி கோட்சார கிரக பாகைகள் & ராசி நிலைகள்',
+                    onTap: () => onSelectRoute('/daily_planet_positions'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.picture_as_pdf_rounded,
+                    title: 'PDF அமைப்புகள் (PDF Settings)',
+                    subtitle: 'ஜோதிட நிலைய & வாடிக்கையாளர் விவரங்கள்',
+                    onTap: () => onSelectRoute('/pdf_settings'),
+                  ),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    child: Divider(color: Colors.white12),
+                  ),
+
+                  _buildSectionHeader('பாரம்பரிய பலன்கள் (TRADITIONAL SERVICES)'),
                   _buildDrawerItem(
                     icon: Icons.favorite_rounded,
                     title: 'திருமண ஜாதகப் பொருத்தம்',
@@ -165,12 +206,6 @@ class CosmicDrawer extends StatelessWidget {
                     title: 'தாரா பலன்',
                     subtitle: 'Tara Balam Analysis & Nakshatra Strength',
                     onTap: () => onSelectRoute('/tara_balam'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.grid_on_rounded,
-                    title: 'அஷ்ட வர்க்க சக்கரம்',
-                    subtitle: 'Ashtakavarga BAV & SAV Calculations',
-                    onTap: () => onSelectRoute('/ashtakavarga'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.flutter_dash_rounded,
@@ -185,22 +220,10 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/hora'),
                   ),
                   _buildDrawerItem(
-                    icon: Icons.timer_rounded,
-                    title: 'உதயாதினாழிகை கணிப்பு',
-                    subtitle: 'Udayadhi Nazhigai & Vinazhigai Calculator',
-                    onTap: () => onSelectRoute('/nazhigai'),
-                  ),
-                  _buildDrawerItem(
                     icon: Icons.health_and_safety_rounded,
                     title: 'ஆயுள் கணிதம் (Pindayu Longevity)',
                     subtitle: 'Classical 7-Planet Longevity Calculation',
                     onTap: () => onSelectRoute('/longevity'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.description_rounded,
-                    title: 'ஜாதக குறிப்புகள்',
-                    subtitle: 'Horoscope Notes, Panchangam & Nazhigai',
-                    onTap: () => onSelectRoute('/jaathaga_kurippugal'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.calendar_month_rounded,
@@ -209,55 +232,82 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/panchang'),
                   ),
                   _buildDrawerItem(
-                    icon: Icons.public_rounded,
-                    title: 'Daily Planet Positions',
-                    subtitle: 'Rasi chart & degrees overview',
-                    onTap: () => onSelectRoute('/planet_positions'),
-                  ),
-                  _buildDrawerItem(
                     icon: Icons.smart_toy_rounded,
                     title: 'AI Horoscope Assistant',
                     subtitle: 'Ask AI Astrology Assistant',
                     onTap: () => onSelectRoute('/ai_assistant'),
                   ),
-                  if (role == 'User' || role == 'Admin') ...[
-                    _buildDrawerItem(
-                      icon: Icons.account_balance_wallet_rounded,
-                      title: 'Astrocare Wallet',
-                      subtitle: 'Recharge, Invoice & Transactions',
-                      onTap: () => onSelectRoute('/wallet'),
-                    ),
-                  ],
-                  _buildDrawerItem(
-                    icon: Icons.description_rounded,
-                    title: 'Terms & Conditions',
-                    subtitle: 'Dynamic Firestore T&C guidelines',
-                    onTap: () => onSelectRoute('/terms'),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Divider(color: Colors.white12),
                   ),
+
+                  // Role Switching / Administration Quick Links
+                  _buildSectionHeader('SWITCH WORKSPACE'),
+                  if (role != 'User')
+                    _buildDrawerItem(
+                      icon: Icons.person_pin_rounded,
+                      title: 'Switch to User View',
+                      subtitle: 'Browse Astrocare as Client',
+                      onTap: () {
+                        AuthService.setActiveRole('User');
+                        onSelectRoute('/user_dashboard');
+                      },
+                    ),
+                  if (role != 'Astrologer')
+                    _buildDrawerItem(
+                      icon: Icons.psychology_alt_rounded,
+                      title: 'Astrologer Portal',
+                      subtitle: 'Login / Switch to Astrologer',
+                      onTap: () {
+                        AuthService.setActiveRole('Astrologer');
+                        onSelectRoute('/astrologer_dashboard');
+                      },
+                    ),
+                  if (role != 'Admin')
+                    _buildDrawerItem(
+                      icon: Icons.admin_panel_settings_outlined,
+                      title: 'Admin Control Center',
+                      subtitle: 'Authorize with Admin Access',
+                      onTap: () {
+                        AuthService.setActiveRole('Admin');
+                        onSelectRoute('/admin_dashboard');
+                      },
+                    ),
+
+                  const SizedBox(height: 12),
                 ],
               ),
             ),
 
-            // Logout Button
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+            // Logout Footer
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: AppColors.backgroundMid,
+                border: Border(top: BorderSide(color: AppColors.borderGold, width: 0.5)),
+              ),
               child: ListTile(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                tileColor: Colors.red.withOpacity(0.1),
                 leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
                 title: Text(
-                  'Log Out Session',
+                  'Log Out',
                   style: GoogleFonts.outfit(
                     color: Colors.redAccent,
                     fontWeight: FontWeight.bold,
+                    fontSize: 15,
                   ),
                 ),
+                subtitle: Text(
+                  'End active $role session',
+                  style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
+                ),
                 onTap: () {
-                  AuthService.logout();
                   if (onLogout != null) {
                     onLogout!();
                   } else {
-                    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                    AuthService.logout();
+                    onSelectRoute('/login');
                   }
                 },
               ),
@@ -270,14 +320,14 @@ class CosmicDrawer extends StatelessWidget {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16, top: 12, bottom: 6),
+      padding: const EdgeInsets.only(left: 20, top: 12, bottom: 6),
       child: Text(
         title,
-        style: GoogleFonts.outfit(
-          fontSize: 11,
+        style: GoogleFonts.cinzel(
+          fontSize: 10,
           fontWeight: FontWeight.bold,
+          color: AppColors.primaryGold,
           letterSpacing: 1.2,
-          color: AppColors.textSecondary,
         ),
       ),
     );
@@ -287,36 +337,39 @@ class CosmicDrawer extends StatelessWidget {
     required IconData icon,
     required String title,
     required String subtitle,
-    bool isSelected = false,
     required VoidCallback onTap,
+    bool isSelected = false,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.primaryGold.withOpacity(0.15) : Colors.transparent,
+        color: isSelected ? AppColors.primaryGold.withValues(alpha: 0.15) : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         border: isSelected ? Border.all(color: AppColors.primaryGold, width: 1) : null,
       ),
       child: ListTile(
+        dense: true,
         leading: Icon(
           icon,
-          color: isSelected ? AppColors.lightGold : AppColors.textSecondary,
+          color: isSelected ? AppColors.lightGold : AppColors.lightGold.withValues(alpha: 0.7),
+          size: 22,
         ),
         title: Text(
           title,
           style: GoogleFonts.outfit(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
             color: isSelected ? AppColors.lightGold : AppColors.textPrimary,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+            fontSize: 13.5,
           ),
         ),
         subtitle: Text(
           subtitle,
           style: GoogleFonts.outfit(
+            color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
             fontSize: 11,
-            color: AppColors.textSecondary,
           ),
         ),
+        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.textSecondary),
         onTap: onTap,
       ),
     );

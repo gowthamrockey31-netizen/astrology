@@ -377,8 +377,8 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                 DataCell(Text(p.degreeFormatted, style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11))),
                 DataCell(Text(p.rasiNameTa, style: GoogleFonts.outfit(color: Colors.white, fontSize: 11))),
                 DataCell(Text("${p.nakshatraNameTa}-${p.pada}", style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.w600, fontSize: 11))),
-                DataCell(Text(p.starLord, style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11))),
-                DataCell(Text(p.subLord, style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11))),
+                DataCell(Text(p.tamilStarLord, style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11))),
+                DataCell(Text(p.tamilSubLord, style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11))),
               ],
             );
           }).toList(),
@@ -395,6 +395,13 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
     final Map<int, List<PlanetDetail>> rasiPlanets = {};
     for (final p in planets.values) {
       rasiPlanets.putIfAbsent(p.rasiIndex, () => []).add(p);
+    }
+
+    // Calculate Tithi Soonyam Rasi indices for chart highlighting
+    final Set<int> soonyamRasiIndices = {};
+    for (final rasiTa in activeTithi.soonyamRasisTa) {
+      final idx = AstrologyCalculator.rasiNamesTa.indexOf(rasiTa);
+      if (idx >= 0) soonyamRasiIndices.add(idx);
     }
 
     return Column(
@@ -472,16 +479,29 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                       final rasiName = AstrologyCalculator.rasiNamesTa[rasiIdx];
                       final housePlanets = rasiPlanets[rasiIdx] ?? [];
                       final hasLagna = housePlanets.any((p) => p.name == 'Lagna');
+                      final isSoonyam = soonyamRasiIndices.contains(rasiIdx);
+
+                      // Determine cell background color: Lagna > Soonyam > Default
+                      Color cellColor;
+                      Color borderColor;
+                      if (hasLagna) {
+                        cellColor = AppColors.primaryGold.withValues(alpha: 0.18);
+                        borderColor = AppColors.primaryGold;
+                      } else if (isSoonyam) {
+                        cellColor = Colors.orange.shade900.withValues(alpha: 0.3);
+                        borderColor = Colors.orange.shade700;
+                      } else {
+                        cellColor = AppColors.cardSurface;
+                        borderColor = Colors.brown.shade300;
+                      }
 
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
-                          color: hasLagna
-                              ? AppColors.primaryGold.withValues(alpha: 0.18)
-                              : AppColors.cardSurface,
+                          color: cellColor,
                           border: Border.all(
-                            color: hasLagna ? AppColors.primaryGold : Colors.brown.shade300,
+                            color: borderColor,
                             width: 0.5,
                           ),
                         ),
@@ -499,8 +519,8 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                                     rasiName,
                                     style: GoogleFonts.outfit(
                                       fontSize: 8,
-                                      fontWeight: FontWeight.normal,
-                                      color: AppColors.textSecondary,
+                                      fontWeight: isSoonyam ? FontWeight.bold : FontWeight.normal,
+                                      color: isSoonyam ? Colors.orange.shade300 : AppColors.textSecondary,
                                     ),
                                   ),
                                 ),
@@ -542,6 +562,30 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
             ),
           ),
         ),
+
+        // Tithi Soonyam Legend
+        if (soonyamRasiIndices.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 12, height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade900.withValues(alpha: 0.3),
+                    border: Border.all(color: Colors.orange.shade700, width: 0.5),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'திதி சூன்ய ராசி',
+                  style: GoogleFonts.outfit(fontSize: 9, color: Colors.orange.shade300, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }

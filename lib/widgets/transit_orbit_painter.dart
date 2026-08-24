@@ -153,7 +153,7 @@ class TransitOrbitPainter extends CustomPainter {
   }
 
   void _drawTransitBadge(Canvas canvas, Offset center, PlanetDetail detail, Size canvasSize) {
-    final label = "கோ.${detail.symbol} ${detail.degreeInRasi.floor()}°";
+    final label = "${detail.symbol} ${detail.degreeInRasi.floor()}°";
     final textSpan = TextSpan(
       text: label,
       style: TextStyle(

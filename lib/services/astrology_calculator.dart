@@ -18,6 +18,8 @@ class PlanetDetail {
   final int pada; // 1..4
   final String starLord;
   final String subLord;
+  final String tamilStarLord;
+  final String tamilSubLord;
   final int navamsaIndex; // 0..11
   final String navamsaRasiTa;
   final bool isRetrograde;
@@ -37,6 +39,8 @@ class PlanetDetail {
     required this.pada,
     required this.starLord,
     required this.subLord,
+    required this.tamilStarLord,
+    required this.tamilSubLord,
     required this.navamsaIndex,
     required this.navamsaRasiTa,
     this.isRetrograde = false,
@@ -84,6 +88,24 @@ class AstrologyCalculator {
   static const List<String> planetLords = [
     'Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'
   ];
+
+  /// Tamil names for the 9 Nakshatra lords (same order as planetLords)
+  static const List<String> planetLordsTa = [
+    'கேது', 'சுக்கிரன்', 'சூரியன்', 'சந்திரன்', 'செவ்வாய்', 'ராகு', 'குரு', 'சனி', 'புதன்'
+  ];
+
+  /// English to Tamil planet name lookup
+  static const Map<String, String> planetNameToTamil = {
+    'Ketu': 'கேது',
+    'Venus': 'சுக்கிரன்',
+    'Sun': 'சூரியன்',
+    'Moon': 'சந்திரன்',
+    'Mars': 'செவ்வாய்',
+    'Rahu': 'ராகு',
+    'Jupiter': 'குரு',
+    'Saturn': 'சனி',
+    'Mercury': 'புதன்',
+  };
 
   static const List<String> tamilMonthsTa = [
     'சித்திரை', 'வைகாசி', 'ஆனி', 'ஆடி', 'ஆவணி', 'புரட்டாசி',
@@ -435,13 +457,13 @@ class AstrologyCalculator {
     final Map<String, PlanetDetail> planets = data.planets;
 
     return {
-      'Jupiter': _createPlanetDetail('Jupiter', 'கோ.குரு', 'கோ.குரு', planets['Jupiter']!.longitude),
-      'Saturn': _createPlanetDetail('Saturn', 'கோ.சனி', 'கோ.சனி', planets['Saturn']!.longitude),
-      'Rahu': _createPlanetDetail('Rahu', 'கோ.ராகு', 'கோ.ராகு', planets['Rahu']!.longitude),
-      'Ketu': _createPlanetDetail('Ketu', 'கோ.கேது', 'கோ.கேது', planets['Ketu']!.longitude),
-      'Mars': _createPlanetDetail('Mars', 'கோ.செவ்', 'கோ.செவ்', planets['Mars']!.longitude),
-      'Sun': _createPlanetDetail('Sun', 'கோ.சூரியன்', 'கோ.சூ', planets['Sun']!.longitude),
-      'Moon': _createPlanetDetail('Moon', 'கோ.சந்திரன்', 'கோ.சந்', planets['Moon']!.longitude),
+      'Jupiter': _createPlanetDetail('Jupiter', 'குரு', 'குரு', planets['Jupiter']!.longitude),
+      'Saturn': _createPlanetDetail('Saturn', 'சனி', 'சனி', planets['Saturn']!.longitude),
+      'Rahu': _createPlanetDetail('Rahu', 'ராகு', 'ராகு', planets['Rahu']!.longitude),
+      'Ketu': _createPlanetDetail('Ketu', 'கேது', 'கேது', planets['Ketu']!.longitude),
+      'Mars': _createPlanetDetail('Mars', 'செவ்வாய்', 'செவ்', planets['Mars']!.longitude),
+      'Sun': _createPlanetDetail('Sun', 'சூரியன்', 'சூ', planets['Sun']!.longitude),
+      'Moon': _createPlanetDetail('Moon', 'சந்திரன்', 'சந்', planets['Moon']!.longitude),
     };
   }
 
@@ -456,17 +478,22 @@ class AstrologyCalculator {
     final rasiIndex = (normLong / 30.0).floor();
     final degreeInRasi = normLong % 30.0;
 
-    final nakshatraExact = normLong / (360.0 / 27.0); // 13.333333° per nakshatra
-    final nakshatraIndex = (nakshatraExact).floor() % 27;
-    final nakshatraOffset = normLong - (nakshatraIndex * (360.0 / 27.0));
-    final pada = ((nakshatraOffset / (360.0 / 108.0)).floor() % 4) + 1; // 3.333333° per pada
+    // Nakshatra calculation: 27 nakshatras × 13°20' each
+    final double nakshatraSpan = 360.0 / 27.0; // 13.333333°
+    final double padaSpan = nakshatraSpan / 4.0; // 3.333333°
+    final nakshatraIndex = (normLong / nakshatraSpan).floor() % 27;
+    final nakshatraOffset = normLong - (nakshatraIndex * nakshatraSpan);
+    // Pada: 1-4, use clamp to handle floating-point boundary (e.g. exactly 13°20')
+    final pada = ((nakshatraOffset / padaSpan).floor()).clamp(0, 3) + 1;
 
     final starLordIndex = nakshatraIndex % 9;
     final starLord = planetLords[starLordIndex];
+    final tamilStarLord = planetLordsTa[starLordIndex];
 
     // Sub lord calculation
-    final subLordIndex = ((nakshatraOffset / (360.0 / 27.0)) * 9).floor() % 9;
+    final subLordIndex = ((nakshatraOffset / nakshatraSpan) * 9).floor() % 9;
     final subLord = planetLords[subLordIndex];
+    final tamilSubLord = planetLordsTa[subLordIndex];
 
     // Navamsha index calculation (D9)
     final navamshaDiv = (degreeInRasi / (30.0 / 9.0)).floor(); // 0..8
@@ -499,10 +526,41 @@ class AstrologyCalculator {
       pada: pada,
       starLord: starLord,
       subLord: subLord,
+      tamilStarLord: tamilStarLord,
+      tamilSubLord: tamilSubLord,
       navamsaIndex: navamsaIndex,
       navamsaRasiTa: rasiNamesTa[navamsaIndex],
       isRetrograde: isRetrograde,
     );
+  }
+
+  /// Public helper to compute Nakshatra, Pada, and Lord details from any Sidereal Longitude
+  static Map<String, dynamic> calculateNakshatraPadaFromLongitude(double longitude) {
+    final normLong = _normalizeDegrees(longitude);
+    const double nakshatraSpan = 360.0 / 27.0; // 13.333333°
+    const double padaSpan = nakshatraSpan / 4.0; // 3.333333°
+    final nakshatraIndex = (normLong / nakshatraSpan).floor() % 27;
+    final nakshatraOffset = normLong - (nakshatraIndex * nakshatraSpan);
+    final pada = ((nakshatraOffset / padaSpan).floor()).clamp(0, 3) + 1;
+
+    final starLordIndex = nakshatraIndex % 9;
+    final starLord = planetLords[starLordIndex];
+    final tamilStarLord = planetLordsTa[starLordIndex];
+
+    final subLordIndex = ((nakshatraOffset / nakshatraSpan) * 9).floor() % 9;
+    final subLord = planetLords[subLordIndex];
+    final tamilSubLord = planetLordsTa[subLordIndex];
+
+    return {
+      'nakshatraIndex': nakshatraIndex,
+      'nakshatraNameTa': nakshatrasTa[nakshatraIndex],
+      'nakshatraNameEn': nakshatrasEn[nakshatraIndex],
+      'pada': pada,
+      'starLord': starLord,
+      'tamilStarLord': tamilStarLord,
+      'subLord': subLord,
+      'tamilSubLord': tamilSubLord,
+    };
   }
 
   static double _calculateMarsSidereal(double t, double sunTrop, double ayanamsa) {
