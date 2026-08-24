@@ -26781,9 +26781,9 @@ abt:function abt(){},
 Md(a,b){var s
 if(a.p(0,b))return B.bg
 s=b.b
-if(s<a.b)return B.b5
+if(s<a.b)return B.b4
 if(s>a.d)return B.aU
-return b.a>=a.c?B.aU:B.b5},
+return b.a>=a.c?B.aU:B.b4},
 Mc(a,b,c){var s,r
 if(a.p(0,b))return b
 s=b.b
@@ -60136,7 +60136,7 @@ s=A.mq(f,!0,B.V,f,A.cc(f,f,B.BT,f,f,new A.aJ1(g),f,f,f),A.e("Admin Control Panel
 r=A.a_(20)
 q=A.ai(B.q,1)
 p=t.p
-r=A.Y(f,A.X(A.b([A.a8(A.W(A.b([A.e("TOTAL PLATFORM REVENUE",1,B.aC,f,A.q().$3$color$fontSize$letterSpacing(B.O,10,0.8),f,f,f),B.b0,A.hv(B.aj,A.e("\u20b91,240,500",f,f,f,A.ah().$3$color$fontSize$fontWeight(B.t,24,B.u),f,f,f),B.c2)],p),B.Q,B.v,B.r,0,B.F),1,f),B.cJ,A.W(A.b([A.e("COMMISSION (20%)",1,B.aC,f,A.q().$2$color$fontSize(B.O,10),f,f,f),B.b0,A.hv(B.aj,A.e("\u20b9248,100",f,f,f,A.ah().$3$color$fontSize$fontWeight(B.b8,18,B.u),f,f,f),B.c2)],p),B.dP,B.v,B.r,0,B.F)],p),B.z,B.b4,B.r,0,f,f),B.D,f,f,new A.Z(f,f,q,r,f,B.ur,B.M),f,f,f,B.bc,f,f,f)
+r=A.Y(f,A.X(A.b([A.a8(A.W(A.b([A.e("TOTAL PLATFORM REVENUE",1,B.aC,f,A.q().$3$color$fontSize$letterSpacing(B.O,10,0.8),f,f,f),B.b0,A.hv(B.aj,A.e("\u20b91,240,500",f,f,f,A.ah().$3$color$fontSize$fontWeight(B.t,24,B.u),f,f,f),B.c2)],p),B.Q,B.v,B.r,0,B.F),1,f),B.cJ,A.W(A.b([A.e("COMMISSION (20%)",1,B.aC,f,A.q().$2$color$fontSize(B.O,10),f,f,f),B.b0,A.hv(B.aj,A.e("\u20b9248,100",f,f,f,A.ah().$3$color$fontSize$fontWeight(B.b8,18,B.u),f,f,f),B.c2)],p),B.dP,B.v,B.r,0,B.F)],p),B.z,B.b7,B.r,0,f,f),B.D,f,f,new A.Z(f,f,q,r,f,B.ur,B.M),f,f,f,B.bc,f,f,f)
 q=A.e("Admin Management Suite",f,f,f,A.q().$3$color$fontSize$fontWeight(B.t,13,B.u),f,f,f)
 o=g.zB(B.u7,new A.aJ2(g),"Firestore Terms CRUD","Manage Dynamic T&C")
 n=g.zB(B.kn,new A.aJ3(g),"Articles, Images & Videos","AstroDashaCare Magazine CMS")
@@ -60145,7 +60145,7 @@ l=g.zB(B.no,new A.aJ5(g),"Add, Edit & Delete Rasi, Degrees & Retrograde","Daily 
 k=g.zB(B.Bu,new A.aJ6(g),"Daily Transits & Predictions","Daily Horoscope Predictions")
 j=A.e("Astrologers List ("+J.cA(g.e)+")",f,f,f,A.q().$3$color$fontSize$fontWeight(B.t,16,B.u),f,f,f)
 i=A.eP(f,f,B.q,f,f,f,f,f,f,f,f,f,B.kb,f,new A.ca(A.a_(12),B.a4),f,f,f,f,f)
-i=A.X(A.b([j,A.aon(B.a6u,A.e("Add Astrologer",f,f,f,A.q().$3$color$fontSize$fontWeight(B.a8,12,B.u),f,f,f),g.gaFN(),i)],p),B.z,B.b4,B.r,0,f,f)
+i=A.X(A.b([j,A.aon(B.a6u,A.e("Add Astrologer",f,f,f,A.q().$3$color$fontSize$fontWeight(B.a8,12,B.u),f,f,f),g.gaFN(),i)],p),B.z,B.b7,B.r,0,f,f)
 if(g.f)j=B.fr
 else if(J.i6(g.e)){j=A.a_(16)
 h=A.ai(A.R(B.m.a6(76.5),B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1)
@@ -60429,7 +60429,7 @@ $0(){return this.a.aFU()},
 $S:0}
 A.aJk.prototype={
 $2(a,b){var s=null,r=this.a,q=J.l(r.d,b),p=A.a_(16),o=A.ai(A.R(102,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1),n=t.p
-return A.Y(s,A.W(A.b([A.X(A.b([A.e(q.b,s,s,s,A.ah().$3$color$fontSize$fontWeight(B.t,16,B.u),s,s,s),A.X(A.b([A.cc(s,s,B.uj,s,s,new A.aJh(r,q),s,s,s),A.cc(s,s,B.uk,s,s,new A.aJi(r,q),s,s,s)],n),B.z,B.v,B.r,0,s,s)],n),B.z,B.b4,B.r,0,s,s),B.fx,B.b_,r.Fd("Tithi",q.c,B.u3),r.Fd("Nakshatra",q.d,B.eA),r.Fd("Yoga",q.e,B.BL),r.Fd("Karana",q.f,B.BE),r.aoh("Rahu Kalam",q.z,B.ue,!0),r.aog("Auspicious Time",q.at,B.km,!0)],n),B.Q,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.a6,s,o,p,s,s,B.M),s,s,B.rW,B.bc,s,s,s)},
+return A.Y(s,A.W(A.b([A.X(A.b([A.e(q.b,s,s,s,A.ah().$3$color$fontSize$fontWeight(B.t,16,B.u),s,s,s),A.X(A.b([A.cc(s,s,B.uj,s,s,new A.aJh(r,q),s,s,s),A.cc(s,s,B.uk,s,s,new A.aJi(r,q),s,s,s)],n),B.z,B.v,B.r,0,s,s)],n),B.z,B.b7,B.r,0,s,s),B.fx,B.b_,r.Fd("Tithi",q.c,B.u3),r.Fd("Nakshatra",q.d,B.eA),r.Fd("Yoga",q.e,B.BL),r.Fd("Karana",q.f,B.BE),r.aoh("Rahu Kalam",q.z,B.ue,!0),r.aog("Auspicious Time",q.at,B.km,!0)],n),B.Q,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.a6,s,o,p,s,s,B.M),s,s,B.rW,B.bc,s,s,s)},
 $S:43}
 A.aJh.prototype={
 $0(){return this.a.qG(this.b)},
@@ -60538,7 +60538,7 @@ i=i.F2(m.r,"Nakshatra","e.g. Rohini")
 p=A.a_(12)
 o=A.ai(A.R(B.m.a6(76.5),B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1)
 n=m.a
-p=A.cI(A.cC(A.W(A.b([s,r,q,i,B.b_,A.Y(l,A.X(A.b([A.e("Retrograde Motion (R)?",l,l,l,A.q().$3$color$fontSize$fontWeight(B.t,13,B.u),l,l,l),A.bf5(B.q,l,l,l,!1,B.a2,l,l,l,l,l,l,new A.aJr(n,b),l,l,l,l,l,l,l,l,n.a)],g),B.z,B.b4,B.r,0,l,l),B.D,l,l,new A.Z(B.a6,l,o,p,l,l,B.M),l,l,l,B.mN,l,l,l)],g),B.z,B.v,B.aZ,0,B.F),l,l,l,l,B.aq),l,17976931348623157e292)
+p=A.cI(A.cC(A.W(A.b([s,r,q,i,B.b_,A.Y(l,A.X(A.b([A.e("Retrograde Motion (R)?",l,l,l,A.q().$3$color$fontSize$fontWeight(B.t,13,B.u),l,l,l),A.bf5(B.q,l,l,l,!1,B.a2,l,l,l,l,l,l,new A.aJr(n,b),l,l,l,l,l,l,l,l,n.a)],g),B.z,B.b7,B.r,0,l,l),B.D,l,l,new A.Z(B.a6,l,o,p,l,l,B.M),l,l,l,B.mN,l,l,l)],g),B.z,B.v,B.aZ,0,B.F),l,l,l,l,B.aq),l,17976931348623157e292)
 o=m.w
 n=A.hh(A.e("Cancel",l,l,l,A.al().$1$color(B.O),l,l,l),new A.aJs(o),l)
 i=A.eP(l,l,B.q,l,l,l,l,l,l,l,l,l,l,l,l,l,l,l,l,l)
@@ -60662,7 +60662,7 @@ $0(){return this.a.aFP()},
 $S:0}
 A.aJI.prototype={
 $2(a,b){var s=null,r=this.a,q=J.l(r.d,b),p=A.a_(16),o=A.ai(B.bZ,1),n=t.p
-return A.Y(s,A.W(A.b([A.X(A.b([A.a8(A.e(q.b,s,s,s,A.q().$3$color$fontSize$fontWeight(B.t,15,B.u),s,s,s),1,s),A.X(A.b([A.cc(s,s,B.a6L,s,s,new A.aJF(r,q),s,s,s),A.cc(s,s,B.a69,s,s,new A.aJG(r,q),s,s,s)],n),B.z,B.v,B.r,0,s,s)],n),B.z,B.b4,B.r,0,s,s),B.b_,A.e(q.c,s,s,s,A.q().$2$color$fontSize(B.B,13),s,s,s)],n),B.Q,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.a6,s,o,p,s,s,B.M),s,s,B.Ar,B.bc,s,s,s)},
+return A.Y(s,A.W(A.b([A.X(A.b([A.a8(A.e(q.b,s,s,s,A.q().$3$color$fontSize$fontWeight(B.t,15,B.u),s,s,s),1,s),A.X(A.b([A.cc(s,s,B.a6L,s,s,new A.aJF(r,q),s,s,s),A.cc(s,s,B.a69,s,s,new A.aJG(r,q),s,s,s)],n),B.z,B.v,B.r,0,s,s)],n),B.z,B.b7,B.r,0,s,s),B.b_,A.e(q.c,s,s,s,A.q().$2$color$fontSize(B.B,13),s,s,s)],n),B.Q,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.a6,s,o,p,s,s,B.M),s,s,B.Ar,B.bc,s,s,s)},
 $S:43}
 A.aJF.prototype={
 $0(){return this.a.a5p(this.b)},
@@ -60708,7 +60708,7 @@ s.f.push(new A.A7("AstroDashaCare AI Guru","Based on cosmic positioning, your cu
 $S:0}
 A.aJM.prototype={
 $2(a,b){var s=null,r=this.a.f[b],q=r.f,p=q?B.cU:B.eL,o=q?B.a6:A.R(64,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),n=A.a_(16),m=A.ai(q?A.R(102,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255):B.t,1),l=t.p
-return new A.dO(p,s,s,A.Y(s,A.W(A.b([A.X(A.b([A.de(q?B.ud:B.ko,B.t,s,14),B.cx,A.e(r.c,s,s,s,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),s,s,s)],l),B.z,B.v,B.aZ,0,s,s),B.b_,A.e(r.d,s,s,s,A.q().$3$color$fontSize$height(B.B,14,1.4),s,s,s)],l),B.Q,B.v,B.r,0,B.F),B.D,s,s,new A.Z(o,s,m,n,s,s,B.M),s,s,B.Aw,B.b7,s,s,s),s)},
+return new A.dO(p,s,s,A.Y(s,A.W(A.b([A.X(A.b([A.de(q?B.ud:B.ko,B.t,s,14),B.cx,A.e(r.c,s,s,s,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),s,s,s)],l),B.z,B.v,B.aZ,0,s,s),B.b_,A.e(r.d,s,s,s,A.q().$3$color$fontSize$height(B.B,14,1.4),s,s,s)],l),B.Q,B.v,B.r,0,B.F),B.D,s,s,new A.Z(o,s,m,n,s,s,B.M),s,s,B.Aw,B.b6,s,s,s),s)},
 $S:852}
 A.v5.prototype={
 ab(){return new A.a5g()}}
@@ -60767,7 +60767,7 @@ k=i.r==="SAV"?"\u0b9a\u0bb0\u0bcd\u0bb5\u0bbe\u0bb7\u0bcd\u0b9f\u0bae\u0bcd":"\u
 k=A.e(k,h,h,h,A.ah().$3$color$fontSize$fontWeight(B.q.aU(0.9),13,B.u),h,h,h)
 j=i.r
 if(j==="SAV")j="Total: 337"
-return A.dH(h,h,new A.dq(A.dt(!0,A.cC(A.W(A.b([o,B.b0,n,B.aA,s,B.aA,A.cE(A.c6(A.fQ(B.q,20,new A.as(B.b7,A.W(A.b([r,B.aO,new A.p_(1,A.Y(h,A.ft(B.cf,A.b([A.dp(A.Y(B.aj,A.W(A.b([k,A.e(j,h,h,h,A.q().$2$color$fontSize(B.O,10),h,h,h)],m),B.z,B.bU,B.r,0,B.F),B.D,h,h,h,h,50,h,h,h,h,100),h,h),new A.as(B.cp,A.w9(h,B.a2,B.ly,new A.aKm(g,i),16,h,B.eF,!1),h)],m),B.Y,B.c6,h),B.D,h,h,new A.Z(B.a8,h,l,p,h,h,B.M),h,h,h,h,h,h,h),h)],m),B.Q,B.v,B.r,0,B.F),h),h,!0,h,B.bc),h,h),A.aV(0,2e5,0,0,0),h),B.bl,A.cE(A.c6(A.fQ(B.q,20,new A.as(B.b7,A.W(A.b([A.e("\u0b85\u0ba9\u0bc8\u0ba4\u0bcd\u0ba4\u0bc1 \u0b95\u0bbf\u0bb0\u0b95 \u0baa\u0bbf\u0ba8\u0bcd\u0ba4\u0bc1 \u0b85\u0b9f\u0bcd\u0b9f\u0bb5\u0ba3\u0bc8 (Full Ashtakavarga Matrix)",h,h,h,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),h,h,h),B.bC,A.cC(A.ph(12,A.b([A.co(A.e("\u0bb0\u0bbe\u0b9a\u0bbf",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b9a\u0bc2",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b9a\u0ba8\u0bcd",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b9a\u0bc6\u0bb5\u0bcd",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0baa\u0bc1",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b95\u0bc1\u0bb0\u0bc1",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b9a\u0bc1\u0b95\u0bcd",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b9a\u0ba9\u0bbf",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("SAV",h,h,h,A.q().$3$color$fontSize$fontWeight(B.b8,11,B.u),h,h,h))],t.UR),h,34,30,new A.bq(B.V,t.rc),34,8,A.o3(12,new A.aKn(i),!0,t.VZ)),h,h,h,h,B.ba)],m),B.Q,B.v,B.r,0,B.F),h),h,!0,h,B.bc),h,h),A.aV(0,25e4,0,0,0),h),B.bq],m),B.Q,B.v,B.r,0,B.F),B.dc,B.cl,h,h,B.aq),B.av,!0),h),h,h,!1,h,h)}}
+return A.dH(h,h,new A.dq(A.dt(!0,A.cC(A.W(A.b([o,B.b0,n,B.aA,s,B.aA,A.cE(A.c6(A.fQ(B.q,20,new A.as(B.b6,A.W(A.b([r,B.aO,new A.p_(1,A.Y(h,A.ft(B.cf,A.b([A.dp(A.Y(B.aj,A.W(A.b([k,A.e(j,h,h,h,A.q().$2$color$fontSize(B.O,10),h,h,h)],m),B.z,B.bU,B.r,0,B.F),B.D,h,h,h,h,50,h,h,h,h,100),h,h),new A.as(B.cp,A.w9(h,B.a2,B.ly,new A.aKm(g,i),16,h,B.eF,!1),h)],m),B.Y,B.c6,h),B.D,h,h,new A.Z(B.a8,h,l,p,h,h,B.M),h,h,h,h,h,h,h),h)],m),B.Q,B.v,B.r,0,B.F),h),h,!0,h,B.bc),h,h),A.aV(0,2e5,0,0,0),h),B.bl,A.cE(A.c6(A.fQ(B.q,20,new A.as(B.b6,A.W(A.b([A.e("\u0b85\u0ba9\u0bc8\u0ba4\u0bcd\u0ba4\u0bc1 \u0b95\u0bbf\u0bb0\u0b95 \u0baa\u0bbf\u0ba8\u0bcd\u0ba4\u0bc1 \u0b85\u0b9f\u0bcd\u0b9f\u0bb5\u0ba3\u0bc8 (Full Ashtakavarga Matrix)",h,h,h,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),h,h,h),B.bC,A.cC(A.ph(12,A.b([A.co(A.e("\u0bb0\u0bbe\u0b9a\u0bbf",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b9a\u0bc2",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b9a\u0ba8\u0bcd",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b9a\u0bc6\u0bb5\u0bcd",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0baa\u0bc1",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b95\u0bc1\u0bb0\u0bc1",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b9a\u0bc1\u0b95\u0bcd",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("\u0b9a\u0ba9\u0bbf",h,h,h,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),h,h,h)),A.co(A.e("SAV",h,h,h,A.q().$3$color$fontSize$fontWeight(B.b8,11,B.u),h,h,h))],t.UR),h,34,30,new A.bq(B.V,t.rc),34,8,A.o3(12,new A.aKn(i),!0,t.VZ)),h,h,h,h,B.ba)],m),B.Q,B.v,B.r,0,B.F),h),h,!0,h,B.bc),h,h),A.aV(0,25e4,0,0,0),h),B.bq],m),B.Q,B.v,B.r,0,B.F),B.dc,B.cl,h,h,B.aq),B.av,!0),h),h,h,!1,h,h)}}
 A.aKk.prototype={
 $0(){return A.b4(this.a,!1).cN()},
 $S:0}
@@ -60804,8 +60804,8 @@ o=A.ai(o,n?1.5:0.6)
 l=t.p
 k=A.b([A.e(r,i,i,i,A.q().$2$color$fontSize(B.O,8.5),i,i,i)],l)
 if(n){j=A.a_(3)
-k.push(A.Y(i,A.e("\u0bb2\u0b95\u0bcd",i,i,i,A.q().$3$color$fontSize$fontWeight(B.B,7,B.u),i,i,i),B.D,i,i,new A.Z(B.cP,i,i,j,i,i,B.M),i,i,i,B.a2F,i,i,i))}k=A.X(k,B.z,B.b4,B.r,0,i,i)
-return A.Y(i,A.W(A.b([k,A.dp(A.e(""+q,i,i,i,A.ah().$3$color$fontSize$fontWeight(m?B.b8:B.t,18,B.u),i,i,i),i,i),A.e("\u0baa\u0bbf\u0ba8\u0bcd\u0ba4\u0bc1",i,i,i,A.q().$2$color$fontSize(B.iq,7),i,i,i)],l),B.z,B.b4,B.r,0,B.F),B.D,i,i,new A.Z(p,i,o,i,i,i,B.M),i,i,i,B.eZ,i,i,i)},
+k.push(A.Y(i,A.e("\u0bb2\u0b95\u0bcd",i,i,i,A.q().$3$color$fontSize$fontWeight(B.B,7,B.u),i,i,i),B.D,i,i,new A.Z(B.cP,i,i,j,i,i,B.M),i,i,i,B.a2F,i,i,i))}k=A.X(k,B.z,B.b7,B.r,0,i,i)
+return A.Y(i,A.W(A.b([k,A.dp(A.e(""+q,i,i,i,A.ah().$3$color$fontSize$fontWeight(m?B.b8:B.t,18,B.u),i,i,i),i,i),A.e("\u0baa\u0bbf\u0ba8\u0bcd\u0ba4\u0bc1",i,i,i,A.q().$2$color$fontSize(B.iq,7),i,i,i)],l),B.z,B.b7,B.r,0,B.F),B.D,i,i,new A.Z(p,i,o,i,i,i,B.M),i,i,i,B.eZ,i,i,i)},
 $S:44}
 A.aKn.prototype={
 $1(a1){var s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c=null,b=B.bd[a1],a=this.a,a0=a.f
@@ -60861,7 +60861,7 @@ r=A.e(r.b,1,B.aC,i,A.ah().$3$color$fontSize$fontWeight(B.B,16,B.u),i,i,i)
 p=j.e
 p=A.e(p.z+" \u2022 "+p.y+" Yrs Exp",1,B.aC,i,A.q().$2$color$fontSize(B.O,12),i,i,i)
 o=j.e
-g=A.Y(i,A.X(A.b([q,B.cJ,A.a8(A.W(A.b([r,p,B.b0,A.X(A.b([B.a5l,A.e(" "+A.k(o.ax)+" ("+o.ay+" reviews)",i,i,i,A.q().$2$color$fontSize(B.t,12),i,i,i)],e),B.z,B.v,B.r,0,i,i)],e),B.Q,B.v,B.r,0,B.F),1,i)],e),B.z,B.v,B.r,0,i,i),B.D,i,i,new A.Z(B.a6,i,s,g,i,i,B.M),i,i,i,B.b7,i,i,i)
+g=A.Y(i,A.X(A.b([q,B.cJ,A.a8(A.W(A.b([r,p,B.b0,A.X(A.b([B.a5l,A.e(" "+A.k(o.ax)+" ("+o.ay+" reviews)",i,i,i,A.q().$2$color$fontSize(B.t,12),i,i,i)],e),B.z,B.v,B.r,0,i,i)],e),B.Q,B.v,B.r,0,B.F),1,i)],e),B.z,B.v,B.r,0,i,i),B.D,i,i,new A.Z(B.a6,i,s,g,i,i,B.M),i,i,i,B.b6,i,i,i)
 s=A.e("Availability Status",i,i,i,A.q().$2$color$fontWeight(B.t,B.u),i,i,i)
 r=A.a8(A.fo(B.a35,new A.aKx(j),A.eP(i,i,h==="online"?B.hy:B.a6,i,i,i,i,i,i,i,i,i,B.e7,i,i,i,i,i,i,i)),1,i)
 q=A.a8(A.fo(B.a36,new A.aKy(j),A.eP(i,i,h==="offline"?B.aG:B.a6,i,i,i,i,i,i,i,i,i,B.e7,i,i,i,i,i,i,i)),1,i)
@@ -60875,17 +60875,17 @@ o=A.Y(i,A.W(A.b([A.e("EARNINGS & COMMISSION BREAKDOWN",i,i,i,A.q().$4$color$font
 n=A.e("ASTROLOGER CONTENT CMS TOOLS",i,i,i,A.ah().$4$color$fontSize$fontWeight$letterSpacing(B.t,13,B.u,1),i,i,i)
 m=A.a_(16)
 l=A.ai(A.R(153,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1)
-m=A.a8(A.cV(i,A.Y(i,A.W(A.b([B.BZ,B.aR,A.e("Edit Panchangam",i,i,i,A.ah().$3$color$fontSize$fontWeight(B.B,13,B.u),i,i,i),A.e("Tithi, Nakshatra, Rahu Kalam",i,i,i,A.q().$2$color$fontSize(B.O,10),i,i,i)],e),B.Q,B.v,B.r,0,B.F),B.D,i,i,new A.Z(B.a6,i,l,m,i,i,B.M),i,i,i,B.b7,i,i,i),B.a2,!1,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,new A.aKA(a),i,i,i,i,i,i),1,i)
+m=A.a8(A.cV(i,A.Y(i,A.W(A.b([B.BZ,B.aR,A.e("Edit Panchangam",i,i,i,A.ah().$3$color$fontSize$fontWeight(B.B,13,B.u),i,i,i),A.e("Tithi, Nakshatra, Rahu Kalam",i,i,i,A.q().$2$color$fontSize(B.O,10),i,i,i)],e),B.Q,B.v,B.r,0,B.F),B.D,i,i,new A.Z(B.a6,i,l,m,i,i,B.M),i,i,i,B.b6,i,i,i),B.a2,!1,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,new A.aKA(a),i,i,i,i,i,i),1,i)
 l=A.a_(16)
 k=A.ai(A.R(153,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1)
-return A.dH(f,i,new A.dq(A.dt(!0,A.cC(A.W(A.b([g,B.aA,s,B.aR,r,B.bl,q,B.aA,o,B.bl,n,B.bC,A.X(A.b([m,B.bG,A.a8(A.cV(i,A.Y(i,A.W(A.b([B.a6x,B.aR,A.e("Edit Planet Positions",i,i,i,A.ah().$3$color$fontSize$fontWeight(B.B,13,B.u),i,i,i),A.e("Degrees, Rasi & Retrograde",i,i,i,A.q().$2$color$fontSize(B.O,10),i,i,i)],e),B.Q,B.v,B.r,0,B.F),B.D,i,i,new A.Z(B.a6,i,k,l,i,i,B.M),i,i,i,B.b7,i,i,i),B.a2,!1,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,new A.aKB(a),i,i,i,i,i,i),1,i)],e),B.z,B.v,B.r,0,i,i)],e),B.Q,B.v,B.r,0,B.F),B.bc,i,i,i,B.aq),B.av,!0),i),i,new A.AI(new A.aKC(j,a),i,i),!1,i,j.d)},
+return A.dH(f,i,new A.dq(A.dt(!0,A.cC(A.W(A.b([g,B.aA,s,B.aR,r,B.bl,q,B.aA,o,B.bl,n,B.bC,A.X(A.b([m,B.bG,A.a8(A.cV(i,A.Y(i,A.W(A.b([B.a6x,B.aR,A.e("Edit Planet Positions",i,i,i,A.ah().$3$color$fontSize$fontWeight(B.B,13,B.u),i,i,i),A.e("Degrees, Rasi & Retrograde",i,i,i,A.q().$2$color$fontSize(B.O,10),i,i,i)],e),B.Q,B.v,B.r,0,B.F),B.D,i,i,new A.Z(B.a6,i,k,l,i,i,B.M),i,i,i,B.b6,i,i,i),B.a2,!1,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,new A.aKB(a),i,i,i,i,i,i),1,i)],e),B.z,B.v,B.r,0,i,i)],e),B.Q,B.v,B.r,0,B.F),B.bc,i,i,i,B.aq),B.av,!0),i),i,new A.AI(new A.aKC(j,a),i,i),!1,i,j.d)},
 Nb(a,b,c){var s=null,r=A.a_(14),q=A.ai(B.bZ,1)
 return A.a8(A.Y(s,A.W(A.b([A.de(c,B.t,s,20),B.b_,A.hv(B.aj,A.e(a,s,s,s,A.q().$2$color$fontSize(B.O,10),s,s,s),B.c2),B.b0,A.hv(B.aj,A.e(b,s,s,s,A.q().$3$color$fontSize$fontWeight(B.B,13,B.u),s,s,s),B.c2)],t.p),B.z,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.a6,s,q,r,s,s,B.M),s,s,s,B.a2B,s,s,s),1,s)},
 N2(a,b,c,d){var s,r=null,q=d?B.t:B.O
 q=A.a8(A.e(a,r,r,r,A.q().$3$color$fontSize$fontWeight(q,13,d?B.u:B.a9),r,r,r),1,r)
 if(c)s=B.aG
 else s=d?B.t:B.B
-return new A.as(B.Av,A.X(A.b([q,B.az,A.e(b,r,r,r,A.q().$3$color$fontSize$fontWeight(s,14,B.u),r,r,r)],t.p),B.z,B.b4,B.r,0,r,r),r)},
+return new A.as(B.Av,A.X(A.b([q,B.az,A.e(b,r,r,r,A.q().$3$color$fontSize$fontWeight(s,14,B.u),r,r,r)],t.p),B.z,B.b7,B.r,0,r,r),r)},
 anL(a,b){return this.N2(a,b,!1,!1)},
 anM(a,b,c){return this.N2(a,b,c,!1)},
 anN(a,b,c){return this.N2(a,b,!1,c)}}
@@ -61001,7 +61001,7 @@ n=A.X(A.b([B.a5r,B.az,p,A.Y(s,A.e(a.d,s,s,s,A.q().$3$color$fontSize$fontWeight(B
 o=A.e(a.b,s,s,s,A.q().$2$color$fontSize(B.O,11),s,s,s)
 p=a.c
 p=p.length!==0?B.n.bz(p,", "):"\u0ba8\u0bc7\u0bb0\u0b9f\u0bbf \u0b9a\u0bc7\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0bc8 \u0b87\u0bb2\u0bcd\u0bb2\u0bc8"
-return A.Y(s,A.W(A.b([n,B.b0,o,B.it,A.e("\u0b9a\u0bc7\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0bc8 \u0b95\u0bbf\u0bb0\u0b95\u0b99\u0bcd\u0b95\u0bb3\u0bcd: "+p,s,s,s,A.q().$2$color$fontSize(B.aw,11.5),s,s,s),B.b_,A.e(a.e,s,s,s,A.al().$2$color$fontSize(B.B,12),s,s,s)],m),B.Q,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.a6,s,q,r,s,s,B.M),s,s,B.Ar,B.b7,s,s,s)},
+return A.Y(s,A.W(A.b([n,B.b0,o,B.it,A.e("\u0b9a\u0bc7\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0bc8 \u0b95\u0bbf\u0bb0\u0b95\u0b99\u0bcd\u0b95\u0bb3\u0bcd: "+p,s,s,s,A.q().$2$color$fontSize(B.aw,11.5),s,s,s),B.b_,A.e(a.e,s,s,s,A.al().$2$color$fontSize(B.B,12),s,s,s)],m),B.Q,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.a6,s,q,r,s,s,B.M),s,s,B.Ar,B.b6,s,s,s)},
 $S:788}
 A.vb.prototype={
 ab(){return new A.Oe()}}
@@ -61218,7 +61218,7 @@ n.push(A.a2(["title","Birth Chart","sub","Vedic Kundali","icon",B.Bt,"route","/b
 n.push(A.a2(["title","AstroDashaCare Shop","sub","Gems & Yantras","icon",B.a4R,"route","/shop","color",B.a_k],r,q))
 if(o==="User"||s)n.push(A.a2(["title","AstroDashaCare Wallet","sub","Recharge & Invoices","icon",B.Bn,"route","/wallet","color",B.ft],r,q))
 s=t.p
-return A.W(A.b([A.X(A.b([A.e("AstroDashaCare Modules",p,p,p,A.ah().$3$color$fontSize$fontWeight(B.t,16,B.u),p,p,p),A.cV(p,A.X(A.b([A.e("All Modules",p,p,p,A.q().$3$color$fontSize$fontWeight(B.t,12,B.u),p,p,p),B.a65],s),B.z,B.v,B.r,0,p,p),B.a2,!1,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,new A.aNr(this),p,p,p,p,p,p)],s),B.z,B.b4,B.r,0,p,p),B.bC,A.cI(A.kP(new A.aNs(n),n.length,p,B.cl,B.ba,!1),100,p)],s),B.Q,B.v,B.r,0,B.F)},
+return A.W(A.b([A.X(A.b([A.e("AstroDashaCare Modules",p,p,p,A.ah().$3$color$fontSize$fontWeight(B.t,16,B.u),p,p,p),A.cV(p,A.X(A.b([A.e("All Modules",p,p,p,A.q().$3$color$fontSize$fontWeight(B.t,12,B.u),p,p,p),B.a65],s),B.z,B.v,B.r,0,p,p),B.a2,!1,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,new A.aNr(this),p,p,p,p,p,p)],s),B.z,B.b7,B.r,0,p,p),B.bC,A.cI(A.kP(new A.aNs(n),n.length,p,B.cl,B.ba,!1),100,p)],s),B.Q,B.v,B.r,0,B.F)},
 anG(){var s=this,r=null,q=t.p,p=A.b([s.N8("\u0b9c\u0bcb\u0ba4\u0bbf\u0b9f \u0b86\u0bb2\u0bcb\u0b9a\u0ba9\u0bc8","Consult Astrologers"),B.aA],q)
 if(J.i6(s.f))p.push(A.Y(B.aj,A.W(A.b([B.a5p,B.aO,A.e("No Astrologers Available",r,r,r,A.ah().$3$color$fontSize$fontWeight(B.t,16,B.u),r,r,r),B.b0,A.e("Astrologers added by Admin will appear here.",r,r,r,A.al().$2$color$fontSize(B.O,12),r,r,r)],q),B.z,B.v,B.r,0,B.F),B.D,r,r,r,r,r,r,B.AB,r,r,1/0))
 else p.push(A.kP(new A.aNn(s),J.cA(s.f),r,B.eF,B.aq,!0))
@@ -61236,7 +61236,7 @@ anw(){var s=null,r=A.a_(22),q=A.a_(22),p=A.b([A.R(242,B.a8.n()>>>16&255,B.a8.n()
 return A.fQ(B.q,22,A.Y(s,A.Y(s,A.W(A.b([A.Y(s,A.X(A.b([B.BW,B.eI,A.e("DAILY COSMIC GUIDE",s,s,s,A.al().$4$color$fontSize$fontWeight$letterSpacing(B.t,11,B.u,1),s,s,s)],l),B.z,B.v,B.aZ,0,s,s),B.D,s,s,new A.Z(o,s,m,n,s,s,B.M),s,s,s,B.dR,s,s,s),B.aR,A.e("Discover Today's\nHoroscope",s,s,s,A.ah().$5$color$fontSize$fontWeight$height$shadows(B.B,22,B.u,1.2,A.b([new A.l4(A.R(153,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),B.N,10)],t.kO)),s,s,s),B.aO,A.mJ(14,38,s,!1,new A.aNh(this),"View Horoscope",155)],l),B.Q,B.bU,B.r,0,B.F),B.D,s,s,new A.Z(s,s,s,q,s,new A.fY(B.cU,B.eL,B.ce,p,s,s),B.M),s,s,s,B.bc,s,s,s),B.D,s,s,new A.Z(s,B.a0Z,s,r,s,s,B.M),s,200,s,s,s,s,1/0),s,!0,s,B.av)},
 Zy(a,b,c,d){var s=null,r=t.p,q=A.b([A.a8(A.W(A.b([A.e(c,s,s,s,A.b91().$3$color$fontSize$fontWeight(B.t,13,B.bk),s,s,s),A.e(d,1,B.aC,s,A.ah().$4$color$fontSize$fontWeight$letterSpacing(B.B,20,B.u,1),s,s,s)],r),B.Q,B.v,B.r,0,B.F),1,s)],r)
 if(a!=null)q.push(A.cV(s,A.X(A.b([A.e(a,s,s,s,A.al().$3$color$fontSize$fontWeight(B.t,13,B.u),s,s,s),B.q0,B.a6i],r),B.z,B.v,B.aZ,0,s,s),B.a2,!1,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,b,s,s,s,s,s,s))
-return A.X(q,B.dP,B.b4,B.r,0,s,s)},
+return A.X(q,B.dP,B.b7,B.r,0,s,s)},
 N8(a,b){return this.Zy(null,null,a,b)},
 aoi(){A.bdq()
 return A.w9(null,B.a2,B.b8M,new A.aNw(this),4,null,B.eF,!0)},
@@ -61331,7 +61331,7 @@ r.push(A.Y(n,A.X(A.b([B.a57,B.q0,A.e("PINNED",n,n,n,A.q().$3$color$fontSize$font
 q=k?B.np:B.u1
 q=A.de(q,k?B.t:B.iq,n,20)
 p=k?"Unpin Astrologer":"Pin Favourite Astrologer"
-return A.Y(n,A.fQ(B.q,20,A.X(A.b([j,B.ff,r,A.cc(n,n,q,n,n,new A.aNl(m,l),n,n,p),A.mJ(12,36,n,!1,new A.aNm(a,l),"Chat",65)],s),B.z,B.v,B.r,0,n,n),n,k,n,B.b7),B.D,n,n,n,n,n,B.rW,n,n,n,n)},
+return A.Y(n,A.fQ(B.q,20,A.X(A.b([j,B.ff,r,A.cc(n,n,q,n,n,new A.aNl(m,l),n,n,p),A.mJ(12,36,n,!1,new A.aNm(a,l),"Chat",65)],s),B.z,B.v,B.r,0,n,n),n,k,n,B.b6),B.D,n,n,n,n,n,B.rW,n,n,n,n)},
 $S:43}
 A.aNl.prototype={
 $0(){return this.a.AZ(this.b)},
@@ -61363,7 +61363,7 @@ return A.b4(s,!1).jH("/horoscope",t.X)},
 $S:0}
 A.aNw.prototype={
 $2(a,b){var s=null,r=A.bdq()[b],q=r.f,p=t.p
-return A.fQ(q,16,A.W(A.b([new A.Y9(r.e,20,q,q,38,s),B.b_,A.W(A.b([A.e(r.c,1,B.aC,s,A.b91().$3$color$fontSize$fontWeight(B.O,10.5,B.a9),s,s,s),B.di,A.hv(B.cU,A.e(r.b,s,s,s,A.ah().$3$color$fontSize$fontWeight(B.B,13,B.u),s,s,s),B.c2)],p),B.Q,B.v,B.r,0,B.F)],p),B.Q,B.b4,B.r,0,B.F),r.r,!0,new A.aNv(this.a,r,a),B.cp)},
+return A.fQ(q,16,A.W(A.b([new A.Y9(r.e,20,q,q,38,s),B.b_,A.W(A.b([A.e(r.c,1,B.aC,s,A.b91().$3$color$fontSize$fontWeight(B.O,10.5,B.a9),s,s,s),B.di,A.hv(B.cU,A.e(r.b,s,s,s,A.ah().$3$color$fontSize$fontWeight(B.B,13,B.u),s,s,s),B.c2)],p),B.Q,B.v,B.r,0,B.F)],p),B.Q,B.b7,B.r,0,B.F),r.r,!0,new A.aNv(this.a,r,a),B.cp)},
 $S:329}
 A.aNv.prototype={
 $0(){var s=this,r=s.b.a
@@ -61383,7 +61383,7 @@ o=A.ai(o,p?2.5:1.5)
 n=t.p
 o=A.b([A.Y(s,A.mt(s,A.baX(q.c),s,s,28),B.D,s,s,new A.Z(s,s,o,s,s,s,B.bt),s,s,s,B.fA,s,s,s)],n)
 if(q.ch==="online")o.push(A.k0(2,A.Y(s,s,B.D,s,s,new A.Z(B.jP,s,A.ai(B.a8,2),s,B.aVu,s,B.bt),s,12,s,s,s,s,12),s,s,s,2,s,s))
-return A.Y(s,A.fQ(B.q,20,A.ft(B.cf,A.b([r,A.W(A.b([A.ft(B.cf,o,B.Y,B.c6,s),B.b0,A.e(q.b,1,B.aC,s,A.ah().$3$color$fontSize$fontWeight(B.B,14,B.u),s,s,s),A.e(""+q.y+"+ Yrs",s,s,s,A.al().$2$color$fontSize(B.O,11),s,s,s),A.e("\u20b9"+B.m.D(q.at)+"/min",s,s,s,A.al().$3$color$fontSize$fontWeight(B.t,13,B.u),s,s,s),B.b0,A.mJ(12,32,s,!1,new A.aNf(a,q),"Consult",s)],n),B.z,B.b4,B.r,0,B.F)],n),B.Y,B.c6,s),s,p,s,B.cp),B.D,s,s,s,s,s,B.At,s,s,s,168)},
+return A.Y(s,A.fQ(B.q,20,A.ft(B.cf,A.b([r,A.W(A.b([A.ft(B.cf,o,B.Y,B.c6,s),B.b0,A.e(q.b,1,B.aC,s,A.ah().$3$color$fontSize$fontWeight(B.B,14,B.u),s,s,s),A.e(""+q.y+"+ Yrs",s,s,s,A.al().$2$color$fontSize(B.O,11),s,s,s),A.e("\u20b9"+B.m.D(q.at)+"/min",s,s,s,A.al().$3$color$fontSize$fontWeight(B.t,13,B.u),s,s,s),B.b0,A.mJ(12,32,s,!1,new A.aNf(a,q),"Consult",s)],n),B.z,B.b7,B.r,0,B.F)],n),B.Y,B.c6,s),s,p,s,B.cp),B.D,s,s,s,s,s,B.At,s,s,s,168)},
 $S:43}
 A.aNe.prototype={
 $0(){return this.a.AZ(this.b)},
@@ -61440,7 +61440,7 @@ m=A.ai(d?B.iY:B.pm,1)
 l=d?B.hn:B.a4F
 l=A.de(l,d?B.iY:B.pm,e,14)
 k=d?"\u0baa\u0b95\u0bb2\u0bcd (Day)":"\u0b87\u0bb0\u0bb5\u0bc1 (Night)"
-s=A.X(A.b([s,A.Y(e,A.X(A.b([l,B.eI,A.e(k,e,e,e,A.q().$3$color$fontSize$fontWeight(d?B.iY:B.pm,11,B.u),e,e,e)],o),B.z,B.v,B.r,0,e,e),B.D,e,e,new A.Z(r,e,m,n,e,e,B.M),e,e,e,B.dR,e,e,e)],o),B.z,B.b4,B.r,0,e,e)
+s=A.X(A.b([s,A.Y(e,A.X(A.b([l,B.eI,A.e(k,e,e,e,A.q().$3$color$fontSize$fontWeight(d?B.iY:B.pm,11,B.u),e,e,e)],o),B.z,B.v,B.r,0,e,e),B.D,e,e,new A.Z(r,e,m,n,e,e,B.M),e,e,e,B.dR,e,e,e)],o),B.z,B.b7,B.r,0,e,e)
 r=A.mt(B.q.aU(0.2),e,A.e(c.c,e,e,e,A.ah().$3$color$fontSize$fontWeight(B.q,26,B.u),e,e,e),e,36)
 n=A.e(c.b+" \u0b93\u0bb0\u0bc8",e,e,e,A.ah().$3$color$fontSize$fontWeight(B.t,24,B.u),e,e,e)
 m=A.e(c.a+" Hora",e,e,e,A.q().$2$color$fontSize(B.O,13),e,e,e)
@@ -61450,7 +61450,7 @@ j=A.e("\u0bae\u0bc0\u0ba4\u0bae\u0bc1\u0bb3\u0bcd\u0bb3 \u0ba8\u0bc7\u0bb0\u0bae
 i=c.y.a
 h=B.h.aX(i,6e7)
 g=B.h.M(B.h.aX(i,1e6),60)
-return A.dH(e,e,new A.dq(A.dt(!0,A.W(A.b([new A.as(B.dc,q,e),A.a8(A.cC(A.W(A.b([p,B.aA,A.Bh(A.c6(A.fQ(B.q,20,A.W(A.b([s,B.aA,r,B.bC,n,m,B.aA,l,B.aO,A.X(A.b([k,A.W(A.b([j,A.e(B.p.cc(B.h.k(h),2,"0")+":"+B.p.cc(B.h.k(g),2,"0"),e,e,e,A.ah().$3$color$fontSize$fontWeight(B.q,16,B.u),e,e,e)],o),B.z,B.v,B.r,0,B.F),A.W(A.b([A.e("\u0bae\u0bc1\u0b9f\u0bbf\u0bb5\u0bc1 (End)",e,e,e,A.q().$2$color$fontSize(B.O,10),e,e,e),A.e(a1.dG(c.x),e,e,e,A.q().$3$color$fontSize$fontWeight(B.B,12,B.u),e,e,e)],o),B.dP,B.v,B.r,0,B.F)],o),B.z,B.b4,B.r,0,e,e)],o),B.z,B.v,B.r,0,B.F),e,!0,e,B.aX),e,e),A.aV(0,1e5,0,0,0),A.aV(0,4e5,0,0,0)),B.aA,A.fQ(B.q,20,A.X(A.b([B.a5y,B.cJ,A.a8(A.W(A.b([A.e("\u0b85\u0b9f\u0bc1\u0ba4\u0bcd\u0ba4 \u0b93\u0bb0\u0bc8 (Next Hora)",e,e,e,A.q().$2$color$fontSize(B.O,11),e,e,e),A.e(c.e+" ("+c.d+" Hora)",e,e,e,A.ah().$3$color$fontSize$fontWeight(B.t,15,B.u),e,e,e)],o),B.Q,B.v,B.r,0,B.F),1,e)],o),B.z,B.v,B.r,0,e,e),e,!0,e,B.b7),B.bl,A.X(A.b([B.a6t,B.az,A.e("\u0b87\u0ba9\u0bcd\u0bb1\u0bc8\u0baf 24 \u0b93\u0bb0\u0bc8 \u0b85\u0b9f\u0bcd\u0b9f\u0bb5\u0ba3\u0bc8",e,e,e,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),e,e,e)],o),B.z,B.v,B.r,0,e,e),B.bC,A.bdb(new A.aSG(b,c,a1),b.length,B.eF,new A.aSH(),!0)],o),B.z,B.v,B.r,0,B.F),B.bc,e,e,e,B.aq),1,e)],o),B.z,B.v,B.r,0,B.F),B.av,!0),e),e,e,!1,e,e)}}
+return A.dH(e,e,new A.dq(A.dt(!0,A.W(A.b([new A.as(B.dc,q,e),A.a8(A.cC(A.W(A.b([p,B.aA,A.Bh(A.c6(A.fQ(B.q,20,A.W(A.b([s,B.aA,r,B.bC,n,m,B.aA,l,B.aO,A.X(A.b([k,A.W(A.b([j,A.e(B.p.cc(B.h.k(h),2,"0")+":"+B.p.cc(B.h.k(g),2,"0"),e,e,e,A.ah().$3$color$fontSize$fontWeight(B.q,16,B.u),e,e,e)],o),B.z,B.v,B.r,0,B.F),A.W(A.b([A.e("\u0bae\u0bc1\u0b9f\u0bbf\u0bb5\u0bc1 (End)",e,e,e,A.q().$2$color$fontSize(B.O,10),e,e,e),A.e(a1.dG(c.x),e,e,e,A.q().$3$color$fontSize$fontWeight(B.B,12,B.u),e,e,e)],o),B.dP,B.v,B.r,0,B.F)],o),B.z,B.b7,B.r,0,e,e)],o),B.z,B.v,B.r,0,B.F),e,!0,e,B.aX),e,e),A.aV(0,1e5,0,0,0),A.aV(0,4e5,0,0,0)),B.aA,A.fQ(B.q,20,A.X(A.b([B.a5y,B.cJ,A.a8(A.W(A.b([A.e("\u0b85\u0b9f\u0bc1\u0ba4\u0bcd\u0ba4 \u0b93\u0bb0\u0bc8 (Next Hora)",e,e,e,A.q().$2$color$fontSize(B.O,11),e,e,e),A.e(c.e+" ("+c.d+" Hora)",e,e,e,A.ah().$3$color$fontSize$fontWeight(B.t,15,B.u),e,e,e)],o),B.Q,B.v,B.r,0,B.F),1,e)],o),B.z,B.v,B.r,0,e,e),e,!0,e,B.b6),B.bl,A.X(A.b([B.a6t,B.az,A.e("\u0b87\u0ba9\u0bcd\u0bb1\u0bc8\u0baf 24 \u0b93\u0bb0\u0bc8 \u0b85\u0b9f\u0bcd\u0b9f\u0bb5\u0ba3\u0bc8",e,e,e,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),e,e,e)],o),B.z,B.v,B.r,0,e,e),B.bC,A.bdb(new A.aSG(b,c,a1),b.length,B.eF,new A.aSH(),!0)],o),B.z,B.v,B.r,0,B.F),B.bc,e,e,e,B.aq),1,e)],o),B.z,B.v,B.r,0,B.F),B.av,!0),e),e,e,!1,e,e)}}
 A.aSJ.prototype={
 $1(a){var s=this.a
 if(s.c!=null)s.O(new A.aSI(s))},
@@ -61571,7 +61571,7 @@ else{q=A.a_(20)
 p=A.ai(B.q,1)
 o=A.b([A.a8(A.X(A.b([B.a6H,B.bG,A.a8(A.e(m.d,l,B.aC,l,A.ah().$3$color$fontSize$fontWeight(B.B,18,B.u),l,l,l),1,l)],g),B.z,B.v,B.r,0,l,l),1,l)],g)
 if(j)B.n.U(o,A.b([A.cc(l,l,B.uj,l,l,new A.aR4(m),l,l,k),A.cc(l,l,B.uk,l,l,m.gapS(),l,l,"Delete Prediction")],g))
-o=A.X(o,B.z,B.b4,B.r,0,l,l)
+o=A.X(o,B.z,B.b7,B.r,0,l,l)
 n=m.e
 if(n===0)n=i.b
 else if(n===1)n=i.c
@@ -61778,7 +61778,7 @@ s=n.mu(B.hm,A.b([new A.bT("\u0baf\u0bcb\u0b95\u0bbf \u0baa\u0bc1\u0bb3\u0bcd\u0b
 r=A.a_(14)
 q=A.ai(B.q.aU(0.4),1)
 p=t.p
-return A.W(A.b([s,B.bD,A.Y(m,A.W(A.b([A.e("\u0b9c\u0bcb\u0ba4\u0bbf\u0b9f \u0bb5\u0bbf\u0bb3\u0b95\u0bcd\u0b95\u0bae\u0bcd:",m,m,m,A.ah().$3$color$fontSize$fontWeight(B.q,13,B.u),m,m,m),B.b_,A.e(n.w.db,m,m,m,A.al().$2$color$fontSize(B.B,12),m,m,m),B.b_,A.e(n.w.dx,m,m,m,A.al().$2$color$fontSize(B.aw,12),m,m,m)],p),B.Q,B.v,B.r,0,B.F),B.D,m,m,new A.Z(B.V,m,q,r,m,m,B.M),m,m,m,B.b7,m,m,m),B.bl],p),B.Q,B.v,B.r,0,B.F)
+return A.W(A.b([s,B.bD,A.Y(m,A.W(A.b([A.e("\u0b9c\u0bcb\u0ba4\u0bbf\u0b9f \u0bb5\u0bbf\u0bb3\u0b95\u0bcd\u0b95\u0bae\u0bcd:",m,m,m,A.ah().$3$color$fontSize$fontWeight(B.q,13,B.u),m,m,m),B.b_,A.e(n.w.db,m,m,m,A.al().$2$color$fontSize(B.B,12),m,m,m),B.b_,A.e(n.w.dx,m,m,m,A.al().$2$color$fontSize(B.aw,12),m,m,m)],p),B.Q,B.v,B.r,0,B.F),B.D,m,m,new A.Z(B.V,m,q,r,m,m,B.M),m,m,m,B.b6,m,m,m),B.bl],p),B.Q,B.v,B.r,0,B.F)
 case 3:return n.aod()
 case 4:s=n.Q
 s===$&&A.a()
@@ -61790,10 +61790,10 @@ return A.W(A.b([s,B.bD,n.mu(B.a42,A.b([new A.bT("\u0b9a\u0bc2\u0bb0\u0bbf\u0baf 
 case 5:s=A.a_(14)
 r=A.ai(B.q,1)
 q=t.p
-p=A.X(A.b([B.a5Q,B.az,A.e("\u0ba4\u0bbf\u0ba9\u0b9a\u0bc1\u0ba4\u0bcd\u0ba4\u0bbf \u0bae\u0ba4\u0bbf\u0baa\u0bcd\u0baa\u0bc0\u0b9f\u0bc1:",m,m,m,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),m,m,m)],q),B.z,B.v,B.r,0,m,m)
+p=A.X(A.b([B.a5Q,B.az,A.a8(A.e("\u0ba4\u0bbf\u0ba9\u0b9a\u0bc1\u0ba4\u0bcd\u0ba4\u0bbf \u0bae\u0ba4\u0bbf\u0baa\u0bcd\u0baa\u0bc0\u0b9f\u0bc1:",m,m,m,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),m,m,m),1,m)],q),B.z,B.v,B.r,0,m,m)
 o=n.as
 o===$&&A.a()
-s=A.Y(m,A.W(A.b([p,B.b_,A.e(o.fr,m,m,m,A.q().$3$color$fontSize$fontWeight(B.b8,15,B.u),m,m,m),B.b0,A.e(n.as.fx,m,m,m,A.al().$2$color$fontSize(B.aw,12),m,m,m)],q),B.Q,B.v,B.r,0,B.F),B.D,m,m,new A.Z(B.V,m,r,s,m,m,B.M),m,m,m,B.b7,m,m,m)
+s=A.Y(m,A.W(A.b([p,B.b_,A.e(o.fr,m,m,m,A.q().$3$color$fontSize$fontWeight(B.b8,15,B.u),m,m,m),B.b0,A.e(n.as.fx,m,m,m,A.al().$2$color$fontSize(B.aw,12),m,m,m)],q),B.Q,B.v,B.r,0,B.F),B.D,m,m,new A.Z(B.V,m,r,s,m,m,B.M),m,m,m,B.b6,m,m,m)
 r=n.as
 return A.W(A.b([s,B.bD,n.mu(B.a4V,A.b([new A.bT("\u0bb0\u0bbe\u0b95\u0bc1 \u0b95\u0bbe\u0bb2\u0bae\u0bcd",r.CW),new A.bT("\u0b8e\u0bae\u0b95\u0ba3\u0bcd\u0b9f\u0bae\u0bcd",r.cx),new A.bT("\u0b95\u0bc1\u0bb3\u0bbf\u0b95\u0bc8 \u0b95\u0bbe\u0bb2\u0bae\u0bcd",r.cy),new A.bT("\u0b85\u0baa\u0bbf\u0b9c\u0bbf\u0ba4\u0bcd \u0bae\u0bc1\u0b95\u0bc2\u0bb0\u0bcd\u0ba4\u0bcd\u0ba4\u0bae\u0bcd",r.db)],t.fs),"\u0bae\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0baf \u0ba8\u0bc7\u0bb0 \u0b95\u0bbe\u0bb2\u0b99\u0bcd\u0b95\u0bb3\u0bcd (Kalam Windows)"),B.bl],q),B.Q,B.v,B.r,0,B.F)
 case 6:s=n.x
@@ -61823,7 +61823,7 @@ return A.W(A.b([o,B.bD,r,B.bD,s,B.bD,new A.Dk(q,null),B.bl],t.p),B.Q,B.v,B.r,0,B
 aot(){var s,r=this,q=null,p=A.a_(14),o=A.ai(B.q.aU(0.5),1),n=A.e("\u0bb5\u0bb0\u0bcd\u0b95\u0bcd\u0b95 \u0b9a\u0b95\u0bcd\u0b95\u0bb0 \u0ba4\u0bc7\u0bb0\u0bcd\u0bb5\u0bc1 (Select Divisional Chart)",q,q,q,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),q,q,q),m=A.a_(10),l=A.ai(B.q,1),k=r.at,j=t.r1
 j=A.T(new A.a7(B.aUP,new A.aRW(),j),j.i("at.E"))
 s=t.p
-p=A.Y(q,A.W(A.b([n,B.aR,A.Y(q,new A.j8(A.pm(B.a8,B.a5R,!0,j,new A.aRX(r),q,q,k,t.IU),q),B.D,q,q,new A.Z(B.V,q,l,m,q,q,B.M),q,q,q,B.ka,q,q,q),B.b_,A.e("\u0bae\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0baf\u0ba4\u0bcd\u0ba4\u0bc1\u0bb5\u0bae\u0bcd: "+r.at.r,q,q,q,A.al().$2$color$fontSize(B.O,11),q,q,q)],s),B.Q,B.v,B.r,0,B.F),B.D,q,q,new A.Z(B.a6,q,o,p,q,q,B.M),q,q,q,B.b7,q,q,q)
+p=A.Y(q,A.W(A.b([n,B.aR,A.Y(q,new A.j8(A.pm(B.a8,B.a5R,!0,j,new A.aRX(r),q,q,k,t.IU),q),B.D,q,q,new A.Z(B.V,q,l,m,q,q,B.M),q,q,q,B.ka,q,q,q),B.b_,A.e("\u0bae\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0baf\u0ba4\u0bcd\u0ba4\u0bc1\u0bb5\u0bae\u0bcd: "+r.at.r,q,q,q,A.al().$2$color$fontSize(B.O,11),q,q,q)],s),B.Q,B.v,B.r,0,B.F),B.D,q,q,new A.Z(B.a6,q,o,p,q,q,B.M),q,q,q,B.b6,q,q,q)
 o=r.ax
 o===$&&A.a()
 m=r.at
@@ -61843,10 +61843,10 @@ o=m.r.a
 n=A.ab(o).i("a7<1,e1>")
 o=A.T(new A.a7(o,new A.aRU(),n),n.i("at.E"))
 return A.W(A.b([j,B.bD,A.Y(l,A.cC(A.ph(14,p,l,38,34,new A.bq(B.V,t.rc),38,12,o),l,l,l,l,B.ba),B.D,l,l,new A.Z(B.a6,l,q,r,l,l,B.M),l,l,l,l,l,l,l),B.bl],s),B.Q,B.v,B.r,0,B.F)},
-ant(){var s,r,q,p,o=this,n=null,m=A.b(["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"],t.s),l=A.a_(12),k=A.ai(B.q,1),j=A.e("\u0b9a\u0bb0\u0bcd\u0bb5 \u0b85\u0bb7\u0bcd\u0b9f\u0bb5\u0bb0\u0bcd\u0b95\u0bcd\u0b95 \u0bae\u0bca\u0ba4\u0bcd\u0ba4 \u0baa\u0bc1\u0bb3\u0bcd\u0bb3\u0bbf\u0b95\u0bb3\u0bcd (Total SAV):",n,n,n,A.q().$3$color$fontSize$fontWeight(B.t,13,B.u),n,n,n),i=o.z
+ant(){var s,r,q,p,o=this,n=null,m=A.b(["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"],t.s),l=A.a_(12),k=A.ai(B.q,1),j=A.a8(A.e("\u0b9a\u0bb0\u0bcd\u0bb5 \u0b85\u0bb7\u0bcd\u0b9f\u0bb5\u0bb0\u0bcd\u0b95\u0bcd\u0b95 \u0bae\u0bca\u0ba4\u0bcd\u0ba4 \u0baa\u0bc1\u0bb3\u0bcd\u0bb3\u0bbf\u0b95\u0bb3\u0bcd (Total SAV):",n,n,n,A.q().$3$color$fontSize$fontWeight(B.t,13,B.u),n,n,n),1,n),i=o.z
 i===$&&A.a()
 s=t.p
-l=A.Y(n,A.X(A.b([j,A.e(""+i.c+" / 337",n,n,n,A.q().$3$color$fontSize$fontWeight(B.b8,15,B.u),n,n,n)],s),B.z,B.b4,B.r,0,n,n),B.D,n,n,new A.Z(B.V,n,k,l,n,n,B.M),n,n,n,B.cp,n,n,n)
+l=A.Y(n,A.X(A.b([j,B.az,A.e(""+i.c+" / 337",n,n,n,A.q().$3$color$fontSize$fontWeight(B.b8,15,B.u),n,n,n)],s),B.z,B.v,B.r,0,n,n),B.D,n,n,new A.Z(B.V,n,k,l,n,n,B.M),n,n,n,B.cp,n,n,n)
 k=o.mu(B.a4t,A.o3(12,new A.aRR(o),!0,t.X4),"\u0bb0\u0bbe\u0b9a\u0bbf \u0bb5\u0bbe\u0bb0\u0bbf\u0baf\u0bbe\u0b95 \u0b9a\u0bb0\u0bcd\u0bb5 \u0b85\u0bb7\u0bcd\u0b9f\u0bb5\u0bb0\u0bcd\u0b95\u0bcd\u0b95 \u0baa\u0bb0\u0bb2\u0bcd\u0b95\u0bb3\u0bcd (SAV)")
 i=A.e("\u0baa\u0bbf\u0ba9\u0bcd\u0ba9 \u0b85\u0bb7\u0bcd\u0b9f\u0bb5\u0bb0\u0bcd\u0b95\u0bcd\u0b95 \u0b85\u0b9f\u0bcd\u0b9f\u0bb5\u0ba3\u0bc8 (BAV)",n,n,n,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),n,n,n)
 j=A.a_(12)
@@ -61857,9 +61857,9 @@ p=t.A7
 p=A.T(new A.a7(m,new A.aRT(o),p),p.i("at.E"))
 return A.W(A.b([l,B.aO,k,B.bD,i,B.aR,A.Y(n,A.cC(A.ph(10,q,n,36,32,new A.bq(B.V,t.rc),36,8,p),n,n,n,n,B.ba),B.D,n,n,new A.Z(B.a6,n,r,j,n,n,B.M),n,n,n,n,n,n,n),B.bl],s),B.Q,B.v,B.r,0,B.F)},
 mu(a,b,c){var s=null,r=A.a_(14),q=A.ai(B.q.aU(0.4),1),p=t.p
-p=A.b([A.X(A.b([A.de(a,B.q,s,18),B.az,A.e(c,s,s,s,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),s,s,s)],p),B.z,B.v,B.r,0,s,s),B.it],p)
+p=A.b([A.X(A.b([A.de(a,B.q,s,18),B.az,A.a8(A.e(c,s,s,s,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),s,s,s),1,s)],p),B.z,B.v,B.r,0,s,s),B.it],p)
 B.n.U(p,new A.a7(b,new A.aRV(),A.ab(b).i("a7<1,h>")))
-return A.Y(s,A.W(p,B.Q,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.a6,s,q,r,s,s,B.M),s,s,s,B.b7,s,s,s)},
+return A.Y(s,A.W(p,B.Q,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.a6,s,q,r,s,s,B.M),s,s,s,B.b6,s,s,s)},
 Fa(a,b,c){var s=null,r=A.a_(10),q=A.ai(c.aU(0.5),1)
 return A.Y(s,A.W(A.b([A.e(a,s,s,s,A.q().$2$color$fontSize(B.O,9),s,s,s),B.di,A.e(b,s,s,s,A.q().$3$color$fontSize$fontWeight(c,14,B.u),s,s,s)],t.p),B.z,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.V,s,q,r,s,s,B.M),s,s,s,B.a2z,s,s,s)}}
 A.aRZ.prototype={
@@ -61950,7 +61950,7 @@ return A.cn(A.e(""+a,s,s,s,A.q().$2$color$fontSize(B.B,10),s,s,s))},
 $S:635}
 A.aRV.prototype={
 $1(a){var s=null
-return new A.as(B.rY,A.X(A.b([A.cI(A.e(a.a,s,s,s,A.q().$2$color$fontSize(B.O,11.5),s,s,s),s,140),B.bej,A.a8(A.e(a.b,s,s,s,A.q().$3$color$fontSize$fontWeight(B.B,11.5,B.bk),s,s,s),1,s)],t.p),B.Q,B.v,B.r,0,s,s),s)},
+return new A.as(B.rY,A.X(A.b([A.cI(A.e(a.a,s,s,s,A.q().$2$color$fontSize(B.O,11.5),s,s,s),s,130),B.bej,A.a8(A.e(a.b,s,s,s,A.q().$3$color$fontSize$fontWeight(B.B,11.5,B.bk),s,s,s),1,s)],t.p),B.Q,B.v,B.r,0,s,s),s)},
 $S:638}
 A.bT.prototype={}
 A.af6.prototype={
@@ -61969,11 +61969,11 @@ r.aL()
 s=r.d
 r.f=A.b64(r.e,s)},
 I(a){var s,r,q,p,o,n,m=this,l=null,k=t.p,j=A.cE(A.c6(A.X(A.b([A.cc(l,l,B.ds,l,l,new A.aS7(a),l,l,l),A.a8(A.W(A.b([A.e("\u0b9c\u0bbe\u0bae\u0b95\u0bcb\u0bb3\u0bcd \u0b86\u0bb0\u0bc1\u0b9f\u0bae\u0bcd",l,l,l,A.ah().$4$color$fontSize$fontWeight$letterSpacing(B.t,20,B.u,1.2),l,l,l),A.e("Jamakol Arudam Prasannam Engine",l,l,l,A.q().$2$color$fontSize(B.O,11),l,l,l)],k),B.Q,B.v,B.r,0,B.F),1,l),A.cc(l,l,B.a6M,l,l,new A.aS8(m),l,l,"\u0ba4\u0bb1\u0bcd\u0baa\u0bcb\u0ba4\u0bc8\u0baf \u0ba8\u0bc7\u0bb0\u0ba4\u0bcd\u0ba4\u0bbf\u0bb1\u0bcd\u0b95\u0bc1 \u0baa\u0bc1\u0ba4\u0bc1\u0baa\u0bcd\u0baa\u0bbf (Refresh to Now)")],k),B.z,B.v,B.r,0,l,l),l,l),l,A.aV(0,4e5,0,0,0)),i=A.a_(14),h=A.ai(B.q.aU(0.5),1),g=A.e("\u0baa\u0bbf\u0bb0\u0b9a\u0ba9\u0bcd\u0ba9 \u0ba8\u0bc7\u0bb0\u0bae\u0bcd:",l,l,l,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),l,l,l),f=m.d
-f=A.X(A.b([g,A.e(B.p.cc(B.h.k(A.hE(f)),2,"0")+":"+B.p.cc(B.h.k(A.xU(f)),2,"0")+":"+B.p.cc(B.h.k(A.a0u(f)),2,"0")+" ("+A.c9(f)+"/"+A.be(f)+"/"+A.ba(f)+")",l,l,l,A.q().$3$color$fontSize$fontWeight(B.B,13,B.u),l,l,l)],k),B.z,B.b4,B.r,0,l,l)
+f=A.X(A.b([g,A.e(B.p.cc(B.h.k(A.hE(f)),2,"0")+":"+B.p.cc(B.h.k(A.xU(f)),2,"0")+":"+B.p.cc(B.h.k(A.a0u(f)),2,"0")+" ("+A.c9(f)+"/"+A.be(f)+"/"+A.ba(f)+")",l,l,l,A.q().$3$color$fontSize$fontWeight(B.B,13,B.u),l,l,l)],k),B.z,B.b7,B.r,0,l,l)
 g=A.e("\u0b86\u0bb0\u0bc1\u0b9f \u0bb0\u0bbe\u0b9a\u0bbf \u0b8e\u0ba3\u0bcd (1-12):",l,l,l,A.q().$2$color$fontSize(B.O,12),l,l,l)
 s=m.e
 r=""+s
-i=A.Y(l,A.W(A.b([f,B.bC,A.X(A.b([g,B.cJ,A.a8(A.beY(B.q,11,B.V,r+" - "+B.bd[s-1],12,1,new A.aS9(m),s),1,l),A.e(r,l,l,l,A.ah().$3$color$fontSize$fontWeight(B.t,16,B.u),l,l,l)],k),B.z,B.v,B.r,0,l,l)],k),B.Q,B.v,B.r,0,B.F),B.D,l,l,new A.Z(B.a6,l,h,i,l,l,B.M),l,l,l,B.b7,l,l,l)
+i=A.Y(l,A.W(A.b([f,B.bC,A.X(A.b([g,B.cJ,A.a8(A.beY(B.q,11,B.V,r+" - "+B.bd[s-1],12,1,new A.aS9(m),s),1,l),A.e(r,l,l,l,A.ah().$3$color$fontSize$fontWeight(B.t,16,B.u),l,l,l)],k),B.z,B.v,B.r,0,l,l)],k),B.Q,B.v,B.r,0,B.F),B.D,l,l,new A.Z(B.a6,l,h,i,l,l,B.M),l,l,l,B.b6,l,l,l)
 h=m.f
 h===$&&A.a()
 h=A.X(A.b([A.a8(m.Ff("\u0b89\u0ba4\u0baf\u0bae\u0bcd (Udhayam)",h.f.d,B.l6),1,l),B.az,A.a8(m.Ff("\u0b86\u0bb0\u0bc1\u0b9f\u0bae\u0bcd (Aarudam)",m.f.r.d,B.pl),1,l),B.az,A.a8(m.Ff("\u0b95\u0bb5\u0bbf\u0baa\u0bcd\u0baa\u0bc1 (Kavippu)",m.f.w.d,B.aG),1,l),B.az,A.a8(m.Ff("\u0b9a\u0bc2\u0bb0\u0bbf\u0baf\u0ba9\u0bcd (Sun)",m.f.x.d,B.f8),1,l)],k),B.z,B.v,B.r,0,l,l)
@@ -61982,7 +61982,7 @@ s=A.ai(B.q,1)
 r=A.Y(l,A.X(A.b([B.a5K,B.bG,A.a8(A.W(A.b([A.e(m.f.d,l,l,l,A.q().$3$color$fontSize$fontWeight(B.t,13,B.u),l,l,l),A.e("\u0b9c\u0bbe\u0bae \u0b85\u0ba4\u0bbf\u0baa\u0ba4\u0bbf \u0b95\u0bbf\u0bb0\u0b95\u0bae\u0bcd: "+m.f.e,l,l,l,A.al().$2$color$fontSize(B.aw,11),l,l,l)],k),B.Q,B.v,B.r,0,B.F),1,l)],k),B.z,B.v,B.r,0,l,l),B.D,l,l,new A.Z(B.V,l,s,r,l,l,B.M),l,l,l,B.cp,l,l,l)
 s=A.a_(14)
 g=A.ai(B.q.aU(0.5),1)
-s=A.Y(l,A.W(A.b([A.e("\u0baa\u0bbf\u0bb0\u0b9a\u0ba9\u0bcd\u0ba9 \u0baa\u0bb2\u0ba9\u0bcd & \u0b95\u0bbe\u0bb0\u0bbf\u0baf \u0b9a\u0bbf\u0ba4\u0bcd\u0ba4\u0bbf \u0b86\u0baf\u0bcd\u0bb5\u0bc1",l,l,l,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),l,l,l),B.it,A.e(m.f.as,l,l,l,A.al().$2$color$fontSize(B.B,12.5),l,l,l),B.bC,A.e("\u0b9a\u0bc1\u0baa \u0bb0\u0bbe\u0b9a\u0bbf\u0b95\u0bb3\u0bcd (Favorable): "+B.n.bz(m.f.at,", "),l,l,l,A.q().$3$color$fontSize$fontWeight(B.b8,12,B.bk),l,l,l),B.b0,A.e("\u0ba4\u0b9f\u0bc8 \u0bb0\u0bbe\u0b9a\u0bbf\u0b95\u0bb3\u0bcd (Obstructions): "+B.n.bz(m.f.ax,", "),l,l,l,A.q().$3$color$fontSize$fontWeight(B.aG,12,B.bk),l,l,l)],k),B.Q,B.v,B.r,0,B.F),B.D,l,l,new A.Z(B.a6,l,g,s,l,l,B.M),l,l,l,B.b7,l,l,l)
+s=A.Y(l,A.W(A.b([A.e("\u0baa\u0bbf\u0bb0\u0b9a\u0ba9\u0bcd\u0ba9 \u0baa\u0bb2\u0ba9\u0bcd & \u0b95\u0bbe\u0bb0\u0bbf\u0baf \u0b9a\u0bbf\u0ba4\u0bcd\u0ba4\u0bbf \u0b86\u0baf\u0bcd\u0bb5\u0bc1",l,l,l,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),l,l,l),B.it,A.e(m.f.as,l,l,l,A.al().$2$color$fontSize(B.B,12.5),l,l,l),B.bC,A.e("\u0b9a\u0bc1\u0baa \u0bb0\u0bbe\u0b9a\u0bbf\u0b95\u0bb3\u0bcd (Favorable): "+B.n.bz(m.f.at,", "),l,l,l,A.q().$3$color$fontSize$fontWeight(B.b8,12,B.bk),l,l,l),B.b0,A.e("\u0ba4\u0b9f\u0bc8 \u0bb0\u0bbe\u0b9a\u0bbf\u0b95\u0bb3\u0bcd (Obstructions): "+B.n.bz(m.f.ax,", "),l,l,l,A.q().$3$color$fontSize$fontWeight(B.aG,12,B.bk),l,l,l)],k),B.Q,B.v,B.r,0,B.F),B.D,l,l,new A.Z(B.a6,l,g,s,l,l,B.M),l,l,l,B.b6,l,l,l)
 g=A.e("\u0b9c\u0bbe\u0bae\u0b95\u0bcd\u0b95\u0bcb\u0bb3\u0bcd \u0bb5\u0bc6\u0bb3\u0bbf \u0b95\u0bbf\u0bb0\u0b95\u0b99\u0bcd\u0b95\u0bb3\u0bcd (Outer Jama Planets)",l,l,l,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),l,l,l)
 f=A.a_(12)
 q=A.ai(B.q.aU(0.4),1)
@@ -62053,7 +62053,7 @@ i=n.e.f
 k=A.p(i).i("f7<1,2>")
 k=A.o5(new A.f7(i,k),new A.aSh(),k.i("m.E"),t.dT)
 k=A.T(k,A.p(k).i("m.E"))
-k=A.Y(m,A.W(A.b([e,B.it,A.u7(B.fP,k,8,12)],j),B.Q,B.v,B.r,0,B.F),B.D,m,m,new A.Z(B.a6,m,h,f,m,m,B.M),m,m,m,B.b7,m,m,m)
+k=A.Y(m,A.W(A.b([e,B.it,A.u7(B.fP,k,8,12)],j),B.Q,B.v,B.r,0,B.F),B.D,m,m,new A.Z(B.a6,m,h,f,m,m,B.M),m,m,m,B.b6,m,m,m)
 i=A.e("12 \u0baa\u0bbe\u0bb5\u0b95 \u0b86\u0bb0\u0bae\u0bcd\u0baa \u0ba8\u0bbf\u0bb2\u0bc8\u0b95\u0bb3\u0bcd (12 KP Cusps & Sub Lords)",m,m,m,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),m,m,m)
 h=A.a_(14)
 f=A.ai(B.q.aU(0.4),1)
@@ -62112,10 +62112,10 @@ m=i.d
 l=""+m
 m=A.a8(A.beY(B.q,248,B.V,l,249,1,new A.aSm(i),m),1,h)
 k=A.a_(8)
-q=A.Y(h,A.W(A.b([o,B.aO,A.X(A.b([n,B.az,m,A.Y(h,A.e(l,h,h,h,A.q().$3$color$fontSize$fontWeight(B.a_,14,B.u),h,h,h),B.D,h,h,new A.Z(B.q,h,h,k,h,h,B.M),h,h,h,B.dR,h,h,h)],g),B.z,B.v,B.r,0,h,h)],g),B.Q,B.v,B.r,0,B.F),B.D,h,h,new A.Z(B.a6,h,p,q,h,h,B.M),h,h,h,B.b7,h,h,h)
+q=A.Y(h,A.W(A.b([o,B.aO,A.X(A.b([n,B.az,m,A.Y(h,A.e(l,h,h,h,A.q().$3$color$fontSize$fontWeight(B.a_,14,B.u),h,h,h),B.D,h,h,new A.Z(B.q,h,h,k,h,h,B.M),h,h,h,B.dR,h,h,h)],g),B.z,B.v,B.r,0,h,h)],g),B.Q,B.v,B.r,0,B.F),B.D,h,h,new A.Z(B.a6,h,p,q,h,h,B.M),h,h,h,B.b6,h,h,h)
 p=A.a_(14)
 k=A.ai(B.q,1)
-p=A.Y(h,A.W(A.b([A.X(A.b([A.e("\u0baa\u0bbf\u0bb0\u0b9a\u0ba9\u0bcd\u0ba9 \u0b89\u0ba4\u0baf \u0bb2\u0b95\u0bcd\u0ba9\u0bae\u0bcd (Horary Ascendant):",h,h,h,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),h,h,h),A.e(s.d,h,h,h,A.q().$3$color$fontSize$fontWeight(B.b8,14,B.u),h,h,h)],g),B.z,B.b4,B.r,0,h,h),B.aR,A.e("\u0bb8\u0bcd\u0baa\u0bc1\u0b9f\u0bae\u0bcd: "+s.r,h,h,h,A.q().$2$color$fontSize(B.B,12),h,h,h),B.b0,A.e("\u0bb0\u0bbe\u0b9a\u0bbf \u0ba8\u0bbe\u0ba4\u0ba9\u0bcd: "+s.w+"  |  \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0 \u0ba8\u0bbe\u0ba4\u0ba9\u0bcd: "+s.x,h,h,h,A.q().$2$color$fontSize(B.aw,12),h,h,h),B.b0,A.e("\u0b89\u0baa \u0ba8\u0bbe\u0ba4\u0ba9\u0bcd (Sub Lord): "+s.y+"  |  \u0b89\u0baa-\u0b89\u0baa \u0ba8\u0bbe\u0ba4\u0ba9\u0bcd: "+s.z,h,h,h,A.q().$3$color$fontSize$fontWeight(B.q,12,B.u),h,h,h)],g),B.Q,B.v,B.r,0,B.F),B.D,h,h,new A.Z(B.V,h,k,p,h,h,B.M),h,h,h,B.b7,h,h,h)
+p=A.Y(h,A.W(A.b([A.X(A.b([A.e("\u0baa\u0bbf\u0bb0\u0b9a\u0ba9\u0bcd\u0ba9 \u0b89\u0ba4\u0baf \u0bb2\u0b95\u0bcd\u0ba9\u0bae\u0bcd (Horary Ascendant):",h,h,h,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),h,h,h),A.e(s.d,h,h,h,A.q().$3$color$fontSize$fontWeight(B.b8,14,B.u),h,h,h)],g),B.z,B.b7,B.r,0,h,h),B.aR,A.e("\u0bb8\u0bcd\u0baa\u0bc1\u0b9f\u0bae\u0bcd: "+s.r,h,h,h,A.q().$2$color$fontSize(B.B,12),h,h,h),B.b0,A.e("\u0bb0\u0bbe\u0b9a\u0bbf \u0ba8\u0bbe\u0ba4\u0ba9\u0bcd: "+s.w+"  |  \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0 \u0ba8\u0bbe\u0ba4\u0ba9\u0bcd: "+s.x,h,h,h,A.q().$2$color$fontSize(B.aw,12),h,h,h),B.b0,A.e("\u0b89\u0baa \u0ba8\u0bbe\u0ba4\u0ba9\u0bcd (Sub Lord): "+s.y+"  |  \u0b89\u0baa-\u0b89\u0baa \u0ba8\u0bbe\u0ba4\u0ba9\u0bcd: "+s.z,h,h,h,A.q().$3$color$fontSize$fontWeight(B.q,12,B.u),h,h,h)],g),B.Q,B.v,B.r,0,B.F),B.D,h,h,new A.Z(B.V,h,k,p,h,h,B.M),h,h,h,B.b6,h,h,h)
 k=A.e("\u0baa\u0bbf\u0bb0\u0b9a\u0ba9\u0bcd\u0ba9 12 \u0baa\u0bbe\u0bb5\u0b95\u0b99\u0bcd\u0b95\u0bb3\u0bcd (KP Horary Cusps)",h,h,h,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),h,h,h)
 l=A.a_(12)
 m=A.ai(B.q.aU(0.4),1)
@@ -62321,7 +62321,7 @@ n=A.aV(0,d,0,0,0)
 n=A.cE(A.Mv(o,0.15,f,A.aV(0,d,0,0,0),n,0),f,f)
 o=A.lc(f,f,B.q,f)
 m=g.x
-m=A.cE(A.c6(A.X(A.b([A.X(A.b([new A.iz(o,A.VB(B.q,!1,B.a8,f,f,!1,f,f,new A.aTk(g),f,f,new A.ca(A.a_(4),B.a4),f,f,!1,m),f),A.e("Remember Me",f,f,f,A.al().$2$color$fontSize(B.O,13),f,f,f)],k),B.z,B.v,B.r,0,f,f),A.cV(f,A.e("Forgot Password?",f,f,f,A.al().$3$color$fontSize$fontWeight(B.t,13,B.bk),f,f,f),B.a2,!1,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,new A.aTl(g),f,f,f,f,f,f)],k),B.z,B.b4,B.r,0,f,f),f,f),A.aV(0,7e5,0,0,0),f)
+m=A.cE(A.c6(A.X(A.b([A.X(A.b([new A.iz(o,A.VB(B.q,!1,B.a8,f,f,!1,f,f,new A.aTk(g),f,f,new A.ca(A.a_(4),B.a4),f,f,!1,m),f),A.e("Remember Me",f,f,f,A.al().$2$color$fontSize(B.O,13),f,f,f)],k),B.z,B.v,B.r,0,f,f),A.cV(f,A.e("Forgot Password?",f,f,f,A.al().$3$color$fontSize$fontWeight(B.t,13,B.bk),f,f,f),B.a2,!1,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,new A.aTl(g),f,f,f,f,f,f)],k),B.z,B.b7,B.r,0,f,f),f,f),A.aV(0,7e5,0,0,0),f)
 o=A.c6(A.mJ(18,56,f,g.y,g.gavX(),"LOGIN",f),f,f)
 l=A.aV(0,5e5,0,0,0)
 l=A.CX(o,B.dr,A.aV(0,e,0,0,0),l)
@@ -62513,7 +62513,7 @@ r=l.d
 r===$&&A.a()
 r=A.e(r.b,k,k,k,A.ah().$3$color$fontSize$fontWeight(B.t,15,B.u),k,k,k)
 q=l.d
-q=A.Bh(A.c6(A.fQ(B.q,20,A.X(A.b([s,B.cJ,A.a8(A.W(A.b([r,A.e("DOB: "+q.f+" "+q.r+" | "+q.x,k,k,k,A.q().$2$color$fontSize(B.O,11),k,k,k)],j),B.Q,B.v,B.r,0,B.F),1,k)],j),B.z,B.v,B.r,0,k,k),k,!0,k,B.b7),k,k),k,A.aV(0,4e5,0,0,0))
+q=A.Bh(A.c6(A.fQ(B.q,20,A.X(A.b([s,B.cJ,A.a8(A.W(A.b([r,A.e("DOB: "+q.f+" "+q.r+" | "+q.x,k,k,k,A.q().$2$color$fontSize(B.O,11),k,k,k)],j),B.Q,B.v,B.r,0,B.F),1,k)],j),B.z,B.v,B.r,0,k,k),k,!0,k,B.b6),k,k),k,A.aV(0,4e5,0,0,0))
 r=l.f
 r===$&&A.a()
 r=l.OB(r.e).aU(0.18)
@@ -62531,7 +62531,7 @@ r=A.fQ(B.q,20,A.cC(A.ph(16,r,44,k,k,k,36,k,p),k,k,k,k,B.ba),k,!0,k,B.cp)
 p=B.jQ.aU(0.15)
 o=A.a_(12)
 m=A.ai(B.zj.aU(0.4),1)
-i.push(A.a8(A.cC(A.W(A.b([q,B.aA,s,B.aA,n,B.bC,r,B.aA,A.Y(k,A.X(A.b([B.a5B,B.bG,A.a8(A.e(l.f.x,k,k,k,A.q().$3$color$fontSize$height(B.zE,11,1.4),k,k,k),1,k)],j),B.Q,B.v,B.r,0,k,k),B.D,k,k,new A.Z(p,k,m,o,k,k,B.M),k,k,k,B.b7,k,k,k)],j),B.z,B.v,B.r,0,B.F),B.bc,k,k,k,B.aq),1,k))}return A.dH(k,k,new A.dq(A.dt(!0,A.W(i,B.z,B.v,B.r,0,B.F),B.av,!0),k),k,k,!1,k,k)}}
+i.push(A.a8(A.cC(A.W(A.b([q,B.aA,s,B.aA,n,B.bC,r,B.aA,A.Y(k,A.X(A.b([B.a5B,B.bG,A.a8(A.e(l.f.x,k,k,k,A.q().$3$color$fontSize$height(B.zE,11,1.4),k,k,k),1,k)],j),B.Q,B.v,B.r,0,k,k),B.D,k,k,new A.Z(p,k,m,o,k,k,B.M),k,k,k,B.b6,k,k,k)],j),B.z,B.v,B.r,0,B.F),B.bc,k,k,k,B.aq),1,k))}return A.dH(k,k,new A.dq(A.dt(!0,A.W(i,B.z,B.v,B.r,0,B.F),B.av,!0),k),k,k,!1,k,k)}}
 A.aTn.prototype={
 $0(){this.a.r=!1},
 $S:0}
@@ -62719,7 +62719,7 @@ if(this.c){s=this.a
 l.push(A.k0(q,A.X(A.b([A.mt(A.R(217,B.V.n()>>>16&255,B.V.n()>>>8&255,B.V.n()&255),q,A.cc(q,q,B.BS,q,q,new A.aTH(s,p),B.av,q,q),q,18),B.az,A.mt(A.R(217,B.V.n()>>>16&255,B.V.n()>>>8&255,B.V.n()&255),q,A.cc(q,q,B.BV,q,q,new A.aTI(s,p),B.av,q,q),q,18)],m),B.z,B.v,B.r,0,q,q),q,q,q,10,10,q))}l=A.ft(B.cf,l,B.Y,B.c6,q)
 s=A.R(51,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255)
 r=A.a_(8)
-return A.Y(q,A.W(A.b([l,new A.as(B.bc,A.W(A.b([A.Y(q,A.e(p.c,q,q,q,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),q,q,q),B.D,q,q,new A.Z(s,q,q,r,q,q,B.M),q,q,q,B.dR,q,q,q),B.aR,A.e(p.b,q,q,q,A.ah().$3$color$fontSize$fontWeight(B.B,16,B.u),q,q,q),B.b_,A.e(p.d,q,q,q,A.q().$2$color$fontSize(B.O,13),q,q,q),B.aO,A.X(A.b([A.e("By "+p.w,q,q,q,A.q().$2$color$fontSize(B.t,11),q,q,q),A.X(A.b([B.a6q,A.e(" "+p.y,q,q,q,B.TN,q,q,q),B.cJ,B.a5f,A.e(" "+p.z,q,q,q,B.TN,q,q,q)],m),B.z,B.v,B.r,0,q,q)],m),B.z,B.b4,B.r,0,q,q)],m),B.Q,B.v,B.r,0,B.F),q)],m),B.Q,B.v,B.r,0,B.F),B.D,q,q,new A.Z(B.a6,q,n,o,q,q,B.M),q,q,B.As,q,q,q,q)},
+return A.Y(q,A.W(A.b([l,new A.as(B.bc,A.W(A.b([A.Y(q,A.e(p.c,q,q,q,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),q,q,q),B.D,q,q,new A.Z(s,q,q,r,q,q,B.M),q,q,q,B.dR,q,q,q),B.aR,A.e(p.b,q,q,q,A.ah().$3$color$fontSize$fontWeight(B.B,16,B.u),q,q,q),B.b_,A.e(p.d,q,q,q,A.q().$2$color$fontSize(B.O,13),q,q,q),B.aO,A.X(A.b([A.e("By "+p.w,q,q,q,A.q().$2$color$fontSize(B.t,11),q,q,q),A.X(A.b([B.a6q,A.e(" "+p.y,q,q,q,B.TN,q,q,q),B.cJ,B.a5f,A.e(" "+p.z,q,q,q,B.TN,q,q,q)],m),B.z,B.v,B.r,0,q,q)],m),B.z,B.b7,B.r,0,q,q)],m),B.Q,B.v,B.r,0,B.F),q)],m),B.Q,B.v,B.r,0,B.F),B.D,q,q,new A.Z(B.a6,q,n,o,q,q,B.M),q,q,B.As,q,q,q,q)},
 $S:43}
 A.aTG.prototype={
 $3(a,b,c){var s=null
@@ -62825,7 +62825,7 @@ p=A.ai(B.q,1.5)
 o=A.b([new A.bP(1,B.aB,A.R(51,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),B.N,16)],t.V)
 n=A.W(A.b([A.e("\u0bae\u0bca\u0ba4\u0bcd\u0ba4\u0baa\u0bcd \u0baa\u0bca\u0bb0\u0bc1\u0ba4\u0bcd\u0ba4\u0bae\u0bcd",k,k,k,A.ah().$3$color$fontSize$fontWeight(B.t,16,B.u),k,k,k),B.di,A.e("11 \u0bae\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0baf \u0baa\u0bca\u0bb0\u0bc1\u0ba4\u0bcd\u0ba4\u0b99\u0bcd\u0b95\u0bb3\u0bbf\u0ba9\u0bcd \u0bae\u0bc1\u0b9f\u0bbf\u0bb5\u0bc1",k,k,k,A.q().$2$color$fontSize(B.O,11),k,k,k)],j),B.Q,B.v,B.r,0,B.F)
 m=A.a_(12)
-m=A.X(A.b([n,A.Y(k,A.e(""+r.b+" / "+r.c,k,k,k,A.q().$3$color$fontSize$fontWeight(B.a8,18,B.u),k,k,k),B.D,k,k,new A.Z(B.q,k,k,m,k,k,B.M),k,k,k,B.iv,k,k,k)],j),B.z,B.b4,B.r,0,k,k)
+m=A.X(A.b([n,A.Y(k,A.e(""+r.b+" / "+r.c,k,k,k,A.q().$3$color$fontSize$fontWeight(B.a8,18,B.u),k,k,k),B.D,k,k,new A.Z(B.q,k,k,m,k,k,B.M),k,k,k,B.iv,k,k,k)],j),B.z,B.b7,B.r,0,k,k)
 s.push(A.Y(k,A.W(A.b([m,B.bD,B.a1j,B.bC,A.e(r.f,k,k,k,A.ah().$3$color$fontSize$fontWeight(r.d?B.b8:B.aG,16,B.u),B.bQ,k,k),B.b_,A.e(r.r,k,k,k,A.q().$2$color$fontSize(B.O,12),B.bQ,k,k)],j),B.z,B.v,B.r,0,B.F),B.D,k,k,new A.Z(B.V,k,p,q,o,k,B.M),k,k,k,B.mO,k,k,k))
 s.push(B.Tb)
 B.n.U(i,s)}return A.dH(k,k,new A.dq(A.dt(!0,A.cC(A.W(i,B.Q,B.v,B.r,0,B.F),B.dc,B.cl,k,k,B.aq),B.av,!0),k),k,k,!1,k,k)},
@@ -62838,15 +62838,15 @@ return A.Y(q,A.X(A.b([m,A.a8(A.cV(q,A.Y(q,A.e("\u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0
 anv(){return A.wI(new A.aTP(this))},
 Zs(){var s=this,r=null,q=A.a_(16),p=A.ai(A.R(B.m.a6(127.5),B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1),o=t.p,n=A.X(A.b([B.a6d,B.cx,A.e("\u0b86\u0ba3\u0bcd \u0b9c\u0bbe\u0ba4\u0b95\u0bb0\u0bcd",r,r,r,A.ah().$3$color$fontSize$fontWeight(B.t,15,B.u),r,r,r)],o),B.z,B.v,B.r,0,r,r),m=A.mK(s.e,"\u0b86\u0ba3\u0bcd \u0baa\u0bc6\u0baf\u0bb0\u0bcd",r,!1,B.ek,"\u0baa\u0bc6\u0baf\u0bb0\u0bcd",1,B.ua,r),l=A.a8(s.Fb(B.kl,"\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0ba4\u0bc7\u0ba4\u0bbf",new A.aTY(s),A.hq("dd-MM-yyyy").dG(s.f)),1,r),k=s.r,j=s.c
 j.toString
-return A.Y(r,A.W(A.b([n,B.aO,m,B.aO,A.X(A.b([l,B.bG,A.a8(s.Fb(B.nj,"\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0ba8\u0bc7\u0bb0\u0bae\u0bcd",new A.aTZ(s),k.dG(j)),1,r)],o),B.z,B.v,B.r,0,r,r),B.aO,A.e("\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0b8a\u0bb0\u0bcd / \u0b87\u0b9f\u0bae\u0bcd",r,r,r,A.q().$3$color$fontSize$fontWeight(B.t,12,B.u),r,r,r),B.b0,s.Zj(new A.aU_(s),s.w)],o),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,p,q,r,r,B.M),r,r,r,B.b7,r,r,r)},
+return A.Y(r,A.W(A.b([n,B.aO,m,B.aO,A.X(A.b([l,B.bG,A.a8(s.Fb(B.nj,"\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0ba8\u0bc7\u0bb0\u0bae\u0bcd",new A.aTZ(s),k.dG(j)),1,r)],o),B.z,B.v,B.r,0,r,r),B.aO,A.e("\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0b8a\u0bb0\u0bcd / \u0b87\u0b9f\u0bae\u0bcd",r,r,r,A.q().$3$color$fontSize$fontWeight(B.t,12,B.u),r,r,r),B.b0,s.Zj(new A.aU_(s),s.w)],o),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,p,q,r,r,B.M),r,r,r,B.b6,r,r,r)},
 Zn(){var s=this,r=null,q=A.a_(16),p=A.ai(A.R(B.m.a6(127.5),B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1),o=t.p,n=A.X(A.b([B.a68,B.cx,A.e("\u0baa\u0bc6\u0ba3\u0bcd \u0b9c\u0bbe\u0ba4\u0b95\u0bb0\u0bcd",r,r,r,A.ah().$3$color$fontSize$fontWeight(B.t,15,B.u),r,r,r)],o),B.z,B.v,B.r,0,r,r),m=A.mK(s.x,"\u0baa\u0bc6\u0ba3\u0bcd \u0baa\u0bc6\u0baf\u0bb0\u0bcd",r,!1,B.ek,"\u0baa\u0bc6\u0baf\u0bb0\u0bcd",1,B.ua,r),l=A.a8(s.Fb(B.kl,"\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0ba4\u0bc7\u0ba4\u0bbf",new A.aTU(s),A.hq("dd-MM-yyyy").dG(s.y)),1,r),k=s.z,j=s.c
 j.toString
-return A.Y(r,A.W(A.b([n,B.aO,m,B.aO,A.X(A.b([l,B.bG,A.a8(s.Fb(B.nj,"\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0ba8\u0bc7\u0bb0\u0bae\u0bcd",new A.aTV(s),k.dG(j)),1,r)],o),B.z,B.v,B.r,0,r,r),B.aO,A.e("\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0b8a\u0bb0\u0bcd / \u0b87\u0b9f\u0bae\u0bcd",r,r,r,A.q().$3$color$fontSize$fontWeight(B.t,12,B.u),r,r,r),B.b0,s.Zj(new A.aTW(s),s.Q)],o),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,p,q,r,r,B.M),r,r,r,B.b7,r,r,r)},
+return A.Y(r,A.W(A.b([n,B.aO,m,B.aO,A.X(A.b([l,B.bG,A.a8(s.Fb(B.nj,"\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0ba8\u0bc7\u0bb0\u0bae\u0bcd",new A.aTV(s),k.dG(j)),1,r)],o),B.z,B.v,B.r,0,r,r),B.aO,A.e("\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0b8a\u0bb0\u0bcd / \u0b87\u0b9f\u0bae\u0bcd",r,r,r,A.q().$3$color$fontSize$fontWeight(B.t,12,B.u),r,r,r),B.b0,s.Zj(new A.aTW(s),s.Q)],o),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,p,q,r,r,B.M),r,r,r,B.b6,r,r,r)},
 anZ(){var s=this,r=null,q="\u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0\u0bae\u0bcd",p=A.a_(16),o=B.m.a6(127.5),n=A.ai(A.R(o,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1),m=t.p
-p=A.Y(r,A.W(A.b([A.e("\u0b86\u0ba3\u0bcd \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0 \u0bb5\u0bbf\u0bb5\u0bb0\u0b99\u0bcd\u0b95\u0bb3\u0bcd",r,r,r,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),r,r,r),B.bC,s.ZA(q,new A.aU6(s),s.as),B.bC,A.X(A.b([A.a8(s.Zv("\u0baa\u0bbe\u0ba4\u0bae\u0bcd",new A.aU7(s),s.at),1,r),B.bG,A.a8(s.Zx("\u0bb0\u0bbe\u0b9a\u0bbf",new A.aU8(s),s.ax),1,r)],m),B.z,B.v,B.r,0,r,r)],m),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,n,p,r,r,B.M),r,r,r,B.b7,r,r,r)
+p=A.Y(r,A.W(A.b([A.e("\u0b86\u0ba3\u0bcd \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0 \u0bb5\u0bbf\u0bb5\u0bb0\u0b99\u0bcd\u0b95\u0bb3\u0bcd",r,r,r,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),r,r,r),B.bC,s.ZA(q,new A.aU6(s),s.as),B.bC,A.X(A.b([A.a8(s.Zv("\u0baa\u0bbe\u0ba4\u0bae\u0bcd",new A.aU7(s),s.at),1,r),B.bG,A.a8(s.Zx("\u0bb0\u0bbe\u0b9a\u0bbf",new A.aU8(s),s.ax),1,r)],m),B.z,B.v,B.r,0,r,r)],m),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,n,p,r,r,B.M),r,r,r,B.b6,r,r,r)
 n=A.a_(16)
 o=A.ai(A.R(o,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1)
-return A.W(A.b([p,B.bD,A.Y(r,A.W(A.b([A.e("\u0baa\u0bc6\u0ba3\u0bcd \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0 \u0bb5\u0bbf\u0bb5\u0bb0\u0b99\u0bcd\u0b95\u0bb3\u0bcd",r,r,r,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),r,r,r),B.bC,s.ZA(q,new A.aU9(s),s.ay),B.bC,A.X(A.b([A.a8(s.Zv("\u0baa\u0bbe\u0ba4\u0bae\u0bcd",new A.aUa(s),s.ch),1,r),B.bG,A.a8(s.Zx("\u0bb0\u0bbe\u0b9a\u0bbf",new A.aUb(s),s.CW),1,r)],m),B.z,B.v,B.r,0,r,r)],m),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,o,n,r,r,B.M),r,r,r,B.b7,r,r,r)],m),B.z,B.v,B.r,0,B.F)},
+return A.W(A.b([p,B.bD,A.Y(r,A.W(A.b([A.e("\u0baa\u0bc6\u0ba3\u0bcd \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0 \u0bb5\u0bbf\u0bb5\u0bb0\u0b99\u0bcd\u0b95\u0bb3\u0bcd",r,r,r,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),r,r,r),B.bC,s.ZA(q,new A.aU9(s),s.ay),B.bC,A.X(A.b([A.a8(s.Zv("\u0baa\u0bbe\u0ba4\u0bae\u0bcd",new A.aUa(s),s.ch),1,r),B.bG,A.a8(s.Zx("\u0bb0\u0bbe\u0b9a\u0bbf",new A.aUb(s),s.CW),1,r)],m),B.z,B.v,B.r,0,r,r)],m),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,o,n,r,r,B.M),r,r,r,B.b6,r,r,r)],m),B.z,B.v,B.r,0,B.F)},
 Fb(a,b,c,d){var s=null,r=A.a_(10),q=A.ai(A.R(102,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1),p=t.p
 return A.cV(s,A.Y(s,A.W(A.b([A.e(b,s,s,s,A.q().$2$color$fontSize(B.O,10),s,s,s),B.b0,A.X(A.b([A.de(a,B.t,s,14),B.cx,A.a8(A.e(d,s,B.aC,s,A.q().$3$color$fontSize$fontWeight(B.B,12,B.u),s,s,s),1,s)],p),B.z,B.v,B.r,0,s,s)],p),B.Q,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.V,s,q,r,s,s,B.M),s,s,s,B.t_,s,s,s),B.a2,!1,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,c,s,s,s,s,s,s)},
 Zj(a,b){var s=null,r=A.a_(10),q=A.ai(A.R(102,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1),p=A.q().$3$color$fontSize$fontWeight(B.B,12,B.bk),o=t.Mw
@@ -62890,7 +62890,7 @@ if(this.d===0)o.push(A.e("\u0bb2\u0b95\u0bcd\u0ba9\u0bae\u0bcd: "+c,r,r,r,A.q().
 o.push(A.e("\u0bb0\u0bbe\u0b9a\u0bbf: "+g,r,r,r,A.q().$3$color$fontSize$fontWeight(B.B,11,B.bk),r,r,r))
 o.push(A.e("\u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0\u0bae\u0bcd: "+h+" ("+e+"-\u0bae\u0bcd \u0baa\u0bbe\u0ba4\u0bae\u0bcd)",r,r,r,A.q().$3$color$fontSize$fontWeight(B.t,11,B.bk),r,r,r))
 n.push(A.Y(r,A.W(o,B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.V,r,r,s,r,r,B.M),r,r,r,B.f0,r,r,r))
-return A.Y(r,A.W(n,B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,p,q,r,r,B.M),r,r,r,B.b7,r,r,r)},
+return A.Y(r,A.W(n,B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,p,q,r,r,B.M),r,r,r,B.b6,r,r,r)},
 anK(){var s,r=this,q=r.db.r,p=r.dx.r,o=B.p.aE(r.e.a.a)
 o=o.length!==0?o:"\u0b86\u0ba3\u0bcd"
 s=B.p.aE(r.x.a.a)
@@ -63074,7 +63074,7 @@ s=A.a_(6)
 r=A.ai(l?B.b8:B.aG,0.8)
 q=m.gagx()
 p=t.p
-p=A.b([new A.as(B.AA,A.X(A.b([k,B.cJ,A.a8(A.W(A.b([A.X(A.b([j,A.Y(o,A.e(q,o,o,o,A.q().$3$color$fontSize$fontWeight(l?B.b8:B.aG,10,B.u),o,o,o),B.D,o,o,new A.Z(i,o,r,s,o,o,B.M),o,o,o,B.mQ,o,o,o)],p),B.z,B.b4,B.r,0,o,o),B.b0,A.e(m.e,o,o,o,A.q().$2$color$fontSize(B.O,11),o,o,o)],p),B.Q,B.v,B.r,0,B.F),1,o)],p),B.Q,B.v,B.r,0,o,o),o)],p)
+p=A.b([new A.as(B.AA,A.X(A.b([k,B.cJ,A.a8(A.W(A.b([A.X(A.b([j,A.Y(o,A.e(q,o,o,o,A.q().$3$color$fontSize$fontWeight(l?B.b8:B.aG,10,B.u),o,o,o),B.D,o,o,new A.Z(i,o,r,s,o,o,B.M),o,o,o,B.mQ,o,o,o)],p),B.z,B.b7,B.r,0,o,o),B.b0,A.e(m.e,o,o,o,A.q().$2$color$fontSize(B.O,11),o,o,o)],p),B.Q,B.v,B.r,0,B.F),1,o)],p),B.Q,B.v,B.r,0,o,o),o)],p)
 if(n!==10)p.push(B.a1h)
 return A.W(p,B.z,B.v,B.r,0,B.F)},
 $S:374}
@@ -63130,7 +63130,7 @@ p=A.b([A.Bh(A.c6(A.fQ(B.q,20,A.W(A.b([r,B.aO,A.X(A.b([q,B.bG,A.a8(A.iR(!1,m,!0,A
 if(n.y!=null)B.n.U(p,A.b([A.Bh(A.c6(A.fQ(B.q,20,A.W(A.b([A.e("\u0b89\u0ba4\u0baf\u0bbe\u0ba4\u0bbf\u0ba9\u0bbe\u0bb4\u0bbf\u0b95\u0bc8 (Udayadhi Nazhigai)",m,m,m,A.q().$2$color$fontSize(B.O,12),m,m,m),B.bC,A.e(n.y.e,m,m,m,A.ah().$3$color$fontSize$fontWeight(B.q,22,B.u),B.bQ,m,m),A.e(n.y.f,m,m,m,A.q().$2$color$fontSize(B.aw,13),m,m,m),B.aA,B.fx,B.aO,A.X(A.b([A.a8(A.W(A.b([A.e("\u0ba8\u0bbe\u0bb4\u0bbf\u0b95\u0bc8",m,m,m,A.q().$2$color$fontSize(B.O,11),m,m,m),B.b0,A.e(""+n.y.a,m,m,m,A.ah().$3$color$fontSize$fontWeight(B.t,24,B.u),m,m,m)],i),B.z,B.v,B.r,0,B.F),1,m),A.Y(m,m,B.D,B.bZ,m,m,m,36,m,m,m,m,1),A.a8(A.W(A.b([A.e("\u0bb5\u0bbf\u0ba8\u0bbe\u0bb4\u0bbf\u0b95\u0bc8",m,m,m,A.q().$2$color$fontSize(B.O,11),m,m,m),B.b0,A.e(""+n.y.b,m,m,m,A.ah().$3$color$fontSize$fontWeight(B.t,24,B.u),m,m,m)],i),B.z,B.v,B.r,0,B.F),1,m)],i),B.z,B.v,B.r,0,m,m)],i),B.z,B.v,B.r,0,B.F),m,!0,m,B.aX),m,m),A.aV(0,1e5,0,0,0),A.aV(0,4e5,0,0,0)),B.aA,A.fQ(B.q,20,A.W(A.b([A.e("\u0b95\u0ba3\u0bbf\u0ba4 \u0bb5\u0bbf\u0bb5\u0bb0\u0b99\u0bcd\u0b95\u0bb3\u0bcd (Calculation Details)",m,m,m,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),m,m,m),B.bC,n.zC("\u0b9a\u0bc2\u0bb0\u0bbf\u0baf\u0bcb\u0ba4\u0baf\u0bae\u0bcd (Sunrise)",A.hq(l).dG(n.y.r)),n.zC("\u0ba8\u0bbf\u0b95\u0bb4\u0bcd\u0bb5\u0bc1 \u0ba8\u0bc7\u0bb0\u0bae\u0bcd (Event Time)",A.hq(l).dG(n.y.w)),n.zC("\u0bae\u0bca\u0ba4\u0bcd\u0ba4 \u0bb5\u0bbf\u0ba9\u0bbe\u0b9f\u0bbf\u0b95\u0bb3\u0bcd (Elapsed Sec)",B.m.ao(n.y.d,1)+"s"),n.zC("1 \u0ba8\u0bbe\u0bb4\u0bbf\u0b95\u0bc8 \u0b9a\u0bae\u0bae\u0bcd (Conversion)","24 \u0ba8\u0bbf\u0bae\u0bbf\u0b9f\u0b99\u0bcd\u0b95\u0bb3\u0bcd (1440 \u0bb5\u0bbf\u0ba9\u0bbe\u0b9f\u0bbf\u0b95\u0bb3\u0bcd)"),n.zC("1 \u0bb5\u0bbf\u0ba8\u0bbe\u0bb4\u0bbf\u0b95\u0bc8 \u0b9a\u0bae\u0bae\u0bcd (Conversion)","24 \u0bb5\u0bbf\u0ba9\u0bbe\u0b9f\u0bbf\u0b95\u0bb3\u0bcd")],i),B.Q,B.v,B.r,0,B.F),m,!0,m,B.bc)],i))
 return A.dH(m,m,new A.dq(A.dt(!0,A.W(A.b([new A.as(B.dc,s,m),A.a8(A.cC(A.W(p,B.z,B.v,B.r,0,B.F),B.bc,m,m,m,B.aq),1,m)],i),B.z,B.v,B.r,0,B.F),B.av,!0),m),m,m,!1,m,m)},
 zC(a,b){var s=null
-return new A.as(B.Av,A.X(A.b([A.e(a,s,s,s,A.q().$2$color$fontSize(B.O,11),s,s,s),A.e(b,s,s,s,A.q().$3$color$fontSize$fontWeight(B.B,11,B.u),s,s,s)],t.p),B.z,B.b4,B.r,0,s,s),s)}}
+return new A.as(B.Av,A.X(A.b([A.e(a,s,s,s,A.q().$2$color$fontSize(B.O,11),s,s,s),A.e(b,s,s,s,A.q().$3$color$fontSize$fontWeight(B.B,11,B.u),s,s,s)],t.p),B.z,B.b7,B.r,0,s,s),s)}}
 A.aVa.prototype={
 $0(){this.a.y=this.b},
 $S:0}
@@ -63186,7 +63186,7 @@ r=A.a8(A.cV(n,A.Y(n,A.X(A.b([B.BR,B.az,A.e("DOB: "+A.c9(q)+"-"+A.be(q)+"-"+A.ba(
 h=o.f
 q=t.kC
 q=A.T(new A.a7(B.aSX,new A.aVk(),q),q.i("at.E"))
-j=A.Y(n,A.W(A.b([s,B.aO,A.X(A.b([r,B.bG,new A.j8(A.pm(B.a8,n,!1,q,new A.aVl(o),n,n,h,t.sn),n)],l),B.z,B.v,B.r,0,n,n)],l),B.Q,B.v,B.r,0,B.F),B.D,n,n,new A.Z(B.a6,n,i,j,n,n,B.M),n,n,n,B.b7,n,n,n)
+j=A.Y(n,A.W(A.b([s,B.aO,A.X(A.b([r,B.bG,new A.j8(A.pm(B.a8,n,!1,q,new A.aVl(o),n,n,h,t.sn),n)],l),B.z,B.v,B.r,0,n,n)],l),B.Q,B.v,B.r,0,B.F),B.D,n,n,new A.Z(B.a6,n,i,j,n,n,B.M),n,n,n,B.b6,n,n,n)
 i=o.r
 i===$&&A.a()
 i=A.a8(o.N5("\u0baa\u0bbf\u0bb1\u0bb5\u0bbf \u0b8e\u0ba3\u0bcd (Birth No)",""+i.d,i.e,B.pl),1,n)
@@ -63200,10 +63200,10 @@ r=A.e("\u0b8e\u0ba3\u0bcd\u0b95\u0ba3\u0bbf\u0ba4 \u0baa\u0ba3\u0bcd\u0baa\u0bc1
 q=o.r
 q=A.e("\u0baa\u0bbf\u0bb1\u0bb5\u0bbf \u0b8e\u0ba3\u0bcd "+q.d+" \u0baa\u0ba3\u0bcd\u0baa\u0bc1: "+q.f,n,n,n,A.al().$2$color$fontSize(B.B,12),n,n,n)
 p=o.r
-h=A.Y(n,A.W(A.b([r,B.it,q,B.aR,A.e("\u0bb5\u0bbf\u0ba4\u0bbf \u0b8e\u0ba3\u0bcd "+p.r+" \u0bb5\u0bb4\u0bbf\u0b95\u0bbe\u0b9f\u0bcd\u0b9f\u0bc1\u0ba4\u0bb2\u0bcd: "+p.x,n,n,n,A.al().$2$color$fontSize(B.aw,12),n,n,n)],l),B.Q,B.v,B.r,0,B.F),B.D,n,n,new A.Z(B.a6,n,i,h,n,n,B.M),n,n,n,B.b7,n,n,n)
+h=A.Y(n,A.W(A.b([r,B.it,q,B.aR,A.e("\u0bb5\u0bbf\u0ba4\u0bbf \u0b8e\u0ba3\u0bcd "+p.r+" \u0bb5\u0bb4\u0bbf\u0b95\u0bbe\u0b9f\u0bcd\u0b9f\u0bc1\u0ba4\u0bb2\u0bcd: "+p.x,n,n,n,A.al().$2$color$fontSize(B.aw,12),n,n,n)],l),B.Q,B.v,B.r,0,B.F),B.D,n,n,new A.Z(B.a6,n,i,h,n,n,B.M),n,n,n,B.b6,n,n,n)
 i=A.a_(14)
 p=A.ai(B.q.aU(0.4),1)
-return A.dH(n,n,new A.dq(A.dt(!0,A.cC(A.W(A.b([k,B.bD,j,B.aA,s,B.aA,h,B.aA,A.Y(n,A.W(A.b([A.e("\u0b8e\u0ba3\u0bcd \u0baa\u0bca\u0bb0\u0bc1\u0ba4\u0bcd\u0ba4\u0bae\u0bcd & \u0b85\u0ba4\u0bbf\u0bb0\u0bcd\u0bb7\u0bcd\u0b9f \u0b95\u0bc1\u0bb1\u0bbf\u0baa\u0bcd\u0baa\u0bc1\u0b95\u0bb3\u0bcd",n,n,n,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),n,n,n),B.it,A.e("\u0ba8\u0b9f\u0bcd\u0baa\u0bc1 \u0b8e\u0ba3\u0bcd\u0b95\u0bb3\u0bcd (Friendly): "+B.n.bz(o.r.at,m),n,n,n,A.q().$3$color$fontSize$fontWeight(B.b8,13,B.u),n,n,n),B.b_,A.e("\u0b8e\u0ba4\u0bbf\u0bb0\u0bbf \u0b8e\u0ba3\u0bcd\u0b95\u0bb3\u0bcd (Enemy): "+B.n.bz(o.r.ax,m),n,n,n,A.q().$3$color$fontSize$fontWeight(B.aG,13,B.u),n,n,n),B.b_,A.e("\u0b85\u0ba4\u0bbf\u0bb0\u0bcd\u0bb7\u0bcd\u0b9f \u0ba4\u0bc7\u0ba4\u0bbf\u0b95\u0bb3\u0bcd: "+B.n.bz(o.r.cy,m),n,n,n,A.q().$2$color$fontSize(B.t,12),n,n,n),B.b_,A.e("\u0b85\u0ba4\u0bbf\u0bb0\u0bcd\u0bb7\u0bcd\u0b9f \u0ba8\u0bbf\u0bb1\u0b99\u0bcd\u0b95\u0bb3\u0bcd: "+B.n.bz(o.r.ch,m),n,n,n,A.q().$2$color$fontSize(B.B,12),n,n,n),B.b_,A.e("\u0b85\u0ba4\u0bbf\u0bb0\u0bcd\u0bb7\u0bcd\u0b9f \u0bb0\u0ba4\u0bcd\u0ba4\u0bbf\u0ba9\u0b99\u0bcd\u0b95\u0bb3\u0bcd: "+B.n.bz(o.r.CW,m),n,n,n,A.q().$2$color$fontSize(B.B,12),n,n,n),B.b_,A.e("\u0baa\u0bca\u0bb0\u0bc1\u0ba4\u0bcd\u0ba4\u0bae\u0bbe\u0ba9 \u0ba4\u0bca\u0bb4\u0bbf\u0bb2\u0bcd \u0ba4\u0bc1\u0bb1\u0bc8\u0b95\u0bb3\u0bcd: "+o.r.db,n,n,n,A.al().$2$color$fontSize(B.aw,12),n,n,n)],l),B.Q,B.v,B.r,0,B.F),B.D,n,n,new A.Z(B.V,n,p,i,n,n,B.M),n,n,n,B.b7,n,n,n),B.bq],l),B.Q,B.v,B.r,0,B.F),B.dc,B.cl,n,n,B.aq),B.av,!0),n),n,n,!1,n,n)},
+return A.dH(n,n,new A.dq(A.dt(!0,A.cC(A.W(A.b([k,B.bD,j,B.aA,s,B.aA,h,B.aA,A.Y(n,A.W(A.b([A.e("\u0b8e\u0ba3\u0bcd \u0baa\u0bca\u0bb0\u0bc1\u0ba4\u0bcd\u0ba4\u0bae\u0bcd & \u0b85\u0ba4\u0bbf\u0bb0\u0bcd\u0bb7\u0bcd\u0b9f \u0b95\u0bc1\u0bb1\u0bbf\u0baa\u0bcd\u0baa\u0bc1\u0b95\u0bb3\u0bcd",n,n,n,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),n,n,n),B.it,A.e("\u0ba8\u0b9f\u0bcd\u0baa\u0bc1 \u0b8e\u0ba3\u0bcd\u0b95\u0bb3\u0bcd (Friendly): "+B.n.bz(o.r.at,m),n,n,n,A.q().$3$color$fontSize$fontWeight(B.b8,13,B.u),n,n,n),B.b_,A.e("\u0b8e\u0ba4\u0bbf\u0bb0\u0bbf \u0b8e\u0ba3\u0bcd\u0b95\u0bb3\u0bcd (Enemy): "+B.n.bz(o.r.ax,m),n,n,n,A.q().$3$color$fontSize$fontWeight(B.aG,13,B.u),n,n,n),B.b_,A.e("\u0b85\u0ba4\u0bbf\u0bb0\u0bcd\u0bb7\u0bcd\u0b9f \u0ba4\u0bc7\u0ba4\u0bbf\u0b95\u0bb3\u0bcd: "+B.n.bz(o.r.cy,m),n,n,n,A.q().$2$color$fontSize(B.t,12),n,n,n),B.b_,A.e("\u0b85\u0ba4\u0bbf\u0bb0\u0bcd\u0bb7\u0bcd\u0b9f \u0ba8\u0bbf\u0bb1\u0b99\u0bcd\u0b95\u0bb3\u0bcd: "+B.n.bz(o.r.ch,m),n,n,n,A.q().$2$color$fontSize(B.B,12),n,n,n),B.b_,A.e("\u0b85\u0ba4\u0bbf\u0bb0\u0bcd\u0bb7\u0bcd\u0b9f \u0bb0\u0ba4\u0bcd\u0ba4\u0bbf\u0ba9\u0b99\u0bcd\u0b95\u0bb3\u0bcd: "+B.n.bz(o.r.CW,m),n,n,n,A.q().$2$color$fontSize(B.B,12),n,n,n),B.b_,A.e("\u0baa\u0bca\u0bb0\u0bc1\u0ba4\u0bcd\u0ba4\u0bae\u0bbe\u0ba9 \u0ba4\u0bca\u0bb4\u0bbf\u0bb2\u0bcd \u0ba4\u0bc1\u0bb1\u0bc8\u0b95\u0bb3\u0bcd: "+o.r.db,n,n,n,A.al().$2$color$fontSize(B.aw,12),n,n,n)],l),B.Q,B.v,B.r,0,B.F),B.D,n,n,new A.Z(B.V,n,p,i,n,n,B.M),n,n,n,B.b6,n,n,n),B.bq],l),B.Q,B.v,B.r,0,B.F),B.dc,B.cl,n,n,B.aq),B.av,!0),n),n,n,!1,n,n)},
 N5(a,b,c,d){var s=null,r=A.a_(14),q=A.ai(d.aU(0.6),1)
 return A.Y(s,A.W(A.b([A.e(a,s,s,s,A.q().$3$color$fontSize$fontWeight(B.O,9.5,B.u),B.bQ,s,s),B.b0,A.e(b,s,s,s,A.ah().$3$color$fontSize$fontWeight(d,20,B.u),s,s,s),B.di,A.e(c,s,s,s,A.q().$2$color$fontSize(B.aw,9.5),B.bQ,s,s)],t.p),B.z,B.v,B.r,0,B.F),B.D,s,s,new A.Z(B.a6,s,q,r,s,s,B.M),s,s,s,B.a2x,s,s,s)}}
 A.aVe.prototype={
@@ -63304,7 +63304,7 @@ q.push(A.Y(j,A.X(A.b([B.a6K,B.bG,m,A.fo(A.e("Edit",j,j,j,A.q().$2$fontSize$fontW
 o=A.R(38,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255)
 n=A.a_(12)
 m=A.ai(B.q,0.8)
-q.push(A.X(A.b([p,A.Y(j,A.e(k.d.ax,j,j,j,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),j,j,j),B.D,j,j,new A.Z(o,j,m,n,j,j,B.M),j,j,j,B.dR,j,j,j)],h),B.z,B.b4,B.r,0,j,j))
+q.push(A.X(A.b([p,A.Y(j,A.e(k.d.ax,j,j,j,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),j,j,j),B.D,j,j,new A.Z(o,j,m,n,j,j,B.M),j,j,j,B.dR,j,j,j)],h),B.z,B.b7,B.r,0,j,j))
 q.push(B.bD)
 q.push(k.tq("Tithi",k.d.c,B.u3))
 q.push(k.tq("Nakshatra",k.d.d,B.eA))
@@ -63325,7 +63325,7 @@ s=A.ai(s,1)
 if(e)r=B.aG
 else r=d?B.b8:B.t
 q=t.p
-return A.Y(p,A.X(A.b([A.de(c,r,p,p),B.ff,A.a8(A.W(A.b([A.e(a,p,p,p,A.q().$2$color$fontSize(B.O,11),p,p,p),B.di,A.e(b,p,p,p,A.q().$3$color$fontSize$fontWeight(B.B,13,B.u),p,p,p)],q),B.Q,B.v,B.r,0,B.F),1,p)],q),B.z,B.v,B.r,0,p,p),B.D,p,p,new A.Z(B.a6,p,s,o,p,p,B.M),p,p,B.e6,B.b7,p,p,p)},
+return A.Y(p,A.X(A.b([A.de(c,r,p,p),B.ff,A.a8(A.W(A.b([A.e(a,p,p,p,A.q().$2$color$fontSize(B.O,11),p,p,p),B.di,A.e(b,p,p,p,A.q().$3$color$fontSize$fontWeight(B.B,13,B.u),p,p,p)],q),B.Q,B.v,B.r,0,B.F),1,p)],q),B.z,B.v,B.r,0,p,p),B.D,p,p,new A.Z(B.a6,p,s,o,p,p,B.M),p,p,B.e6,B.b6,p,p,p)},
 tq(a,b,c){return this.N6(a,b,c,!1,!1)},
 aoa(a,b,c,d){return this.N6(a,b,c,!1,d)},
 ao9(a,b,c,d){return this.N6(a,b,c,d,!1)}}
@@ -63410,7 +63410,7 @@ p=A.X(A.b([B.a6G,B.cx,A.e("\u0ba4\u0bb1\u0bcd\u0baa\u0bcb\u0ba4\u0bc8\u0baf \u0b
 q=r?B.ft:B.cP
 l=A.a_(8)
 k=r?"\u0b9a\u0bc1\u0baa \u0ba8\u0bc7\u0bb0\u0bae\u0bcd":"\u0b95\u0bb5\u0ba9\u0bae\u0bcd \u0ba4\u0bc7\u0bb5\u0bc8"
-l=A.X(A.b([p,A.Y(h,A.e(k,h,h,h,A.q().$3$color$fontSize$fontWeight(B.B,10,B.u),h,h,h),B.D,h,h,new A.Z(q,h,h,l,h,h,B.M),h,h,h,B.AI,h,h,h)],m),B.z,B.b4,B.r,0,h,h)
+l=A.X(A.b([p,A.Y(h,A.e(k,h,h,h,A.q().$3$color$fontSize$fontWeight(B.B,10,B.u),h,h,h),B.D,h,h,new A.Z(q,h,h,l,h,h,B.M),h,h,h,B.AI,h,h,h)],m),B.z,B.b7,B.r,0,h,h)
 q=i.f
 q=A.a8(A.W(A.b([A.e(q.b,h,h,h,A.ah().$3$color$fontSize$fontWeight(r?B.b8:B.aG,22,B.u),h,h,h),A.e(i.f.c,h,h,h,A.q().$2$color$fontSize(B.O,12),h,h,h)],m),B.Q,B.v,B.r,0,B.F),1,h)
 p=r?B.ft.aU(0.4):B.cP.aU(0.4)
@@ -63418,7 +63418,7 @@ k=A.ai(r?B.b8:B.aG,1.5)
 j=i.f
 q=A.X(A.b([q,A.Y(h,A.e(""+j.d+"%",h,h,h,A.q().$3$color$fontSize$fontWeight(r?B.b8:B.aG,16,B.u),h,h,h),B.D,h,h,new A.Z(p,h,k,h,h,h,B.bt),h,h,h,B.cp,h,h,h)],m),B.z,B.v,B.r,0,h,h)
 p=i.f
-return A.dH(h,h,new A.dq(A.dt(!0,A.cC(A.W(A.b([o,B.b0,n,B.aA,g,B.aA,A.cE(A.c6(A.fQ(B.q,20,new A.as(B.bc,A.W(A.b([l,B.bD,q,B.aO,B.fx,B.b_,A.X(A.b([B.a56,B.cx,A.e("\u0ba8\u0b9f\u0baa\u0bcd\u0baa\u0bc1 \u0b9c\u0bbe\u0bae\u0bae\u0bcd: "+p.f+"\u0bb5\u0ba4\u0bc1 \u0b9c\u0bbe\u0bae\u0bae\u0bcd ("+p.r+")",h,h,h,A.q().$2$color$fontSize(B.O,11),h,h,h)],m),B.z,B.v,B.r,0,h,h)],m),B.Q,B.v,B.r,0,B.F),h),h,!0,h,B.bc),h,h),A.aV(0,2e5,0,0,0),h),B.aA,A.cE(A.c6(A.fQ(B.q,20,new A.as(B.b7,A.W(A.b([A.e("\u0baa\u0b9e\u0bcd\u0b9a \u0baa\u0b9f\u0bcd\u0b9a\u0bbf 5 \u0ba4\u0bca\u0bb4\u0bbf\u0bb2\u0bcd\u0b95\u0bb3\u0bcd \u0bb5\u0bbf\u0bb3\u0b95\u0bcd\u0b95\u0bae\u0bcd",h,h,h,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),h,h,h),B.bC,i.zA("1. \u0b85\u0bb0\u0b9a\u0bc1 (Ruling)","100% \u0bb5\u0bb2\u0bcd\u0bb2\u0bae\u0bc8","\u0b9a\u0bc1\u0baa \u0b95\u0bbe\u0bb0\u0bbf\u0baf\u0b99\u0bcd\u0b95\u0bb3\u0bcd, \u0baa\u0bc1\u0ba4\u0bbf\u0baf \u0b92\u0baa\u0bcd\u0baa\u0ba8\u0bcd\u0ba4\u0b99\u0bcd\u0b95\u0bb3\u0bcd, \u0bae\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0baf \u0bae\u0bc1\u0b9f\u0bbf\u0bb5\u0bc1\u0b95\u0bb3\u0bcd \u0b8e\u0b9f\u0bc1\u0b95\u0bcd\u0b95 \u0b89\u0ba4\u0bcd\u0ba4\u0bae\u0bae\u0bcd.",B.b8),i.zA("2. \u0b8a\u0ba3\u0bcd (Eating)","80% \u0bb5\u0bb2\u0bcd\u0bb2\u0bae\u0bc8","\u0bb5\u0bbf\u0baf\u0bbe\u0baa\u0bbe\u0bb0\u0bae\u0bcd, \u0baa\u0baf\u0ba3\u0bae\u0bcd, \u0b89\u0ba3\u0bb5\u0bc1 \u0bae\u0bb1\u0bcd\u0bb1\u0bc1\u0bae\u0bcd \u0bae\u0b95\u0bbf\u0bb4\u0bcd\u0b9a\u0bcd\u0b9a\u0bbf\u0baf\u0bbe\u0ba9 \u0ba8\u0bbf\u0b95\u0bb4\u0bcd\u0bb5\u0bc1\u0b95\u0bb3\u0bc1\u0b95\u0bcd\u0b95\u0bc1 \u0b89\u0b95\u0ba8\u0bcd\u0ba4\u0ba4\u0bc1.",B.b0q),i.zA("3. \u0ba8\u0b9f\u0bc8 (Walking)","50% \u0bb5\u0bb2\u0bcd\u0bb2\u0bae\u0bc8","\u0b9a\u0bbe\u0ba4\u0bbe\u0bb0\u0ba3 \u0b85\u0ba9\u0bcd\u0bb1\u0bbe\u0b9f \u0baa\u0ba3\u0bbf\u0b95\u0bb3\u0bcd \u0bae\u0bb1\u0bcd\u0bb1\u0bc1\u0bae\u0bcd \u0baa\u0baf\u0ba3\u0b99\u0bcd\u0b95\u0bb3\u0bc1\u0b95\u0bcd\u0b95\u0bc1 \u0b8f\u0bb1\u0bcd\u0bb1\u0ba4\u0bc1.",B.pl),i.zA("4. \u0ba4\u0bc1\u0baf\u0bbf\u0bb2\u0bcd (Sleeping)","20% \u0bb5\u0bb2\u0bcd\u0bb2\u0bae\u0bc8","\u0b93\u0baf\u0bcd\u0bb5\u0bc1 \u0b8e\u0b9f\u0bc1\u0b95\u0bcd\u0b95\u0bb2\u0bbe\u0bae\u0bcd; \u0bae\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0baf \u0baa\u0bc1\u0ba4\u0bbf\u0baf \u0bae\u0bc1\u0baf\u0bb1\u0bcd\u0b9a\u0bbf\u0b95\u0bb3\u0bc8 \u0ba4\u0bb5\u0bbf\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd.",B.f8),i.zA("5. \u0b9a\u0bbe\u0bb5\u0bc1 (Dying)","0% \u0bb5\u0bb2\u0bcd\u0bb2\u0bae\u0bc8","\u0bae\u0bc1\u0bb4\u0bc1\u0bae\u0bc8\u0baf\u0bbe\u0b95 \u0ba4\u0bb5\u0bbf\u0bb0\u0bcd\u0b95\u0bcd\u0b95 \u0bb5\u0bc7\u0ba3\u0bcd\u0b9f\u0bbf\u0baf \u0ba8\u0bc7\u0bb0\u0bae\u0bcd; \u0b9a\u0bc1\u0baa \u0b95\u0bbe\u0bb0\u0bbf\u0baf\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0b9a\u0bc6\u0baf\u0bcd\u0baf\u0b95\u0bcd\u0b95\u0bc2\u0b9f\u0bbe\u0ba4\u0bc1.",B.aG)],m),B.Q,B.v,B.r,0,B.F),h),h,!0,h,B.bc),h,h),A.aV(0,25e4,0,0,0),h),B.bq],m),B.Q,B.v,B.r,0,B.F),B.dc,B.cl,h,h,B.aq),B.av,!0),h),h,h,!1,h,h)},
+return A.dH(h,h,new A.dq(A.dt(!0,A.cC(A.W(A.b([o,B.b0,n,B.aA,g,B.aA,A.cE(A.c6(A.fQ(B.q,20,new A.as(B.bc,A.W(A.b([l,B.bD,q,B.aO,B.fx,B.b_,A.X(A.b([B.a56,B.cx,A.e("\u0ba8\u0b9f\u0baa\u0bcd\u0baa\u0bc1 \u0b9c\u0bbe\u0bae\u0bae\u0bcd: "+p.f+"\u0bb5\u0ba4\u0bc1 \u0b9c\u0bbe\u0bae\u0bae\u0bcd ("+p.r+")",h,h,h,A.q().$2$color$fontSize(B.O,11),h,h,h)],m),B.z,B.v,B.r,0,h,h)],m),B.Q,B.v,B.r,0,B.F),h),h,!0,h,B.bc),h,h),A.aV(0,2e5,0,0,0),h),B.aA,A.cE(A.c6(A.fQ(B.q,20,new A.as(B.b6,A.W(A.b([A.e("\u0baa\u0b9e\u0bcd\u0b9a \u0baa\u0b9f\u0bcd\u0b9a\u0bbf 5 \u0ba4\u0bca\u0bb4\u0bbf\u0bb2\u0bcd\u0b95\u0bb3\u0bcd \u0bb5\u0bbf\u0bb3\u0b95\u0bcd\u0b95\u0bae\u0bcd",h,h,h,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),h,h,h),B.bC,i.zA("1. \u0b85\u0bb0\u0b9a\u0bc1 (Ruling)","100% \u0bb5\u0bb2\u0bcd\u0bb2\u0bae\u0bc8","\u0b9a\u0bc1\u0baa \u0b95\u0bbe\u0bb0\u0bbf\u0baf\u0b99\u0bcd\u0b95\u0bb3\u0bcd, \u0baa\u0bc1\u0ba4\u0bbf\u0baf \u0b92\u0baa\u0bcd\u0baa\u0ba8\u0bcd\u0ba4\u0b99\u0bcd\u0b95\u0bb3\u0bcd, \u0bae\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0baf \u0bae\u0bc1\u0b9f\u0bbf\u0bb5\u0bc1\u0b95\u0bb3\u0bcd \u0b8e\u0b9f\u0bc1\u0b95\u0bcd\u0b95 \u0b89\u0ba4\u0bcd\u0ba4\u0bae\u0bae\u0bcd.",B.b8),i.zA("2. \u0b8a\u0ba3\u0bcd (Eating)","80% \u0bb5\u0bb2\u0bcd\u0bb2\u0bae\u0bc8","\u0bb5\u0bbf\u0baf\u0bbe\u0baa\u0bbe\u0bb0\u0bae\u0bcd, \u0baa\u0baf\u0ba3\u0bae\u0bcd, \u0b89\u0ba3\u0bb5\u0bc1 \u0bae\u0bb1\u0bcd\u0bb1\u0bc1\u0bae\u0bcd \u0bae\u0b95\u0bbf\u0bb4\u0bcd\u0b9a\u0bcd\u0b9a\u0bbf\u0baf\u0bbe\u0ba9 \u0ba8\u0bbf\u0b95\u0bb4\u0bcd\u0bb5\u0bc1\u0b95\u0bb3\u0bc1\u0b95\u0bcd\u0b95\u0bc1 \u0b89\u0b95\u0ba8\u0bcd\u0ba4\u0ba4\u0bc1.",B.b0q),i.zA("3. \u0ba8\u0b9f\u0bc8 (Walking)","50% \u0bb5\u0bb2\u0bcd\u0bb2\u0bae\u0bc8","\u0b9a\u0bbe\u0ba4\u0bbe\u0bb0\u0ba3 \u0b85\u0ba9\u0bcd\u0bb1\u0bbe\u0b9f \u0baa\u0ba3\u0bbf\u0b95\u0bb3\u0bcd \u0bae\u0bb1\u0bcd\u0bb1\u0bc1\u0bae\u0bcd \u0baa\u0baf\u0ba3\u0b99\u0bcd\u0b95\u0bb3\u0bc1\u0b95\u0bcd\u0b95\u0bc1 \u0b8f\u0bb1\u0bcd\u0bb1\u0ba4\u0bc1.",B.pl),i.zA("4. \u0ba4\u0bc1\u0baf\u0bbf\u0bb2\u0bcd (Sleeping)","20% \u0bb5\u0bb2\u0bcd\u0bb2\u0bae\u0bc8","\u0b93\u0baf\u0bcd\u0bb5\u0bc1 \u0b8e\u0b9f\u0bc1\u0b95\u0bcd\u0b95\u0bb2\u0bbe\u0bae\u0bcd; \u0bae\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0baf \u0baa\u0bc1\u0ba4\u0bbf\u0baf \u0bae\u0bc1\u0baf\u0bb1\u0bcd\u0b9a\u0bbf\u0b95\u0bb3\u0bc8 \u0ba4\u0bb5\u0bbf\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd.",B.f8),i.zA("5. \u0b9a\u0bbe\u0bb5\u0bc1 (Dying)","0% \u0bb5\u0bb2\u0bcd\u0bb2\u0bae\u0bc8","\u0bae\u0bc1\u0bb4\u0bc1\u0bae\u0bc8\u0baf\u0bbe\u0b95 \u0ba4\u0bb5\u0bbf\u0bb0\u0bcd\u0b95\u0bcd\u0b95 \u0bb5\u0bc7\u0ba3\u0bcd\u0b9f\u0bbf\u0baf \u0ba8\u0bc7\u0bb0\u0bae\u0bcd; \u0b9a\u0bc1\u0baa \u0b95\u0bbe\u0bb0\u0bbf\u0baf\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0b9a\u0bc6\u0baf\u0bcd\u0baf\u0b95\u0bcd\u0b95\u0bc2\u0b9f\u0bbe\u0ba4\u0bc1.",B.aG)],m),B.Q,B.v,B.r,0,B.F),h),h,!0,h,B.bc),h,h),A.aV(0,25e4,0,0,0),h),B.bq],m),B.Q,B.v,B.r,0,B.F),B.dc,B.cl,h,h,B.aq),B.av,!0),h),h,h,!1,h,h)},
 zA(a,b,c,d){var s=null,r=t.p
 return new A.as(B.Aw,A.X(A.b([A.a8(A.W(A.b([A.e(a,s,s,s,A.q().$3$color$fontSize$fontWeight(d,12,B.u),s,s,s),A.e(b,s,s,s,A.q().$2$color$fontSize(B.O,10),s,s,s)],r),B.Q,B.v,B.r,0,B.F),4,s),B.az,A.a8(A.e(c,s,s,s,A.q().$2$color$fontSize(B.aw,11),s,s,s),6,s)],r),B.Q,B.v,B.r,0,s,s),s)}}
 A.aVL.prototype={
@@ -63843,10 +63843,10 @@ c=A.X(c,B.z,B.v,B.r,0,i,i)
 s=A.a_(12)
 r=B.m.a6(127.5)
 q=A.ai(A.R(r,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1)
-s=A.a8(A.cV(i,A.Y(i,A.W(A.b([A.e("Date of Birth",i,i,i,A.q().$2$color$fontSize(B.O,11),i,i,i),B.b0,A.X(A.b([B.BR,B.az,A.e(A.hq("dd MMM yyyy").dG(j.as),i,i,i,A.q().$2$color$fontWeight(B.B,B.u),i,i,i)],h),B.z,B.v,B.r,0,i,i)],h),B.Q,B.v,B.r,0,B.F),B.D,i,i,new A.Z(B.a6,i,q,s,i,i,B.M),i,i,i,B.b7,i,i,i),B.a2,!1,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,j.gaCN(),i,i,i,i,i,i),1,i)
+s=A.a8(A.cV(i,A.Y(i,A.W(A.b([A.e("Date of Birth",i,i,i,A.q().$2$color$fontSize(B.O,11),i,i,i),B.b0,A.X(A.b([B.BR,B.az,A.e(A.hq("dd MMM yyyy").dG(j.as),i,i,i,A.q().$2$color$fontWeight(B.B,B.u),i,i,i)],h),B.z,B.v,B.r,0,i,i)],h),B.Q,B.v,B.r,0,B.F),B.D,i,i,new A.Z(B.a6,i,q,s,i,i,B.M),i,i,i,B.b6,i,i,i),B.a2,!1,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,j.gaCN(),i,i,i,i,i,i),1,i)
 q=A.a_(12)
 p=A.ai(A.R(r,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1)
-q=A.X(A.b([s,B.cJ,A.a8(A.cV(i,A.Y(i,A.W(A.b([A.e("Time of Birth",i,i,i,A.q().$2$color$fontSize(B.O,11),i,i,i),B.b0,A.X(A.b([B.a5N,B.az,A.e(j.at.dG(a),i,i,i,A.q().$2$color$fontWeight(B.B,B.u),i,i,i)],h),B.z,B.v,B.r,0,i,i)],h),B.Q,B.v,B.r,0,B.F),B.D,i,i,new A.Z(B.a6,i,p,q,i,i,B.M),i,i,i,B.b7,i,i,i),B.a2,!1,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,j.gaCP(),i,i,i,i,i,i),1,i)],h),B.z,B.v,B.r,0,i,i)
+q=A.X(A.b([s,B.cJ,A.a8(A.cV(i,A.Y(i,A.W(A.b([A.e("Time of Birth",i,i,i,A.q().$2$color$fontSize(B.O,11),i,i,i),B.b0,A.X(A.b([B.a5N,B.az,A.e(j.at.dG(a),i,i,i,A.q().$2$color$fontWeight(B.B,B.u),i,i,i)],h),B.z,B.v,B.r,0,i,i)],h),B.Q,B.v,B.r,0,B.F),B.D,i,i,new A.Z(B.a6,i,p,q,i,i,B.M),i,i,i,B.b6,i,i,i),B.a2,!1,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,j.gaCP(),i,i,i,i,i,i),1,i)],h),B.z,B.v,B.r,0,i,i)
 p=A.mK(j.e,"e.g. Hospital / Area",i,!1,B.ek,"Place of Birth",1,B.a4K,i)
 s=A.X(A.b([A.a8(A.mK(j.f,"City",i,!1,B.ek,"City",1,B.a4A,i),1,i),B.bG,A.a8(A.mK(j.r,"State",i,!1,B.ek,"State",1,B.a4D,i),1,i)],h),B.z,B.v,B.r,0,i,i)
 o=A.e("Astrological Details",i,i,i,A.ah().$3$color$fontSize$fontWeight(B.t,14,B.u),i,i,i)
@@ -63854,7 +63854,7 @@ n=A.a_(20)
 m=A.R(38,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255)
 l=A.a_(20)
 r=A.ai(A.R(r,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1)
-l=A.X(A.b([o,A.iR(!1,n,!0,A.Y(i,A.X(A.b([B.a5h,B.eI,A.e("Auto-Calculate",i,i,i,A.q().$3$color$fontSize$fontWeight(B.t,11,B.bk),i,i,i)],h),B.z,B.v,B.aZ,0,i,i),B.D,i,i,new A.Z(m,i,r,l,i,i,B.M),i,i,i,B.dR,i,i,i),i,!0,i,i,i,i,i,i,i,i,i,i,i,j.gaDN(),i,i,i,i,i,i,i)],h),B.z,B.b4,B.r,0,i,i)
+l=A.X(A.b([o,A.iR(!1,n,!0,A.Y(i,A.X(A.b([B.a5h,B.eI,A.e("Auto-Calculate",i,i,i,A.q().$3$color$fontSize$fontWeight(B.t,11,B.bk),i,i,i)],h),B.z,B.v,B.aZ,0,i,i),B.D,i,i,new A.Z(m,i,r,l,i,i,B.M),i,i,i,B.dR,i,i,i),i,!0,i,i,i,i,i,i,i,i,i,i,i,j.gaDN(),i,i,i,i,i,i,i)],h),B.z,B.b7,B.r,0,i,i)
 r=j.Zl(B.hn,B.Iy,"Zodiac Sign (Rasi)",new A.b0X(j),j.ax)
 m=j.Zl(B.nl,B.I5,"Nakshatra (Star)",new A.b0Y(j),j.ay)
 n=A.a_(16)
@@ -63935,10 +63935,10 @@ o=A.b([A.R(64,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),A.R(51,B.cY.n()>>>16
 s=A.ai(A.R(153,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1)
 r=A.a8(A.W(A.b([A.e("Launching Soon!",p,p,p,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),p,p,p),A.e("Pre-register for exclusive early access offers",p,p,p,A.al().$2$color$fontSize(B.O,11),p,p,p)],n),B.Q,B.v,B.r,0,B.F),1,p)
 q=A.a_(10)
-return A.dH(p,p,new A.dq(A.dt(!0,A.W(A.b([new A.as(B.iw,l,p),new A.as(B.t6,A.cE(A.c6(A.Y(p,A.X(A.b([B.a6_,B.bG,r,A.Y(p,A.e("Notify Me",p,p,p,A.al().$3$color$fontSize$fontWeight(B.a8,11,B.u),p,p,p),B.D,p,p,new A.Z(B.q,p,p,q,p,p,B.M),p,p,p,B.a2b,p,p,p)],n),B.z,B.v,B.r,0,p,p),B.D,p,p,new A.Z(p,p,s,m,p,new A.fY(B.cU,B.eL,B.ce,o,p,p),B.M),p,p,p,B.b7,p,p,1/0),p,p),A.aV(0,1e5,0,0,0),p),p),B.bD,A.cE(A.c6(A.cI(A.kP(new A.aZ1(this),6,B.t6,p,B.ba,!1),38,p),p,p),A.aV(0,15e4,0,0,0),p),B.bD,A.a8(A.w9(p,B.a2,B.b8L,new A.aZ2(this),this.ga0u().length,B.t6,B.cl,!1),1,p)],n),B.z,B.v,B.r,0,B.F),B.av,!0),p),p,p,!1,p,p)},
+return A.dH(p,p,new A.dq(A.dt(!0,A.W(A.b([new A.as(B.iw,l,p),new A.as(B.t6,A.cE(A.c6(A.Y(p,A.X(A.b([B.a6_,B.bG,r,A.Y(p,A.e("Notify Me",p,p,p,A.al().$3$color$fontSize$fontWeight(B.a8,11,B.u),p,p,p),B.D,p,p,new A.Z(B.q,p,p,q,p,p,B.M),p,p,p,B.a2b,p,p,p)],n),B.z,B.v,B.r,0,p,p),B.D,p,p,new A.Z(p,p,s,m,p,new A.fY(B.cU,B.eL,B.ce,o,p,p),B.M),p,p,p,B.b6,p,p,1/0),p,p),A.aV(0,1e5,0,0,0),p),p),B.bD,A.cE(A.c6(A.cI(A.kP(new A.aZ1(this),6,B.t6,p,B.ba,!1),38,p),p,p),A.aV(0,15e4,0,0,0),p),B.bD,A.a8(A.w9(p,B.a2,B.b8L,new A.aZ2(this),this.ga0u().length,B.t6,B.cl,!1),1,p)],n),B.z,B.v,B.r,0,B.F),B.av,!0),p),p,p,!1,p,p)},
 aof(a,b,c){var s,r=null,q=J.aZ(b),p=t.G.a(q.h(b,"color")),o=A.a_(18),n=A.ai(A.R(102,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1),m=A.b([new A.bP(1,B.aB,p.b1(0.1),B.N,12)],t.V),l=A.b([p.b1(0.25),B.V],t.c),k=t.p,j=A.b([A.dp(A.de(t.tk.a(q.h(b,"icon")),p,r,52),r,r)],k)
 if(q.h(b,"badge")!=null){s=A.a_(8)
-j.push(A.k0(r,A.Y(r,A.e(A.br(q.h(b,"badge")),r,r,r,A.al().$3$color$fontSize$fontWeight(B.a8,9,B.u),r,r,r),B.D,r,r,new A.Z(B.q,r,r,s,r,r,B.M),r,r,r,B.AI,r,r,r),r,r,8,r,8,r))}return A.cV(r,A.Mv(A.cE(A.c6(A.Y(r,A.W(A.b([A.Y(r,A.ft(B.cf,j,B.Y,B.c6,r),B.D,r,r,new A.Z(r,r,r,B.Wc,r,new A.fY(B.fY,B.i5,B.ce,l,r,r),B.M),r,110,r,r,r,r,r),A.a8(new A.as(B.t_,A.W(A.b([A.W(A.b([A.e(A.br(q.h(b,"name")),2,B.aC,r,A.ah().$3$color$fontSize$fontWeight(B.B,11,B.u),r,r,r),B.di,A.e(A.br(q.h(b,"subtitle")),1,B.aC,r,A.al().$2$color$fontSize(B.O,9.5),r,r,r)],k),B.Q,B.v,B.r,0,B.F),A.W(A.b([A.X(A.b([B.a5X,B.q0,A.e(A.br(q.h(b,"rating")),r,r,r,A.al().$3$color$fontSize$fontWeight(B.t,10,B.u),r,r,r)],k),B.z,B.v,B.r,0,r,r),B.b0,A.X(A.b([A.e(A.br(q.h(b,"price")),r,r,r,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),r,r,r),B.eI,A.e(A.br(q.h(b,"originalPrice")),r,r,r,A.al().$3$color$decoration$fontSize(B.O,B.TC,9),r,r,r)],k),B.dP,B.v,B.r,0,r,r)],k),B.Q,B.v,B.r,0,B.F)],k),B.Q,B.b4,B.r,0,B.F),r),1,r)],k),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,n,o,m,r,B.M),r,r,r,r,r,r,r),A.aV(0,0,60*c,0,0),r),r,r),0.1,r,r,r,0),B.a2,!1,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,new A.aYX(a,b),r,r,r,r,r,r)}}
+j.push(A.k0(r,A.Y(r,A.e(A.br(q.h(b,"badge")),r,r,r,A.al().$3$color$fontSize$fontWeight(B.a8,9,B.u),r,r,r),B.D,r,r,new A.Z(B.q,r,r,s,r,r,B.M),r,r,r,B.AI,r,r,r),r,r,8,r,8,r))}return A.cV(r,A.Mv(A.cE(A.c6(A.Y(r,A.W(A.b([A.Y(r,A.ft(B.cf,j,B.Y,B.c6,r),B.D,r,r,new A.Z(r,r,r,B.Wc,r,new A.fY(B.fY,B.i5,B.ce,l,r,r),B.M),r,110,r,r,r,r,r),A.a8(new A.as(B.t_,A.W(A.b([A.W(A.b([A.e(A.br(q.h(b,"name")),2,B.aC,r,A.ah().$3$color$fontSize$fontWeight(B.B,11,B.u),r,r,r),B.di,A.e(A.br(q.h(b,"subtitle")),1,B.aC,r,A.al().$2$color$fontSize(B.O,9.5),r,r,r)],k),B.Q,B.v,B.r,0,B.F),A.W(A.b([A.X(A.b([B.a5X,B.q0,A.e(A.br(q.h(b,"rating")),r,r,r,A.al().$3$color$fontSize$fontWeight(B.t,10,B.u),r,r,r)],k),B.z,B.v,B.r,0,r,r),B.b0,A.X(A.b([A.e(A.br(q.h(b,"price")),r,r,r,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),r,r,r),B.eI,A.e(A.br(q.h(b,"originalPrice")),r,r,r,A.al().$3$color$decoration$fontSize(B.O,B.TC,9),r,r,r)],k),B.dP,B.v,B.r,0,r,r)],k),B.Q,B.v,B.r,0,B.F)],k),B.Q,B.b7,B.r,0,B.F),r),1,r)],k),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,n,o,m,r,B.M),r,r,r,r,r,r,r),A.aV(0,0,60*c,0,0),r),r,r),0.1,r,r,r,0),B.a2,!1,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,new A.aYX(a,b),r,r,r,r,r,r)}}
 A.aYY.prototype={
 $1(a){return J.c(J.l(a,"category"),this.a.d)},
 $S:397}
@@ -64104,7 +64104,7 @@ for(p=0;p<27;p=o){o=p+1
 q[p]=new A.eO(p,A.e(""+o+". "+B.ec[p],h,B.aC,h,A.al().$2$color$fontSize(B.B,14),h,h,h),B.dm,h,r)}n=t.S
 f.push(A.Y(h,new A.j8(A.pm(B.V,B.BX,!0,q,new A.b_n(i),h,h,s,n),h),B.D,h,h,new A.Z(B.V,h,d,e,h,h,B.M),h,h,h,B.ka,h,h,h))
 f.push(B.aA)
-f.push(A.X(A.b([A.a8(A.e("\u0ba4\u0bc7\u0bb0\u0bcd\u0ba8\u0bcd\u0ba4\u0bc6\u0b9f\u0bc1\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0\u0bae\u0bcd",h,h,h,A.al().$3$color$fontSize$fontWeight(B.O,13,B.b3),h,h,h),1,h),A.iR(!1,A.a_(8),!0,new A.as(B.a2w,A.X(A.b([B.a64,B.eI,A.e("\u0b87\u0ba9\u0bcd\u0bb1\u0bc8\u0baf \u0b9a\u0ba8\u0bcd\u0ba4\u0bbf\u0bb0\u0ba9\u0bcd",h,h,h,A.al().$3$color$fontSize$fontWeight(B.q,11,B.u),h,h,h)],a),B.z,B.v,B.r,0,h,h),h),h,!0,h,h,h,h,h,h,h,h,h,h,h,i.gazA(),h,h,h,h,h,h,h)],a),B.z,B.b4,B.r,0,h,h))
+f.push(A.X(A.b([A.a8(A.e("\u0ba4\u0bc7\u0bb0\u0bcd\u0ba8\u0bcd\u0ba4\u0bc6\u0b9f\u0bc1\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0\u0bae\u0bcd",h,h,h,A.al().$3$color$fontSize$fontWeight(B.O,13,B.b3),h,h,h),1,h),A.iR(!1,A.a_(8),!0,new A.as(B.a2w,A.X(A.b([B.a64,B.eI,A.e("\u0b87\u0ba9\u0bcd\u0bb1\u0bc8\u0baf \u0b9a\u0ba8\u0bcd\u0ba4\u0bbf\u0bb0\u0ba9\u0bcd",h,h,h,A.al().$3$color$fontSize$fontWeight(B.q,11,B.u),h,h,h)],a),B.z,B.v,B.r,0,h,h),h),h,!0,h,h,h,h,h,h,h,h,h,h,h,i.gazA(),h,h,h,h,h,h,h)],a),B.z,B.b7,B.r,0,h,h))
 f.push(B.b_)
 e=A.a_(12)
 d=A.ai(B.q.aU(0.6),1)
@@ -64119,7 +64119,7 @@ if(i.f!=null){e=A.e(g,h,h,h,A.ah().$4$color$fontSize$fontWeight$letterSpacing(B.
 d=A.Y(h,h,B.D,B.q,h,h,h,2,h,h,h,h,50)
 c=A.a_(12)
 b=A.ai(B.q.aU(0.3),1)
-c=A.Y(h,A.W(A.b([A.X(A.b([A.X(A.b([B.a6v,B.az,A.e("\u0bae\u0bc2\u0bb2 \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0\u0bae\u0bcd:",h,h,h,A.al().$2$color$fontSize(B.O,13),h,h,h)],a),B.z,B.v,B.r,0,h,h),A.e(i.f.c,h,h,h,A.al().$3$color$fontSize$fontWeight(B.B,15,B.u),h,h,h)],a),B.z,B.b4,B.r,0,h,h),B.a1g,A.X(A.b([A.X(A.b([B.a6f,B.az,A.e("\u0ba4\u0bc7\u0bb0\u0bcd\u0ba8\u0bcd\u0ba4\u0bc6\u0b9f\u0bc1\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0\u0bae\u0bcd:",h,h,h,A.al().$2$color$fontSize(B.O,13),h,h,h)],a),B.z,B.v,B.r,0,h,h),A.e(i.f.d,h,h,h,A.al().$3$color$fontSize$fontWeight(B.B,15,B.u),h,h,h)],a),B.z,B.b4,B.r,0,h,h)],a),B.z,B.v,B.r,0,B.F),B.D,h,h,new A.Z(B.V,h,b,c,h,h,B.M),h,h,h,B.AA,h,h,h)
+c=A.Y(h,A.W(A.b([A.X(A.b([A.X(A.b([B.a6v,B.az,A.e("\u0bae\u0bc2\u0bb2 \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0\u0bae\u0bcd:",h,h,h,A.al().$2$color$fontSize(B.O,13),h,h,h)],a),B.z,B.v,B.r,0,h,h),A.e(i.f.c,h,h,h,A.al().$3$color$fontSize$fontWeight(B.B,15,B.u),h,h,h)],a),B.z,B.b7,B.r,0,h,h),B.a1g,A.X(A.b([A.X(A.b([B.a6f,B.az,A.e("\u0ba4\u0bc7\u0bb0\u0bcd\u0ba8\u0bcd\u0ba4\u0bc6\u0b9f\u0bc1\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f \u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0\u0bae\u0bcd:",h,h,h,A.al().$2$color$fontSize(B.O,13),h,h,h)],a),B.z,B.v,B.r,0,h,h),A.e(i.f.d,h,h,h,A.al().$3$color$fontSize$fontWeight(B.B,15,B.u),h,h,h)],a),B.z,B.b7,B.r,0,h,h)],a),B.z,B.v,B.r,0,B.F),B.D,h,h,new A.Z(B.V,h,b,c,h,h,B.M),h,h,h,B.AA,h,h,h)
 b=A.e("\u0ba4\u0bbe\u0bb0\u0bbe:",h,h,h,A.al().$2$color$fontSize(B.O,12),h,h,h)
 s=A.e(i.f.r,h,h,h,A.ah().$3$color$fontSize$fontWeight(B.t,26,B.u),B.bQ,h,h)
 r=B.B.aU(0.06)
@@ -64141,7 +64141,7 @@ n=A.e("\u0baa\u0bb2\u0ba9\u0bcd:",h,h,h,A.al().$3$color$fontSize$fontWeight(B.t,
 l=B.V.aU(0.8)
 j=A.a_(12)
 k=A.ai(B.q.aU(0.3),1)
-B.n.U(f,A.b([A.CX(A.c6(A.fQ(B.q,20,new A.as(B.mO,A.W(A.b([e,B.b0,d,B.q1,c,B.bl,b,B.di,s,B.aO,r,B.aA,m,B.bl,n,B.b_,A.Y(h,A.e(i.f.x,h,h,h,A.al().$3$color$fontSize$height(B.B,14,1.5),B.bQ,h,h),B.D,h,h,new A.Z(l,h,k,j,h,h,B.M),h,h,h,B.b7,h,h,1/0)],a),B.z,B.v,B.r,0,B.F),h),h,!0,h,B.bc),h,h),h,h,A.aV(0,35e4,0,0,0))],a))}f.push(B.b8E)
+B.n.U(f,A.b([A.CX(A.c6(A.fQ(B.q,20,new A.as(B.mO,A.W(A.b([e,B.b0,d,B.q1,c,B.bl,b,B.di,s,B.aO,r,B.aA,m,B.bl,n,B.b_,A.Y(h,A.e(i.f.x,h,h,h,A.al().$3$color$fontSize$height(B.B,14,1.5),B.bQ,h,h),B.D,h,h,new A.Z(l,h,k,j,h,h,B.M),h,h,h,B.b6,h,h,1/0)],a),B.z,B.v,B.r,0,B.F),h),h,!0,h,B.bc),h,h),h,h,A.aV(0,35e4,0,0,0))],a))}f.push(B.b8E)
 return A.dH(h,h,new A.dq(A.dt(!0,A.cC(A.W(f,B.Q,B.v,B.r,0,B.F),B.dc,B.cl,h,h,B.aq),B.av,!0),h),h,h,!1,h,h)}}
 A.b_i.prototype={
 $0(){var s=this.a,r=this.b
@@ -64239,7 +64239,7 @@ n=A.b([new A.bP(0,B.aB,A.R(B.m.a6(76.5),B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()
 m=t.p
 l=A.W(A.b([A.e("AVAILABLE WALLET BALANCE",i,i,i,A.q().$3$color$fontSize$letterSpacing(B.O,11,1),i,i,i),B.b_,A.e("\u20b9"+B.m.ao(g,2),i,i,i,A.ah().$3$color$fontSize$fontWeight(B.t,30,B.u),i,i,i)],m),B.Q,B.v,B.r,0,B.F)
 k=A.eP(i,i,B.q,i,i,i,i,i,i,i,i,i,i,i,new A.ca(A.a_(12),B.a4),i,i,i,i,i)
-n=A.Y(i,A.X(A.b([l,A.aon(B.kr,A.e("Recharge",i,i,i,A.q().$2$color$fontWeight(B.a8,B.u),i,i,i),j.gaG1(),k)],m),B.z,B.b4,B.r,0,i,i),B.D,i,i,new A.Z(i,i,o,p,n,B.ur,B.M),i,i,i,B.aX,i,i,1/0)
+n=A.Y(i,A.X(A.b([l,A.aon(B.kr,A.e("Recharge",i,i,i,A.q().$2$color$fontWeight(B.a8,B.u),i,i,i),j.gaG1(),k)],m),B.z,B.b7,B.r,0,i,i),B.D,i,i,new A.Z(i,i,o,p,n,B.ur,B.M),i,i,i,B.aX,i,i,1/0)
 p=new A.lG(A.b(["All Activity","Recharges","Refunds"],t.s),t.ly)
 return A.dH(r,i,new A.dq(A.dt(!0,new A.as(B.aX,A.W(A.b([n,B.bl,A.X(p.giZ(p).hC(0,new A.b1g(j),t.tL).fL(0),B.z,B.v,B.r,0,i,i),B.aA,A.a8(A.kP(new A.b1h(j,q),q.length,i,i,B.aq,!1),1,i)],m),B.Q,B.v,B.r,0,B.F),i),B.av,!0),i),i,i,!1,i,i)}}
 A.b1a.prototype={
@@ -64300,7 +64300,7 @@ j=t.p
 s=A.a8(A.W(A.b([A.e(o.c,p,p,p,A.q().$3$color$fontSize$fontWeight(B.B,13,B.u),p,p,p),B.b0,A.e(A.hq("dd MMM yyyy, hh:mm a").dG(o.w)+" \u2022 "+o.f,p,p,p,A.q().$2$color$fontSize(B.O,11),p,p,p)],j),B.Q,B.v,B.r,0,B.F),1,p)
 r=n?"+":"-"
 q=B.m.ao(o.e,0)
-return A.Y(p,A.X(A.b([k,B.cJ,s,A.W(A.b([A.e(r+"\u20b9"+q,p,p,p,A.q().$3$color$fontSize$fontWeight(n?B.b8:B.aG,15,B.u),p,p,p),B.b0,A.cV(p,A.X(A.b([B.a6p,B.q0,A.e("Invoice",p,p,p,A.q().$2$color$fontSize(B.t,10),p,p,p)],j),B.z,B.v,B.r,0,p,p),B.a2,!1,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,new A.b1c(this.a,o),p,p,p,p,p,p)],j),B.dP,B.v,B.r,0,B.F)],j),B.z,B.v,B.r,0,p,p),B.D,p,p,new A.Z(B.a6,p,l,m,p,p,B.M),p,p,B.e6,B.b7,p,p,p)},
+return A.Y(p,A.X(A.b([k,B.cJ,s,A.W(A.b([A.e(r+"\u20b9"+q,p,p,p,A.q().$3$color$fontSize$fontWeight(n?B.b8:B.aG,15,B.u),p,p,p),B.b0,A.cV(p,A.X(A.b([B.a6p,B.q0,A.e("Invoice",p,p,p,A.q().$2$color$fontSize(B.t,10),p,p,p)],j),B.z,B.v,B.r,0,p,p),B.a2,!1,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,new A.b1c(this.a,o),p,p,p,p,p,p)],j),B.dP,B.v,B.r,0,B.F)],j),B.z,B.v,B.r,0,p,p),B.D,p,p,new A.Z(B.a6,p,l,m,p,p,B.M),p,p,B.e6,B.b6,p,p,p)},
 $S:43}
 A.b1c.prototype={
 $0(){var s=null
@@ -64900,7 +64900,7 @@ a9=g.r
 b0=h.r
 b1=h.z
 b2=""+h.Q
-a1=A.Y(b4,A.X(A.b([a3,B.cJ,A.a8(A.W(A.b([A.X(A.b([a4,A.Y(b4,A.e("Age: "+a0+" Yrs",b4,b4,b4,A.q().$3$color$fontSize$fontWeight(B.t,10,B.u),b4,b4,b4),B.D,b4,b4,new A.Z(a5,b4,a7,a6,b4,b4,B.M),b4,b4,b4,B.mQ,b4,b4,b4)],a8),B.z,B.v,B.r,0,b4,b4),B.di,A.e("DOB: "+b7+" \u2022 "+b8+" \u2022 "+b9,b4,b4,b4,A.q().$2$color$fontSize(B.O,11),b4,b4,b4),B.di,A.e("Lagna: "+a9+" ("+g.f+") \u2022 Rasi: "+b0+" \u2022 Nakshatra: "+b1+"-"+b2,b4,b4,b4,A.q().$3$color$fontSize$fontWeight(B.B,11,B.u),b4,b4,b4)],a8),B.Q,B.v,B.r,0,B.F),1,b4)],a8),B.z,B.v,B.r,0,b4,b4),B.D,b4,b4,new A.Z(B.a6,b4,a2,a1,b4,b4,B.M),b4,b4,b4,B.b7,b4,b4,b4)
+a1=A.Y(b4,A.X(A.b([a3,B.cJ,A.a8(A.W(A.b([A.X(A.b([a4,A.Y(b4,A.e("Age: "+a0+" Yrs",b4,b4,b4,A.q().$3$color$fontSize$fontWeight(B.t,10,B.u),b4,b4,b4),B.D,b4,b4,new A.Z(a5,b4,a7,a6,b4,b4,B.M),b4,b4,b4,B.mQ,b4,b4,b4)],a8),B.z,B.v,B.r,0,b4,b4),B.di,A.e("DOB: "+b7+" \u2022 "+b8+" \u2022 "+b9,b4,b4,b4,A.q().$2$color$fontSize(B.O,11),b4,b4,b4),B.di,A.e("Lagna: "+a9+" ("+g.f+") \u2022 Rasi: "+b0+" \u2022 Nakshatra: "+b1+"-"+b2,b4,b4,b4,A.q().$3$color$fontSize$fontWeight(B.B,11,B.u),b4,b4,b4)],a8),B.Q,B.v,B.r,0,B.F),1,b4)],a8),B.z,B.v,B.r,0,b4,b4),B.D,b4,b4,new A.Z(B.a6,b4,a2,a1,b4,b4,B.M),b4,b4,b4,B.b6,b4,b4,b4)
 a2=A.a_(12)
 a6=A.ai(A.R(B.m.a6(76.5),B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1)
 return A.Y(b4,A.cC(A.W(A.b([a1,B.aA,A.Y(b4,A.u7(B.UF,A.b([b3.qc("\u0bb2\u0b95\u0bcd\u0ba9\u0bae\u0bcd",a9+" ("+g.guc()+")"),b3.qc("\u0bb0\u0bbe\u0b9a\u0bbf",b0+" ("+h.f+")"),b3.qc("\u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0\u0bae\u0bcd",b1+" - "+b2+" \u0baa\u0bbe\u0ba4\u0bae\u0bcd"),b3.qc("\u0b85\u0baf\u0ba9\u0bbe\u0bae\u0bcd\u0b9a\u0bae\u0bcd","\u0ba4\u0bbf\u0bb0\u0bc1\u0b95\u0ba3\u0bbf\u0ba4\u0bae\u0bcd ("+f+")"),b3.qc("\u0ba4\u0bae\u0bbf\u0bb4\u0bcd \u0ba4\u0bc7\u0ba4\u0bbf",j.cy),b3.qc("\u0ba4\u0bbf\u0ba4\u0bbf",d.e+" "+d.c),b3.qc("\u0b95\u0bb0\u0ba3\u0bae\u0bcd",j.as),b3.qc("\u0baf\u0bcb\u0b95\u0bae\u0bcd",j.ay)],a8),8,12),B.D,b4,b4,new A.Z(B.V,b4,a6,a2,b4,b4,B.M),b4,b4,b4,B.cp,b4,b4,b4),B.bl,A.X(A.b([B.a5D,B.az,A.a8(A.e("\u0ba8\u0b9f\u0bcd\u0b9a\u0ba4\u0bcd\u0ba4\u0bbf\u0bb0 \u0baa\u0bbe\u0ba4\u0b9a\u0bbe\u0bb0\u0bae\u0bcd (Lahiri "+f+")",2,B.aC,b4,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),b4,b4,b4),1,b4)],a8),B.z,B.v,B.r,0,b4,b4),B.bC,b3.aob(i),B.bq,A.X(A.b([B.a6a,B.az,A.a8(A.e("\u0b9c\u0bbe\u0ba4\u0b95 \u0b95\u0b9f\u0bcd\u0b9f\u0b99\u0bcd\u0b95\u0bb3\u0bcd (\u0bb0\u0bbe\u0b9a\u0bbf & \u0ba8\u0bb5\u0bbe\u0bae\u0bcd\u0b9a\u0bae\u0bcd)",2,B.aC,b4,A.ah().$3$color$fontSize$fontWeight(B.t,13,B.u),b4,b4,b4),1,b4)],a8),B.z,B.v,B.r,0,b4,b4),B.aO,A.wI(new A.aZE(b3,i,e,d)),B.bq,b3.aok(d),B.bq,b3.anI(c,b)],a8),B.Q,B.v,B.r,0,B.F),B.bc,b4,b4,b4,B.aq),B.D,b4,b4,new A.Z(B.a8,b4,q,r,a,b4,B.M),b4,b4,b4,b4,b4,b4,b4)},
@@ -64940,9 +64940,9 @@ s=A.e("\u0b9a\u0bc2\u0ba9\u0bcd\u0baf \u0bb0\u0bbe\u0b9a\u0bbf\u0b95\u0bb3\u0bcd
 r=a.r
 if(r.length===0)r=A.b([A.e("\u0b9a\u0bc2\u0ba9\u0bcd\u0baf\u0bae\u0bcd \u0b87\u0bb2\u0bcd\u0bb2\u0bc8",p,p,p,A.q().$2$color$fontSize(B.b8,12),p,p,p)],m)
 else{q=A.ab(r).i("a7<1,vm>")
-r=A.T(new A.a7(r,new A.aZD(),q),q.i("at.E"))}return A.Y(p,A.W(A.b([l,B.bC,B.Ai,B.b_,j,B.aO,A.X(A.b([k,A.a8(A.W(A.b([s,A.u7(B.fP,r,0,6)],m),B.Q,B.v,B.r,0,B.F),1,p)],m),B.Q,B.v,B.r,0,p,p)],m),B.Q,B.v,B.r,0,B.F),B.D,p,p,new A.Z(B.a6,p,n,o,p,p,B.M),p,p,p,B.b7,p,p,p)},
+r=A.T(new A.a7(r,new A.aZD(),q),q.i("at.E"))}return A.Y(p,A.W(A.b([l,B.bC,B.Ai,B.b_,j,B.aO,A.X(A.b([k,A.a8(A.W(A.b([s,A.u7(B.fP,r,0,6)],m),B.Q,B.v,B.r,0,B.F),1,p)],m),B.Q,B.v,B.r,0,p,p)],m),B.Q,B.v,B.r,0,B.F),B.D,p,p,new A.Z(B.a6,p,n,o,p,p,B.M),p,p,p,B.b6,p,p,p)},
 anI(a,b){var s=this,r=null,q=A.a_(16),p=A.ai(A.R(153,B.q.n()>>>16&255,B.q.n()>>>8&255,B.q.n()&255),1),o=t.p
-return A.Y(r,A.W(A.b([A.X(A.b([B.a5j,B.cx,A.a8(A.e("\u0ba4\u0b9a\u0bbe \u0baa\u0bc1\u0b95\u0bcd\u0ba4\u0bbf \u0bb5\u0bbf\u0bae\u0bcd\u0bb7\u0bcb\u0ba4\u0bcd\u0ba4\u0bb0\u0bbf 120 \u0bb5\u0bb0\u0bc1\u0b9f \u0baa\u0bb2\u0ba9\u0bcd\u0b95\u0bb3\u0bcd (VIMSHOTTARI DASHA)",2,B.aC,r,A.ah().$3$color$fontSize$fontWeight(B.t,11,B.u),r,r,r),1,r)],o),B.z,B.v,B.r,0,r,r),B.aR,B.Ai,B.b_,s.N1("\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0ba4\u0b9a\u0bbe \u0b87\u0bb0\u0bc1\u0baa\u0bcd\u0baa\u0bc1",A.k(a.h(0,"birthDashaLord"))+" \u2022 "+A.k(a.h(0,"birthDashaBalance"))),s.N1("\u0ba8\u0b9f\u0baa\u0bcd\u0baa\u0bc1 \u0bae\u0b95\u0bbe \u0ba4\u0b9a\u0bbe",A.k(a.h(0,"currentMahaDasha"))+" ("+A.k(a.h(0,"currentMahaDashaRange"))+")"),s.N1("\u0ba8\u0b9f\u0baa\u0bcd\u0baa\u0bc1 \u0baa\u0bc1\u0b95\u0bcd\u0ba4\u0bbf",A.k(a.h(0,"currentBhukti"))+" ("+A.k(a.h(0,"currentBhuktiRange"))+")"),B.aO,A.e("120 \u0bb5\u0bb0\u0bc1\u0b9f \u0ba4\u0b9a\u0bbe \u0b95\u0bbe\u0bb2\u0b99\u0bcd\u0b95\u0bb3\u0bcd (4 Levels Timeline):",r,r,r,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),r,r,r),B.b_,A.kP(new A.aZo(s,b),b.length,r,B.eF,B.aq,!0)],o),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,p,q,r,r,B.M),r,r,r,B.b7,r,r,r)},
+return A.Y(r,A.W(A.b([A.X(A.b([B.a5j,B.cx,A.a8(A.e("\u0ba4\u0b9a\u0bbe \u0baa\u0bc1\u0b95\u0bcd\u0ba4\u0bbf \u0bb5\u0bbf\u0bae\u0bcd\u0bb7\u0bcb\u0ba4\u0bcd\u0ba4\u0bb0\u0bbf 120 \u0bb5\u0bb0\u0bc1\u0b9f \u0baa\u0bb2\u0ba9\u0bcd\u0b95\u0bb3\u0bcd (VIMSHOTTARI DASHA)",2,B.aC,r,A.ah().$3$color$fontSize$fontWeight(B.t,11,B.u),r,r,r),1,r)],o),B.z,B.v,B.r,0,r,r),B.aR,B.Ai,B.b_,s.N1("\u0baa\u0bbf\u0bb1\u0ba8\u0bcd\u0ba4 \u0ba4\u0b9a\u0bbe \u0b87\u0bb0\u0bc1\u0baa\u0bcd\u0baa\u0bc1",A.k(a.h(0,"birthDashaLord"))+" \u2022 "+A.k(a.h(0,"birthDashaBalance"))),s.N1("\u0ba8\u0b9f\u0baa\u0bcd\u0baa\u0bc1 \u0bae\u0b95\u0bbe \u0ba4\u0b9a\u0bbe",A.k(a.h(0,"currentMahaDasha"))+" ("+A.k(a.h(0,"currentMahaDashaRange"))+")"),s.N1("\u0ba8\u0b9f\u0baa\u0bcd\u0baa\u0bc1 \u0baa\u0bc1\u0b95\u0bcd\u0ba4\u0bbf",A.k(a.h(0,"currentBhukti"))+" ("+A.k(a.h(0,"currentBhuktiRange"))+")"),B.aO,A.e("120 \u0bb5\u0bb0\u0bc1\u0b9f \u0ba4\u0b9a\u0bbe \u0b95\u0bbe\u0bb2\u0b99\u0bcd\u0b95\u0bb3\u0bcd (4 Levels Timeline):",r,r,r,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),r,r,r),B.b_,A.kP(new A.aZo(s,b),b.length,r,B.eF,B.aq,!0)],o),B.Q,B.v,B.r,0,B.F),B.D,r,r,new A.Z(B.a6,r,p,q,r,r,B.M),r,r,r,B.b6,r,r,r)},
 N1(a,b){var s=null
 return new A.as(B.rY,A.X(A.b([A.a8(A.e(a,s,s,s,A.q().$2$color$fontSize(B.O,11),s,s,s),4,s),B.az,A.a8(A.e(b,s,s,s,A.q().$3$color$fontSize$fontWeight(B.t,11,B.u),B.lD,s,s),7,s)],t.p),B.Q,B.v,B.r,0,s,s),s)},
 anY(a){var s,r,q,p,o,n,m,l,k,j=null,i=a.r,h=i?B.q.aU(0.12):B.V,g=A.a_(10),f=i?B.q:B.bZ
@@ -65017,7 +65017,7 @@ j=n?B.u:B.a9
 j=A.e(r,i,i,i,A.q().$3$color$fontSize$fontWeight(n?B.z8:B.O,8,j),i,i,i)
 p=p.hC(q,new A.aZw(),t.dT)
 p=A.T(p,p.$ti.i("at.E"))
-return A.v3(A.hv(B.aj,A.cI(A.W(A.b([new A.dO(B.cU,i,i,j,i),A.u7(B.lL,p,1,2),B.q2],t.p),B.z,B.b4,B.r,0,B.F),65,65),B.c2),i,B.aV,new A.Z(m,i,k,i,i,i,B.M),B.cA,i,i,B.fA,i)},
+return A.v3(A.hv(B.aj,A.cI(A.W(A.b([new A.dO(B.cU,i,i,j,i),A.u7(B.lL,p,1,2),B.q2],t.p),B.z,B.b7,B.r,0,B.F),65,65),B.c2),i,B.aV,new A.Z(m,i,k,i,i,i,B.M),B.cA,i,i,B.fA,i)},
 $S:44}
 A.aZv.prototype={
 $1(a){return a.a==="Lagna"},
@@ -65044,7 +65044,7 @@ m=A.ai(o?B.q:B.mp,0.5)
 l=A.e(r,k,k,k,A.q().$3$color$fontSize$fontWeight(B.O,8,B.a9),k,k,k)
 p=p.hC(q,new A.aZr(),t.dT)
 p=A.T(p,p.$ti.i("at.E"))
-return A.v3(A.hv(B.aj,A.cI(A.W(A.b([new A.dO(B.cU,k,k,l,k),A.u7(B.lL,p,1,2),B.q2],t.p),B.z,B.b4,B.r,0,B.F),65,65),B.c2),k,B.aV,new A.Z(n,k,m,k,k,k,B.M),B.cA,k,k,B.fA,k)},
+return A.v3(A.hv(B.aj,A.cI(A.W(A.b([new A.dO(B.cU,k,k,l,k),A.u7(B.lL,p,1,2),B.q2],t.p),B.z,B.b7,B.r,0,B.F),65,65),B.c2),k,B.aV,new A.Z(n,k,m,k,k,k,B.M),B.cA,k,k,B.fA,k)},
 $S:44}
 A.aZq.prototype={
 $1(a){return a.a==="Lagna"},
@@ -65127,7 +65127,7 @@ m=A.ai(o?B.q:B.q.aU(0.4),0.5)
 l=A.e(r,k,k,k,A.q().$3$color$fontSize$fontWeight(B.O,8,B.a9),k,k,k)
 p=p.hC(q,new A.aF0(),t.dT)
 p=A.T(p,p.$ti.i("at.E"))
-return A.v3(A.hv(B.aj,A.cI(A.W(A.b([new A.dO(B.cU,k,k,l,k),A.u7(B.lL,p,1,2),B.q2],t.p),B.z,B.b4,B.r,0,B.F),65,65),B.c2),k,B.aV,new A.Z(n,k,m,k,k,k,B.M),B.cA,k,k,B.fA,k)},
+return A.v3(A.hv(B.aj,A.cI(A.W(A.b([new A.dO(B.cU,k,k,l,k),A.u7(B.lL,p,1,2),B.q2],t.p),B.z,B.b7,B.r,0,B.F),65,65),B.c2),k,B.aV,new A.Z(n,k,m,k,k,k,B.M),B.cA,k,k,B.fA,k)},
 $S:44}
 A.aF_.prototype={
 $1(a){return a.a==="Lagna"},
@@ -65257,7 +65257,7 @@ m=A.ai(o?B.q:B.mp,0.5)
 l=A.e(r,k,k,k,A.q().$3$color$fontSize$fontWeight(B.O,8,B.u),k,k,k)
 p=p.hC(q,new A.aHQ(),t.dT)
 p=A.T(p,p.$ti.i("at.E"))
-return A.Y(k,A.hv(B.aj,A.cI(A.W(A.b([new A.dO(B.cU,k,k,l,k),A.u7(B.lL,p,1,2),B.q2],t.p),B.z,B.b4,B.r,0,B.F),65,65),B.c2),B.D,k,k,new A.Z(n,k,m,k,k,k,B.M),k,k,k,B.fA,k,k,k)},
+return A.Y(k,A.hv(B.aj,A.cI(A.W(A.b([new A.dO(B.cU,k,k,l,k),A.u7(B.lL,p,1,2),B.q2],t.p),B.z,B.b7,B.r,0,B.F),65,65),B.c2),B.D,k,k,new A.Z(n,k,m,k,k,k,B.M),k,k,k,B.fA,k,k,k)},
 $S:44}
 A.aHP.prototype={
 $1(a){return a.a==="Lagna"},
@@ -76112,7 +76112,7 @@ h=A.b([],l)
 if(a2.a.CW)h.push(A.a8(n,1,a3))
 else h.push(n)
 if(a2.a.ok==null)h.push(k)
-a5=A.kx(A.cI(new A.as(m,A.X(h,B.z,B.b4,B.aZ,0,a3,a3),a3),q,a3),a3,a3,B.dJ,!0,a4,a3,a3,B.bM)
+a5=A.kx(A.cI(new A.as(m,A.X(h,B.z,B.b7,B.aZ,0,a3,a3),a3),q,a3),a3,a3,B.dJ,!0,a4,a3,a3,B.bM)
 if(a6.a4(t.U2)==null){a4=a2.a
 g=a4.ch||a4.cx==null?0:8
 a4=a4.Q
@@ -86754,7 +86754,7 @@ if(p<n)p=n
 n=q.b
 o=o.b
 o=n<o?o:n
-return A.cC(A.cC(A.v3(A.W(A.b([new A.ew(new A.b0j(s.a),r),s.d],t.p),B.Q,B.b4,B.aZ,0,B.F),new A.au(0,1/0,216,o),B.dC,r,B.ax,r,r,r,p),r,r,r,"time_picker_scroll_view_vertical",B.aq),r,r,r,"time_picker_scroll_view_horizontal",B.ba)},
+return A.cC(A.cC(A.v3(A.W(A.b([new A.ew(new A.b0j(s.a),r),s.d],t.p),B.Q,B.b7,B.aZ,0,B.F),new A.au(0,1/0,216,o),B.dC,r,B.ax,r,r,r,p),r,r,r,"time_picker_scroll_view_vertical",B.aq),r,r,r,"time_picker_scroll_view_horizontal",B.ba)},
 $S:453}
 A.b0j.prototype={
 $1(a){var s,r,q,p,o,n,m,l,k,j=this.a,i=j.r,h=i.y
@@ -92061,7 +92061,7 @@ G(){return"MainAxisAlignment."+this.b},
 A4(a,b,c,d){var s,r,q,p=this
 A:{if(B.v===p){s=c?new A.aH(a,d):new A.aH(0,d)
 break A}if(B.pd===p){s=B.v.A4(a,b,!c,d)
-break A}r=B.b4===p
+break A}r=B.b7===p
 if(r&&b<2){s=B.v.A4(a,b,c,d)
 break A}q=B.hx===p
 if(q&&b===0){s=B.v.A4(a,b,c,d)
@@ -94809,7 +94809,7 @@ else j.d=k
 s=k.a
 o=j.a
 if(s===o.b)return B.aU
-if(s===o.a)return B.b5
+if(s===o.a)return B.b4
 return A.Md(j.gkO(),q)},
 aIm(a,b){var s,r,q,p,o,n,m,l=this
 if(b)l.e=null
@@ -94832,7 +94832,7 @@ else l.d=m
 s=m.a
 o=l.a
 if(s===o.b)return B.aU
-if(s===o.a)return B.b5
+if(s===o.a)return B.b4
 return A.Md(l.gkO(),q)},
 Rb(a,b,c,d,e){var s,r,q,p,o,n,m,l,k,j,i,h,g,f=this
 if(f.f&&d!=null&&e!=null){s=e.a
@@ -94855,23 +94855,23 @@ k=f.a
 j=k.b
 if(l>j&&p.a.a>j)return B.aU
 k=k.a
-if(l<k&&p.a.a<k)return B.b5
+if(l<k&&p.a.a<k)return B.b4
 if(q>=s.a){s=o.b.a
 if(l>=s)return B.bg
-if(l<s)return B.b5}else{s=p.a.a
+if(l<s)return B.b4}else{s=p.a.a
 q=o.a.a
 if(s<=q)return B.bg
 if(s>q)return B.aU}}else{i=f.hs(c)
 s=r?new A.aT(s-1,e.b):e
 o=a.$2(s,f.c)
 if(r&&i.a===f.a.a){f.d=i
-return B.b5}s=!r
+return B.b4}s=!r
 if(s&&i.a===f.a.b){f.d=i
 return B.aU}if(r&&i.a===f.a.b){f.e=f.hs(o.b)
 f.d=i
 return B.aU}if(s&&i.a===f.a.a){f.e=f.hs(o.a)
 f.d=i
-return B.b5}}}else{s=f.b.ia(c)
+return B.b4}}}else{s=f.b.ia(c)
 q=f.c
 h=B.p.ap(q,s.a,s.b)===$.Ul()
 if(!b||h)return null
@@ -94885,14 +94885,14 @@ l=f.a
 k=l.a
 j=q<k
 if(j&&p.a.a<k){f.d=new A.aT(k,B.W)
-return B.b5}l=l.b
+return B.b4}l=l.b
 if(q>l&&p.a.a>l){f.d=new A.aT(l,B.W)
 return B.aU}if(g){s=p.a
 q=s.a
 if(q<=l){f.d=f.hs(s)
 return B.bg}if(q>l){f.d=new A.aT(l,B.W)
 return B.aU}}else{f.d=f.hs(s)
-if(j)return B.b5
+if(j)return B.b4
 if(q>=k)return B.bg}}}return null},
 Ra(a,b,c,d,e){var s,r,q,p,o,n,m,l,k,j,i,h,g,f=this
 if(f.f&&d!=null&&e!=null){s=e.a
@@ -94916,23 +94916,23 @@ k=f.a
 j=k.b
 if(l>j&&p.a.a>j)return B.aU
 k=k.a
-if(l<k&&p.a.a<k)return B.b5
+if(l<k&&p.a.a<k)return B.b4
 if(s.a>=r){s=p.a.a
 r=o.a.a
 if(s<=r)return B.bg
 if(s>r)return B.aU}else{s=o.b.a
 if(l>=s)return B.bg
-if(l<s)return B.b5}}else{i=f.hs(c)
+if(l<s)return B.b4}}else{i=f.hs(c)
 s=q?d:new A.aT(r-1,d.b)
 o=a.$2(s,f.c)
 if(q&&i.a===f.a.a){f.d=f.hs(o.a)
 f.e=i
-return B.b5}s=!q
+return B.b4}s=!q
 if(s&&i.a===f.a.b){f.d=f.hs(o.b)
 f.e=i
 return B.aU}if(q&&i.a===f.a.b){f.e=i
 return B.aU}if(s&&i.a===f.a.a){f.e=i
-return B.b5}}}else{s=f.b.ia(c)
+return B.b4}}}else{s=f.b.ia(c)
 r=f.c
 h=B.p.ap(r,s.a,s.b)===$.Ul()
 if(!b||h)return null
@@ -94946,10 +94946,10 @@ l=f.a
 k=l.a
 j=r<k
 if(j&&p.a.a<k){f.e=new A.aT(k,B.W)
-return B.b5}l=l.b
+return B.b4}l=l.b
 if(r>l&&p.a.a>l){f.e=new A.aT(l,B.W)
 return B.aU}if(g){f.e=f.hs(s)
-if(j)return B.b5
+if(j)return B.b4
 if(r>=k)return B.bg}else{s=p.a
 r=s.a
 if(r<=l){f.e=f.hs(s)
@@ -94982,26 +94982,26 @@ f=a4.qo(r).a
 e=f+$.G2()
 d=j.b.a
 if(d>e&&j.a.a>e)return B.aU
-if(d<f&&j.a.a<f)return B.b5
+if(d<f&&j.a.a<f)return B.b4
 if(n>=q.a){q=j.a.a
 n=i.a.a
 if(q<=n)return B.bg
 if(q>n)return B.aU}else{q=i.b.a
 if(d>=q)return B.bg
-if(d<q)return B.b5}}else{n=r.gB(0)
+if(d<q)return B.b4}}else{n=r.gB(0)
 q=q.u.w
 q.toString
 c=r.eo(A.Mc(new A.H(0,0,0+n.a,0+n.b),o,q))
 q=a4.qo(r).a
 n=q+$.G2()
 if(s&&c.a<=q){a4.d=new A.aT(a4.a.a,B.W)
-return B.b5}f=!s
+return B.b4}f=!s
 if(f&&c.a>=n){a4.d=new A.aT(a4.a.b,B.W)
 return B.aU}if(s&&c.a>=n){a4.e=b0
 a4.d=new A.aT(a4.a.b,B.W)
 return B.aU}if(f&&c.a<=q){a4.e=b0
 a4.d=new A.aT(a4.a.a,B.W)
-return B.b5}}}else{if(a8)return a4.Rb(a6,!0,a9,b0,b1)
+return B.b4}}}else{if(a8)return a4.Rb(a6,!0,a9,b0,b1)
 if(b1!=null){b=a4.a1a(a7)
 if(b==null)return a5
 a=b.b
@@ -95018,12 +95018,12 @@ n=q+$.G2()
 f=a3.b.a
 e=f<q
 if(e&&a3.a.a<q){a4.d=new A.aT(a4.a.a,B.W)
-return B.b5}if(f>n&&a3.a.a>n){a4.d=new A.aT(a4.a.b,B.W)
+return B.b4}if(f>n&&a3.a.a>n){a4.d=new A.aT(a4.a.b,B.W)
 return B.aU}if(a2){if(a3.a.a<=n){a4.d=new A.aT(a4.a.b,B.W)
 return B.bg}a4.d=new A.aT(a4.a.b,B.W)
 return B.aU}else{if(f>=q){a4.d=new A.aT(a4.a.a,B.W)
 return B.bg}if(e){a4.d=new A.aT(a4.a.a,B.W)
-return B.b5}}}}return a5},
+return B.b4}}}}return a5},
 aIp(a6,a7,a8,a9,b0,b1){var s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3,a4=this,a5=null
 if(a4.f&&b0!=null&&b1!=null){s=b1.a>=b0.a
 r=a4.a17()
@@ -95051,13 +95051,13 @@ f=a4.qo(r).a
 e=f+$.G2()
 d=j.b.a
 if(d>e&&j.a.a>e)return B.aU
-if(d<f&&j.a.a<f)return B.b5
+if(d<f&&j.a.a<f)return B.b4
 if(q.a>=n){q=j.a.a
 n=i.a.a
 if(q<=n)return B.bg
 if(q>n)return B.aU}else{q=i.b.a
 if(d>=q)return B.bg
-if(d<q)return B.b5}}else{n=r.gB(0)
+if(d<q)return B.b4}}else{n=r.gB(0)
 q=q.u.w
 q.toString
 c=r.eo(A.Mc(new A.H(0,0,0+n.a,0+n.b),o,q))
@@ -95065,12 +95065,12 @@ q=a4.qo(r).a
 n=q+$.G2()
 if(s&&c.a<=q){a4.d=b1
 a4.e=new A.aT(a4.a.a,B.W)
-return B.b5}f=!s
+return B.b4}f=!s
 if(f&&c.a>=n){a4.d=b1
 a4.e=new A.aT(a4.a.b,B.W)
 return B.aU}if(s&&c.a>=n){a4.e=new A.aT(a4.a.b,B.W)
 return B.aU}if(f&&c.a<=q){a4.e=new A.aT(a4.a.a,B.W)
-return B.b5}}}else{if(a8)return a4.Ra(a6,!0,a9,b0,b1)
+return B.b4}}}else{if(a8)return a4.Ra(a6,!0,a9,b0,b1)
 if(b0!=null){b=a4.a1a(a7)
 if(b==null)return a5
 a=b.b
@@ -95087,10 +95087,10 @@ n=q+$.G2()
 f=a3.b.a
 e=f<q
 if(e&&a3.a.a<q){a4.e=new A.aT(a4.a.a,B.W)
-return B.b5}if(f>n&&a3.a.a>n){a4.e=new A.aT(a4.a.b,B.W)
+return B.b4}if(f>n&&a3.a.a>n){a4.e=new A.aT(a4.a.b,B.W)
 return B.aU}if(a2){if(f>=q){a4.e=new A.aT(a4.a.a,B.W)
 return B.bg}if(e){a4.e=new A.aT(a4.a.a,B.W)
-return B.b5}}else{if(a3.a.a<=n){a4.e=new A.aT(a4.a.b,B.W)
+return B.b4}}else{if(a3.a.a<=n){a4.e=new A.aT(a4.a.b,B.W)
 return B.bg}a4.e=new A.aT(a4.a.b,B.W)
 return B.aU}}}return a5},
 aIn(a,b,c,a0){var s,r,q,p,o,n,m,l,k,j,i,h,g,f=this,e=f.d,d=f.e
@@ -95134,7 +95134,7 @@ else f.d=g
 s=g.a
 o=f.a
 if(s===o.b)return B.aU
-if(s===o.a)return B.b5
+if(s===o.a)return B.b4
 return A.Md(f.gkO(),q)},
 a_a(a,b){var s=b.a,r=a.b,q=a.a
 return Math.abs(s-r.a)<Math.abs(s-q.a)?r:q},
@@ -95171,7 +95171,7 @@ this.d=new A.aT(s.a,B.W)
 this.e=new A.aT(s.b,B.bJ)
 return B.lq},
 axj(a){var s=this,r=a.b,q=r.a,p=s.a,o=p.a
-if(q<o&&a.a.a<=o)return B.b5
+if(q<o&&a.a.a<=o)return B.b4
 else{p=p.b
 if(q>=p&&a.a.a>p)return B.aU}s.d=r
 s.e=a.a
@@ -95207,7 +95207,7 @@ if(n>s)n=s
 else if(n<r)n=r
 return this.MS(new A.cx(m,n),a)},
 auL(a,b,c){var s,r,q,p,o,n,m,l,k=this,j=k.b,i=j.bi(0,null)
-if(i.jy(i)===0)switch(c){case B.wD:case B.pN:return B.b5
+if(i.jy(i)===0)switch(c){case B.wD:case B.pN:return B.b4
 case B.wE:case B.pM:return B.aU}s=A.cj(i,new A.j(a,0)).a
 switch(c){case B.wD:case B.wE:if(b){j=k.e
 j.toString
@@ -95244,7 +95244,7 @@ r=s}else r=l
 s=b?s:r
 if(a&&s.a===m.a.b)return B.aU
 l=!a
-if(l&&s.a===m.a.a)return B.b5
+if(l&&s.a===m.a.a)return B.b4
 switch(c){case B.xe:l=m.a
 q=m.Gx(s,a,new A.A6(B.p.ap(m.c,l.a,l.b)))
 p=B.bg
@@ -95267,7 +95267,7 @@ n=o.a
 o=o.b
 q=m.Gx(s,a,new A.vN(B.p.ap(m.c,n,o)))
 if(a&&q.a===o)p=B.aU
-else p=l&&q.a===n?B.b5:B.bg
+else p=l&&q.a===n?B.b4:B.bg
 break
 default:p=null
 q=null}if(b)m.e=q
@@ -95298,7 +95298,7 @@ else if(!b&&i===0)p=new A.aT(n.a.a,B.W)
 else p=n.hs(m.eo(new A.j(c,l[b?i+1:i-1].glO())))
 m=p.a
 j=n.a
-if(m===j.a)o=B.b5
+if(m===j.a)o=B.b4
 else o=m===j.b?B.aU:B.bg
 return new A.bs(p,o,t.UH)},
 aCV(a){var s,r,q,p,o=this
@@ -111925,7 +111925,7 @@ b.b=k?a3.gB(0).a-a0-d:a0
 break
 case B.pd:b.b=k?j-d:a3.gB(0).a-j
 break
-case B.b4:a=(a3.gB(0).a-o)/(a3.d2$-1)
+case B.b7:a=(a3.gB(0).a-o)/(a3.d2$-1)
 b.b=k?a3.gB(0).a-d:0
 break
 case B.hx:a=a3.d2$>0?(a3.gB(0).a-o)/a3.d2$:0
@@ -117517,7 +117517,7 @@ q=c.hd(c.b[n],a)
 m=c.b
 if(n===m.length-1&&q===B.aU)return B.aU
 if(q===B.aU)continue
-if(n===0&&q===B.b5)return B.b5
+if(n===0&&q===B.b4)return B.b4
 r=m[n]
 if(!r.gq(r).j(0,d)){c.Nq(n)
 c.d=c.c=n}return B.bg}else if(q===B.aU){c.d=c.c=n-1
@@ -117540,7 +117540,7 @@ s=a.gn0()?p.c:p.d
 r=p.hd(p.b[s],a)
 if(a.gaaE(a))for(;;){q=p.b
 if(!(s<q.length-1&&r===B.aU))break;++s
-r=p.hd(q[s],a)}else for(;;){if(!(s>0&&r===B.b5))break;--s
+r=p.hd(q[s],a)}else for(;;){if(!(s>0&&r===B.b4))break;--s
 r=p.hd(p.b[s],a)}if(a.gn0())p.c=s
 else p.d=s
 return r},
@@ -117548,7 +117548,7 @@ Ty(a){var s,r,q,p=this
 if(p.d===-1){a.gul(a)
 p.d=p.c=null}s=a.gn0()?p.c:p.d
 r=p.hd(p.b[s],a)
-switch(a.gul(a)){case B.wD:if(r===B.b5)if(s>0){--s
+switch(a.gul(a)){case B.wD:if(r===B.b4)if(s>0){--s
 r=p.hd(p.b[s],a.aLd(B.pN))}break
 case B.wE:if(r===B.aU){q=p.b
 if(s<q.length-1){++s
@@ -117607,7 +117607,7 @@ m=B.bg
 break
 case 1:if(p===0){n=s
 o=0
-m=B.b5
+m=B.b4
 break}if(l===!0){n=s
 m=B.bg}else{o=p
 l=!1}break
@@ -142159,7 +142159,7 @@ B.kb=new A.ae(12,8,12,8)
 B.a2e=new A.ae(14,0,14,0)
 B.Az=new A.ae(14,10,14,10)
 B.AA=new A.ae(14,12,14,12)
-B.b7=new A.ae(14,14,14,14)
+B.b6=new A.ae(14,14,14,14)
 B.t1=new A.ae(14,20,14,20)
 B.a2f=new A.ae(14,2,14,2)
 B.a2g=new A.ae(14,4,14,4)
@@ -143870,7 +143870,7 @@ B.v=new A.t_(0,"start")
 B.dW=new A.ZM(0,"start")
 B.pd=new A.t_(1,"end")
 B.bU=new A.t_(2,"center")
-B.b4=new A.t_(3,"spaceBetween")
+B.b7=new A.t_(3,"spaceBetween")
 B.l4=new A.ZM(3,"spaceBetween")
 B.hx=new A.t_(4,"spaceAround")
 B.vO=new A.t_(5,"spaceEvenly")
@@ -147694,7 +147694,7 @@ B.G=new A.hs(4,"finalForm")
 B.H=new A.hs(5,"isolated")
 B.I=new A.hs(6,"circle")
 B.T=new A.hs(7,"superscript")
-B.b6=new A.hs(8,"subscript")
+B.b5=new A.hs(8,"subscript")
 B.bi=new A.hs(9,"vertical")
 B.a1=new A.hs(10,"wide")
 B.X=new A.hs(11,"narrow")
@@ -147702,7 +147702,7 @@ B.bR=new A.hs(12,"small")
 B.K=new A.hs(13,"square")
 B.cw=new A.hs(14,"fraction")
 B.o=new A.hs(15,"compat")
-B.b_N=new A.bE([8450,B.aT,8458,B.aT,8459,B.aT,8460,B.aT,8461,B.aT,8462,B.aT,8463,B.aT,8464,B.aT,8465,B.aT,8466,B.aT,8467,B.aT,8469,B.aT,8473,B.aT,8474,B.aT,8475,B.aT,8476,B.aT,8477,B.aT,8484,B.aT,8488,B.aT,8492,B.aT,8493,B.aT,8495,B.aT,8496,B.aT,8497,B.aT,8499,B.aT,8500,B.aT,8505,B.aT,8508,B.aT,8509,B.aT,8510,B.aT,8511,B.aT,8512,B.aT,8517,B.aT,8518,B.aT,8519,B.aT,8520,B.aT,8521,B.aT,64288,B.aT,64289,B.aT,64290,B.aT,64291,B.aT,64292,B.aT,64293,B.aT,64294,B.aT,64295,B.aT,64296,B.aT,64297,B.aT,160,B.k4,3852,B.k4,8199,B.k4,8209,B.k4,8239,B.k4,64340,B.P,64344,B.P,64348,B.P,64352,B.P,64356,B.P,64360,B.P,64364,B.P,64368,B.P,64372,B.P,64376,B.P,64380,B.P,64384,B.P,64400,B.P,64404,B.P,64408,B.P,64412,B.P,64418,B.P,64424,B.P,64428,B.P,64469,B.P,64486,B.P,64488,B.P,64504,B.P,64507,B.P,64510,B.P,64663,B.P,64664,B.P,64665,B.P,64666,B.P,64667,B.P,64668,B.P,64669,B.P,64670,B.P,64671,B.P,64672,B.P,64673,B.P,64674,B.P,64675,B.P,64676,B.P,64677,B.P,64678,B.P,64679,B.P,64680,B.P,64681,B.P,64682,B.P,64683,B.P,64684,B.P,64685,B.P,64686,B.P,64687,B.P,64688,B.P,64689,B.P,64690,B.P,64691,B.P,64692,B.P,64693,B.P,64694,B.P,64695,B.P,64696,B.P,64697,B.P,64698,B.P,64699,B.P,64700,B.P,64701,B.P,64702,B.P,64703,B.P,64704,B.P,64705,B.P,64706,B.P,64707,B.P,64708,B.P,64709,B.P,64710,B.P,64711,B.P,64712,B.P,64713,B.P,64714,B.P,64715,B.P,64716,B.P,64717,B.P,64718,B.P,64719,B.P,64720,B.P,64721,B.P,64722,B.P,64723,B.P,64724,B.P,64725,B.P,64726,B.P,64727,B.P,64728,B.P,64729,B.P,64730,B.P,64731,B.P,64732,B.P,64733,B.P,64734,B.P,64813,B.P,64814,B.P,64815,B.P,64816,B.P,64817,B.P,64818,B.P,64819,B.P,64848,B.P,64850,B.P,64851,B.P,64852,B.P,64853,B.P,64854,B.P,64855,B.P,64857,B.P,64860,B.P,64861,B.P,64864,B.P,64865,B.P,64867,B.P,64869,B.P,64872,B.P,64875,B.P,64877,B.P,64880,B.P,64882,B.P,64883,B.P,64887,B.P,64893,B.P,64899,B.P,64902,B.P,64904,B.P,64905,B.P,64906,B.P,64908,B.P,64909,B.P,64910,B.P,64911,B.P,64914,B.P,64915,B.P,64916,B.P,64917,B.P,64920,B.P,64925,B.P,64948,B.P,64949,B.P,64952,B.P,64954,B.P,64963,B.P,64964,B.P,64965,B.P,65163,B.P,65169,B.P,65175,B.P,65179,B.P,65183,B.P,65187,B.P,65191,B.P,65203,B.P,65207,B.P,65211,B.P,65215,B.P,65219,B.P,65223,B.P,65227,B.P,65231,B.P,65235,B.P,65239,B.P,65243,B.P,65247,B.P,65251,B.P,65255,B.P,65259,B.P,65267,B.P,64341,B.aa,64345,B.aa,64349,B.aa,64353,B.aa,64357,B.aa,64361,B.aa,64365,B.aa,64369,B.aa,64373,B.aa,64377,B.aa,64381,B.aa,64385,B.aa,64401,B.aa,64405,B.aa,64409,B.aa,64413,B.aa,64419,B.aa,64425,B.aa,64429,B.aa,64470,B.aa,64487,B.aa,64489,B.aa,64511,B.aa,64735,B.aa,64736,B.aa,64737,B.aa,64738,B.aa,64739,B.aa,64740,B.aa,64741,B.aa,64742,B.aa,64743,B.aa,64744,B.aa,64745,B.aa,64746,B.aa,64747,B.aa,64748,B.aa,64749,B.aa,64750,B.aa,64751,B.aa,64752,B.aa,64753,B.aa,64754,B.aa,64755,B.aa,64756,B.aa,64820,B.aa,64821,B.aa,64822,B.aa,64823,B.aa,64824,B.aa,64825,B.aa,64826,B.aa,64827,B.aa,65137,B.aa,65143,B.aa,65145,B.aa,65147,B.aa,65149,B.aa,65151,B.aa,65164,B.aa,65170,B.aa,65176,B.aa,65180,B.aa,65184,B.aa,65188,B.aa,65192,B.aa,65204,B.aa,65208,B.aa,65212,B.aa,65216,B.aa,65220,B.aa,65224,B.aa,65228,B.aa,65232,B.aa,65236,B.aa,65240,B.aa,65244,B.aa,65248,B.aa,65252,B.aa,65256,B.aa,65260,B.aa,65268,B.aa,64337,B.G,64339,B.G,64343,B.G,64347,B.G,64351,B.G,64355,B.G,64359,B.G,64363,B.G,64367,B.G,64371,B.G,64375,B.G,64379,B.G,64383,B.G,64387,B.G,64389,B.G,64391,B.G,64393,B.G,64395,B.G,64397,B.G,64399,B.G,64403,B.G,64407,B.G,64411,B.G,64415,B.G,64417,B.G,64421,B.G,64423,B.G,64427,B.G,64431,B.G,64433,B.G,64468,B.G,64472,B.G,64474,B.G,64476,B.G,64479,B.G,64481,B.G,64483,B.G,64485,B.G,64491,B.G,64493,B.G,64495,B.G,64497,B.G,64499,B.G,64501,B.G,64503,B.G,64506,B.G,64509,B.G,64612,B.G,64613,B.G,64614,B.G,64615,B.G,64616,B.G,64617,B.G,64618,B.G,64619,B.G,64620,B.G,64621,B.G,64622,B.G,64623,B.G,64624,B.G,64625,B.G,64626,B.G,64627,B.G,64628,B.G,64629,B.G,64630,B.G,64631,B.G,64632,B.G,64633,B.G,64634,B.G,64635,B.G,64636,B.G,64637,B.G,64638,B.G,64639,B.G,64640,B.G,64641,B.G,64642,B.G,64643,B.G,64644,B.G,64645,B.G,64646,B.G,64647,B.G,64648,B.G,64649,B.G,64650,B.G,64651,B.G,64652,B.G,64653,B.G,64654,B.G,64655,B.G,64656,B.G,64657,B.G,64658,B.G,64659,B.G,64660,B.G,64661,B.G,64662,B.G,64785,B.G,64786,B.G,64787,B.G,64788,B.G,64789,B.G,64790,B.G,64791,B.G,64792,B.G,64793,B.G,64794,B.G,64795,B.G,64796,B.G,64797,B.G,64798,B.G,64799,B.G,64800,B.G,64801,B.G,64802,B.G,64803,B.G,64804,B.G,64805,B.G,64806,B.G,64807,B.G,64808,B.G,64809,B.G,64810,B.G,64811,B.G,64812,B.G,64828,B.G,64849,B.G,64856,B.G,64858,B.G,64859,B.G,64862,B.G,64863,B.G,64866,B.G,64868,B.G,64870,B.G,64871,B.G,64873,B.G,64874,B.G,64876,B.G,64878,B.G,64879,B.G,64881,B.G,64884,B.G,64885,B.G,64886,B.G,64888,B.G,64889,B.G,64890,B.G,64891,B.G,64892,B.G,64894,B.G,64895,B.G,64896,B.G,64897,B.G,64898,B.G,64900,B.G,64901,B.G,64903,B.G,64907,B.G,64918,B.G,64919,B.G,64921,B.G,64922,B.G,64923,B.G,64924,B.G,64926,B.G,64927,B.G,64928,B.G,64929,B.G,64930,B.G,64931,B.G,64932,B.G,64933,B.G,64934,B.G,64935,B.G,64936,B.G,64937,B.G,64938,B.G,64939,B.G,64940,B.G,64941,B.G,64942,B.G,64943,B.G,64944,B.G,64945,B.G,64946,B.G,64947,B.G,64950,B.G,64951,B.G,64953,B.G,64955,B.G,64956,B.G,64957,B.G,64958,B.G,64959,B.G,64960,B.G,64961,B.G,64962,B.G,64966,B.G,64967,B.G,65154,B.G,65156,B.G,65158,B.G,65160,B.G,65162,B.G,65166,B.G,65168,B.G,65172,B.G,65174,B.G,65178,B.G,65182,B.G,65186,B.G,65190,B.G,65194,B.G,65196,B.G,65198,B.G,65200,B.G,65202,B.G,65206,B.G,65210,B.G,65214,B.G,65218,B.G,65222,B.G,65226,B.G,65230,B.G,65234,B.G,65238,B.G,65242,B.G,65246,B.G,65250,B.G,65254,B.G,65258,B.G,65262,B.G,65264,B.G,65266,B.G,65270,B.G,65272,B.G,65274,B.G,65276,B.G,64336,B.H,64338,B.H,64342,B.H,64346,B.H,64350,B.H,64354,B.H,64358,B.H,64362,B.H,64366,B.H,64370,B.H,64374,B.H,64378,B.H,64382,B.H,64386,B.H,64388,B.H,64390,B.H,64392,B.H,64394,B.H,64396,B.H,64398,B.H,64402,B.H,64406,B.H,64410,B.H,64414,B.H,64416,B.H,64420,B.H,64422,B.H,64426,B.H,64430,B.H,64432,B.H,64467,B.H,64471,B.H,64473,B.H,64475,B.H,64477,B.H,64478,B.H,64480,B.H,64482,B.H,64484,B.H,64490,B.H,64492,B.H,64494,B.H,64496,B.H,64498,B.H,64500,B.H,64502,B.H,64505,B.H,64508,B.H,64512,B.H,64513,B.H,64514,B.H,64515,B.H,64516,B.H,64517,B.H,64518,B.H,64519,B.H,64520,B.H,64521,B.H,64522,B.H,64523,B.H,64524,B.H,64525,B.H,64526,B.H,64527,B.H,64528,B.H,64529,B.H,64530,B.H,64531,B.H,64532,B.H,64533,B.H,64534,B.H,64535,B.H,64536,B.H,64537,B.H,64538,B.H,64539,B.H,64540,B.H,64541,B.H,64542,B.H,64543,B.H,64544,B.H,64545,B.H,64546,B.H,64547,B.H,64548,B.H,64549,B.H,64550,B.H,64551,B.H,64552,B.H,64553,B.H,64554,B.H,64555,B.H,64556,B.H,64557,B.H,64558,B.H,64559,B.H,64560,B.H,64561,B.H,64562,B.H,64563,B.H,64564,B.H,64565,B.H,64566,B.H,64567,B.H,64568,B.H,64569,B.H,64570,B.H,64571,B.H,64572,B.H,64573,B.H,64574,B.H,64575,B.H,64576,B.H,64577,B.H,64578,B.H,64579,B.H,64580,B.H,64581,B.H,64582,B.H,64583,B.H,64584,B.H,64585,B.H,64586,B.H,64587,B.H,64588,B.H,64589,B.H,64590,B.H,64591,B.H,64592,B.H,64593,B.H,64594,B.H,64595,B.H,64596,B.H,64597,B.H,64598,B.H,64599,B.H,64600,B.H,64601,B.H,64602,B.H,64603,B.H,64604,B.H,64605,B.H,64606,B.H,64607,B.H,64608,B.H,64609,B.H,64610,B.H,64611,B.H,64757,B.H,64758,B.H,64759,B.H,64760,B.H,64761,B.H,64762,B.H,64763,B.H,64764,B.H,64765,B.H,64766,B.H,64767,B.H,64768,B.H,64769,B.H,64770,B.H,64771,B.H,64772,B.H,64773,B.H,64774,B.H,64775,B.H,64776,B.H,64777,B.H,64778,B.H,64779,B.H,64780,B.H,64781,B.H,64782,B.H,64783,B.H,64784,B.H,64829,B.H,65008,B.H,65009,B.H,65010,B.H,65011,B.H,65012,B.H,65013,B.H,65014,B.H,65015,B.H,65016,B.H,65017,B.H,65018,B.H,65019,B.H,65020,B.H,65136,B.H,65138,B.H,65140,B.H,65142,B.H,65144,B.H,65146,B.H,65148,B.H,65150,B.H,65152,B.H,65153,B.H,65155,B.H,65157,B.H,65159,B.H,65161,B.H,65165,B.H,65167,B.H,65171,B.H,65173,B.H,65177,B.H,65181,B.H,65185,B.H,65189,B.H,65193,B.H,65195,B.H,65197,B.H,65199,B.H,65201,B.H,65205,B.H,65209,B.H,65213,B.H,65217,B.H,65221,B.H,65225,B.H,65229,B.H,65233,B.H,65237,B.H,65241,B.H,65245,B.H,65249,B.H,65253,B.H,65257,B.H,65261,B.H,65263,B.H,65265,B.H,65269,B.H,65271,B.H,65273,B.H,65275,B.H,9312,B.I,9313,B.I,9314,B.I,9315,B.I,9316,B.I,9317,B.I,9318,B.I,9319,B.I,9320,B.I,9321,B.I,9322,B.I,9323,B.I,9324,B.I,9325,B.I,9326,B.I,9327,B.I,9328,B.I,9329,B.I,9330,B.I,9331,B.I,9398,B.I,9399,B.I,9400,B.I,9401,B.I,9402,B.I,9403,B.I,9404,B.I,9405,B.I,9406,B.I,9407,B.I,9408,B.I,9409,B.I,9410,B.I,9411,B.I,9412,B.I,9413,B.I,9414,B.I,9415,B.I,9416,B.I,9417,B.I,9418,B.I,9419,B.I,9420,B.I,9421,B.I,9422,B.I,9423,B.I,9424,B.I,9425,B.I,9426,B.I,9427,B.I,9428,B.I,9429,B.I,9430,B.I,9431,B.I,9432,B.I,9433,B.I,9434,B.I,9435,B.I,9436,B.I,9437,B.I,9438,B.I,9439,B.I,9440,B.I,9441,B.I,9442,B.I,9443,B.I,9444,B.I,9445,B.I,9446,B.I,9447,B.I,9448,B.I,9449,B.I,9450,B.I,12868,B.I,12869,B.I,12870,B.I,12871,B.I,12881,B.I,12882,B.I,12883,B.I,12884,B.I,12885,B.I,12886,B.I,12887,B.I,12888,B.I,12889,B.I,12890,B.I,12891,B.I,12892,B.I,12893,B.I,12894,B.I,12895,B.I,12896,B.I,12897,B.I,12898,B.I,12899,B.I,12900,B.I,12901,B.I,12902,B.I,12903,B.I,12904,B.I,12905,B.I,12906,B.I,12907,B.I,12908,B.I,12909,B.I,12910,B.I,12911,B.I,12912,B.I,12913,B.I,12914,B.I,12915,B.I,12916,B.I,12917,B.I,12918,B.I,12919,B.I,12920,B.I,12921,B.I,12922,B.I,12923,B.I,12924,B.I,12925,B.I,12926,B.I,12928,B.I,12929,B.I,12930,B.I,12931,B.I,12932,B.I,12933,B.I,12934,B.I,12935,B.I,12936,B.I,12937,B.I,12938,B.I,12939,B.I,12940,B.I,12941,B.I,12942,B.I,12943,B.I,12944,B.I,12945,B.I,12946,B.I,12947,B.I,12948,B.I,12949,B.I,12950,B.I,12951,B.I,12952,B.I,12953,B.I,12954,B.I,12955,B.I,12956,B.I,12957,B.I,12958,B.I,12959,B.I,12960,B.I,12961,B.I,12962,B.I,12963,B.I,12964,B.I,12965,B.I,12966,B.I,12967,B.I,12968,B.I,12969,B.I,12970,B.I,12971,B.I,12972,B.I,12973,B.I,12974,B.I,12975,B.I,12976,B.I,12977,B.I,12978,B.I,12979,B.I,12980,B.I,12981,B.I,12982,B.I,12983,B.I,12984,B.I,12985,B.I,12986,B.I,12987,B.I,12988,B.I,12989,B.I,12990,B.I,12991,B.I,13008,B.I,13009,B.I,13010,B.I,13011,B.I,13012,B.I,13013,B.I,13014,B.I,13015,B.I,13016,B.I,13017,B.I,13018,B.I,13019,B.I,13020,B.I,13021,B.I,13022,B.I,13023,B.I,13024,B.I,13025,B.I,13026,B.I,13027,B.I,13028,B.I,13029,B.I,13030,B.I,13031,B.I,13032,B.I,13033,B.I,13034,B.I,13035,B.I,13036,B.I,13037,B.I,13038,B.I,13039,B.I,13040,B.I,13041,B.I,13042,B.I,13043,B.I,13044,B.I,13045,B.I,13046,B.I,13047,B.I,13048,B.I,13049,B.I,13050,B.I,13051,B.I,13052,B.I,13053,B.I,13054,B.I,170,B.T,178,B.T,179,B.T,185,B.T,186,B.T,688,B.T,689,B.T,690,B.T,691,B.T,692,B.T,693,B.T,694,B.T,695,B.T,696,B.T,736,B.T,737,B.T,738,B.T,739,B.T,740,B.T,4348,B.T,7468,B.T,7469,B.T,7470,B.T,7472,B.T,7473,B.T,7474,B.T,7475,B.T,7476,B.T,7477,B.T,7478,B.T,7479,B.T,7480,B.T,7481,B.T,7482,B.T,7484,B.T,7485,B.T,7486,B.T,7487,B.T,7488,B.T,7489,B.T,7490,B.T,7491,B.T,7492,B.T,7493,B.T,7494,B.T,7495,B.T,7496,B.T,7497,B.T,7498,B.T,7499,B.T,7500,B.T,7501,B.T,7503,B.T,7504,B.T,7505,B.T,7506,B.T,7507,B.T,7508,B.T,7509,B.T,7510,B.T,7511,B.T,7512,B.T,7513,B.T,7514,B.T,7515,B.T,7516,B.T,7517,B.T,7518,B.T,7519,B.T,7520,B.T,7521,B.T,7544,B.T,7579,B.T,7580,B.T,7581,B.T,7582,B.T,7583,B.T,7584,B.T,7585,B.T,7586,B.T,7587,B.T,7588,B.T,7589,B.T,7590,B.T,7591,B.T,7592,B.T,7593,B.T,7594,B.T,7595,B.T,7596,B.T,7597,B.T,7598,B.T,7599,B.T,7600,B.T,7601,B.T,7602,B.T,7603,B.T,7604,B.T,7605,B.T,7606,B.T,7607,B.T,7608,B.T,7609,B.T,7610,B.T,7611,B.T,7612,B.T,7613,B.T,7614,B.T,7615,B.T,8304,B.T,8305,B.T,8308,B.T,8309,B.T,8310,B.T,8311,B.T,8312,B.T,8313,B.T,8314,B.T,8315,B.T,8316,B.T,8317,B.T,8318,B.T,8319,B.T,8480,B.T,8482,B.T,11389,B.T,11631,B.T,12690,B.T,12691,B.T,12692,B.T,12693,B.T,12694,B.T,12695,B.T,12696,B.T,12697,B.T,12698,B.T,12699,B.T,12700,B.T,12701,B.T,12702,B.T,12703,B.T,42652,B.T,42653,B.T,42864,B.T,43e3,B.T,43001,B.T,43868,B.T,43869,B.T,43870,B.T,43871,B.T,7522,B.b6,7523,B.b6,7524,B.b6,7525,B.b6,7526,B.b6,7527,B.b6,7528,B.b6,7529,B.b6,7530,B.b6,8320,B.b6,8321,B.b6,8322,B.b6,8323,B.b6,8324,B.b6,8325,B.b6,8326,B.b6,8327,B.b6,8328,B.b6,8329,B.b6,8330,B.b6,8331,B.b6,8332,B.b6,8333,B.b6,8334,B.b6,8336,B.b6,8337,B.b6,8338,B.b6,8339,B.b6,8340,B.b6,8341,B.b6,8342,B.b6,8343,B.b6,8344,B.b6,8345,B.b6,8346,B.b6,8347,B.b6,8348,B.b6,11388,B.b6,12447,B.bi,12543,B.bi,65040,B.bi,65041,B.bi,65042,B.bi,65043,B.bi,65044,B.bi,65045,B.bi,65046,B.bi,65047,B.bi,65048,B.bi,65049,B.bi,65072,B.bi,65073,B.bi,65074,B.bi,65075,B.bi,65076,B.bi,65077,B.bi,65078,B.bi,65079,B.bi,65080,B.bi,65081,B.bi,65082,B.bi,65083,B.bi,65084,B.bi,65085,B.bi,65086,B.bi,65087,B.bi,65088,B.bi,65089,B.bi,65090,B.bi,65091,B.bi,65092,B.bi,65095,B.bi,65096,B.bi,12288,B.a1,65281,B.a1,65282,B.a1,65283,B.a1,65284,B.a1,65285,B.a1,65286,B.a1,65287,B.a1,65288,B.a1,65289,B.a1,65290,B.a1,65291,B.a1,65292,B.a1,65293,B.a1,65294,B.a1,65295,B.a1,65296,B.a1,65297,B.a1,65298,B.a1,65299,B.a1,65300,B.a1,65301,B.a1,65302,B.a1,65303,B.a1,65304,B.a1,65305,B.a1,65306,B.a1,65307,B.a1,65308,B.a1,65309,B.a1,65310,B.a1,65311,B.a1,65312,B.a1,65313,B.a1,65314,B.a1,65315,B.a1,65316,B.a1,65317,B.a1,65318,B.a1,65319,B.a1,65320,B.a1,65321,B.a1,65322,B.a1,65323,B.a1,65324,B.a1,65325,B.a1,65326,B.a1,65327,B.a1,65328,B.a1,65329,B.a1,65330,B.a1,65331,B.a1,65332,B.a1,65333,B.a1,65334,B.a1,65335,B.a1,65336,B.a1,65337,B.a1,65338,B.a1,65339,B.a1,65340,B.a1,65341,B.a1,65342,B.a1,65343,B.a1,65344,B.a1,65345,B.a1,65346,B.a1,65347,B.a1,65348,B.a1,65349,B.a1,65350,B.a1,65351,B.a1,65352,B.a1,65353,B.a1,65354,B.a1,65355,B.a1,65356,B.a1,65357,B.a1,65358,B.a1,65359,B.a1,65360,B.a1,65361,B.a1,65362,B.a1,65363,B.a1,65364,B.a1,65365,B.a1,65366,B.a1,65367,B.a1,65368,B.a1,65369,B.a1,65370,B.a1,65371,B.a1,65372,B.a1,65373,B.a1,65374,B.a1,65375,B.a1,65376,B.a1,65504,B.a1,65505,B.a1,65506,B.a1,65507,B.a1,65508,B.a1,65509,B.a1,65510,B.a1,65377,B.X,65378,B.X,65379,B.X,65380,B.X,65381,B.X,65382,B.X,65383,B.X,65384,B.X,65385,B.X,65386,B.X,65387,B.X,65388,B.X,65389,B.X,65390,B.X,65391,B.X,65392,B.X,65393,B.X,65394,B.X,65395,B.X,65396,B.X,65397,B.X,65398,B.X,65399,B.X,65400,B.X,65401,B.X,65402,B.X,65403,B.X,65404,B.X,65405,B.X,65406,B.X,65407,B.X,65408,B.X,65409,B.X,65410,B.X,65411,B.X,65412,B.X,65413,B.X,65414,B.X,65415,B.X,65416,B.X,65417,B.X,65418,B.X,65419,B.X,65420,B.X,65421,B.X,65422,B.X,65423,B.X,65424,B.X,65425,B.X,65426,B.X,65427,B.X,65428,B.X,65429,B.X,65430,B.X,65431,B.X,65432,B.X,65433,B.X,65434,B.X,65435,B.X,65436,B.X,65437,B.X,65438,B.X,65439,B.X,65440,B.X,65441,B.X,65442,B.X,65443,B.X,65444,B.X,65445,B.X,65446,B.X,65447,B.X,65448,B.X,65449,B.X,65450,B.X,65451,B.X,65452,B.X,65453,B.X,65454,B.X,65455,B.X,65456,B.X,65457,B.X,65458,B.X,65459,B.X,65460,B.X,65461,B.X,65462,B.X,65463,B.X,65464,B.X,65465,B.X,65466,B.X,65467,B.X,65468,B.X,65469,B.X,65470,B.X,65474,B.X,65475,B.X,65476,B.X,65477,B.X,65478,B.X,65479,B.X,65482,B.X,65483,B.X,65484,B.X,65485,B.X,65486,B.X,65487,B.X,65490,B.X,65491,B.X,65492,B.X,65493,B.X,65494,B.X,65495,B.X,65498,B.X,65499,B.X,65500,B.X,65512,B.X,65513,B.X,65514,B.X,65515,B.X,65516,B.X,65517,B.X,65518,B.X,65104,B.bR,65105,B.bR,65106,B.bR,65108,B.bR,65109,B.bR,65110,B.bR,65111,B.bR,65112,B.bR,65113,B.bR,65114,B.bR,65115,B.bR,65116,B.bR,65117,B.bR,65118,B.bR,65119,B.bR,65120,B.bR,65121,B.bR,65122,B.bR,65123,B.bR,65124,B.bR,65125,B.bR,65126,B.bR,65128,B.bR,65129,B.bR,65130,B.bR,65131,B.bR,12880,B.K,13004,B.K,13005,B.K,13006,B.K,13007,B.K,13056,B.K,13057,B.K,13058,B.K,13059,B.K,13060,B.K,13061,B.K,13062,B.K,13063,B.K,13064,B.K,13065,B.K,13066,B.K,13067,B.K,13068,B.K,13069,B.K,13070,B.K,13071,B.K,13072,B.K,13073,B.K,13074,B.K,13075,B.K,13076,B.K,13077,B.K,13078,B.K,13079,B.K,13080,B.K,13081,B.K,13082,B.K,13083,B.K,13084,B.K,13085,B.K,13086,B.K,13087,B.K,13088,B.K,13089,B.K,13090,B.K,13091,B.K,13092,B.K,13093,B.K,13094,B.K,13095,B.K,13096,B.K,13097,B.K,13098,B.K,13099,B.K,13100,B.K,13101,B.K,13102,B.K,13103,B.K,13104,B.K,13105,B.K,13106,B.K,13107,B.K,13108,B.K,13109,B.K,13110,B.K,13111,B.K,13112,B.K,13113,B.K,13114,B.K,13115,B.K,13116,B.K,13117,B.K,13118,B.K,13119,B.K,13120,B.K,13121,B.K,13122,B.K,13123,B.K,13124,B.K,13125,B.K,13126,B.K,13127,B.K,13128,B.K,13129,B.K,13130,B.K,13131,B.K,13132,B.K,13133,B.K,13134,B.K,13135,B.K,13136,B.K,13137,B.K,13138,B.K,13139,B.K,13140,B.K,13141,B.K,13142,B.K,13143,B.K,13169,B.K,13170,B.K,13171,B.K,13172,B.K,13173,B.K,13174,B.K,13175,B.K,13176,B.K,13177,B.K,13178,B.K,13179,B.K,13180,B.K,13181,B.K,13182,B.K,13183,B.K,13184,B.K,13185,B.K,13186,B.K,13187,B.K,13188,B.K,13189,B.K,13190,B.K,13191,B.K,13192,B.K,13193,B.K,13194,B.K,13195,B.K,13196,B.K,13197,B.K,13198,B.K,13199,B.K,13200,B.K,13201,B.K,13202,B.K,13203,B.K,13204,B.K,13205,B.K,13206,B.K,13207,B.K,13208,B.K,13209,B.K,13210,B.K,13211,B.K,13212,B.K,13213,B.K,13214,B.K,13215,B.K,13216,B.K,13217,B.K,13218,B.K,13219,B.K,13220,B.K,13221,B.K,13222,B.K,13223,B.K,13224,B.K,13225,B.K,13226,B.K,13227,B.K,13228,B.K,13229,B.K,13230,B.K,13231,B.K,13232,B.K,13233,B.K,13234,B.K,13235,B.K,13236,B.K,13237,B.K,13238,B.K,13239,B.K,13240,B.K,13241,B.K,13242,B.K,13243,B.K,13244,B.K,13245,B.K,13246,B.K,13247,B.K,13248,B.K,13249,B.K,13250,B.K,13251,B.K,13252,B.K,13253,B.K,13254,B.K,13255,B.K,13256,B.K,13257,B.K,13258,B.K,13259,B.K,13260,B.K,13261,B.K,13262,B.K,13263,B.K,13264,B.K,13265,B.K,13266,B.K,13267,B.K,13268,B.K,13269,B.K,13270,B.K,13271,B.K,13272,B.K,13273,B.K,13274,B.K,13275,B.K,13276,B.K,13277,B.K,13278,B.K,13279,B.K,13311,B.K,188,B.cw,189,B.cw,190,B.cw,8528,B.cw,8529,B.cw,8530,B.cw,8531,B.cw,8532,B.cw,8533,B.cw,8534,B.cw,8535,B.cw,8536,B.cw,8537,B.cw,8538,B.cw,8539,B.cw,8540,B.cw,8541,B.cw,8542,B.cw,8543,B.cw,8585,B.cw,168,B.o,175,B.o,180,B.o,181,B.o,184,B.o,306,B.o,307,B.o,319,B.o,320,B.o,329,B.o,383,B.o,452,B.o,453,B.o,454,B.o,455,B.o,456,B.o,457,B.o,458,B.o,459,B.o,460,B.o,497,B.o,498,B.o,499,B.o,728,B.o,729,B.o,730,B.o,731,B.o,732,B.o,733,B.o,890,B.o,900,B.o,976,B.o,977,B.o,978,B.o,981,B.o,982,B.o,1008,B.o,1009,B.o,1010,B.o,1012,B.o,1013,B.o,1017,B.o,1415,B.o,1653,B.o,1654,B.o,1655,B.o,1656,B.o,3635,B.o,3763,B.o,3804,B.o,3805,B.o,3959,B.o,3961,B.o,7834,B.o,8125,B.o,8127,B.o,8128,B.o,8190,B.o,8194,B.o,8195,B.o,8196,B.o,8197,B.o,8198,B.o,8200,B.o,8201,B.o,8202,B.o,8215,B.o,8228,B.o,8229,B.o,8230,B.o,8243,B.o,8244,B.o,8246,B.o,8247,B.o,8252,B.o,8254,B.o,8263,B.o,8264,B.o,8265,B.o,8279,B.o,8287,B.o,8360,B.o,8448,B.o,8449,B.o,8451,B.o,8453,B.o,8454,B.o,8455,B.o,8457,B.o,8470,B.o,8481,B.o,8501,B.o,8502,B.o,8503,B.o,8504,B.o,8507,B.o,8544,B.o,8545,B.o,8546,B.o,8547,B.o,8548,B.o,8549,B.o,8550,B.o,8551,B.o,8552,B.o,8553,B.o,8554,B.o,8555,B.o,8556,B.o,8557,B.o,8558,B.o,8559,B.o,8560,B.o,8561,B.o,8562,B.o,8563,B.o,8564,B.o,8565,B.o,8566,B.o,8567,B.o,8568,B.o,8569,B.o,8570,B.o,8571,B.o,8572,B.o,8573,B.o,8574,B.o,8575,B.o,8748,B.o,8749,B.o,8751,B.o,8752,B.o,9332,B.o,9333,B.o,9334,B.o,9335,B.o,9336,B.o,9337,B.o,9338,B.o,9339,B.o,9340,B.o,9341,B.o,9342,B.o,9343,B.o,9344,B.o,9345,B.o,9346,B.o,9347,B.o,9348,B.o,9349,B.o,9350,B.o,9351,B.o,9352,B.o,9353,B.o,9354,B.o,9355,B.o,9356,B.o,9357,B.o,9358,B.o,9359,B.o,9360,B.o,9361,B.o,9362,B.o,9363,B.o,9364,B.o,9365,B.o,9366,B.o,9367,B.o,9368,B.o,9369,B.o,9370,B.o,9371,B.o,9372,B.o,9373,B.o,9374,B.o,9375,B.o,9376,B.o,9377,B.o,9378,B.o,9379,B.o,9380,B.o,9381,B.o,9382,B.o,9383,B.o,9384,B.o,9385,B.o,9386,B.o,9387,B.o,9388,B.o,9389,B.o,9390,B.o,9391,B.o,9392,B.o,9393,B.o,9394,B.o,9395,B.o,9396,B.o,9397,B.o,10764,B.o,10868,B.o,10869,B.o,10870,B.o,11935,B.o,12019,B.o,12032,B.o,12033,B.o,12034,B.o,12035,B.o,12036,B.o,12037,B.o,12038,B.o,12039,B.o,12040,B.o,12041,B.o,12042,B.o,12043,B.o,12044,B.o,12045,B.o,12046,B.o,12047,B.o,12048,B.o,12049,B.o,12050,B.o,12051,B.o,12052,B.o,12053,B.o,12054,B.o,12055,B.o,12056,B.o,12057,B.o,12058,B.o,12059,B.o,12060,B.o,12061,B.o,12062,B.o,12063,B.o,12064,B.o,12065,B.o,12066,B.o,12067,B.o,12068,B.o,12069,B.o,12070,B.o,12071,B.o,12072,B.o,12073,B.o,12074,B.o,12075,B.o,12076,B.o,12077,B.o,12078,B.o,12079,B.o,12080,B.o,12081,B.o,12082,B.o,12083,B.o,12084,B.o,12085,B.o,12086,B.o,12087,B.o,12088,B.o,12089,B.o,12090,B.o,12091,B.o,12092,B.o,12093,B.o,12094,B.o,12095,B.o,12096,B.o,12097,B.o,12098,B.o,12099,B.o,12100,B.o,12101,B.o,12102,B.o,12103,B.o,12104,B.o,12105,B.o,12106,B.o,12107,B.o,12108,B.o,12109,B.o,12110,B.o,12111,B.o,12112,B.o,12113,B.o,12114,B.o,12115,B.o,12116,B.o,12117,B.o,12118,B.o,12119,B.o,12120,B.o,12121,B.o,12122,B.o,12123,B.o,12124,B.o,12125,B.o,12126,B.o,12127,B.o,12128,B.o,12129,B.o,12130,B.o,12131,B.o,12132,B.o,12133,B.o,12134,B.o,12135,B.o,12136,B.o,12137,B.o,12138,B.o,12139,B.o,12140,B.o,12141,B.o,12142,B.o,12143,B.o,12144,B.o,12145,B.o,12146,B.o,12147,B.o,12148,B.o,12149,B.o,12150,B.o,12151,B.o,12152,B.o,12153,B.o,12154,B.o,12155,B.o,12156,B.o,12157,B.o,12158,B.o,12159,B.o,12160,B.o,12161,B.o,12162,B.o,12163,B.o,12164,B.o,12165,B.o,12166,B.o,12167,B.o,12168,B.o,12169,B.o,12170,B.o,12171,B.o,12172,B.o,12173,B.o,12174,B.o,12175,B.o,12176,B.o,12177,B.o,12178,B.o,12179,B.o,12180,B.o,12181,B.o,12182,B.o,12183,B.o,12184,B.o,12185,B.o,12186,B.o,12187,B.o,12188,B.o,12189,B.o,12190,B.o,12191,B.o,12192,B.o,12193,B.o,12194,B.o,12195,B.o,12196,B.o,12197,B.o,12198,B.o,12199,B.o,12200,B.o,12201,B.o,12202,B.o,12203,B.o,12204,B.o,12205,B.o,12206,B.o,12207,B.o,12208,B.o,12209,B.o,12210,B.o,12211,B.o,12212,B.o,12213,B.o,12214,B.o,12215,B.o,12216,B.o,12217,B.o,12218,B.o,12219,B.o,12220,B.o,12221,B.o,12222,B.o,12223,B.o,12224,B.o,12225,B.o,12226,B.o,12227,B.o,12228,B.o,12229,B.o,12230,B.o,12231,B.o,12232,B.o,12233,B.o,12234,B.o,12235,B.o,12236,B.o,12237,B.o,12238,B.o,12239,B.o,12240,B.o,12241,B.o,12242,B.o,12243,B.o,12244,B.o,12245,B.o,12342,B.o,12344,B.o,12345,B.o,12346,B.o,12443,B.o,12444,B.o,12593,B.o,12594,B.o,12595,B.o,12596,B.o,12597,B.o,12598,B.o,12599,B.o,12600,B.o,12601,B.o,12602,B.o,12603,B.o,12604,B.o,12605,B.o,12606,B.o,12607,B.o,12608,B.o,12609,B.o,12610,B.o,12611,B.o,12612,B.o,12613,B.o,12614,B.o,12615,B.o,12616,B.o,12617,B.o,12618,B.o,12619,B.o,12620,B.o,12621,B.o,12622,B.o,12623,B.o,12624,B.o,12625,B.o,12626,B.o,12627,B.o,12628,B.o,12629,B.o,12630,B.o,12631,B.o,12632,B.o,12633,B.o,12634,B.o,12635,B.o,12636,B.o,12637,B.o,12638,B.o,12639,B.o,12640,B.o,12641,B.o,12642,B.o,12643,B.o,12644,B.o,12645,B.o,12646,B.o,12647,B.o,12648,B.o,12649,B.o,12650,B.o,12651,B.o,12652,B.o,12653,B.o,12654,B.o,12655,B.o,12656,B.o,12657,B.o,12658,B.o,12659,B.o,12660,B.o,12661,B.o,12662,B.o,12663,B.o,12664,B.o,12665,B.o,12666,B.o,12667,B.o,12668,B.o,12669,B.o,12670,B.o,12671,B.o,12672,B.o,12673,B.o,12674,B.o,12675,B.o,12676,B.o,12677,B.o,12678,B.o,12679,B.o,12680,B.o,12681,B.o,12682,B.o,12683,B.o,12684,B.o,12685,B.o,12686,B.o,12800,B.o,12801,B.o,12802,B.o,12803,B.o,12804,B.o,12805,B.o,12806,B.o,12807,B.o,12808,B.o,12809,B.o,12810,B.o,12811,B.o,12812,B.o,12813,B.o,12814,B.o,12815,B.o,12816,B.o,12817,B.o,12818,B.o,12819,B.o,12820,B.o,12821,B.o,12822,B.o,12823,B.o,12824,B.o,12825,B.o,12826,B.o,12827,B.o,12828,B.o,12829,B.o,12830,B.o,12832,B.o,12833,B.o,12834,B.o,12835,B.o,12836,B.o,12837,B.o,12838,B.o,12839,B.o,12840,B.o,12841,B.o,12842,B.o,12843,B.o,12844,B.o,12845,B.o,12846,B.o,12847,B.o,12848,B.o,12849,B.o,12850,B.o,12851,B.o,12852,B.o,12853,B.o,12854,B.o,12855,B.o,12856,B.o,12857,B.o,12858,B.o,12859,B.o,12860,B.o,12861,B.o,12862,B.o,12863,B.o,12864,B.o,12865,B.o,12866,B.o,12867,B.o,12992,B.o,12993,B.o,12994,B.o,12995,B.o,12996,B.o,12997,B.o,12998,B.o,12999,B.o,13e3,B.o,13001,B.o,13002,B.o,13003,B.o,13144,B.o,13145,B.o,13146,B.o,13147,B.o,13148,B.o,13149,B.o,13150,B.o,13151,B.o,13152,B.o,13153,B.o,13154,B.o,13155,B.o,13156,B.o,13157,B.o,13158,B.o,13159,B.o,13160,B.o,13161,B.o,13162,B.o,13163,B.o,13164,B.o,13165,B.o,13166,B.o,13167,B.o,13168,B.o,13280,B.o,13281,B.o,13282,B.o,13283,B.o,13284,B.o,13285,B.o,13286,B.o,13287,B.o,13288,B.o,13289,B.o,13290,B.o,13291,B.o,13292,B.o,13293,B.o,13294,B.o,13295,B.o,13296,B.o,13297,B.o,13298,B.o,13299,B.o,13300,B.o,13301,B.o,13302,B.o,13303,B.o,13304,B.o,13305,B.o,13306,B.o,13307,B.o,13308,B.o,13309,B.o,13310,B.o,64256,B.o,64257,B.o,64258,B.o,64259,B.o,64260,B.o,64261,B.o,64262,B.o,64275,B.o,64276,B.o,64277,B.o,64278,B.o,64279,B.o,64335,B.o,65097,B.o,65098,B.o,65099,B.o,65100,B.o,65101,B.o,65102,B.o,65103,B.o],A.ax("bE<n,hs>"))
+B.b_N=new A.bE([8450,B.aT,8458,B.aT,8459,B.aT,8460,B.aT,8461,B.aT,8462,B.aT,8463,B.aT,8464,B.aT,8465,B.aT,8466,B.aT,8467,B.aT,8469,B.aT,8473,B.aT,8474,B.aT,8475,B.aT,8476,B.aT,8477,B.aT,8484,B.aT,8488,B.aT,8492,B.aT,8493,B.aT,8495,B.aT,8496,B.aT,8497,B.aT,8499,B.aT,8500,B.aT,8505,B.aT,8508,B.aT,8509,B.aT,8510,B.aT,8511,B.aT,8512,B.aT,8517,B.aT,8518,B.aT,8519,B.aT,8520,B.aT,8521,B.aT,64288,B.aT,64289,B.aT,64290,B.aT,64291,B.aT,64292,B.aT,64293,B.aT,64294,B.aT,64295,B.aT,64296,B.aT,64297,B.aT,160,B.k4,3852,B.k4,8199,B.k4,8209,B.k4,8239,B.k4,64340,B.P,64344,B.P,64348,B.P,64352,B.P,64356,B.P,64360,B.P,64364,B.P,64368,B.P,64372,B.P,64376,B.P,64380,B.P,64384,B.P,64400,B.P,64404,B.P,64408,B.P,64412,B.P,64418,B.P,64424,B.P,64428,B.P,64469,B.P,64486,B.P,64488,B.P,64504,B.P,64507,B.P,64510,B.P,64663,B.P,64664,B.P,64665,B.P,64666,B.P,64667,B.P,64668,B.P,64669,B.P,64670,B.P,64671,B.P,64672,B.P,64673,B.P,64674,B.P,64675,B.P,64676,B.P,64677,B.P,64678,B.P,64679,B.P,64680,B.P,64681,B.P,64682,B.P,64683,B.P,64684,B.P,64685,B.P,64686,B.P,64687,B.P,64688,B.P,64689,B.P,64690,B.P,64691,B.P,64692,B.P,64693,B.P,64694,B.P,64695,B.P,64696,B.P,64697,B.P,64698,B.P,64699,B.P,64700,B.P,64701,B.P,64702,B.P,64703,B.P,64704,B.P,64705,B.P,64706,B.P,64707,B.P,64708,B.P,64709,B.P,64710,B.P,64711,B.P,64712,B.P,64713,B.P,64714,B.P,64715,B.P,64716,B.P,64717,B.P,64718,B.P,64719,B.P,64720,B.P,64721,B.P,64722,B.P,64723,B.P,64724,B.P,64725,B.P,64726,B.P,64727,B.P,64728,B.P,64729,B.P,64730,B.P,64731,B.P,64732,B.P,64733,B.P,64734,B.P,64813,B.P,64814,B.P,64815,B.P,64816,B.P,64817,B.P,64818,B.P,64819,B.P,64848,B.P,64850,B.P,64851,B.P,64852,B.P,64853,B.P,64854,B.P,64855,B.P,64857,B.P,64860,B.P,64861,B.P,64864,B.P,64865,B.P,64867,B.P,64869,B.P,64872,B.P,64875,B.P,64877,B.P,64880,B.P,64882,B.P,64883,B.P,64887,B.P,64893,B.P,64899,B.P,64902,B.P,64904,B.P,64905,B.P,64906,B.P,64908,B.P,64909,B.P,64910,B.P,64911,B.P,64914,B.P,64915,B.P,64916,B.P,64917,B.P,64920,B.P,64925,B.P,64948,B.P,64949,B.P,64952,B.P,64954,B.P,64963,B.P,64964,B.P,64965,B.P,65163,B.P,65169,B.P,65175,B.P,65179,B.P,65183,B.P,65187,B.P,65191,B.P,65203,B.P,65207,B.P,65211,B.P,65215,B.P,65219,B.P,65223,B.P,65227,B.P,65231,B.P,65235,B.P,65239,B.P,65243,B.P,65247,B.P,65251,B.P,65255,B.P,65259,B.P,65267,B.P,64341,B.aa,64345,B.aa,64349,B.aa,64353,B.aa,64357,B.aa,64361,B.aa,64365,B.aa,64369,B.aa,64373,B.aa,64377,B.aa,64381,B.aa,64385,B.aa,64401,B.aa,64405,B.aa,64409,B.aa,64413,B.aa,64419,B.aa,64425,B.aa,64429,B.aa,64470,B.aa,64487,B.aa,64489,B.aa,64511,B.aa,64735,B.aa,64736,B.aa,64737,B.aa,64738,B.aa,64739,B.aa,64740,B.aa,64741,B.aa,64742,B.aa,64743,B.aa,64744,B.aa,64745,B.aa,64746,B.aa,64747,B.aa,64748,B.aa,64749,B.aa,64750,B.aa,64751,B.aa,64752,B.aa,64753,B.aa,64754,B.aa,64755,B.aa,64756,B.aa,64820,B.aa,64821,B.aa,64822,B.aa,64823,B.aa,64824,B.aa,64825,B.aa,64826,B.aa,64827,B.aa,65137,B.aa,65143,B.aa,65145,B.aa,65147,B.aa,65149,B.aa,65151,B.aa,65164,B.aa,65170,B.aa,65176,B.aa,65180,B.aa,65184,B.aa,65188,B.aa,65192,B.aa,65204,B.aa,65208,B.aa,65212,B.aa,65216,B.aa,65220,B.aa,65224,B.aa,65228,B.aa,65232,B.aa,65236,B.aa,65240,B.aa,65244,B.aa,65248,B.aa,65252,B.aa,65256,B.aa,65260,B.aa,65268,B.aa,64337,B.G,64339,B.G,64343,B.G,64347,B.G,64351,B.G,64355,B.G,64359,B.G,64363,B.G,64367,B.G,64371,B.G,64375,B.G,64379,B.G,64383,B.G,64387,B.G,64389,B.G,64391,B.G,64393,B.G,64395,B.G,64397,B.G,64399,B.G,64403,B.G,64407,B.G,64411,B.G,64415,B.G,64417,B.G,64421,B.G,64423,B.G,64427,B.G,64431,B.G,64433,B.G,64468,B.G,64472,B.G,64474,B.G,64476,B.G,64479,B.G,64481,B.G,64483,B.G,64485,B.G,64491,B.G,64493,B.G,64495,B.G,64497,B.G,64499,B.G,64501,B.G,64503,B.G,64506,B.G,64509,B.G,64612,B.G,64613,B.G,64614,B.G,64615,B.G,64616,B.G,64617,B.G,64618,B.G,64619,B.G,64620,B.G,64621,B.G,64622,B.G,64623,B.G,64624,B.G,64625,B.G,64626,B.G,64627,B.G,64628,B.G,64629,B.G,64630,B.G,64631,B.G,64632,B.G,64633,B.G,64634,B.G,64635,B.G,64636,B.G,64637,B.G,64638,B.G,64639,B.G,64640,B.G,64641,B.G,64642,B.G,64643,B.G,64644,B.G,64645,B.G,64646,B.G,64647,B.G,64648,B.G,64649,B.G,64650,B.G,64651,B.G,64652,B.G,64653,B.G,64654,B.G,64655,B.G,64656,B.G,64657,B.G,64658,B.G,64659,B.G,64660,B.G,64661,B.G,64662,B.G,64785,B.G,64786,B.G,64787,B.G,64788,B.G,64789,B.G,64790,B.G,64791,B.G,64792,B.G,64793,B.G,64794,B.G,64795,B.G,64796,B.G,64797,B.G,64798,B.G,64799,B.G,64800,B.G,64801,B.G,64802,B.G,64803,B.G,64804,B.G,64805,B.G,64806,B.G,64807,B.G,64808,B.G,64809,B.G,64810,B.G,64811,B.G,64812,B.G,64828,B.G,64849,B.G,64856,B.G,64858,B.G,64859,B.G,64862,B.G,64863,B.G,64866,B.G,64868,B.G,64870,B.G,64871,B.G,64873,B.G,64874,B.G,64876,B.G,64878,B.G,64879,B.G,64881,B.G,64884,B.G,64885,B.G,64886,B.G,64888,B.G,64889,B.G,64890,B.G,64891,B.G,64892,B.G,64894,B.G,64895,B.G,64896,B.G,64897,B.G,64898,B.G,64900,B.G,64901,B.G,64903,B.G,64907,B.G,64918,B.G,64919,B.G,64921,B.G,64922,B.G,64923,B.G,64924,B.G,64926,B.G,64927,B.G,64928,B.G,64929,B.G,64930,B.G,64931,B.G,64932,B.G,64933,B.G,64934,B.G,64935,B.G,64936,B.G,64937,B.G,64938,B.G,64939,B.G,64940,B.G,64941,B.G,64942,B.G,64943,B.G,64944,B.G,64945,B.G,64946,B.G,64947,B.G,64950,B.G,64951,B.G,64953,B.G,64955,B.G,64956,B.G,64957,B.G,64958,B.G,64959,B.G,64960,B.G,64961,B.G,64962,B.G,64966,B.G,64967,B.G,65154,B.G,65156,B.G,65158,B.G,65160,B.G,65162,B.G,65166,B.G,65168,B.G,65172,B.G,65174,B.G,65178,B.G,65182,B.G,65186,B.G,65190,B.G,65194,B.G,65196,B.G,65198,B.G,65200,B.G,65202,B.G,65206,B.G,65210,B.G,65214,B.G,65218,B.G,65222,B.G,65226,B.G,65230,B.G,65234,B.G,65238,B.G,65242,B.G,65246,B.G,65250,B.G,65254,B.G,65258,B.G,65262,B.G,65264,B.G,65266,B.G,65270,B.G,65272,B.G,65274,B.G,65276,B.G,64336,B.H,64338,B.H,64342,B.H,64346,B.H,64350,B.H,64354,B.H,64358,B.H,64362,B.H,64366,B.H,64370,B.H,64374,B.H,64378,B.H,64382,B.H,64386,B.H,64388,B.H,64390,B.H,64392,B.H,64394,B.H,64396,B.H,64398,B.H,64402,B.H,64406,B.H,64410,B.H,64414,B.H,64416,B.H,64420,B.H,64422,B.H,64426,B.H,64430,B.H,64432,B.H,64467,B.H,64471,B.H,64473,B.H,64475,B.H,64477,B.H,64478,B.H,64480,B.H,64482,B.H,64484,B.H,64490,B.H,64492,B.H,64494,B.H,64496,B.H,64498,B.H,64500,B.H,64502,B.H,64505,B.H,64508,B.H,64512,B.H,64513,B.H,64514,B.H,64515,B.H,64516,B.H,64517,B.H,64518,B.H,64519,B.H,64520,B.H,64521,B.H,64522,B.H,64523,B.H,64524,B.H,64525,B.H,64526,B.H,64527,B.H,64528,B.H,64529,B.H,64530,B.H,64531,B.H,64532,B.H,64533,B.H,64534,B.H,64535,B.H,64536,B.H,64537,B.H,64538,B.H,64539,B.H,64540,B.H,64541,B.H,64542,B.H,64543,B.H,64544,B.H,64545,B.H,64546,B.H,64547,B.H,64548,B.H,64549,B.H,64550,B.H,64551,B.H,64552,B.H,64553,B.H,64554,B.H,64555,B.H,64556,B.H,64557,B.H,64558,B.H,64559,B.H,64560,B.H,64561,B.H,64562,B.H,64563,B.H,64564,B.H,64565,B.H,64566,B.H,64567,B.H,64568,B.H,64569,B.H,64570,B.H,64571,B.H,64572,B.H,64573,B.H,64574,B.H,64575,B.H,64576,B.H,64577,B.H,64578,B.H,64579,B.H,64580,B.H,64581,B.H,64582,B.H,64583,B.H,64584,B.H,64585,B.H,64586,B.H,64587,B.H,64588,B.H,64589,B.H,64590,B.H,64591,B.H,64592,B.H,64593,B.H,64594,B.H,64595,B.H,64596,B.H,64597,B.H,64598,B.H,64599,B.H,64600,B.H,64601,B.H,64602,B.H,64603,B.H,64604,B.H,64605,B.H,64606,B.H,64607,B.H,64608,B.H,64609,B.H,64610,B.H,64611,B.H,64757,B.H,64758,B.H,64759,B.H,64760,B.H,64761,B.H,64762,B.H,64763,B.H,64764,B.H,64765,B.H,64766,B.H,64767,B.H,64768,B.H,64769,B.H,64770,B.H,64771,B.H,64772,B.H,64773,B.H,64774,B.H,64775,B.H,64776,B.H,64777,B.H,64778,B.H,64779,B.H,64780,B.H,64781,B.H,64782,B.H,64783,B.H,64784,B.H,64829,B.H,65008,B.H,65009,B.H,65010,B.H,65011,B.H,65012,B.H,65013,B.H,65014,B.H,65015,B.H,65016,B.H,65017,B.H,65018,B.H,65019,B.H,65020,B.H,65136,B.H,65138,B.H,65140,B.H,65142,B.H,65144,B.H,65146,B.H,65148,B.H,65150,B.H,65152,B.H,65153,B.H,65155,B.H,65157,B.H,65159,B.H,65161,B.H,65165,B.H,65167,B.H,65171,B.H,65173,B.H,65177,B.H,65181,B.H,65185,B.H,65189,B.H,65193,B.H,65195,B.H,65197,B.H,65199,B.H,65201,B.H,65205,B.H,65209,B.H,65213,B.H,65217,B.H,65221,B.H,65225,B.H,65229,B.H,65233,B.H,65237,B.H,65241,B.H,65245,B.H,65249,B.H,65253,B.H,65257,B.H,65261,B.H,65263,B.H,65265,B.H,65269,B.H,65271,B.H,65273,B.H,65275,B.H,9312,B.I,9313,B.I,9314,B.I,9315,B.I,9316,B.I,9317,B.I,9318,B.I,9319,B.I,9320,B.I,9321,B.I,9322,B.I,9323,B.I,9324,B.I,9325,B.I,9326,B.I,9327,B.I,9328,B.I,9329,B.I,9330,B.I,9331,B.I,9398,B.I,9399,B.I,9400,B.I,9401,B.I,9402,B.I,9403,B.I,9404,B.I,9405,B.I,9406,B.I,9407,B.I,9408,B.I,9409,B.I,9410,B.I,9411,B.I,9412,B.I,9413,B.I,9414,B.I,9415,B.I,9416,B.I,9417,B.I,9418,B.I,9419,B.I,9420,B.I,9421,B.I,9422,B.I,9423,B.I,9424,B.I,9425,B.I,9426,B.I,9427,B.I,9428,B.I,9429,B.I,9430,B.I,9431,B.I,9432,B.I,9433,B.I,9434,B.I,9435,B.I,9436,B.I,9437,B.I,9438,B.I,9439,B.I,9440,B.I,9441,B.I,9442,B.I,9443,B.I,9444,B.I,9445,B.I,9446,B.I,9447,B.I,9448,B.I,9449,B.I,9450,B.I,12868,B.I,12869,B.I,12870,B.I,12871,B.I,12881,B.I,12882,B.I,12883,B.I,12884,B.I,12885,B.I,12886,B.I,12887,B.I,12888,B.I,12889,B.I,12890,B.I,12891,B.I,12892,B.I,12893,B.I,12894,B.I,12895,B.I,12896,B.I,12897,B.I,12898,B.I,12899,B.I,12900,B.I,12901,B.I,12902,B.I,12903,B.I,12904,B.I,12905,B.I,12906,B.I,12907,B.I,12908,B.I,12909,B.I,12910,B.I,12911,B.I,12912,B.I,12913,B.I,12914,B.I,12915,B.I,12916,B.I,12917,B.I,12918,B.I,12919,B.I,12920,B.I,12921,B.I,12922,B.I,12923,B.I,12924,B.I,12925,B.I,12926,B.I,12928,B.I,12929,B.I,12930,B.I,12931,B.I,12932,B.I,12933,B.I,12934,B.I,12935,B.I,12936,B.I,12937,B.I,12938,B.I,12939,B.I,12940,B.I,12941,B.I,12942,B.I,12943,B.I,12944,B.I,12945,B.I,12946,B.I,12947,B.I,12948,B.I,12949,B.I,12950,B.I,12951,B.I,12952,B.I,12953,B.I,12954,B.I,12955,B.I,12956,B.I,12957,B.I,12958,B.I,12959,B.I,12960,B.I,12961,B.I,12962,B.I,12963,B.I,12964,B.I,12965,B.I,12966,B.I,12967,B.I,12968,B.I,12969,B.I,12970,B.I,12971,B.I,12972,B.I,12973,B.I,12974,B.I,12975,B.I,12976,B.I,12977,B.I,12978,B.I,12979,B.I,12980,B.I,12981,B.I,12982,B.I,12983,B.I,12984,B.I,12985,B.I,12986,B.I,12987,B.I,12988,B.I,12989,B.I,12990,B.I,12991,B.I,13008,B.I,13009,B.I,13010,B.I,13011,B.I,13012,B.I,13013,B.I,13014,B.I,13015,B.I,13016,B.I,13017,B.I,13018,B.I,13019,B.I,13020,B.I,13021,B.I,13022,B.I,13023,B.I,13024,B.I,13025,B.I,13026,B.I,13027,B.I,13028,B.I,13029,B.I,13030,B.I,13031,B.I,13032,B.I,13033,B.I,13034,B.I,13035,B.I,13036,B.I,13037,B.I,13038,B.I,13039,B.I,13040,B.I,13041,B.I,13042,B.I,13043,B.I,13044,B.I,13045,B.I,13046,B.I,13047,B.I,13048,B.I,13049,B.I,13050,B.I,13051,B.I,13052,B.I,13053,B.I,13054,B.I,170,B.T,178,B.T,179,B.T,185,B.T,186,B.T,688,B.T,689,B.T,690,B.T,691,B.T,692,B.T,693,B.T,694,B.T,695,B.T,696,B.T,736,B.T,737,B.T,738,B.T,739,B.T,740,B.T,4348,B.T,7468,B.T,7469,B.T,7470,B.T,7472,B.T,7473,B.T,7474,B.T,7475,B.T,7476,B.T,7477,B.T,7478,B.T,7479,B.T,7480,B.T,7481,B.T,7482,B.T,7484,B.T,7485,B.T,7486,B.T,7487,B.T,7488,B.T,7489,B.T,7490,B.T,7491,B.T,7492,B.T,7493,B.T,7494,B.T,7495,B.T,7496,B.T,7497,B.T,7498,B.T,7499,B.T,7500,B.T,7501,B.T,7503,B.T,7504,B.T,7505,B.T,7506,B.T,7507,B.T,7508,B.T,7509,B.T,7510,B.T,7511,B.T,7512,B.T,7513,B.T,7514,B.T,7515,B.T,7516,B.T,7517,B.T,7518,B.T,7519,B.T,7520,B.T,7521,B.T,7544,B.T,7579,B.T,7580,B.T,7581,B.T,7582,B.T,7583,B.T,7584,B.T,7585,B.T,7586,B.T,7587,B.T,7588,B.T,7589,B.T,7590,B.T,7591,B.T,7592,B.T,7593,B.T,7594,B.T,7595,B.T,7596,B.T,7597,B.T,7598,B.T,7599,B.T,7600,B.T,7601,B.T,7602,B.T,7603,B.T,7604,B.T,7605,B.T,7606,B.T,7607,B.T,7608,B.T,7609,B.T,7610,B.T,7611,B.T,7612,B.T,7613,B.T,7614,B.T,7615,B.T,8304,B.T,8305,B.T,8308,B.T,8309,B.T,8310,B.T,8311,B.T,8312,B.T,8313,B.T,8314,B.T,8315,B.T,8316,B.T,8317,B.T,8318,B.T,8319,B.T,8480,B.T,8482,B.T,11389,B.T,11631,B.T,12690,B.T,12691,B.T,12692,B.T,12693,B.T,12694,B.T,12695,B.T,12696,B.T,12697,B.T,12698,B.T,12699,B.T,12700,B.T,12701,B.T,12702,B.T,12703,B.T,42652,B.T,42653,B.T,42864,B.T,43e3,B.T,43001,B.T,43868,B.T,43869,B.T,43870,B.T,43871,B.T,7522,B.b5,7523,B.b5,7524,B.b5,7525,B.b5,7526,B.b5,7527,B.b5,7528,B.b5,7529,B.b5,7530,B.b5,8320,B.b5,8321,B.b5,8322,B.b5,8323,B.b5,8324,B.b5,8325,B.b5,8326,B.b5,8327,B.b5,8328,B.b5,8329,B.b5,8330,B.b5,8331,B.b5,8332,B.b5,8333,B.b5,8334,B.b5,8336,B.b5,8337,B.b5,8338,B.b5,8339,B.b5,8340,B.b5,8341,B.b5,8342,B.b5,8343,B.b5,8344,B.b5,8345,B.b5,8346,B.b5,8347,B.b5,8348,B.b5,11388,B.b5,12447,B.bi,12543,B.bi,65040,B.bi,65041,B.bi,65042,B.bi,65043,B.bi,65044,B.bi,65045,B.bi,65046,B.bi,65047,B.bi,65048,B.bi,65049,B.bi,65072,B.bi,65073,B.bi,65074,B.bi,65075,B.bi,65076,B.bi,65077,B.bi,65078,B.bi,65079,B.bi,65080,B.bi,65081,B.bi,65082,B.bi,65083,B.bi,65084,B.bi,65085,B.bi,65086,B.bi,65087,B.bi,65088,B.bi,65089,B.bi,65090,B.bi,65091,B.bi,65092,B.bi,65095,B.bi,65096,B.bi,12288,B.a1,65281,B.a1,65282,B.a1,65283,B.a1,65284,B.a1,65285,B.a1,65286,B.a1,65287,B.a1,65288,B.a1,65289,B.a1,65290,B.a1,65291,B.a1,65292,B.a1,65293,B.a1,65294,B.a1,65295,B.a1,65296,B.a1,65297,B.a1,65298,B.a1,65299,B.a1,65300,B.a1,65301,B.a1,65302,B.a1,65303,B.a1,65304,B.a1,65305,B.a1,65306,B.a1,65307,B.a1,65308,B.a1,65309,B.a1,65310,B.a1,65311,B.a1,65312,B.a1,65313,B.a1,65314,B.a1,65315,B.a1,65316,B.a1,65317,B.a1,65318,B.a1,65319,B.a1,65320,B.a1,65321,B.a1,65322,B.a1,65323,B.a1,65324,B.a1,65325,B.a1,65326,B.a1,65327,B.a1,65328,B.a1,65329,B.a1,65330,B.a1,65331,B.a1,65332,B.a1,65333,B.a1,65334,B.a1,65335,B.a1,65336,B.a1,65337,B.a1,65338,B.a1,65339,B.a1,65340,B.a1,65341,B.a1,65342,B.a1,65343,B.a1,65344,B.a1,65345,B.a1,65346,B.a1,65347,B.a1,65348,B.a1,65349,B.a1,65350,B.a1,65351,B.a1,65352,B.a1,65353,B.a1,65354,B.a1,65355,B.a1,65356,B.a1,65357,B.a1,65358,B.a1,65359,B.a1,65360,B.a1,65361,B.a1,65362,B.a1,65363,B.a1,65364,B.a1,65365,B.a1,65366,B.a1,65367,B.a1,65368,B.a1,65369,B.a1,65370,B.a1,65371,B.a1,65372,B.a1,65373,B.a1,65374,B.a1,65375,B.a1,65376,B.a1,65504,B.a1,65505,B.a1,65506,B.a1,65507,B.a1,65508,B.a1,65509,B.a1,65510,B.a1,65377,B.X,65378,B.X,65379,B.X,65380,B.X,65381,B.X,65382,B.X,65383,B.X,65384,B.X,65385,B.X,65386,B.X,65387,B.X,65388,B.X,65389,B.X,65390,B.X,65391,B.X,65392,B.X,65393,B.X,65394,B.X,65395,B.X,65396,B.X,65397,B.X,65398,B.X,65399,B.X,65400,B.X,65401,B.X,65402,B.X,65403,B.X,65404,B.X,65405,B.X,65406,B.X,65407,B.X,65408,B.X,65409,B.X,65410,B.X,65411,B.X,65412,B.X,65413,B.X,65414,B.X,65415,B.X,65416,B.X,65417,B.X,65418,B.X,65419,B.X,65420,B.X,65421,B.X,65422,B.X,65423,B.X,65424,B.X,65425,B.X,65426,B.X,65427,B.X,65428,B.X,65429,B.X,65430,B.X,65431,B.X,65432,B.X,65433,B.X,65434,B.X,65435,B.X,65436,B.X,65437,B.X,65438,B.X,65439,B.X,65440,B.X,65441,B.X,65442,B.X,65443,B.X,65444,B.X,65445,B.X,65446,B.X,65447,B.X,65448,B.X,65449,B.X,65450,B.X,65451,B.X,65452,B.X,65453,B.X,65454,B.X,65455,B.X,65456,B.X,65457,B.X,65458,B.X,65459,B.X,65460,B.X,65461,B.X,65462,B.X,65463,B.X,65464,B.X,65465,B.X,65466,B.X,65467,B.X,65468,B.X,65469,B.X,65470,B.X,65474,B.X,65475,B.X,65476,B.X,65477,B.X,65478,B.X,65479,B.X,65482,B.X,65483,B.X,65484,B.X,65485,B.X,65486,B.X,65487,B.X,65490,B.X,65491,B.X,65492,B.X,65493,B.X,65494,B.X,65495,B.X,65498,B.X,65499,B.X,65500,B.X,65512,B.X,65513,B.X,65514,B.X,65515,B.X,65516,B.X,65517,B.X,65518,B.X,65104,B.bR,65105,B.bR,65106,B.bR,65108,B.bR,65109,B.bR,65110,B.bR,65111,B.bR,65112,B.bR,65113,B.bR,65114,B.bR,65115,B.bR,65116,B.bR,65117,B.bR,65118,B.bR,65119,B.bR,65120,B.bR,65121,B.bR,65122,B.bR,65123,B.bR,65124,B.bR,65125,B.bR,65126,B.bR,65128,B.bR,65129,B.bR,65130,B.bR,65131,B.bR,12880,B.K,13004,B.K,13005,B.K,13006,B.K,13007,B.K,13056,B.K,13057,B.K,13058,B.K,13059,B.K,13060,B.K,13061,B.K,13062,B.K,13063,B.K,13064,B.K,13065,B.K,13066,B.K,13067,B.K,13068,B.K,13069,B.K,13070,B.K,13071,B.K,13072,B.K,13073,B.K,13074,B.K,13075,B.K,13076,B.K,13077,B.K,13078,B.K,13079,B.K,13080,B.K,13081,B.K,13082,B.K,13083,B.K,13084,B.K,13085,B.K,13086,B.K,13087,B.K,13088,B.K,13089,B.K,13090,B.K,13091,B.K,13092,B.K,13093,B.K,13094,B.K,13095,B.K,13096,B.K,13097,B.K,13098,B.K,13099,B.K,13100,B.K,13101,B.K,13102,B.K,13103,B.K,13104,B.K,13105,B.K,13106,B.K,13107,B.K,13108,B.K,13109,B.K,13110,B.K,13111,B.K,13112,B.K,13113,B.K,13114,B.K,13115,B.K,13116,B.K,13117,B.K,13118,B.K,13119,B.K,13120,B.K,13121,B.K,13122,B.K,13123,B.K,13124,B.K,13125,B.K,13126,B.K,13127,B.K,13128,B.K,13129,B.K,13130,B.K,13131,B.K,13132,B.K,13133,B.K,13134,B.K,13135,B.K,13136,B.K,13137,B.K,13138,B.K,13139,B.K,13140,B.K,13141,B.K,13142,B.K,13143,B.K,13169,B.K,13170,B.K,13171,B.K,13172,B.K,13173,B.K,13174,B.K,13175,B.K,13176,B.K,13177,B.K,13178,B.K,13179,B.K,13180,B.K,13181,B.K,13182,B.K,13183,B.K,13184,B.K,13185,B.K,13186,B.K,13187,B.K,13188,B.K,13189,B.K,13190,B.K,13191,B.K,13192,B.K,13193,B.K,13194,B.K,13195,B.K,13196,B.K,13197,B.K,13198,B.K,13199,B.K,13200,B.K,13201,B.K,13202,B.K,13203,B.K,13204,B.K,13205,B.K,13206,B.K,13207,B.K,13208,B.K,13209,B.K,13210,B.K,13211,B.K,13212,B.K,13213,B.K,13214,B.K,13215,B.K,13216,B.K,13217,B.K,13218,B.K,13219,B.K,13220,B.K,13221,B.K,13222,B.K,13223,B.K,13224,B.K,13225,B.K,13226,B.K,13227,B.K,13228,B.K,13229,B.K,13230,B.K,13231,B.K,13232,B.K,13233,B.K,13234,B.K,13235,B.K,13236,B.K,13237,B.K,13238,B.K,13239,B.K,13240,B.K,13241,B.K,13242,B.K,13243,B.K,13244,B.K,13245,B.K,13246,B.K,13247,B.K,13248,B.K,13249,B.K,13250,B.K,13251,B.K,13252,B.K,13253,B.K,13254,B.K,13255,B.K,13256,B.K,13257,B.K,13258,B.K,13259,B.K,13260,B.K,13261,B.K,13262,B.K,13263,B.K,13264,B.K,13265,B.K,13266,B.K,13267,B.K,13268,B.K,13269,B.K,13270,B.K,13271,B.K,13272,B.K,13273,B.K,13274,B.K,13275,B.K,13276,B.K,13277,B.K,13278,B.K,13279,B.K,13311,B.K,188,B.cw,189,B.cw,190,B.cw,8528,B.cw,8529,B.cw,8530,B.cw,8531,B.cw,8532,B.cw,8533,B.cw,8534,B.cw,8535,B.cw,8536,B.cw,8537,B.cw,8538,B.cw,8539,B.cw,8540,B.cw,8541,B.cw,8542,B.cw,8543,B.cw,8585,B.cw,168,B.o,175,B.o,180,B.o,181,B.o,184,B.o,306,B.o,307,B.o,319,B.o,320,B.o,329,B.o,383,B.o,452,B.o,453,B.o,454,B.o,455,B.o,456,B.o,457,B.o,458,B.o,459,B.o,460,B.o,497,B.o,498,B.o,499,B.o,728,B.o,729,B.o,730,B.o,731,B.o,732,B.o,733,B.o,890,B.o,900,B.o,976,B.o,977,B.o,978,B.o,981,B.o,982,B.o,1008,B.o,1009,B.o,1010,B.o,1012,B.o,1013,B.o,1017,B.o,1415,B.o,1653,B.o,1654,B.o,1655,B.o,1656,B.o,3635,B.o,3763,B.o,3804,B.o,3805,B.o,3959,B.o,3961,B.o,7834,B.o,8125,B.o,8127,B.o,8128,B.o,8190,B.o,8194,B.o,8195,B.o,8196,B.o,8197,B.o,8198,B.o,8200,B.o,8201,B.o,8202,B.o,8215,B.o,8228,B.o,8229,B.o,8230,B.o,8243,B.o,8244,B.o,8246,B.o,8247,B.o,8252,B.o,8254,B.o,8263,B.o,8264,B.o,8265,B.o,8279,B.o,8287,B.o,8360,B.o,8448,B.o,8449,B.o,8451,B.o,8453,B.o,8454,B.o,8455,B.o,8457,B.o,8470,B.o,8481,B.o,8501,B.o,8502,B.o,8503,B.o,8504,B.o,8507,B.o,8544,B.o,8545,B.o,8546,B.o,8547,B.o,8548,B.o,8549,B.o,8550,B.o,8551,B.o,8552,B.o,8553,B.o,8554,B.o,8555,B.o,8556,B.o,8557,B.o,8558,B.o,8559,B.o,8560,B.o,8561,B.o,8562,B.o,8563,B.o,8564,B.o,8565,B.o,8566,B.o,8567,B.o,8568,B.o,8569,B.o,8570,B.o,8571,B.o,8572,B.o,8573,B.o,8574,B.o,8575,B.o,8748,B.o,8749,B.o,8751,B.o,8752,B.o,9332,B.o,9333,B.o,9334,B.o,9335,B.o,9336,B.o,9337,B.o,9338,B.o,9339,B.o,9340,B.o,9341,B.o,9342,B.o,9343,B.o,9344,B.o,9345,B.o,9346,B.o,9347,B.o,9348,B.o,9349,B.o,9350,B.o,9351,B.o,9352,B.o,9353,B.o,9354,B.o,9355,B.o,9356,B.o,9357,B.o,9358,B.o,9359,B.o,9360,B.o,9361,B.o,9362,B.o,9363,B.o,9364,B.o,9365,B.o,9366,B.o,9367,B.o,9368,B.o,9369,B.o,9370,B.o,9371,B.o,9372,B.o,9373,B.o,9374,B.o,9375,B.o,9376,B.o,9377,B.o,9378,B.o,9379,B.o,9380,B.o,9381,B.o,9382,B.o,9383,B.o,9384,B.o,9385,B.o,9386,B.o,9387,B.o,9388,B.o,9389,B.o,9390,B.o,9391,B.o,9392,B.o,9393,B.o,9394,B.o,9395,B.o,9396,B.o,9397,B.o,10764,B.o,10868,B.o,10869,B.o,10870,B.o,11935,B.o,12019,B.o,12032,B.o,12033,B.o,12034,B.o,12035,B.o,12036,B.o,12037,B.o,12038,B.o,12039,B.o,12040,B.o,12041,B.o,12042,B.o,12043,B.o,12044,B.o,12045,B.o,12046,B.o,12047,B.o,12048,B.o,12049,B.o,12050,B.o,12051,B.o,12052,B.o,12053,B.o,12054,B.o,12055,B.o,12056,B.o,12057,B.o,12058,B.o,12059,B.o,12060,B.o,12061,B.o,12062,B.o,12063,B.o,12064,B.o,12065,B.o,12066,B.o,12067,B.o,12068,B.o,12069,B.o,12070,B.o,12071,B.o,12072,B.o,12073,B.o,12074,B.o,12075,B.o,12076,B.o,12077,B.o,12078,B.o,12079,B.o,12080,B.o,12081,B.o,12082,B.o,12083,B.o,12084,B.o,12085,B.o,12086,B.o,12087,B.o,12088,B.o,12089,B.o,12090,B.o,12091,B.o,12092,B.o,12093,B.o,12094,B.o,12095,B.o,12096,B.o,12097,B.o,12098,B.o,12099,B.o,12100,B.o,12101,B.o,12102,B.o,12103,B.o,12104,B.o,12105,B.o,12106,B.o,12107,B.o,12108,B.o,12109,B.o,12110,B.o,12111,B.o,12112,B.o,12113,B.o,12114,B.o,12115,B.o,12116,B.o,12117,B.o,12118,B.o,12119,B.o,12120,B.o,12121,B.o,12122,B.o,12123,B.o,12124,B.o,12125,B.o,12126,B.o,12127,B.o,12128,B.o,12129,B.o,12130,B.o,12131,B.o,12132,B.o,12133,B.o,12134,B.o,12135,B.o,12136,B.o,12137,B.o,12138,B.o,12139,B.o,12140,B.o,12141,B.o,12142,B.o,12143,B.o,12144,B.o,12145,B.o,12146,B.o,12147,B.o,12148,B.o,12149,B.o,12150,B.o,12151,B.o,12152,B.o,12153,B.o,12154,B.o,12155,B.o,12156,B.o,12157,B.o,12158,B.o,12159,B.o,12160,B.o,12161,B.o,12162,B.o,12163,B.o,12164,B.o,12165,B.o,12166,B.o,12167,B.o,12168,B.o,12169,B.o,12170,B.o,12171,B.o,12172,B.o,12173,B.o,12174,B.o,12175,B.o,12176,B.o,12177,B.o,12178,B.o,12179,B.o,12180,B.o,12181,B.o,12182,B.o,12183,B.o,12184,B.o,12185,B.o,12186,B.o,12187,B.o,12188,B.o,12189,B.o,12190,B.o,12191,B.o,12192,B.o,12193,B.o,12194,B.o,12195,B.o,12196,B.o,12197,B.o,12198,B.o,12199,B.o,12200,B.o,12201,B.o,12202,B.o,12203,B.o,12204,B.o,12205,B.o,12206,B.o,12207,B.o,12208,B.o,12209,B.o,12210,B.o,12211,B.o,12212,B.o,12213,B.o,12214,B.o,12215,B.o,12216,B.o,12217,B.o,12218,B.o,12219,B.o,12220,B.o,12221,B.o,12222,B.o,12223,B.o,12224,B.o,12225,B.o,12226,B.o,12227,B.o,12228,B.o,12229,B.o,12230,B.o,12231,B.o,12232,B.o,12233,B.o,12234,B.o,12235,B.o,12236,B.o,12237,B.o,12238,B.o,12239,B.o,12240,B.o,12241,B.o,12242,B.o,12243,B.o,12244,B.o,12245,B.o,12342,B.o,12344,B.o,12345,B.o,12346,B.o,12443,B.o,12444,B.o,12593,B.o,12594,B.o,12595,B.o,12596,B.o,12597,B.o,12598,B.o,12599,B.o,12600,B.o,12601,B.o,12602,B.o,12603,B.o,12604,B.o,12605,B.o,12606,B.o,12607,B.o,12608,B.o,12609,B.o,12610,B.o,12611,B.o,12612,B.o,12613,B.o,12614,B.o,12615,B.o,12616,B.o,12617,B.o,12618,B.o,12619,B.o,12620,B.o,12621,B.o,12622,B.o,12623,B.o,12624,B.o,12625,B.o,12626,B.o,12627,B.o,12628,B.o,12629,B.o,12630,B.o,12631,B.o,12632,B.o,12633,B.o,12634,B.o,12635,B.o,12636,B.o,12637,B.o,12638,B.o,12639,B.o,12640,B.o,12641,B.o,12642,B.o,12643,B.o,12644,B.o,12645,B.o,12646,B.o,12647,B.o,12648,B.o,12649,B.o,12650,B.o,12651,B.o,12652,B.o,12653,B.o,12654,B.o,12655,B.o,12656,B.o,12657,B.o,12658,B.o,12659,B.o,12660,B.o,12661,B.o,12662,B.o,12663,B.o,12664,B.o,12665,B.o,12666,B.o,12667,B.o,12668,B.o,12669,B.o,12670,B.o,12671,B.o,12672,B.o,12673,B.o,12674,B.o,12675,B.o,12676,B.o,12677,B.o,12678,B.o,12679,B.o,12680,B.o,12681,B.o,12682,B.o,12683,B.o,12684,B.o,12685,B.o,12686,B.o,12800,B.o,12801,B.o,12802,B.o,12803,B.o,12804,B.o,12805,B.o,12806,B.o,12807,B.o,12808,B.o,12809,B.o,12810,B.o,12811,B.o,12812,B.o,12813,B.o,12814,B.o,12815,B.o,12816,B.o,12817,B.o,12818,B.o,12819,B.o,12820,B.o,12821,B.o,12822,B.o,12823,B.o,12824,B.o,12825,B.o,12826,B.o,12827,B.o,12828,B.o,12829,B.o,12830,B.o,12832,B.o,12833,B.o,12834,B.o,12835,B.o,12836,B.o,12837,B.o,12838,B.o,12839,B.o,12840,B.o,12841,B.o,12842,B.o,12843,B.o,12844,B.o,12845,B.o,12846,B.o,12847,B.o,12848,B.o,12849,B.o,12850,B.o,12851,B.o,12852,B.o,12853,B.o,12854,B.o,12855,B.o,12856,B.o,12857,B.o,12858,B.o,12859,B.o,12860,B.o,12861,B.o,12862,B.o,12863,B.o,12864,B.o,12865,B.o,12866,B.o,12867,B.o,12992,B.o,12993,B.o,12994,B.o,12995,B.o,12996,B.o,12997,B.o,12998,B.o,12999,B.o,13e3,B.o,13001,B.o,13002,B.o,13003,B.o,13144,B.o,13145,B.o,13146,B.o,13147,B.o,13148,B.o,13149,B.o,13150,B.o,13151,B.o,13152,B.o,13153,B.o,13154,B.o,13155,B.o,13156,B.o,13157,B.o,13158,B.o,13159,B.o,13160,B.o,13161,B.o,13162,B.o,13163,B.o,13164,B.o,13165,B.o,13166,B.o,13167,B.o,13168,B.o,13280,B.o,13281,B.o,13282,B.o,13283,B.o,13284,B.o,13285,B.o,13286,B.o,13287,B.o,13288,B.o,13289,B.o,13290,B.o,13291,B.o,13292,B.o,13293,B.o,13294,B.o,13295,B.o,13296,B.o,13297,B.o,13298,B.o,13299,B.o,13300,B.o,13301,B.o,13302,B.o,13303,B.o,13304,B.o,13305,B.o,13306,B.o,13307,B.o,13308,B.o,13309,B.o,13310,B.o,64256,B.o,64257,B.o,64258,B.o,64259,B.o,64260,B.o,64261,B.o,64262,B.o,64275,B.o,64276,B.o,64277,B.o,64278,B.o,64279,B.o,64335,B.o,65097,B.o,65098,B.o,65099,B.o,65100,B.o,65101,B.o,65102,B.o,65103,B.o],A.ax("bE<n,hs>"))
 B.b1m={A:0,I:1,J:2,Q:3,Y:4,B:5,K:6,R:7,C:8,G:9,L:10,S:11,D:12,M:13,T:14,E:15,H:16,N:17,X:18,U:19,V:20,W:21,O:22,Z:23,F:24,P:25}
 B.b_O=new A.bh(B.b1m,[1,1,1,1,1,2,2,2,3,3,3,3,4,4,4,5,5,5,5,6,6,6,7,7,8,8],t.eL)
 B.b1d={A:0,B:1,C:2,D:3,E:4,F:5,G:6,H:7,I:8,J:9,K:10,L:11,M:12,N:13,O:14,P:15,Q:16,R:17,S:18,T:19,U:20,V:21,W:22,X:23,Y:24,Z:25}
@@ -148626,7 +148626,7 @@ B.fI=new A.Mb(2,"none")
 B.Sk=new A.tE(null,null,B.fI,B.vp,!0)
 B.Sl=new A.tE(null,null,B.fI,B.vp,!1)
 B.aU=new A.tF(0,"next")
-B.b5=new A.tF(1,"previous")
+B.b4=new A.tF(1,"previous")
 B.bg=new A.tF(2,"end")
 B.wF=new A.tF(3,"pending")
 B.lq=new A.tF(4,"none")
