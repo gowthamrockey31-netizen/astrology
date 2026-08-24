@@ -575,7 +575,9 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
                 children: [
                   const Icon(Icons.verified_rounded, color: AppColors.primaryGold, size: 22),
                   const SizedBox(width: 8),
-                  Text('தினசுத்தி மதிப்பீடு:', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 14)),
+                  Expanded(
+                    child: Text('தினசுத்தி மதிப்பீடு:', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 14)),
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
@@ -658,9 +660,11 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
             border: Border.all(color: AppColors.primaryGold),
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('சர்வ அஷ்டவர்க்க மொத்த புள்ளிகள் (Total SAV):', style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 13)),
+              Expanded(
+                child: Text('சர்வ அஷ்டவர்க்க மொத்த புள்ளிகள் (Total SAV):', style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 13)),
+              ),
+              const SizedBox(width: 8),
               Text('${_ashtakavargaResult.totalSavPoints} / 337', style: GoogleFonts.outfit(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 15)),
             ],
           ),
@@ -741,12 +745,14 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
             children: [
               Icon(icon, color: AppColors.primaryGold, size: 18),
               const SizedBox(width: 8),
-              Text(
-                title,
-                style: GoogleFonts.cinzel(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.lightGold,
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.cinzel(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.lightGold,
+                  ),
                 ),
               ),
             ],
@@ -758,7 +764,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      width: 140,
+                      width: 130,
                       child: Text(
                         r.label,
                         style: GoogleFonts.outfit(fontSize: 11.5, color: AppColors.textSecondary),
