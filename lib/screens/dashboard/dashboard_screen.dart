@@ -278,9 +278,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       {'title': 'Live Panchangam', 'sub': 'Tithi & Rahu Kalam', 'icon': Icons.calendar_month_rounded, 'route': '/panchang', 'color': Colors.deepOrange.shade900},
       {'title': 'AI Horoscope Guru', 'sub': 'Ask AI Assistant', 'icon': Icons.smart_toy_rounded, 'route': '/ai_assistant', 'color': Colors.indigo.shade900},
       {'title': 'Birth Chart', 'sub': 'Vedic Kundali', 'icon': Icons.brightness_5_rounded, 'route': '/birth_chart', 'color': Colors.cyan.shade900},
-      {'title': 'Astrocare Shop', 'sub': 'Gems & Yantras', 'icon': Icons.shopping_bag_rounded, 'route': '/shop', 'color': Colors.pink.shade900},
+      {'title': 'AstroDashaCare Shop', 'sub': 'Gems & Yantras', 'icon': Icons.shopping_bag_rounded, 'route': '/shop', 'color': Colors.pink.shade900},
       if (role == 'User' || role == 'Admin')
-        {'title': 'Astrocare Wallet', 'sub': 'Recharge & Invoices', 'icon': Icons.account_balance_wallet_rounded, 'route': '/wallet', 'color': Colors.green.shade900},
+        {'title': 'AstroDashaCare Wallet', 'sub': 'Recharge & Invoices', 'icon': Icons.account_balance_wallet_rounded, 'route': '/wallet', 'color': Colors.green.shade900},
     ];
 
     final modules = allModules;
@@ -292,7 +292,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Astrocare Modules',
+              'AstroDashaCare Modules',
               style: GoogleFonts.cinzel(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -759,7 +759,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       {
         'icon': Icons.email_outlined,
         'title': 'Email Support',
-        'subtitle': 'support@astrocarecentre.com',
+        'subtitle': 'support@astrodashacare.com',
         'color': AppColors.blueAccent,
       },
       {

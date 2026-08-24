@@ -50,11 +50,11 @@ void main() {
     ),
   );
 
-  runApp(const AstrocareApp());
+  runApp(const AstroDashaCareApp());
 }
 
-class AstrocareApp extends StatelessWidget {
-  const AstrocareApp({super.key});
+class AstroDashaCareApp extends StatelessWidget {
+  const AstroDashaCareApp({super.key});
 
   Widget _guardedRoute({
     required BuildContext context,
@@ -136,7 +136,7 @@ class AstrocareApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Astrocare - AI-Enabled Digital Astrology Centre',
+      title: 'AstroDashaCare - AI-Enabled Digital Astrology Centre',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       initialRoute: '/',

@@ -131,7 +131,7 @@ class _ShopScreenState extends State<ShopScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Astrocare Shop', style: GoogleFonts.cinzel(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.lightGold, letterSpacing: 1.2)),
+                        Text('AstroDashaCare Shop', style: GoogleFonts.cinzel(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.lightGold, letterSpacing: 1.2)),
                         Text('கடை • Sacred Cosmic Store', style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 11)),
                       ],
                     ),

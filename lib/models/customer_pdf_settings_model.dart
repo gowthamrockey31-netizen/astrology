@@ -19,11 +19,11 @@ class CustomerPdfSettings {
     this.address = '12/5-24b பெத்தல் சுப்பையன் தெரு, மேட்டுப்பட்டி, சின்னாளபட்டி-624301',
     this.phone = '+91 9500813709',
     this.email = 'astrogowtham@gmail.com',
-    this.website = 'www.astrocare.in',
+    this.website = 'www.astrodashacare.in',
     this.gstNumber = '',
     this.invocationText = 'ஸ்ரீ பொம்மமையசுவாமி துணை',
     this.slokaFooter = 'ஜெணனீஜென்ம ஸௌக்யானாம் ! வர்த்தனி குலஸம்பதாம் ! பதவிபூர்வ புண்யானாம்!! லிக்யதே ஜென்ம பத்திரிகா!!',
-    this.softwareFooter = 'Software by Astrocare Digital Astrology Centre',
+    this.softwareFooter = 'Software by AstroDashaCare Digital Astrology Centre',
   });
 
   Map<String, dynamic> toJson() => {
@@ -47,12 +47,12 @@ class CustomerPdfSettings {
         address: json['address'] as String? ?? '12/5-24b பெத்தல் சுப்பையன் தெரு, மேட்டுப்பட்டி, சின்னாளபட்டி-624301',
         phone: json['phone'] as String? ?? '+91 9500813709',
         email: json['email'] as String? ?? 'astrogowtham@gmail.com',
-        website: json['website'] as String? ?? 'www.astrocare.in',
+        website: json['website'] as String? ?? 'www.astrodashacare.in',
         gstNumber: json['gstNumber'] as String? ?? '',
         invocationText: json['invocationText'] as String? ?? 'ஸ்ரீ பொம்மமையசுவாமி துணை',
         slokaFooter: json['slokaFooter'] as String? ??
             'ஜெணனீஜென்ம ஸௌக்யானாம் ! வர்த்தனி குலஸம்பதாம் ! பதவிபூர்வ புண்யானாம்!! லிக்யதே ஜென்ம பத்திரிகா!!',
-        softwareFooter: json['softwareFooter'] as String? ?? 'Software by Astrocare Digital Astrology Centre',
+        softwareFooter: json['softwareFooter'] as String? ?? 'Software by AstroDashaCare Digital Astrology Centre',
       );
 
   CustomerPdfSettings copyWith({

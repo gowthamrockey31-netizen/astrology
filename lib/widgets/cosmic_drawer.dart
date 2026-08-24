@@ -59,7 +59,7 @@ class CosmicDrawer extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user?.name ?? 'Astrocare Seeker',
+                          user?.name ?? 'AstroDashaCare Seeker',
                           style: GoogleFonts.cinzel(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -249,7 +249,7 @@ class CosmicDrawer extends StatelessWidget {
                     _buildDrawerItem(
                       icon: Icons.person_pin_rounded,
                       title: 'Switch to User View',
-                      subtitle: 'Browse Astrocare as Client',
+                      subtitle: 'Browse AstroDashaCare as Client',
                       onTap: () {
                         AuthService.setActiveRole('User');
                         onSelectRoute('/user_dashboard');

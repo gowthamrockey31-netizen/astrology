@@ -254,7 +254,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         decoration: const InputDecoration(
                           labelText: "Unique Email Address (Required for Login)",
                           labelStyle: TextStyle(color: AppColors.lightGold),
-                          hintText: "astrologer@astrocare.com",
+                          hintText: "astrologer@astrodashacare.com",
                           hintStyle: TextStyle(color: AppColors.textSecondary),
                         ),
                       ),
@@ -496,7 +496,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   onTap: () => widget.onNavigate('/admin_terms'),
                 ),
                 _buildCmsTile(
-                  title: 'Astrocare Magazine CMS',
+                  title: 'AstroDashaCare Magazine CMS',
                   subtitle: 'Articles, Images & Videos',
                   icon: Icons.menu_book_rounded,
                   onTap: () => widget.onNavigate('/admin_magazine'),

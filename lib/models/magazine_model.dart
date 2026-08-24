@@ -53,7 +53,7 @@ class MagazineArticleModel {
       content: map['content'] ?? '',
       imageUrl: map['imageUrl'] ?? '',
       videoUrl: map['videoUrl'],
-      author: map['author'] ?? 'Astrocare Editorial',
+      author: map['author'] ?? 'AstroDashaCare Editorial',
       publishedAt: map['publishedAt'] != null ? DateTime.parse(map['publishedAt']) : DateTime.now(),
       likesCount: map['likesCount'] ?? 0,
       commentsCount: map['commentsCount'] ?? 0,

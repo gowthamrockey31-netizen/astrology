@@ -31,7 +31,7 @@ class _MagazineFeedScreenState extends State<MagazineFeedScreen> {
   void _showArticleFormDialog({MagazineArticleModel? articleToEdit}) async {
     final isEditing = articleToEdit != null;
     final titleCtrl = TextEditingController(text: isEditing ? articleToEdit.title : '');
-    final authorCtrl = TextEditingController(text: isEditing ? articleToEdit.author : 'Astrocare Editorial');
+    final authorCtrl = TextEditingController(text: isEditing ? articleToEdit.author : 'AstroDashaCare Editorial');
     final summaryCtrl = TextEditingController(text: isEditing ? articleToEdit.summary : '');
     final contentCtrl = TextEditingController(text: isEditing ? articleToEdit.content : '');
     String selectedCategory = isEditing ? articleToEdit.category : 'Vedic Predictions';
@@ -273,7 +273,7 @@ class _MagazineFeedScreenState extends State<MagazineFeedScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.backgroundMid,
-        title: Text('Astrocare Magazine', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold)),
+        title: Text('AstroDashaCare Magazine', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold)),
         actions: [
           if (isAdmin)
             IconButton(

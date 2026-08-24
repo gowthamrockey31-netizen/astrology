@@ -92,7 +92,7 @@ if users_collection.count_documents({}) == 0:
         "id": "usr_demo",
         "phone": "+919876543210",
         "mobile": "+919876543210",
-        "email": "user@astrocare.com",
+        "email": "user@astrodashacare.com",
         "password": "password123",
         "name": "Divine Seeker",
         "role": "User",
@@ -117,7 +117,7 @@ if astrologers_collection.count_documents({}) == 0:
             "name": "Acharya Divine",
             "photoUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
             "mobile": "+919876543211",
-            "email": "acharya@astrocare.com",
+            "email": "acharya@astrodashacare.com",
             "password": "password123",
             "gender": "Male",
             "city": "Chennai",
@@ -138,7 +138,7 @@ if astrologers_collection.count_documents({}) == 0:
             "name": "Dr. K. Raman Acharya",
             "photoUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
             "mobile": "+919876543212",
-            "email": "raman@astrocare.com",
+            "email": "raman@astrodashacare.com",
             "password": "password123",
             "gender": "Male",
             "city": "Coimbatore",
@@ -161,7 +161,7 @@ if terms_collection.count_documents({}) == 0:
         {
             "id": "tc_1",
             "title": "1. Service Scope & Consultation Ethics",
-            "description": "Astrocare connects users with professional astrologers for spiritual guidance, horoscopes, and remedies. Consultations do not replace legal, medical, or financial advice.",
+            "description": "AstroDashaCare connects users with professional astrologers for spiritual guidance, horoscopes, and remedies. Consultations do not replace legal, medical, or financial advice.",
             "orderIndex": 1
         },
         {
@@ -173,7 +173,7 @@ if terms_collection.count_documents({}) == 0:
         {
             "id": "tc_3",
             "title": "3. Wallet Payments & Consultation Rates",
-            "description": "Consultations are billed per minute or per fixed session using your Astrocare Wallet. Sufficient balance is required to initiate Voice, Video, or Chat sessions.",
+            "description": "Consultations are billed per minute or per fixed session using your AstroDashaCare Wallet. Sufficient balance is required to initiate Voice, Video, or Chat sessions.",
             "orderIndex": 3
         },
         {
@@ -327,7 +327,7 @@ class MagazineArticleSchema(BaseModel):
     content: str
     imageUrl: Optional[str] = ""
     videoUrl: Optional[str] = ""
-    author: Optional[str] = "Astrocare Editorial"
+    author: Optional[str] = "AstroDashaCare Editorial"
     publishedAt: Optional[str] = ""
     likesCount: Optional[int] = 0
     commentsCount: Optional[int] = 0
@@ -501,7 +501,7 @@ def login(credentials: UserLogin):
             "mobile": input_clean,
             "email": input_clean if is_email else "",
             "password": password_clean,
-            "name": "Astrocare Admin" if credentials.role == "Admin" else "Divine Seeker",
+            "name": "AstroDashaCare Admin" if credentials.role == "Admin" else "Divine Seeker",
             "role": credentials.role or "User",
             "gender": "Male",
             "dob": "1995-08-15",

@@ -1,5 +1,5 @@
 class AppConstants {
-  static const String appName = 'Astrocare';
+  static const String appName = 'AstroDashaCare';
   static const String appSubtitle = 'AI-Enabled Digital Astrology Centre';
 
   // Platform Commission

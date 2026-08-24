@@ -19,7 +19,7 @@ class _AiHoroscopeScreenState extends State<AiHoroscopeScreen> {
     ChatMessage(
       id: 'ai_1',
       senderId: 'ai',
-      senderName: 'Astrocare AI Guru',
+      senderName: 'AstroDashaCare AI Guru',
       text: 'Namaste! I am your AI Astrological Assistant. Ask me about your Kundli transits, Gemstone recommendations, Vastu tips, or daily horoscope predictions.',
       timestamp: DateTime.now(),
       isAstrologer: true,
@@ -53,7 +53,7 @@ class _AiHoroscopeScreenState extends State<AiHoroscopeScreen> {
             ChatMessage(
               id: 'ai_${DateTime.now().millisecondsSinceEpoch}',
               senderId: 'ai',
-              senderName: 'Astrocare AI Guru',
+              senderName: 'AstroDashaCare AI Guru',
               text: 'Based on cosmic positioning, your current 10th house alignment favors career growth. Wearing Yellow Sapphire (Pukhraj) and chanting Vishnu Sahasranama on Thursdays will maximize divine clarity.',
               timestamp: DateTime.now(),
               isAstrologer: true,

@@ -40,7 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isAdminCredential(String input) {
     final clean = input.trim().toLowerCase();
-    return clean == 'admin@astrocare.com' ||
+    return clean == 'admin@astrodashacare.com' ||
+        clean == 'admin@astrocare.com' ||
         clean == 'admin@astro.com' ||
         clean == 'admin' ||
         (clean.contains('admin') && clean.contains('@'));
@@ -126,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Welcome to Astrocare Digital Astrology Centre!',
+                          Text('Welcome to AstroDashaCare Digital Astrology Centre!',
                               style: GoogleFonts.cinzel(
                                   color: AppColors.textPrimary,
                                   fontWeight: FontWeight.bold,
@@ -137,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           _termsPoint('3. Your personal birth chart data is kept strictly confidential and never shared.'),
                           _termsPoint('4. AI Horoscope predictions are generated using Vedic algorithms and may vary.'),
                           _termsPoint('5. Users must be 18+ years of age to use paid consultation services.'),
-                          _termsPoint('6. Astrocare reserves the right to modify services and pricing at any time.'),
+                          _termsPoint('6. AstroDashaCare reserves the right to modify services and pricing at any time.'),
                           _termsPoint('7. By using this platform you agree to our Privacy Policy and Data Protection guidelines.'),
                         ],
                       ),
@@ -266,7 +267,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Welcome to Astrocare!',
+                            Text('Welcome to AstroDashaCare!',
                                 style: GoogleFonts.cinzel(
                                     color: AppColors.textPrimary,
                                     fontWeight: FontWeight.bold)),
@@ -575,8 +576,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               setState(() {
                                 _selectedRole = roleName;
                                 if (_selectedRole == 'Astrologer' && _phoneController.text == '+919876543210') {
-                                  _phoneController.text = 'acharya@astrocare.com';
-                                } else if (_selectedRole == 'User' && _phoneController.text == 'acharya@astrocare.com') {
+                                  _phoneController.text = 'acharya@astrodashacare.com';
+                                } else if (_selectedRole == 'User' && (_phoneController.text == 'acharya@astrodashacare.com' || _phoneController.text == 'acharya@astrocare.com')) {
                                   _phoneController.text = '+919876543210';
                                 }
                               });
@@ -702,7 +703,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            _showSnackBar("Demo Credentials:\nPhone: +919876543210 (Password: password123)\nSpecial Admin Email: admin@astrocare.com");
+                            _showSnackBar("Demo Credentials:\nPhone: +919876543210 (Password: password123)\nSpecial Admin Email: admin@astrodashacare.com");
                           },
                           child: Text(
                             "Forgot Password?",

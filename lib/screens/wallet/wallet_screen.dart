@@ -37,7 +37,7 @@ class _WalletScreenState extends State<WalletScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Recharge Astrocare Wallet',
+                  'Recharge AstroDashaCare Wallet',
                   style: GoogleFonts.cinzel(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.lightGold),
                 ),
                 const SizedBox(height: 6),
@@ -116,7 +116,7 @@ class _WalletScreenState extends State<WalletScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.backgroundMid,
-        title: Text('Astrocare Wallet', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold)),
+        title: Text('AstroDashaCare Wallet', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold)),
       ),
       body: CosmicBackground(
         child: SafeArea(

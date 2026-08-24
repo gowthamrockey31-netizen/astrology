@@ -59,7 +59,7 @@ class MockDataService {
     TermItemModel(
       id: 'tc_1',
       title: '1. Service Scope & Consultation Ethics',
-      description: 'Astrocare connects users with professional astrologers for spiritual guidance, horoscopes, and remedies. Consultations do not replace legal, medical, or financial advice.',
+      description: 'AstroDashaCare connects users with professional astrologers for spiritual guidance, horoscopes, and remedies. Consultations do not replace legal, medical, or financial advice.',
       orderIndex: 1,
     ),
     TermItemModel(
@@ -71,7 +71,7 @@ class MockDataService {
     TermItemModel(
       id: 'tc_3',
       title: '3. Wallet Payments & Consultation Rates',
-      description: 'Consultations are billed per minute or per fixed session using your Astrocare Wallet. Sufficient balance is required to initiate Voice, Video, or Chat sessions.',
+      description: 'Consultations are billed per minute or per fixed session using your AstroDashaCare Wallet. Sufficient balance is required to initiate Voice, Video, or Chat sessions.',
       orderIndex: 3,
     ),
     TermItemModel(
@@ -94,7 +94,7 @@ class MockDataService {
     name: 'Acharya Divine',
     photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
     mobile: '+919876543211',
-    email: 'acharya@astrocare.com',
+    email: 'acharya@astrodashacare.com',
     gender: 'Male',
     city: 'Chennai',
     state: 'Tamil Nadu',
@@ -183,7 +183,7 @@ When placed in favorable houses (3rd, 6th, 10th, 11th), Rahu bestows sudden fame
       title: 'Voice Call Consultation with Dr. K. Raman',
       type: 'debit',
       amount: 350.0,
-      paymentMethod: 'Astrocare Wallet',
+      paymentMethod: 'AstroDashaCare Wallet',
       status: 'success',
       timestamp: DateTime.now().subtract(const Duration(days: 1)),
       referenceId: 'CNS_44910283',
@@ -194,7 +194,7 @@ When placed in favorable houses (3rd, 6th, 10th, 11th), Rahu bestows sudden fame
       title: 'Auto Refund - Network Disconnect',
       type: 'credit',
       amount: 100.0,
-      paymentMethod: 'Astrocare Wallet',
+      paymentMethod: 'AstroDashaCare Wallet',
       status: 'success',
       timestamp: DateTime.now().subtract(const Duration(days: 3)),
       referenceId: 'RFD_99182374',

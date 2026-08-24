@@ -67,7 +67,7 @@ class PaymentService {
 
     return PaymentResult(
       isSuccess: true,
-      message: 'Thank you for choosing Astrocare! Payment processed successfully.',
+      message: 'Thank you for choosing AstroDashaCare! Payment processed successfully.',
       transactionId: txnId,
       newBalance: newBal,
     );

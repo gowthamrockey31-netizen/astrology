@@ -53,7 +53,7 @@ class AuthService {
       _currentUser = apiUser;
       return AuthResult(
         isSuccess: true,
-        message: 'Welcome back to Astrocare!',
+        message: 'Welcome back to AstroDashaCare!',
         user: _currentUser,
         role: role,
       );
@@ -113,7 +113,7 @@ class AuthService {
 
     _currentUser = UserModel(
       id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
-      name: role == 'Admin' ? 'Astrocare Admin' : 'Divine Seeker',
+      name: role == 'Admin' ? 'AstroDashaCare Admin' : 'Divine Seeker',
       mobile: cleanInput,
       email: cleanInput.contains('@') ? cleanInput : '',
       gender: 'Male',
@@ -133,7 +133,7 @@ class AuthService {
 
     return AuthResult(
       isSuccess: true,
-      message: 'Welcome back to Astrocare!',
+      message: 'Welcome back to AstroDashaCare!',
       user: _currentUser,
       role: role,
     );
@@ -154,7 +154,7 @@ class AuthService {
 
       _currentUser = UserModel(
         id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
-        name: role == 'Admin' ? 'Astrocare Admin' : name,
+        name: role == 'Admin' ? 'AstroDashaCare Admin' : name,
         mobile: '+919876543210',
         email: email,
         gender: 'Male',

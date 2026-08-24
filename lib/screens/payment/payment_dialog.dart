@@ -26,7 +26,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
   bool _isProcessing = false;
 
   final List<Map<String, dynamic>> _paymentMethods = [
-    {'id': 'Wallet', 'name': 'Astrocare Wallet', 'icon': Icons.account_balance_wallet_rounded, 'subtitle': 'Instant Checkout'},
+    {'id': 'Wallet', 'name': 'AstroDashaCare Wallet', 'icon': Icons.account_balance_wallet_rounded, 'subtitle': 'Instant Checkout'},
     {'id': 'Razorpay', 'name': 'Razorpay Payment Gateway', 'icon': Icons.flash_on_rounded, 'subtitle': 'All Payment Methods'},
     {'id': 'UPI', 'name': 'UPI (GPay / PhonePe / Paytm)', 'icon': Icons.qr_code_2_rounded, 'subtitle': 'Instant UPI Transfer'},
     {'id': 'Card', 'name': 'Credit / Debit Card', 'icon': Icons.credit_card_rounded, 'subtitle': 'Visa, Mastercard, RuPay'},
@@ -68,7 +68,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
               const Icon(Icons.check_circle_rounded, color: AppColors.lightGold, size: 54),
               const SizedBox(height: 10),
               Text(
-                'Thank you for choosing Astrocare.',
+                'Thank you for choosing AstroDashaCare.',
                 style: GoogleFonts.cinzel(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
