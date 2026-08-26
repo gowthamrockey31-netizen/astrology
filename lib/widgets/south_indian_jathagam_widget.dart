@@ -55,9 +55,13 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
     final tobParts = tobStr.split(':');
     int hour = 8;
     int minute = 30;
+    int second = 0;
     if (tobParts.length >= 2) {
       hour = int.tryParse(tobParts[0].replaceAll(RegExp(r'[^0-9]'), '')) ?? 8;
       minute = int.tryParse(tobParts[1].replaceAll(RegExp(r'[^0-9]'), '')) ?? 30;
+      if (tobParts.length >= 3) {
+        second = int.tryParse(tobParts[2].replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+      }
       if (tobStr.toUpperCase().contains('PM') && hour < 12) hour += 12;
       if (tobStr.toUpperCase().contains('AM') && hour == 12) hour = 0;
     }
@@ -68,6 +72,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
       parsedDob.day,
       hour,
       minute,
+      second,
     );
 
     final lat = user?.latitude ?? 13.0827;

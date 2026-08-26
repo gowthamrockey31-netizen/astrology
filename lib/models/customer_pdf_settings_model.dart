@@ -1,4 +1,8 @@
-/// Customer / Astrologer Company Details for PDF Generation
+import 'pdf_fixed_content_config.dart';
+
+/// Customer / Astrologer Company Details for PDF Generation.
+/// Only authorized customer/company information is editable.
+/// Software Footer and Slokam are permanent application-controlled fixed content.
 class CustomerPdfSettings {
   final String astrologerName;
   final String companyName;
@@ -9,8 +13,12 @@ class CustomerPdfSettings {
   final String website;
   final String gstNumber;
   final String invocationText;
-  final String slokaFooter;
-  final String softwareFooter;
+
+  /// Permanent application-defined software footer (Not user-editable)
+  String get softwareFooter => PdfFixedContentConfig.softwareFooter;
+
+  /// Permanent application-defined slokam (Not user-editable)
+  String get slokaFooter => PdfFixedContentConfig.slokaFooter;
 
   const CustomerPdfSettings({
     this.astrologerName = 'R.செந்தில்குமார் (ஜோதிஷ ஆதித்யா)',
@@ -22,8 +30,6 @@ class CustomerPdfSettings {
     this.website = 'www.astrodashacare.in',
     this.gstNumber = '',
     this.invocationText = 'ஸ்ரீ பொம்மமையசுவாமி துணை',
-    this.slokaFooter = 'ஜெணனீஜென்ம ஸௌக்யானாம் ! வர்த்தனி குலஸம்பதாம் ! பதவிபூர்வ புண்யானாம்!! லிக்யதே ஜென்ம பத்திரிகா!!',
-    this.softwareFooter = 'Software by AstroDashaCare Digital Astrology Centre',
   });
 
   Map<String, dynamic> toJson() => {
@@ -36,8 +42,6 @@ class CustomerPdfSettings {
         'website': website,
         'gstNumber': gstNumber,
         'invocationText': invocationText,
-        'slokaFooter': slokaFooter,
-        'softwareFooter': softwareFooter,
       };
 
   factory CustomerPdfSettings.fromJson(Map<String, dynamic> json) => CustomerPdfSettings(
@@ -50,9 +54,6 @@ class CustomerPdfSettings {
         website: json['website'] as String? ?? 'www.astrodashacare.in',
         gstNumber: json['gstNumber'] as String? ?? '',
         invocationText: json['invocationText'] as String? ?? 'ஸ்ரீ பொம்மமையசுவாமி துணை',
-        slokaFooter: json['slokaFooter'] as String? ??
-            'ஜெணனீஜென்ம ஸௌக்யானாம் ! வர்த்தனி குலஸம்பதாம் ! பதவிபூர்வ புண்யானாம்!! லிக்யதே ஜென்ம பத்திரிகா!!',
-        softwareFooter: json['softwareFooter'] as String? ?? 'Software by AstroDashaCare Digital Astrology Centre',
       );
 
   CustomerPdfSettings copyWith({
@@ -65,8 +66,6 @@ class CustomerPdfSettings {
     String? website,
     String? gstNumber,
     String? invocationText,
-    String? slokaFooter,
-    String? softwareFooter,
   }) {
     return CustomerPdfSettings(
       astrologerName: astrologerName ?? this.astrologerName,
@@ -78,8 +77,6 @@ class CustomerPdfSettings {
       website: website ?? this.website,
       gstNumber: gstNumber ?? this.gstNumber,
       invocationText: invocationText ?? this.invocationText,
-      slokaFooter: slokaFooter ?? this.slokaFooter,
-      softwareFooter: softwareFooter ?? this.softwareFooter,
     );
   }
 }

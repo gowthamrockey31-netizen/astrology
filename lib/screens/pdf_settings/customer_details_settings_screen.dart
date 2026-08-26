@@ -3,10 +3,13 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/customer_pdf_settings_model.dart';
+import '../../models/pdf_fixed_content_config.dart';
 import '../../services/pdf_settings_service.dart';
 import '../../widgets/cosmic_background.dart';
 
 /// PDF Settings Screen: Customer & Company Details Configuration
+/// Only customer/company editable fields are shown.
+/// Software Footer and Slokam are permanently locked.
 class CustomerDetailsSettingsScreen extends StatefulWidget {
   const CustomerDetailsSettingsScreen({super.key});
 
@@ -24,8 +27,6 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
   late TextEditingController _websiteCtrl;
   late TextEditingController _gstCtrl;
   late TextEditingController _invocationCtrl;
-  late TextEditingController _slokaCtrl;
-  late TextEditingController _footerCtrl;
 
   @override
   void initState() {
@@ -40,8 +41,6 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
     _websiteCtrl = TextEditingController(text: s.website);
     _gstCtrl = TextEditingController(text: s.gstNumber);
     _invocationCtrl = TextEditingController(text: s.invocationText);
-    _slokaCtrl = TextEditingController(text: s.slokaFooter);
-    _footerCtrl = TextEditingController(text: s.softwareFooter);
   }
 
   @override
@@ -55,8 +54,6 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
     _websiteCtrl.dispose();
     _gstCtrl.dispose();
     _invocationCtrl.dispose();
-    _slokaCtrl.dispose();
-    _footerCtrl.dispose();
     super.dispose();
   }
 
@@ -71,8 +68,6 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
       website: _websiteCtrl.text.trim(),
       gstNumber: _gstCtrl.text.trim(),
       invocationText: _invocationCtrl.text.trim(),
-      slokaFooter: _slokaCtrl.text.trim(),
-      softwareFooter: _footerCtrl.text.trim(),
     );
 
     await PdfSettingsService.saveSettings(updated);
@@ -109,8 +104,6 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
       _websiteCtrl.text = s.website;
       _gstCtrl.text = s.gstNumber;
       _invocationCtrl.text = s.invocationText;
-      _slokaCtrl.text = s.slokaFooter;
-      _footerCtrl.text = s.softwareFooter;
     });
 
     if (mounted) {
@@ -225,7 +218,7 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
                       const SizedBox(height: 20),
 
                       Text(
-                        'PDF தலைப்பு & அடிக்குறிப்பு (Header & Footer Slokas)',
+                        'PDF முகப்பு வாசகம் (Header Invocation)',
                         style: GoogleFonts.cinzel(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
@@ -236,12 +229,46 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
                       const SizedBox(height: 6),
 
                       _buildField(_invocationCtrl, 'மேல் முகப்பு வாசகம் (Invocation Line)', Icons.auto_awesome_rounded),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 20),
 
-                      _buildField(_slokaCtrl, 'ஸ்லோகம் / வாழ்த்து வாசகம் (Footer Sloka)', Icons.menu_book_rounded, maxLines: 2),
-                      const SizedBox(height: 12),
-
-                      _buildField(_footerCtrl, 'மென்பொருள் அடிக்குறிப்பு (Software Credit)', Icons.code_rounded),
+                      // Fixed Permanent Content Section (Read-Only)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundDeep.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.3)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.lock_outline_rounded, color: AppColors.lightGold, size: 16),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'நிலையான வாசகங்கள் (Fixed Application Content)',
+                                  style: GoogleFonts.outfit(
+                                    color: AppColors.lightGold,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'ஸ்லோகம்: ${PdfFixedContentConfig.slokaFooter}',
+                              style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11, fontStyle: FontStyle.italic),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'அடிக்குறிப்பு: ${PdfFixedContentConfig.softwareFooter}',
+                              style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      ),
                       const SizedBox(height: 24),
 
                       // Save Button

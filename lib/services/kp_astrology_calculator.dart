@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../models/kp_astrology_model.dart';
 import 'astrology_calculator.dart';
+import 'kp_cusp_sub_lord_relation_engine.dart';
 import 'planet_status_calculator.dart';
 
 /// Calculation Service for Krishnamurti Paddhati (KP) Astrology & KP Horary
@@ -219,6 +220,12 @@ class KpAstrologyCalculator {
     final s = ((((kpAyanamsa - d) * 60) - m) * 60).round();
     final ayanamsaStr = "${d}°${m}'${s}\"";
 
+    // KP Cusp Sub Lord House Relations (12 Cusps)
+    final cuspHouseRelations = KpCuspSubLordRelationEngine.calculateRelationTable(
+      cusps: cusps,
+      planets: kpPlanets,
+    );
+
     return KpAstrologyResult(
       kpAyanamsa: kpAyanamsa,
       kpAyanamsaFormatted: ayanamsaStr,
@@ -226,6 +233,7 @@ class KpAstrologyCalculator {
       planets: kpPlanets,
       significators: significators,
       rulingPlanets: rulingPlanets,
+      cuspHouseRelations: cuspHouseRelations,
     );
   }
 
