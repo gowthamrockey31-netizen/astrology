@@ -32,6 +32,7 @@ import 'screens/jamakol_arudam/jamakol_arudam_screen.dart';
 import 'screens/kp_astrology/kp_astrology_screen.dart';
 import 'screens/kp_horary/kp_horary_screen.dart';
 import 'screens/daily_planet_positions/daily_planet_positions_screen.dart';
+import 'screens/daily_calendar/daily_calendar_screen.dart';
 import 'screens/bhrigu_nandi_nadi/bhrigu_nandi_nadi_screen.dart';
 import 'screens/numerology/numerology_screen.dart';
 import 'screens/pdf_settings/customer_details_settings_screen.dart';
@@ -136,7 +137,7 @@ class AstroDashaCareApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'AstroDashaCare - AI-Enabled Digital Astrology Centre',
+      title: 'AstroDashaCare - Digital Consulting Center',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       initialRoute: '/',
@@ -212,6 +213,7 @@ class AstroDashaCareApp extends StatelessWidget {
         '/kp_astrology': (context) => const KpAstrologyScreen(),
         '/kp_horary': (context) => const KpHoraryScreen(),
         '/daily_planet_positions': (context) => const DailyPlanetPositionsScreen(),
+        '/daily_calendar': (context) => const DailyCalendarScreen(),
         '/bhrigu_nandi_nadi': (context) => const BhriguNandiNadiScreen(),
         '/numerology': (context) => const NumerologyScreen(),
         '/pdf_settings': (context) => const CustomerDetailsSettingsScreen(),

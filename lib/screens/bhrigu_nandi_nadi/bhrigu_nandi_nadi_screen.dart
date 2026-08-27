@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
-import '../../models/bhrigu_nandi_nadi_model.dart';
+import '../../models/bnn_models.dart';
+import '../../models/horoscope_calculation_result.dart';
 import '../../models/user_model.dart';
 import '../../services/astrology_calculator.dart';
 import '../../services/auth_service.dart';
-import '../../services/bhrigu_nandi_nadi_calculator.dart';
+import '../../services/bnn_engine.dart';
+import '../../widgets/astro_card.dart';
 import '../../widgets/cosmic_background.dart';
 
-/// New Major Module 5: Bhrigu Nandi Nadi (பிருகு நந்தி நாடி முறை) Screen
+/// Module Screen: பிருகு நந்தி நாடி முறை (Bhrigu Nandi Nadi / BNN Method)
 class BhriguNandiNadiScreen extends StatefulWidget {
   const BhriguNandiNadiScreen({super.key});
 
@@ -19,15 +21,19 @@ class BhriguNandiNadiScreen extends StatefulWidget {
 
 class _BhriguNandiNadiScreenState extends State<BhriguNandiNadiScreen> {
   late UserModel _user;
-  late BhriguNandiNadiResult _nadiResult;
+  late HoroscopeCalculationResult _astroData;
+  late List<BnnPlanetPosition> _allBnnPlanets;
+  late Map<String, BnnPlanetAnalysis> _allAnalysis;
+
+  String _selectedPlanetKey = 'Jupiter'; // Default to Jeeva Karaka Jupiter (குரு)
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadAndCalculateData();
   }
 
-  void _loadData() {
+  void _loadAndCalculateData() {
     _user = AuthService.currentUser ??
         UserModel(
           id: 'default_usr',
@@ -40,7 +46,7 @@ class _BhriguNandiNadiScreenState extends State<BhriguNandiNadiScreen> {
           city: 'Chennai',
           state: 'Tamil Nadu',
           country: 'India',
-          zodiac: 'Gemini',
+          zodiac: 'Gemini (Mithuna)',
           nakshatra: 'Rohini',
           lagna: 'Mesha',
           walletBalance: 500.0,
@@ -61,20 +67,31 @@ class _BhriguNandiNadiScreenState extends State<BhriguNandiNadiScreen> {
       if (_user.timeOfBirth.toUpperCase().contains('AM') && hour == 12) hour = 0;
     }
 
-    final dt = DateTime(parsedDob.year, parsedDob.month, parsedDob.day, hour, minute);
+    final birthDt = DateTime(parsedDob.year, parsedDob.month, parsedDob.day, hour, minute);
 
-    final astroData = AstrologyCalculator.calculateHoroscope(
-      dateOfBirth: dt,
+    // Consume accurate authoritative Birth Chart planetary positions
+    _astroData = AstrologyCalculator.calculateHoroscope(
+      dateOfBirth: birthDt,
       latitude: _user.latitude,
       longitude: _user.longitude,
       utcOffsetHours: _user.timezone,
     );
 
-    _nadiResult = BhriguNandiNadiCalculator.calculate(astroData.planets);
+    // Normalize planetary data into BNN models
+    _allBnnPlanets = BnnEngine.normalizePlanets(_astroData.planets);
+
+    // Perform BNN analysis across all planets
+    _allAnalysis = BnnEngine.analyzeAllPlanets(_allBnnPlanets);
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentAnalysis = _allAnalysis[_selectedPlanetKey];
+    final selectedPlanet = _allBnnPlanets.firstWhere(
+      (p) => p.planetKey == _selectedPlanetKey,
+      orElse: () => _allBnnPlanets.first,
+    );
+
     return Scaffold(
       body: CosmicBackground(
         child: SafeArea(
@@ -84,7 +101,7 @@ class _BhriguNandiNadiScreenState extends State<BhriguNandiNadiScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
+                // Navigation Header
                 Row(
                   children: [
                     IconButton(
@@ -98,102 +115,180 @@ class _BhriguNandiNadiScreenState extends State<BhriguNandiNadiScreen> {
                           Text(
                             'பிருகு நந்தி நாடி முறை',
                             style: GoogleFonts.cinzel(
-                              fontSize: 20,
+                              fontSize: 19,
                               fontWeight: FontWeight.bold,
                               color: AppColors.lightGold,
-                              letterSpacing: 1.2,
+                              letterSpacing: 1.1,
                             ),
                           ),
                           Text(
-                            'Bhrigu Nandi Nadi Planetary Combinations',
+                            '${_user.name} • ${_user.dob} • BNN Method',
                             style: GoogleFonts.outfit(fontSize: 11, color: AppColors.textSecondary),
                           ),
                         ],
                       ),
                     ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryGold.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.borderGold),
+                      ),
+                      child: Text(
+                        'BNN Engine',
+                        style: GoogleFonts.outfit(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.lightGold,
+                        ),
+                      ),
+                    ),
                   ],
-                ).animate().fade(duration: 400.ms),
+                ).animate().fade(duration: 350.ms),
+
+                const SizedBox(height: 12),
+
+                // Main Planet Selector Header
+                Text(
+                  'முக்கிய கிரகம் (Select Primary Planet)',
+                  style: GoogleFonts.cinzel(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.lightGold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Horizontal Planet Selector Chips
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    children: _allBnnPlanets.map((p) {
+                      final isSel = p.planetKey == _selectedPlanetKey;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ChoiceChip(
+                          label: Text(
+                            '${p.tamilName} (${p.englishName})',
+                            style: GoogleFonts.outfit(
+                              fontSize: 11.5,
+                              fontWeight: isSel ? FontWeight.bold : FontWeight.w500,
+                              color: isSel ? Colors.black : AppColors.lightGold,
+                            ),
+                          ),
+                          selected: isSel,
+                          selectedColor: AppColors.primaryGold,
+                          backgroundColor: AppColors.backgroundMid,
+                          side: BorderSide(
+                            color: isSel ? AppColors.primaryGold : AppColors.borderGold.withValues(alpha: 0.4),
+                          ),
+                          onSelected: (val) {
+                            if (val) {
+                              setState(() => _selectedPlanetKey = p.planetKey);
+                            }
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
 
                 const SizedBox(height: 14),
 
-                // 4 Directional Trines (Fire, Earth, Air, Water)
-                Text(
-                  'திசை வாரியான கிரக அமைப்புகள் (Directional Element Trines)',
-                  style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 13),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(child: _buildDirectionCard(NadiDirection.east, Colors.redAccent)),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildDirectionCard(NadiDirection.south, Colors.brown.shade300)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(child: _buildDirectionCard(NadiDirection.west, Colors.cyanAccent)),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildDirectionCard(NadiDirection.north, Colors.blueAccent)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Primary Nadi Combinations
-                Text(
-                  'முக்கிய நாடி கிரக சேர்க்கைகள் & பலன்கள்',
-                  style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 13),
-                ),
-                const SizedBox(height: 8),
-                ..._nadiResult.combinations.map((comb) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppColors.cardSurface,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.5)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.hub_rounded, color: AppColors.primaryGold, size: 18),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                comb.primaryPlanetTa,
-                                style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 14),
-                              ),
+                // Selected Planet Focus Card
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardSurface,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.primaryGold, width: 1.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryGold.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.auto_awesome_rounded, color: AppColors.primaryGold, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            selectedPlanet.tamilName,
+                            style: GoogleFonts.cinzel(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.lightGold,
                             ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '(${selectedPlanet.englishName})',
+                            style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
+                          ),
+                          const Spacer(),
+                          if (selectedPlanet.isRetrograde)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppColors.primaryGold.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(8),
+                                color: Colors.cyan.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: Colors.cyanAccent),
                               ),
                               child: Text(
-                                comb.relationTypeTa,
-                                style: GoogleFonts.outfit(fontSize: 10, color: AppColors.lightGold, fontWeight: FontWeight.bold),
+                                'வக்ரம் (Retrograde)',
+                                style: GoogleFonts.outfit(color: Colors.cyanAccent, fontSize: 9.5, fontWeight: FontWeight.bold),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(comb.primaryRoleTa, style: GoogleFonts.outfit(fontSize: 11, color: AppColors.textSecondary)),
-                        const Divider(color: AppColors.borderGold, height: 16),
-                        Text(
-                          'சேர்க்கை கிரகங்கள்: ${comb.combinedPlanetsTa.isNotEmpty ? comb.combinedPlanetsTa.join(", ") : "நேரடி சேர்க்கை இல்லை"}',
-                          style: GoogleFonts.outfit(color: Colors.white70, fontSize: 11.5),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(comb.predictionTa, style: GoogleFonts.poppins(color: Colors.white, fontSize: 12)),
-                      ],
-                    ),
-                  );
-                }),
-                const SizedBox(height: 20),
+                        ],
+                      ),
+                      const Divider(color: AppColors.borderGold, height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildInfoMetric(
+                              label: 'அமர்ந்த ராசி',
+                              val: '${selectedPlanet.signNameTa} (${selectedPlanet.signNumber}-ஆம் ராசி)',
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildInfoMetric(
+                              label: 'ராசி பாகை',
+                              val: selectedPlanet.formattedDegree,
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildInfoMetric(
+                              label: 'முழு பாகை (0°-360°)',
+                              val: '${selectedPlanet.absoluteLongitude.toStringAsFixed(2)}°',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ).animate().fade(duration: 300.ms),
+
+                const SizedBox(height: 18),
+
+                // 4 BNN Relation Groups
+                if (currentAnalysis != null) ...[
+                  _buildRelationCard(currentAnalysis.trine159, Icons.change_history_rounded, Colors.amberAccent),
+                  const SizedBox(height: 14),
+                  _buildRelationCard(currentAnalysis.upachaya311, Icons.trending_up_rounded, Colors.greenAccent),
+                  const SizedBox(height: 14),
+                  _buildRelationCard(currentAnalysis.seventh7, Icons.compare_arrows_rounded, Colors.purpleAccent),
+                  const SizedBox(height: 14),
+                  _buildRelationCard(currentAnalysis.secondTwelfth212, Icons.account_balance_wallet_rounded, Colors.orangeAccent),
+                ],
+
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -202,26 +297,213 @@ class _BhriguNandiNadiScreenState extends State<BhriguNandiNadiScreen> {
     );
   }
 
-  Widget _buildDirectionCard(NadiDirection dir, Color color) {
-    final list = _nadiResult.directionalPlanetsTa[dir] ?? [];
+  Widget _buildInfoMetric({required String label, required String val}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: GoogleFonts.outfit(fontSize: 10, color: AppColors.textSecondary)),
+        const SizedBox(height: 2),
+        Text(val, style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+      ],
+    );
+  }
+
+  Widget _buildRelationCard(BnnRelationResult relation, IconData icon, Color accentColor) {
     return Container(
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.backgroundMid,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        color: AppColors.cardSurface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: accentColor.withValues(alpha: 0.5), width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(dir.labelTa, style: GoogleFonts.cinzel(color: color, fontWeight: FontWeight.bold, fontSize: 11)),
-          Text(dir.signsTa, style: GoogleFonts.outfit(fontSize: 9.5, color: AppColors.textSecondary)),
-          const SizedBox(height: 6),
-          Text(
-            list.isNotEmpty ? list.join('\n') : 'கிரகங்கள் இல்லை',
-            style: GoogleFonts.outfit(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(14.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Section Title & Related Signs
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, color: accentColor, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        relation.relationTitleTa,
+                        style: GoogleFonts.cinzel(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.lightGold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'தொடர்பு ராசிகள்: ${relation.relatedSignNamesTa.join(' • ')} (ராசி ${relation.relatedSigns.join(', ')})',
+                        style: GoogleFonts.outfit(fontSize: 10.5, color: accentColor),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: relation.hasRelatedPlanets
+                        ? Colors.green.withValues(alpha: 0.2)
+                        : Colors.white10,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: relation.hasRelatedPlanets ? Colors.greenAccent : Colors.white24,
+                    ),
+                  ),
+                  child: Text(
+                    relation.hasRelatedPlanets
+                        ? '${relation.relatedPlanets.length} கிரகங்கள்'
+                        : 'கிரகங்கள் இல்லை',
+                    style: GoogleFonts.outfit(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: relation.hasRelatedPlanets ? Colors.greenAccent : Colors.white60,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const Divider(color: AppColors.borderGold, height: 18),
+
+            // Related Planets List
+            if (!relation.hasRelatedPlanets)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline_rounded, color: AppColors.textSecondary, size: 16),
+                    const SizedBox(width: 6),
+                    Text(
+                      'இந்த தொடர்பில் கிரகங்கள் இல்லை.',
+                      style: GoogleFonts.outfit(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'தொடர்புடைய கிரகங்கள் (Degree Ascending):',
+                    style: GoogleFonts.outfit(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.lightGold,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  ...relation.relatedPlanets.asMap().entries.map((entry) {
+                    final idx = entry.key + 1;
+                    final planet = entry.value;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundMid,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 20,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.primaryGold.withValues(alpha: 0.2),
+                              border: Border.all(color: AppColors.primaryGold, width: 1),
+                            ),
+                            child: Text(
+                              '$idx',
+                              style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            planet.tamilName,
+                            style: GoogleFonts.outfit(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '(${planet.englishName})',
+                            style: GoogleFonts.outfit(fontSize: 10.5, color: AppColors.textSecondary),
+                          ),
+                          const Spacer(),
+                          Text(
+                            '${planet.signNameTa} – ${planet.formattedDegree}',
+                            style: GoogleFonts.outfit(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: accentColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+
+            const SizedBox(height: 10),
+
+            // Palan / Prediction Interpretation Box
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundDeep,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.35)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.psychology_rounded, color: AppColors.primaryGold, size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        'நாடி பலன் (BNN Interpretation):',
+                        style: GoogleFonts.cinzel(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryGold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    relation.interpretationTa,
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

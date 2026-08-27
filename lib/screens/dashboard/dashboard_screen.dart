@@ -259,17 +259,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         {'title': 'Astrologer Workspace', 'sub': 'Calls & Earnings', 'icon': Icons.psychology_rounded, 'route': '/astrologer_dashboard', 'color': AppColors.purpleAccent},
       if (role == 'Admin')
         {'title': 'Admin Control Panel', 'sub': 'CMS & Approvals', 'icon': Icons.admin_panel_settings_rounded, 'route': '/admin_dashboard', 'color': AppColors.blueAccent},
-      {'title': 'ஜாதக குறிப்புகள்', 'sub': 'D1-D60 & Yogi', 'icon': Icons.description_rounded, 'route': '/jaathaga_kurippugal', 'color': Colors.indigo.shade800},
+      {'title': 'ஜாதக / பஞ்சாங்க குறிப்புகள்', 'sub': 'பஞ்சாங்கம், தினசுத்தி, அஷ்டவர்க்கம்', 'icon': Icons.description_rounded, 'route': '/jaathaga_kurippugal', 'color': Colors.indigo.shade800},
       {'title': 'ஜாமகோள் ஆருடம்', 'sub': 'Jamakol Arudam', 'icon': Icons.compass_calibration_rounded, 'route': '/jamakol_arudam', 'color': Colors.deepPurple.shade800},
       {'title': 'KP Astrology', 'sub': 'Sub Lord Analysis', 'icon': Icons.hub_rounded, 'route': '/kp_astrology', 'color': Colors.amber.shade900},
       {'title': 'KP Horary / பிரசன்னம்', 'sub': '1-249 Horary Kundali', 'icon': Icons.help_center_rounded, 'route': '/kp_horary', 'color': Colors.blue.shade900},
       {'title': 'பிருகு நந்தி நாடி', 'sub': 'Bhrigu Nandi Nadi', 'icon': Icons.auto_awesome_motion_rounded, 'route': '/bhrigu_nandi_nadi', 'color': Colors.teal.shade800},
       {'title': 'எண்கணிதம்', 'sub': 'Numerology Calculator', 'icon': Icons.calculate_rounded, 'route': '/numerology', 'color': Colors.pink.shade800},
       {'title': 'தினசரி கிரக நிலைகள்', 'sub': 'Daily Ephemeris', 'icon': Icons.wb_sunny_rounded, 'route': '/daily_planet_positions', 'color': Colors.orange.shade800},
+      {'title': 'தினசரி நாள்காட்டி', 'sub': 'Daily Calendar & Panchangam', 'icon': Icons.calendar_month_rounded, 'route': '/daily_calendar', 'color': Colors.deepOrange.shade800},
       {'title': 'PDF அமைப்புகள்', 'sub': 'Customer Details', 'icon': Icons.picture_as_pdf_rounded, 'route': '/pdf_settings', 'color': Colors.cyan.shade800},
       {'title': 'திருமணப் பொருத்தம்', 'sub': 'Marriage Matching', 'icon': Icons.favorite_rounded, 'route': '/marriage_porutham', 'color': Colors.pink.shade800},
       {'title': 'தாரா பலன்', 'sub': 'Tara Balam Analysis', 'icon': Icons.stars_rounded, 'route': '/tara_balam', 'color': Colors.amber.shade800},
-      {'title': 'அஷ்ட வர்க்கம்', 'sub': 'Ashtakavarga SAV', 'icon': Icons.grid_on_rounded, 'route': '/ashtakavarga', 'color': Colors.teal.shade800},
       {'title': 'பஞ்சபட்சி', 'sub': '5-Bird Science', 'icon': Icons.flutter_dash_rounded, 'route': '/panchapakshi', 'color': Colors.orange.shade800},
       {'title': 'நேரலை ஓரை', 'sub': 'Live Hora Schedule', 'icon': Icons.access_time_filled_rounded, 'route': '/hora', 'color': Colors.blue.shade900},
       {'title': 'உதயாதினாழிகை', 'sub': 'Udayadhi Nazhigai', 'icon': Icons.timer_rounded, 'route': '/nazhigai', 'color': Colors.purple.shade800},
@@ -781,7 +781,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         color: AppColors.cardSurface,
         border: Border.all(color: AppColors.borderGold.withOpacity(0.4)),
       ),
-      child: Column(
+      child: Material(
+        color: Colors.transparent,
+        child: Column(
         children: supportItems.asMap().entries.map((entry) {
           final i = entry.key;
           final item = entry.value;
@@ -817,8 +819,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         }).toList(),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ---------------------------------------------------------------------------
   // Banner Card Component

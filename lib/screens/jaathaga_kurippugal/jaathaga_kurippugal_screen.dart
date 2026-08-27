@@ -15,6 +15,7 @@ import '../../services/astrology_calculator.dart';
 import '../../services/auth_service.dart';
 import '../../services/dina_suddhi_calculator.dart';
 import '../../services/jaathaga_kurippugal_calculator.dart';
+import '../../services/jathaga_eras_calculator.dart';
 import '../../services/nazhigai_calculator.dart';
 import '../../services/pdf_generator_service.dart';
 import '../../services/planet_status_calculator.dart';
@@ -46,22 +47,49 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   late AshtakavargaResult _ashtakavargaResult;
   late AadhiAnthaNazhigaiResult _aadhiAnthaResult;
   late DinaSuddhiResult _dinaSuddhiResult;
+  late Map<String, dynamic> _erasResult;
   
   VargaType _selectedVarga = VargaType.d9;
   late VargaChartResult _currentVargaResult;
 
   int _selectedTabIndex = 0;
+  String _selectedAshtakavargaPlanet = 'SAV';
 
   final List<String> _tabs = [
-    'பொது & பஞ்சாங்கம்',
+    'பொது பஞ்சாங்க குறிப்புகள்',
+    'தினசுத்தி',
+    'அஷ்டவர்க்க சக்கரம்',
     'வர்க்க சக்கரம் (D1-D60)',
-    'யோகி / அவயோகி',
     'கிரக நிலைகள் & நட்பு',
     'நாழிகை கணக்குகள்',
-    'தினசுத்தி',
     'செவ்வாய் / ராகு தோஷம்',
-    'அஷ்டவர்க்கம்',
   ];
+
+  static const Map<int, int> _gridIndexToRasiIndex = {
+    0: 11, // Meenam
+    1: 0,  // Mesham
+    2: 1,  // Rishabam
+    3: 2,  // Mithunam
+    7: 3,  // Kadagam
+    11: 4, // Simmam
+    15: 5, // Kanni
+    14: 6, // Thulam
+    13: 7, // Viruchigam
+    12: 8, // Dhanusu
+    8: 9,  // Makaram
+    4: 10, // Kumbam
+  };
+
+  static const Map<String, String> _ashtavargaPlanetDisplayTa = {
+    'SAV': 'சர்வாஷ்ட வர்க்கம் (SAV)',
+    'Sun': 'சூரியன் (Sun BAV)',
+    'Moon': 'சந்திரன் (Moon BAV)',
+    'Mars': 'செவ்வாய் (Mars BAV)',
+    'Mercury': 'புதன் (Mercury BAV)',
+    'Jupiter': 'குரு (Jupiter BAV)',
+    'Venus': 'சுக்கிரன் (Venus BAV)',
+    'Saturn': 'சனி (Saturn BAV)',
+  };
 
   @override
   void initState() {
@@ -133,6 +161,13 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
       longitude: _user.longitude,
       utcOffsetHours: _user.timezone,
     );
+    _erasResult = JathagaErasCalculator.calculateAllEras(
+      day: birthDt.day,
+      month: birthDt.month,
+      year: birthDt.year,
+      hour: birthDt.hour,
+      minute: birthDt.minute,
+    );
 
     _currentVargaResult = VargaCalculator.calculateVarga(type: _selectedVarga, planets: _astroData.planets);
   }
@@ -170,7 +205,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'ஜாதக குறிப்புகள்',
+                            'பஞ்சாங்க குறிப்புகள்',
                             style: GoogleFonts.cinzel(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -256,26 +291,24 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
       case 0:
         return _buildGeneralAndPanchangTab();
       case 1:
-        return _buildVargaChartsTab();
-      case 2:
-        return _buildYogiTab();
-      case 3:
-        return _buildPlanetStatusTab();
-      case 4:
-        return _buildNazhigaiTab();
-      case 5:
         return _buildDinaSuddhiTab();
+      case 2:
+        return _buildAshtakavargaTab();
+      case 3:
+        return _buildVargaChartsTab();
+      case 4:
+        return _buildPlanetStatusTab();
+      case 5:
+        return _buildNazhigaiTab();
       case 6:
         return _buildDoshamTab();
-      case 7:
-        return _buildAshtakavargaTab();
       default:
         return _buildGeneralAndPanchangTab();
     }
   }
 
   // ---------------------------------------------------------------------------
-  // Tab 0: General & Panchangam
+  // Tab 0: General Panchanga Kurippugal (பொது பஞ்சாங்க குறிப்புகள்)
   // ---------------------------------------------------------------------------
   Widget _buildGeneralAndPanchangTab() {
     return Column(
@@ -297,7 +330,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
         ),
         const SizedBox(height: 14),
         _buildSectionCard(
-          title: 'பஞ்சாங்க விவரங்கள் (Birth Panchangam)',
+          title: 'பொது பஞ்சாங்க குறிப்புகள் (General Panchangam)',
           icon: Icons.calendar_today_rounded,
           rows: [
             _InfoRow('லக்னம்', '${_notes.lagna} (${_notes.lagnaDegree})'),
@@ -309,6 +342,8 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
             _InfoRow('கரணம்', _notes.karanam),
             _InfoRow('அமிர்தாதி யோகம்', _notes.amirthathiYoga),
             _InfoRow('முக்குண வேளை', _notes.mukkunaVelai),
+            _InfoRow('யோகி', '${_yogiResult.yogiPlanetTa} (${_yogiResult.yogiNakshatraTa} - ${_yogiResult.yogiPada} பாதம்)'),
+            _InfoRow('அவ யோகி', '${_yogiResult.avaYogiPlanetTa} (${_yogiResult.avaYogiNakshatraTa})'),
           ],
         ),
         const SizedBox(height: 14),
@@ -333,7 +368,387 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   }
 
   // ---------------------------------------------------------------------------
-  // Tab 1: Varga Divisional Charts (D1 to D60)
+  // Tab 1: Dina Suddhi (தினசுத்தி & வருடக் குறிப்புகள்)
+  // ---------------------------------------------------------------------------
+  Widget _buildDinaSuddhiTab() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundMid,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.primaryGold, width: 1),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.verified_rounded, color: AppColors.primaryGold, size: 22),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text('தினசுத்தி மதிப்பீடு:', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 14)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(_dinaSuddhiResult.overallPurityScore, style: GoogleFonts.outfit(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 15)),
+              const SizedBox(height: 4),
+              Text(_dinaSuddhiResult.finalVerdictTa, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        _buildSectionCard(
+          title: 'முக்கிய நேர காலங்கள் (Kalam Windows)',
+          icon: Icons.timelapse_rounded,
+          rows: [
+            _InfoRow('ராகு காலம்', _dinaSuddhiResult.rahuKalam),
+            _InfoRow('எமகண்டம்', _dinaSuddhiResult.yamaGandam),
+            _InfoRow('குளிகை காலம்', _dinaSuddhiResult.gulikaiKalam),
+            _InfoRow('அபிஜித் முகூர்த்தம்', _dinaSuddhiResult.abhijitMuhurtham),
+          ],
+        ),
+        const SizedBox(height: 14),
+
+        _buildSectionCard(
+          title: 'வருடக் குறிப்புகள்',
+          icon: Icons.history_edu_rounded,
+          rows: [
+            _InfoRow('ஆங்கில வருடம்', '${_erasResult['gregorian_year']}'),
+            _InfoRow('திருவள்ளுவர் ஆண்டு', '${_erasResult['thiruvalluvar_year']}'),
+            _InfoRow('சாலிவாகன வருடம் / சகாப்தம்', '${_erasResult['salivahana_year']}'),
+            _InfoRow('கலியுகாதி வருடம்', '${_erasResult['kaliyugadhi_year']}'),
+            _InfoRow('கொல்லம் வருடம்', '${_erasResult['kollam_year']}'),
+            _InfoRow('ஹிஜ்ரி வருடம்', '${_erasResult['hijri_year']}'),
+          ],
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Tab 2: Ashtakavarga Chakkaram (அஷ்டவர்க்க சக்கரம்)
+  // ---------------------------------------------------------------------------
+  Widget _buildAshtakavargaTab() {
+    List<int> currentScores;
+    if (_selectedAshtakavargaPlanet == 'SAV') {
+      currentScores = _ashtakavargaResult.sarvashtakavarga;
+    } else {
+      currentScores = _ashtakavargaResult.bhinnashtakavarga[_selectedAshtakavargaPlanet] ?? List.filled(12, 0);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // SAV summary banner
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundMid,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.primaryGold),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'சர்வ அஷ்டவர்க்க மொத்த புள்ளிகள் (Total SAV):',
+                  style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '${_ashtakavargaResult.totalSavPoints} / 337',
+                style: GoogleFonts.outfit(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Planet Filter Tabs Horizontal Scroll
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: _ashtavargaPlanetDisplayTa.keys.map((key) {
+              final isSel = _selectedAshtakavargaPlanet == key;
+              return GestureDetector(
+                onTap: () => setState(() => _selectedAshtakavargaPlanet = key),
+                child: Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSel ? AppColors.primaryGold.withValues(alpha: 0.25) : AppColors.cardSurface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSel ? AppColors.primaryGold : Colors.white12,
+                      width: isSel ? 1.5 : 0.8,
+                    ),
+                  ),
+                  child: Text(
+                    key == 'SAV' ? 'SAV (மொத்தம்)' : key,
+                    style: GoogleFonts.outfit(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: isSel ? AppColors.lightGold : Colors.white70,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Ashtakavarga South Indian Chart Card
+        AstroCard(
+          child: Padding(
+            padding: const EdgeInsets.all(14.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.grid_on_rounded, color: AppColors.primaryGold, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _ashtavargaPlanetDisplayTa[_selectedAshtakavargaPlanet] ?? '',
+                        style: GoogleFonts.cinzel(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.lightGold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.backgroundDeep,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.primaryGold, width: 1.5),
+                    ),
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Container(
+                            width: 100,
+                            height: 50,
+                            alignment: Alignment.center,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _selectedAshtakavargaPlanet == 'SAV' ? 'சர்வாஷ்டம்' : 'அஷ்டவர்க்கம்',
+                                  style: GoogleFonts.cinzel(
+                                    color: AppColors.primaryGold.withValues(alpha: 0.9),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  _selectedAshtakavargaPlanet == 'SAV' ? 'Total: 337' : _selectedAshtakavargaPlanet,
+                                  style: GoogleFonts.outfit(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                            ),
+                            itemCount: 16,
+                            itemBuilder: (context, index) {
+                              final isCenter = (index == 5 || index == 6 || index == 9 || index == 10);
+                              if (isCenter) return const SizedBox.shrink();
+
+                              final rasiIdx = _gridIndexToRasiIndex[index] ?? 0;
+                              final rasiName = AstrologyCalculator.rasiNamesTa[rasiIdx];
+                              final bindu = currentScores[rasiIdx];
+                              final isLagna = _astroData.lagna.rasiIndex == rasiIdx;
+
+                              final bool isGood = _selectedAshtakavargaPlanet == 'SAV' ? bindu >= 28 : bindu >= 4;
+
+                              return Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: isLagna
+                                      ? AppColors.primaryGold.withValues(alpha: 0.18)
+                                      : (isGood
+                                          ? Colors.green.shade900.withValues(alpha: 0.25)
+                                          : Colors.red.shade900.withValues(alpha: 0.15)),
+                                  border: Border.all(
+                                    color: isLagna
+                                        ? AppColors.primaryGold
+                                        : (isGood ? Colors.greenAccent.withValues(alpha: 0.5) : Colors.brown.shade400),
+                                    width: isLagna ? 1.5 : 0.6,
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          rasiName,
+                                          style: GoogleFonts.outfit(
+                                            fontSize: 8.5,
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                        if (isLagna)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0.5),
+                                            decoration: BoxDecoration(
+                                              color: Colors.red.shade900,
+                                              borderRadius: BorderRadius.circular(3),
+                                            ),
+                                            child: Text(
+                                              'லக்',
+                                              style: GoogleFonts.outfit(
+                                                fontSize: 7,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    Center(
+                                      child: Text(
+                                        '$bindu',
+                                        style: GoogleFonts.cinzel(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: isGood ? Colors.greenAccent : AppColors.lightGold,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      'பிந்து',
+                                      style: GoogleFonts.outfit(fontSize: 7, color: Colors.white38),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // SAV Points Row
+        _buildSectionCard(
+          title: 'ராசி வாரியாக சர்வ அஷ்டவர்க்க பரல்கள் (SAV)',
+          icon: Icons.grid_view_rounded,
+          rows: List.generate(12, (i) {
+            final rasiName = AstrologyCalculator.rasiNamesTa[i];
+            final points = _ashtakavargaResult.sarvashtakavarga[i];
+            return _InfoRow(rasiName, '$points பரல்கள் ${points >= 28 ? "(சுபம்)" : "(மத்திமம்)"}');
+          }),
+        ),
+        const SizedBox(height: 14),
+
+        // Full Ashtakavarga Matrix Table
+        AstroCard(
+          child: Padding(
+            padding: const EdgeInsets.all(14.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'அனைத்து கிரக பிந்து அட்டவணை (Full Ashtakavarga Matrix)',
+                  style: GoogleFonts.cinzel(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.lightGold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    headingRowHeight: 34,
+                    dataRowMinHeight: 30,
+                    dataRowMaxHeight: 34,
+                    horizontalMargin: 8,
+                    columnSpacing: 12,
+                    headingRowColor: WidgetStateProperty.all(AppColors.backgroundMid),
+                    columns: [
+                      DataColumn(label: Text('ராசி', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                      DataColumn(label: Text('சூ', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                      DataColumn(label: Text('சந்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                      DataColumn(label: Text('செவ்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                      DataColumn(label: Text('பு', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                      DataColumn(label: Text('குரு', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                      DataColumn(label: Text('சுக்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                      DataColumn(label: Text('சனி', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                      DataColumn(label: Text('SAV', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.greenAccent, fontSize: 11))),
+                    ],
+                    rows: List.generate(12, (idx) {
+                      final rasiName = AstrologyCalculator.rasiNamesTa[idx];
+                      final sunB = _ashtakavargaResult.bhinnashtakavarga['Sun']![idx];
+                      final moonB = _ashtakavargaResult.bhinnashtakavarga['Moon']![idx];
+                      final marsB = _ashtakavargaResult.bhinnashtakavarga['Mars']![idx];
+                      final mercB = _ashtakavargaResult.bhinnashtakavarga['Mercury']![idx];
+                      final jupB = _ashtakavargaResult.bhinnashtakavarga['Jupiter']![idx];
+                      final venB = _ashtakavargaResult.bhinnashtakavarga['Venus']![idx];
+                      final satB = _ashtakavargaResult.bhinnashtakavarga['Saturn']![idx];
+                      final savB = _ashtakavargaResult.sarvashtakavarga[idx];
+                      final isLagna = _astroData.lagna.rasiIndex == idx;
+
+                      return DataRow(
+                        color: isLagna ? WidgetStateProperty.all(AppColors.primaryGold.withValues(alpha: 0.12)) : null,
+                        cells: [
+                          DataCell(Text(rasiName, style: GoogleFonts.outfit(color: isLagna ? AppColors.lightGold : Colors.white, fontWeight: isLagna ? FontWeight.bold : FontWeight.normal, fontSize: 11))),
+                          DataCell(Text('$sunB', style: GoogleFonts.outfit(color: Colors.white70, fontSize: 11))),
+                          DataCell(Text('$moonB', style: GoogleFonts.outfit(color: Colors.white70, fontSize: 11))),
+                          DataCell(Text('$marsB', style: GoogleFonts.outfit(color: Colors.white70, fontSize: 11))),
+                          DataCell(Text('$mercB', style: GoogleFonts.outfit(color: Colors.white70, fontSize: 11))),
+                          DataCell(Text('$jupB', style: GoogleFonts.outfit(color: Colors.white70, fontSize: 11))),
+                          DataCell(Text('$venB', style: GoogleFonts.outfit(color: Colors.white70, fontSize: 11))),
+                          DataCell(Text('$satB', style: GoogleFonts.outfit(color: Colors.white70, fontSize: 11))),
+                          DataCell(Text('$savB', style: GoogleFonts.outfit(color: savB >= 28 ? Colors.greenAccent : Colors.amberAccent, fontWeight: FontWeight.bold, fontSize: 11))),
+                        ],
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Tab 3: Varga Divisional Charts (D1 to D60)
   // ---------------------------------------------------------------------------
   Widget _buildVargaChartsTab() {
     return Column(
@@ -408,52 +823,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   }
 
   // ---------------------------------------------------------------------------
-  // Tab 2: Yogi / Ava Yogi / Anu Yogi
-  // ---------------------------------------------------------------------------
-  Widget _buildYogiTab() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionCard(
-          title: 'யோகி & அவயோகி கணிதம் (Yogi Details)',
-          icon: Icons.stars_rounded,
-          rows: [
-            _InfoRow('யோகி புள்ளி பாகை', _yogiResult.yogiDegreeFormatted),
-            _InfoRow('யோகி ராசி', '${_yogiResult.yogiRasiTa} (${_yogiResult.yogiRasiEn})'),
-            _InfoRow('யோகி நட்சத்திரம்', '${_yogiResult.yogiNakshatraTa} (${_yogiResult.yogiPada}-ஆம் பாதம்)'),
-            _InfoRow('யோகி கிரகம் (தலைமை சுப காரகர்)', _yogiResult.yogiPlanetTa),
-            _InfoRow('அவயோகி ராசி', _yogiResult.avaYogiRasiTa),
-            _InfoRow('அவயோகி நட்சத்திரம்', _yogiResult.avaYogiNakshatraTa),
-            _InfoRow('அவயோகி கிரகம் (எச்சரிக்கை கிரகம்)', _yogiResult.avaYogiPlanetTa),
-            _InfoRow('அனுயோகி நட்சத்திரம் / கிரகம்', '${_yogiResult.anuYogiNakshatraTa} / ${_yogiResult.anuYogiPlanetTa}'),
-          ],
-        ),
-        const SizedBox(height: 14),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: AppColors.backgroundMid,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.4)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('ஜோதிட விளக்கம்:', style: GoogleFonts.cinzel(color: AppColors.primaryGold, fontWeight: FontWeight.bold, fontSize: 13)),
-              const SizedBox(height: 6),
-              Text(_yogiResult.yogiDescription, style: GoogleFonts.poppins(color: Colors.white, fontSize: 12)),
-              const SizedBox(height: 6),
-              Text(_yogiResult.avaYogiDescription, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Tab 3: Detailed Planet Status (Friendship, Combustion, Debilitation, Retrograde)
+  // Tab 4: Detailed Planet Status (Friendship, Combustion, Debilitation, Retrograde)
   // ---------------------------------------------------------------------------
   Widget _buildPlanetStatusTab() {
     return Column(
@@ -518,7 +888,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   }
 
   // ---------------------------------------------------------------------------
-  // Tab 4: Nazhigai (Udayathi & Aadhi/Andha/Parama Nazhigai)
+  // Tab 5: Nazhigai (Udayathi & Aadhi/Andha/Parama Nazhigai)
   // ---------------------------------------------------------------------------
   Widget _buildNazhigaiTab() {
     return Column(
@@ -547,56 +917,6 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
             _InfoRow('பிறந்த நேர ஓரை', _notes.hora),
             _InfoRow('அகஸ் (பகல் அளவு)', _notes.akas),
             _InfoRow('நேந்திரம் / ஜீவன்', '${_notes.nendhiram} / ${_notes.jeevan}'),
-          ],
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Tab 5: Dina Suddhi
-  // ---------------------------------------------------------------------------
-  Widget _buildDinaSuddhiTab() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: AppColors.backgroundMid,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.primaryGold, width: 1),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.verified_rounded, color: AppColors.primaryGold, size: 22),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text('தினசுத்தி மதிப்பீடு:', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 14)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(_dinaSuddhiResult.overallPurityScore, style: GoogleFonts.outfit(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 15)),
-              const SizedBox(height: 4),
-              Text(_dinaSuddhiResult.finalVerdictTa, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-
-        _buildSectionCard(
-          title: 'முக்கிய நேர காலங்கள் (Kalam Windows)',
-          icon: Icons.timelapse_rounded,
-          rows: [
-            _InfoRow('ராகு காலம்', _dinaSuddhiResult.rahuKalam),
-            _InfoRow('எமகண்டம்', _dinaSuddhiResult.yamaGandam),
-            _InfoRow('குளிகை காலம்', _dinaSuddhiResult.gulikaiKalam),
-            _InfoRow('அபிஜித் முகூர்த்தம்', _dinaSuddhiResult.abhijitMuhurtham),
           ],
         ),
         const SizedBox(height: 20),
@@ -644,86 +964,6 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   }
 
   // ---------------------------------------------------------------------------
-  // Tab 7: Ashtakavarga
-  // ---------------------------------------------------------------------------
-  Widget _buildAshtakavargaTab() {
-    final planets7 = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.backgroundMid,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.primaryGold),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text('சர்வ அஷ்டவர்க்க மொத்த புள்ளிகள் (Total SAV):', style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 13)),
-              ),
-              const SizedBox(width: 8),
-              Text('${_ashtakavargaResult.totalSavPoints} / 337', style: GoogleFonts.outfit(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 15)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // SAV Points Row
-        _buildSectionCard(
-          title: 'ராசி வாரியாக சர்வ அஷ்டவர்க்க பரல்கள் (SAV)',
-          icon: Icons.grid_view_rounded,
-          rows: List.generate(12, (i) {
-            final rasiName = AstrologyCalculator.rasiNamesTa[i];
-            final points = _ashtakavargaResult.sarvashtakavarga[i];
-            return _InfoRow(rasiName, '$points பரல்கள் ${points >= 28 ? "(சுபம்)" : "(மத்திமம்)"}');
-          }),
-        ),
-        const SizedBox(height: 14),
-
-        // BAV Table for 7 Planets
-        Text('பின்ன அஷ்டவர்க்க அட்டவணை (BAV)', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.cardSurface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.5)),
-          ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              headingRowHeight: 36,
-              dataRowMinHeight: 32,
-              dataRowMaxHeight: 36,
-              columnSpacing: 10,
-              horizontalMargin: 8,
-              headingRowColor: WidgetStateProperty.all(AppColors.backgroundMid),
-              columns: [
-                DataColumn(label: Text('கிரகம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 10))),
-                ...AstrologyCalculator.rasiNamesTa.map((r) => DataColumn(label: Text(r.substring(0, 2), style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 10)))),
-              ],
-              rows: planets7.map((pKey) {
-                final planetTa = AstrologyCalculator.planetNameToTamil[pKey] ?? pKey;
-                final bindus = _ashtakavargaResult.bhinnashtakavarga[pKey] ?? List.filled(12, 0);
-                return DataRow(
-                  cells: [
-                    DataCell(Text(planetTa, style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 10))),
-                    ...bindus.map((b) => DataCell(Text('$b', style: GoogleFonts.outfit(color: Colors.white, fontSize: 10)))),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  // ---------------------------------------------------------------------------
   // Helper UI Builders
   // ---------------------------------------------------------------------------
   Widget _buildSectionCard({
@@ -764,7 +1004,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      width: 130,
+                      width: 155,
                       child: Text(
                         r.label,
                         style: GoogleFonts.outfit(fontSize: 11.5, color: AppColors.textSecondary),

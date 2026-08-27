@@ -136,8 +136,8 @@ class CosmicDrawer extends StatelessWidget {
                   _buildSectionHeader('ஜாதக கணிதங்கள் & முறைகள் (ASTROLOGY SYSTEMS)'),
                   _buildDrawerItem(
                     icon: Icons.description_rounded,
-                    title: 'ஜாதக குறிப்புகள் (Horoscope Notes)',
-                    subtitle: 'வர்க்க சக்கரம் D1-D60, யோகி, கிரக நிலைகள் & தோஷங்கள்',
+                    title: 'பஞ்சாங்க / ஜாதக குறிப்புகள் (Panchanga & Notes)',
+                    subtitle: 'பொது பஞ்சாங்கம், தினசுத்தி, அஷ்டவர்க்கம் & D1-D60',
                     onTap: () => onSelectRoute('/jaathaga_kurippugal'),
                   ),
                   _buildDrawerItem(
@@ -181,6 +181,12 @@ class CosmicDrawer extends StatelessWidget {
                     title: 'தினசரி கிரக நிலைகள் (Daily Ephemeris)',
                     subtitle: 'தினசரி கோட்சார கிரக பாகைகள் & ராசி நிலைகள்',
                     onTap: () => onSelectRoute('/daily_planet_positions'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.calendar_month_rounded,
+                    title: 'தினசரி நாள்காட்டி (Daily Calendar)',
+                    subtitle: 'பஞ்சாங்கம், கௌரி நேரம், கோச்சார சக்கரம் & நிகழ்வுகள்',
+                    onTap: () => onSelectRoute('/daily_calendar'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.picture_as_pdf_rounded,
@@ -288,28 +294,31 @@ class CosmicDrawer extends StatelessWidget {
                 color: AppColors.backgroundMid,
                 border: Border(top: BorderSide(color: AppColors.borderGold, width: 0.5)),
               ),
-              child: ListTile(
-                leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
-                title: Text(
-                  'Log Out',
-                  style: GoogleFonts.outfit(
-                    color: Colors.redAccent,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+              child: Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
+                  title: Text(
+                    'Log Out',
+                    style: GoogleFonts.outfit(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
+                  subtitle: Text(
+                    'End active $role session',
+                    style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
+                  ),
+                  onTap: () {
+                    if (onLogout != null) {
+                      onLogout!();
+                    } else {
+                      AuthService.logout();
+                      onSelectRoute('/login');
+                    }
+                  },
                 ),
-                subtitle: Text(
-                  'End active $role session',
-                  style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
-                ),
-                onTap: () {
-                  if (onLogout != null) {
-                    onLogout!();
-                  } else {
-                    AuthService.logout();
-                    onSelectRoute('/login');
-                  }
-                },
               ),
             ),
           ],
@@ -347,30 +356,33 @@ class CosmicDrawer extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: isSelected ? Border.all(color: AppColors.primaryGold, width: 1) : null,
       ),
-      child: ListTile(
-        dense: true,
-        leading: Icon(
-          icon,
-          color: isSelected ? AppColors.lightGold : AppColors.lightGold.withValues(alpha: 0.7),
-          size: 22,
-        ),
-        title: Text(
-          title,
-          style: GoogleFonts.outfit(
-            color: isSelected ? AppColors.lightGold : AppColors.textPrimary,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-            fontSize: 13.5,
+      child: Material(
+        color: Colors.transparent,
+        child: ListTile(
+          dense: true,
+          leading: Icon(
+            icon,
+            color: isSelected ? AppColors.lightGold : AppColors.lightGold.withValues(alpha: 0.7),
+            size: 22,
           ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: GoogleFonts.outfit(
-            color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
-            fontSize: 11,
+          title: Text(
+            title,
+            style: GoogleFonts.outfit(
+              color: isSelected ? AppColors.lightGold : AppColors.textPrimary,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+              fontSize: 13.5,
+            ),
           ),
+          subtitle: Text(
+            subtitle,
+            style: GoogleFonts.outfit(
+              color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+              fontSize: 11,
+            ),
+          ),
+          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.textSecondary),
+          onTap: onTap,
         ),
-        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.textSecondary),
-        onTap: onTap,
       ),
     );
   }
