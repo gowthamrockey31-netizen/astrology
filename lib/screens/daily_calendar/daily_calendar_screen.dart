@@ -316,8 +316,8 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
                   child: Column(
                     children: [
                       _buildTransitionSection(
-                        title: 'திதி (Tithi)',
-                        icon: Icons.brightness_6_rounded,
+                        title: 'திதி (TITHI)',
+                        icon: Icons.brightness_2_rounded,
                         trans: _calendarData.tithiTransition,
                         subtitle: 'பக்ஷம்: ${_calendarData.tithiPakshaTa}',
                       ),

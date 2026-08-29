@@ -144,7 +144,13 @@ class DailyCalendarEngine {
     final soolamInfo = soolamByWeekday[weekdayIdx] ?? {'direction': 'வடக்கு', 'pariharam': 'பால்'};
 
     // 12. Transitions for Tithi, Nakshatra, Yoga, Karana across the day
-    final tithiTrans = _calculateTithiTransition(targetDate, sun.longitude, moon.longitude);
+    final tithiTrans = _calculateTithiTransition(
+      targetDate: targetDate,
+      referenceTime: sunrise,
+      utcOffsetHours: utcOffsetHours,
+      latitude: latitude,
+      longitude: longitude,
+    );
     final nakTrans = _calculateNakshatraTransition(targetDate, moon.longitude);
     final yogaTrans = _calculateYogaTransition(targetDate, sun.longitude, moon.longitude);
     final karanaTrans = _calculateKaranaTransition(targetDate, sun.longitude, moon.longitude);
@@ -322,27 +328,19 @@ class DailyCalendarEngine {
     };
   }
 
-  static PanchangamTransition _calculateTithiTransition(DateTime dt, double sunLong, double moonLong) {
-    final curTithi = TithiCalculator.calculateTithi(sunLongitude: sunLong, moonLongitude: moonLong);
-    final prevTithi = TithiCalculator.getTithiByNumber(curTithi.tithiNumber == 1 ? 30 : curTithi.tithiNumber - 1);
-    final nextTithi = TithiCalculator.getTithiByNumber(curTithi.tithiNumber == 30 ? 1 : curTithi.tithiNumber + 1);
-
-    double diff = moonLong - sunLong;
-    if (diff < 0) diff += 360.0;
-    double degInTithi = diff % 12.0;
-    double remainingDeg = 12.0 - degInTithi;
-    double hrsRemaining = (remainingDeg / 12.0) * 24.0; // ~24h avg tithi duration
-
-    final endDt = dt.add(Duration(minutes: (hrsRemaining * 60).round()));
-    final timeStr = DateFormat('hh:mm a').format(endDt);
-
-    return PanchangamTransition(
-      currentName: '${curTithi.pakshaTa} ${curTithi.tithiNameTa}',
-      currentTiming: 'இன்று மாலை $timeStr வரை',
-      previousName: '${prevTithi.pakshaTa} ${prevTithi.tithiNameTa}',
-      previousTiming: 'நேற்று முடிந்தது',
-      nextName: '${nextTithi.pakshaTa} ${nextTithi.tithiNameTa}',
-      nextTiming: 'இன்று மாலை $timeStr முதல்',
+  static PanchangamTransition _calculateTithiTransition({
+    required DateTime targetDate,
+    required DateTime referenceTime,
+    double utcOffsetHours = 5.5,
+    double latitude = 13.0827,
+    double longitude = 80.2707,
+  }) {
+    return TithiCalculator.calculatePanchangamTransition(
+      targetDate: targetDate,
+      referenceTime: referenceTime,
+      utcOffsetHours: utcOffsetHours,
+      latitude: latitude,
+      longitude: longitude,
     );
   }
 
