@@ -497,35 +497,37 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
 
                     // Circular App Logo Header
-                    Container(
-                      width: 110,
-                      height: 110,
-                      padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: AppColors.goldBorderGradient,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryGold.withOpacity(0.5),
-                            blurRadius: 22,
-                            spreadRadius: 3,
-                          ),
-                        ],
-                      ),
+                    Center(
                       child: Container(
-                        decoration: const BoxDecoration(
+                        width: 110,
+                        height: 110,
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.backgroundMid,
+                          gradient: AppColors.goldBorderGradient,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryGold.withOpacity(0.5),
+                              blurRadius: 22,
+                              spreadRadius: 3,
+                            ),
+                          ],
                         ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Image.asset(
-                          AppConstants.appLogo,
-                          fit: BoxFit.cover,
-                          alignment: Alignment.center,
-                          errorBuilder: (context, error, stackTrace) => const Icon(
-                            Icons.auto_awesome,
-                            size: 56,
-                            color: AppColors.lightGold,
+                        child: Padding(
+                          padding: const EdgeInsets.all(2.5),
+                          child: ClipOval(
+                            child: Image.asset(
+                              AppConstants.appLogo,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                color: AppColors.backgroundMid,
+                                child: const Icon(
+                                  Icons.auto_awesome,
+                                  size: 56,
+                                  color: AppColors.lightGold,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),

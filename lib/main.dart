@@ -33,9 +33,11 @@ import 'screens/kp_astrology/kp_astrology_screen.dart';
 import 'screens/kp_horary/kp_horary_screen.dart';
 import 'screens/daily_planet_positions/daily_planet_positions_screen.dart';
 import 'screens/daily_calendar/daily_calendar_screen.dart';
+import 'screens/tamil_month_calendar/tamil_month_calendar_screen.dart';
 import 'screens/bhrigu_nandi_nadi/bhrigu_nandi_nadi_screen.dart';
 import 'screens/numerology/numerology_screen.dart';
 import 'screens/pdf_settings/customer_details_settings_screen.dart';
+import 'screens/mundane_astrology/mundane_astrology_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -214,9 +216,15 @@ class AstroDashaCareApp extends StatelessWidget {
         '/kp_horary': (context) => const KpHoraryScreen(),
         '/daily_planet_positions': (context) => const DailyPlanetPositionsScreen(),
         '/daily_calendar': (context) => const DailyCalendarScreen(),
+        '/tamil_month_calendar': (context) => const TamilMonthCalendarScreen(),
         '/bhrigu_nandi_nadi': (context) => const BhriguNandiNadiScreen(),
         '/numerology': (context) => const NumerologyScreen(),
         '/pdf_settings': (context) => const CustomerDetailsSettingsScreen(),
+        '/mundane_astrology': (context) => _guardedRoute(
+              context: context,
+              requiredRole: 'Admin',
+              child: const MundaneAstrologyScreen(),
+            ),
       },
     );
   }

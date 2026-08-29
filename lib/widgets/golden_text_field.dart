@@ -12,6 +12,7 @@ class GoldenTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final int maxLines;
   final String? Function(String?)? validator;
+  final ValueChanged<String>? onChanged;
 
   const GoldenTextField({
     super.key,
@@ -24,6 +25,7 @@ class GoldenTextField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.maxLines = 1,
     this.validator,
+    this.onChanged,
   });
 
   @override
@@ -75,6 +77,7 @@ class _GoldenTextFieldState extends State<GoldenTextField> {
               fontSize: 15,
             ),
             validator: widget.validator,
+            onChanged: widget.onChanged,
             cursorColor: AppColors.lightGold,
             decoration: InputDecoration(
               hintText: effectiveHint,

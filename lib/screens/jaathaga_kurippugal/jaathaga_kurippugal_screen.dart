@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/dosham_result_model.dart';
@@ -16,7 +15,6 @@ import '../../services/auth_service.dart';
 import '../../services/dina_suddhi_calculator.dart';
 import '../../services/jaathaga_kurippugal_calculator.dart';
 import '../../services/jathaga_eras_calculator.dart';
-import '../../services/nazhigai_calculator.dart';
 import '../../services/pdf_generator_service.dart';
 import '../../services/planet_status_calculator.dart';
 import '../../services/rahu_ketu_dosham_calculator.dart';
@@ -57,12 +55,11 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
 
   final List<String> _tabs = [
     'பொது பஞ்சாங்க குறிப்புகள்',
-    'தினசுத்தி',
+    'தினசுத்தி & வருடங்கள்',
     'அஷ்டவர்க்க சக்கரம்',
     'வர்க்க சக்கரம் (D1-D60)',
     'கிரக நிலைகள் & நட்பு',
-    'நாழிகை கணக்குகள்',
-    'செவ்வாய் / ராகு தோஷம்',
+    'ஆதி அந்த நாழிகை',
   ];
 
   static const Map<int, int> _gridIndexToRasiIndex = {
@@ -300,8 +297,6 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
         return _buildPlanetStatusTab();
       case 5:
         return _buildNazhigaiTab();
-      case 6:
-        return _buildDoshamTab();
       default:
         return _buildGeneralAndPanchangTab();
     }
@@ -344,6 +339,10 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
             _InfoRow('முக்குண வேளை', _notes.mukkunaVelai),
             _InfoRow('யோகி', '${_yogiResult.yogiPlanetTa} (${_yogiResult.yogiNakshatraTa} - ${_yogiResult.yogiPada} பாதம்)'),
             _InfoRow('அவ யோகி', '${_yogiResult.avaYogiPlanetTa} (${_yogiResult.avaYogiNakshatraTa})'),
+            _InfoRow('தினசுத்தி நாழிகை', _notes.udayathiNazhi),
+            _InfoRow('செவ்வாய் தோஷம்', _sevvaiResult.hasDosham ? 'தோஷம் உள்ளது (${_sevvaiResult.severityLevel})' : (_sevvaiResult.hasExemption ? 'தோஷ நிவர்த்தி (${_sevvaiResult.summaryTamil})' : 'தோஷம் இல்லை')),
+            _InfoRow('ராகு தோஷம்', _rahuKetuResult.hasSarpaDosham ? 'சர்ப்ப தோஷம் உள்ளது (${_rahuKetuResult.rahuRasiTa})' : 'தோஷம் இல்லை (${_rahuKetuResult.rahuRasiTa})'),
+            _InfoRow('கேது தோஷம்', 'கேது அமர்வு: ${_rahuKetuResult.ketuRasiTa} (${_rahuKetuResult.ketuHouseFromLagna}-ஆம் இடம்)'),
           ],
         ),
         const SizedBox(height: 14),
@@ -403,11 +402,9 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
         const SizedBox(height: 14),
 
         _buildSectionCard(
-          title: 'முக்கிய நேர காலங்கள் (Kalam Windows)',
+          title: 'முக்கிய நேர காலங்கள் (Important Timings)',
           icon: Icons.timelapse_rounded,
           rows: [
-            _InfoRow('ராகு காலம்', _dinaSuddhiResult.rahuKalam),
-            _InfoRow('எமகண்டம்', _dinaSuddhiResult.yamaGandam),
             _InfoRow('குளிகை காலம்', _dinaSuddhiResult.gulikaiKalam),
             _InfoRow('அபிஜித் முகூர்த்தம்', _dinaSuddhiResult.abhijitMuhurtham),
           ],
@@ -924,44 +921,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Tab 6: Dosham (Sevvai & Rahu Ketu)
-  // ---------------------------------------------------------------------------
-  Widget _buildDoshamTab() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Sevvai Dosham Card
-        _buildSectionCard(
-          title: 'செவ்வாய் தோஷ ஆய்வு (Sevvai / Manglik Dosham)',
-          icon: Icons.shield_rounded,
-          rows: [
-            _InfoRow('தோஷ நிலை', _sevvaiResult.hasDosham ? 'தோஷம் உள்ளது' : (_sevvaiResult.hasExemption ? 'தோஷ நிவர்த்தி (Cancelled)' : 'தோஷம் இல்லை')),
-            _InfoRow('தீவிர நிலை (Severity)', _sevvaiResult.severityLevel),
-            _InfoRow('செவ்வாய் அமர்ந்த ராசி', _sevvaiResult.marsRasiTa),
-            _InfoRow('லக்னத்திலிருந்து இடம்', '${_sevvaiResult.houseFromLagna}-ஆம் இடம்'),
-            _InfoRow('சந்திரனிலிருந்து இடம்', '${_sevvaiResult.houseFromMoon}-ஆம் இடம்'),
-            _InfoRow('விளக்கம்', _sevvaiResult.summaryTamil),
-          ],
-        ),
-        const SizedBox(height: 14),
 
-        // Rahu Ketu / Kalasarpa Dosham Card
-        _buildSectionCard(
-          title: 'ராகு கேது & காலசர்ப்ப தோஷ ஆய்வு',
-          icon: Icons.all_inclusive_rounded,
-          rows: [
-            _InfoRow('காலசர்ப்ப தோஷம்', _rahuKetuResult.hasKalasarpaDosham ? _rahuKetuResult.kalasarpaTypeTa : 'இல்லை'),
-            _InfoRow('சர்ப்ப தோஷ நிலை', _rahuKetuResult.hasSarpaDosham ? 'சர்ப்ப தோஷம் உள்ளது' : 'இல்லை'),
-            _InfoRow('ராகு அமர்வு', 'லக்னத்திலிருந்து ${_rahuKetuResult.rahuHouseFromLagna}-ஆம் வீடு (${_rahuKetuResult.rahuRasiTa})'),
-            _InfoRow('கேது அமர்வு', 'லக்னத்திலிருந்து ${_rahuKetuResult.ketuHouseFromLagna}-ஆம் வீடு (${_rahuKetuResult.ketuRasiTa})'),
-            _InfoRow('விளக்கம்', _rahuKetuResult.summaryTamil),
-          ],
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
 
   // ---------------------------------------------------------------------------
   // Helper UI Builders

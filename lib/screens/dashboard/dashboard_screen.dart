@@ -257,8 +257,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final List<Map<String, dynamic>> allModules = [
       if (role == 'Astrologer' || role == 'Admin')
         {'title': 'Astrologer Workspace', 'sub': 'Calls & Earnings', 'icon': Icons.psychology_rounded, 'route': '/astrologer_dashboard', 'color': AppColors.purpleAccent},
-      if (role == 'Admin')
+      if (role == 'Admin') ...[
         {'title': 'Admin Control Panel', 'sub': 'CMS & Approvals', 'icon': Icons.admin_panel_settings_rounded, 'route': '/admin_dashboard', 'color': AppColors.blueAccent},
+        {'title': 'உலகியல் ஜோதிடம்', 'sub': 'Mundane Astrology', 'icon': Icons.public_rounded, 'route': '/mundane_astrology', 'color': Colors.indigo.shade900},
+      ],
       {'title': 'ஜாதக / பஞ்சாங்க குறிப்புகள்', 'sub': 'பஞ்சாங்கம், தினசுத்தி, அஷ்டவர்க்கம்', 'icon': Icons.description_rounded, 'route': '/jaathaga_kurippugal', 'color': Colors.indigo.shade800},
       {'title': 'ஜாமகோள் ஆருடம்', 'sub': 'Jamakol Arudam', 'icon': Icons.compass_calibration_rounded, 'route': '/jamakol_arudam', 'color': Colors.deepPurple.shade800},
       {'title': 'KP Astrology', 'sub': 'Sub Lord Analysis', 'icon': Icons.hub_rounded, 'route': '/kp_astrology', 'color': Colors.amber.shade900},
@@ -267,6 +269,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       {'title': 'எண்கணிதம்', 'sub': 'Numerology Calculator', 'icon': Icons.calculate_rounded, 'route': '/numerology', 'color': Colors.pink.shade800},
       {'title': 'தினசரி கிரக நிலைகள்', 'sub': 'Daily Ephemeris', 'icon': Icons.wb_sunny_rounded, 'route': '/daily_planet_positions', 'color': Colors.orange.shade800},
       {'title': 'தினசரி நாள்காட்டி', 'sub': 'Daily Calendar & Panchangam', 'icon': Icons.calendar_month_rounded, 'route': '/daily_calendar', 'color': Colors.deepOrange.shade800},
+      {'title': 'மாத நாள்காட்டி', 'sub': 'Tamil Month Calendar', 'icon': Icons.calendar_view_month_rounded, 'route': '/tamil_month_calendar', 'color': Colors.deepOrange.shade700},
       {'title': 'PDF அமைப்புகள்', 'sub': 'Customer Details', 'icon': Icons.picture_as_pdf_rounded, 'route': '/pdf_settings', 'color': Colors.cyan.shade800},
       {'title': 'திருமணப் பொருத்தம்', 'sub': 'Marriage Matching', 'icon': Icons.favorite_rounded, 'route': '/marriage_porutham', 'color': Colors.pink.shade800},
       {'title': 'தாரா பலன்', 'sub': 'Tara Balam Analysis', 'icon': Icons.stars_rounded, 'route': '/tara_balam', 'color': Colors.amber.shade800},
@@ -294,8 +297,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Text(
               'AstroDashaCare Modules',
               style: GoogleFonts.cinzel(
-                fontSize: 16,
+                fontSize: 13.5,
                 fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
                 color: AppColors.lightGold,
               ),
             ),

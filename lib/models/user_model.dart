@@ -46,6 +46,9 @@ class UserModel {
     this.timezone = 5.5,
   });
 
+  /// Check if user has Admin privileges
+  bool get isAdmin => role.toLowerCase() == 'admin';
+
   /// Automatically calculate age from DOB
   int get calculatedAge {
     try {

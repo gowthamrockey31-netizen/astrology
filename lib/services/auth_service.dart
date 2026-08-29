@@ -27,6 +27,7 @@ class AuthService {
 
   static UserModel? get currentUser => _currentUser;
   static String get activeRole => _activeRole;
+  static bool get isAdmin => _activeRole.toLowerCase() == 'admin' || (_currentUser?.role.toLowerCase() == 'admin');
 
   static void setActiveRole(String role) {
     _activeRole = role;

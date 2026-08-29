@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
+import '../../services/geocoding_service.dart';
 import '../../widgets/cosmic_background.dart';
 import '../../widgets/south_indian_jathagam_widget.dart';
 
@@ -49,12 +51,18 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
 
   void _showUpdateBirthDetailsDialog() {
     final nameCtrl = TextEditingController(text: _user.name);
-    final dobCtrl = TextEditingController(text: _user.dob);
+    DateTime selectedDob = DateTime.tryParse(_user.dob) ?? DateTime(1996, 6, 15);
     final tobCtrl = TextEditingController(text: _user.timeOfBirth);
     final pobCtrl = TextEditingController(text: _user.placeOfBirth);
     final latCtrl = TextEditingController(text: _user.latitude.toString());
     final lonCtrl = TextEditingController(text: _user.longitude.toString());
-    String selectedGender = _user.gender;
+    String selectedGender = _user.gender.isNotEmpty ? _user.gender : 'Male';
+    if (selectedGender != 'Male' && selectedGender != 'Female' && selectedGender != 'Other') {
+      selectedGender = 'Other';
+    }
+
+    List<GeocodingLocation> suggestions = [];
+    bool showSuggestions = false;
 
     showModalBottomSheet(
       context: context,
@@ -105,21 +113,151 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                     _buildTextField(nameCtrl, 'பெயர் (Name)', Icons.person_rounded),
                     const SizedBox(height: 12),
 
-                    // DOB & TOB
+                    // DOB (DD / MM / YYYY) & TOB
                     Row(
                       children: [
-                        Expanded(child: _buildTextField(dobCtrl, 'பிறந்த தேதி (YYYY-MM-DD)', Icons.calendar_today_rounded)),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: selectedDob,
+                                firstDate: DateTime(1940),
+                                lastDate: DateTime.now(),
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: ThemeData.dark().copyWith(
+                                      colorScheme: const ColorScheme.dark(
+                                        primary: AppColors.primaryGold,
+                                        onPrimary: AppColors.backgroundDeep,
+                                        surface: AppColors.backgroundMid,
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
+                              if (picked != null) {
+                                setModalState(() => selectedDob = picked);
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.cardSurface,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.5)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'பிறந்த தேதி (Date / Month / Year)',
+                                    style: GoogleFonts.outfit(fontSize: 10, color: AppColors.textSecondary),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.lightGold),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        DateFormat('dd / MM / yyyy').format(selectedDob),
+                                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                         const SizedBox(width: 10),
                         Expanded(child: _buildTextField(tobCtrl, 'பிறந்த நேரம் (HH:MM AM/PM)', Icons.access_time_rounded)),
                       ],
                     ),
                     const SizedBox(height: 12),
 
-                    // Place of birth
-                    _buildTextField(pobCtrl, 'பிறந்த ஊர் (Place of Birth)', Icons.location_on_rounded),
+                    // Place of birth with live suggestions & auto Lat/Lon
+                    TextField(
+                      controller: pobCtrl,
+                      style: GoogleFonts.outfit(color: Colors.white, fontSize: 13),
+                      onChanged: (val) async {
+                        if (val.trim().length >= 2) {
+                          final results = await GeocodingService.searchPlaces(val);
+                          setModalState(() {
+                            suggestions = results;
+                            showSuggestions = results.isNotEmpty;
+                          });
+                        } else {
+                          setModalState(() => showSuggestions = false);
+                        }
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'பிறந்த ஊர் (Place of Birth)',
+                        hintText: 'Type city e.g. Coimbatore, Madurai',
+                        labelStyle: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
+                        prefixIcon: const Icon(Icons.location_on_rounded, color: AppColors.lightGold, size: 18),
+                        filled: true,
+                        fillColor: AppColors.cardSurface,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppColors.borderGold, width: 0.8),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: AppColors.borderGold.withValues(alpha: 0.5)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppColors.primaryGold, width: 1.2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      ),
+                    ),
+
+                    // Suggestions dropdown
+                    if (showSuggestions && suggestions.isNotEmpty)
+                      Container(
+                        margin: const EdgeInsets.only(top: 4, bottom: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundMid,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.6)),
+                        ),
+                        constraints: const BoxConstraints(maxHeight: 160),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: suggestions.length,
+                          separatorBuilder: (_, __) => const Divider(color: Colors.white10, height: 1),
+                          itemBuilder: (context, idx) {
+                            final loc = suggestions[idx];
+                            return ListTile(
+                              dense: true,
+                              leading: const Icon(Icons.place, color: AppColors.lightGold, size: 16),
+                              title: Text(
+                                loc.displayName,
+                                style: GoogleFonts.outfit(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                              ),
+                              subtitle: Text(
+                                'Lat: ${loc.latitude.toStringAsFixed(4)}, Lon: ${loc.longitude.toStringAsFixed(4)}',
+                                style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 10),
+                              ),
+                              onTap: () {
+                                setModalState(() {
+                                  pobCtrl.text = loc.cityName;
+                                  latCtrl.text = loc.latitude.toString();
+                                  lonCtrl.text = loc.longitude.toString();
+                                  showSuggestions = false;
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+
                     const SizedBox(height: 12),
 
-                    // Latitude & Longitude
+                    // Latitude & Longitude (Editable)
                     Row(
                       children: [
                         Expanded(child: _buildTextField(latCtrl, 'அட்சரேகை (Latitude)', Icons.my_location_rounded)),
@@ -129,24 +267,23 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Gender Selector
+                    // Standard Gender Selector: Male / Female / Other
                     Row(
                       children: [
                         Text('பாலினம்: ', style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold)),
                         const SizedBox(width: 12),
-                        ChoiceChip(
-                          label: Text('ஆண் (Male)', style: GoogleFonts.outfit(fontSize: 12)),
-                          selected: selectedGender == 'Male',
-                          selectedColor: AppColors.primaryGold.withValues(alpha: 0.3),
-                          onSelected: (val) => setModalState(() => selectedGender = 'Male'),
-                        ),
-                        const SizedBox(width: 8),
-                        ChoiceChip(
-                          label: Text('பெண் (Female)', style: GoogleFonts.outfit(fontSize: 12)),
-                          selected: selectedGender == 'Female',
-                          selectedColor: AppColors.primaryGold.withValues(alpha: 0.3),
-                          onSelected: (val) => setModalState(() => selectedGender = 'Female'),
-                        ),
+                        ...['Male', 'Female', 'Other'].map((g) {
+                          final isSel = selectedGender == g;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text(g, style: GoogleFonts.outfit(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal)),
+                              selected: isSel,
+                              selectedColor: AppColors.primaryGold.withValues(alpha: 0.35),
+                              onSelected: (val) => setModalState(() => selectedGender = g),
+                            ),
+                          );
+                        }),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -161,14 +298,27 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
                         onPressed: () {
+                          final lat = double.tryParse(latCtrl.text.trim());
+                          final lon = double.tryParse(lonCtrl.text.trim());
+                          if (lat == null || lon == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Location not found. Please select a valid place.', style: GoogleFonts.outfit(color: Colors.white)),
+                                backgroundColor: Colors.redAccent,
+                              ),
+                            );
+                            return;
+                          }
+
+                          final isoDob = DateFormat('yyyy-MM-dd').format(selectedDob);
                           final updatedUser = _user.copyWith(
                             name: nameCtrl.text.trim(),
-                            dob: dobCtrl.text.trim(),
+                            dob: isoDob,
                             timeOfBirth: tobCtrl.text.trim(),
                             placeOfBirth: pobCtrl.text.trim(),
                             gender: selectedGender,
-                            latitude: double.tryParse(latCtrl.text.trim()) ?? _user.latitude,
-                            longitude: double.tryParse(lonCtrl.text.trim()) ?? _user.longitude,
+                            latitude: lat,
+                            longitude: lon,
                           );
 
                           AuthService.updateCurrentUser(updatedUser);

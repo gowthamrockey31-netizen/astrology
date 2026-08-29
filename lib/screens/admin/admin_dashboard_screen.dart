@@ -519,6 +519,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   icon: Icons.brightness_7_rounded,
                   onTap: () => widget.onNavigate('/horoscope'),
                 ),
+                _buildCmsTile(
+                  title: 'உலகியல் ஜோதிடம் (Mundane Astrology)',
+                  subtitle: 'Global Transits, Mundane Aspects & National Predictions',
+                  icon: Icons.public_rounded,
+                  onTap: () => widget.onNavigate('/mundane_astrology'),
+                ),
 
                 const SizedBox(height: 24),
 

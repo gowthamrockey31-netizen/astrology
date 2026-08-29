@@ -164,74 +164,74 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
                   ],
                 ).animate().fade(duration: 350.ms),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
                 // Date Selector Navigator
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.cardSurface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.6)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryGold.withValues(alpha: 0.08),
-                        blurRadius: 8,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => _changeDay(-1),
-                        icon: const Icon(Icons.chevron_left_rounded, color: AppColors.lightGold, size: 28),
-                        tooltip: 'முந்தைய நாள் (Previous Day)',
-                      ),
-                      Expanded(
-                        child: InkWell(
-                          onTap: _pickDate,
-                          borderRadius: BorderRadius.circular(10),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.calendar_month_rounded, size: 16, color: AppColors.primaryGold),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      _calendarData.englishDate,
-                                      style: GoogleFonts.cinzel(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.lightGold,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardSurface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.6)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primaryGold.withValues(alpha: 0.08),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => _changeDay(-1),
+                          icon: const Icon(Icons.chevron_left_rounded, color: AppColors.lightGold, size: 28),
+                          tooltip: 'முந்தைய நாள் (Previous Day)',
+                        ),
+                        Expanded(
+                          child: InkWell(
+                            onTap: _pickDate,
+                            borderRadius: BorderRadius.circular(10),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.calendar_month_rounded, size: 16, color: AppColors.primaryGold),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        _calendarData.englishDate,
+                                        style: GoogleFonts.cinzel(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.lightGold,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${_calendarData.weekdayTa} (${_calendarData.weekdayEn}) • ${_calendarData.tamilDateFormatted}',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white70,
+                                    ],
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '${_calendarData.weekdayTa} (${_calendarData.weekdayEn}) • ${_calendarData.tamilDateFormatted}',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () => _changeDay(1),
-                        icon: const Icon(Icons.chevron_right_rounded, color: AppColors.lightGold, size: 28),
-                        tooltip: 'அடுத்த நாள் (Next Day)',
-                      ),
-                    ],
-                  ),
-                ).animate().fade(duration: 300.ms),
+                        IconButton(
+                          onPressed: () => _changeDay(1),
+                          icon: const Icon(Icons.chevron_right_rounded, color: AppColors.lightGold, size: 28),
+                          tooltip: 'அடுத்த நாள் (Next Day)',
+                        ),
+                      ],
+                    ),
+                  ).animate().fade(duration: 300.ms),
 
                 const SizedBox(height: 14),
 

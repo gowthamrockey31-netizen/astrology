@@ -4,12 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/customer_pdf_settings_model.dart';
 import '../../models/pdf_fixed_content_config.dart';
+import '../../services/auth_service.dart';
 import '../../services/pdf_settings_service.dart';
 import '../../widgets/cosmic_background.dart';
 
 /// PDF Settings Screen: Customer & Company Details Configuration
-/// Only customer/company editable fields are shown.
-/// Software Footer and Slokam are permanently locked.
+/// Authorized customer/company info is editable.
+/// Software Footer and Slokam are Admin-editable with default fallback.
 class CustomerDetailsSettingsScreen extends StatefulWidget {
   const CustomerDetailsSettingsScreen({super.key});
 
@@ -27,6 +28,8 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
   late TextEditingController _websiteCtrl;
   late TextEditingController _gstCtrl;
   late TextEditingController _invocationCtrl;
+  late TextEditingController _softwareFooterCtrl;
+  late TextEditingController _slokaFooterCtrl;
 
   @override
   void initState() {
@@ -41,6 +44,8 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
     _websiteCtrl = TextEditingController(text: s.website);
     _gstCtrl = TextEditingController(text: s.gstNumber);
     _invocationCtrl = TextEditingController(text: s.invocationText);
+    _softwareFooterCtrl = TextEditingController(text: s.softwareFooter);
+    _slokaFooterCtrl = TextEditingController(text: s.slokaFooter);
   }
 
   @override
@@ -54,10 +59,14 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
     _websiteCtrl.dispose();
     _gstCtrl.dispose();
     _invocationCtrl.dispose();
+    _softwareFooterCtrl.dispose();
+    _slokaFooterCtrl.dispose();
     super.dispose();
   }
 
   void _saveSettings() async {
+    final s = PdfSettingsService.currentSettings;
+    final isAdmin = AuthService.activeRole == 'Admin';
     final updated = CustomerPdfSettings(
       astrologerName: _nameCtrl.text.trim(),
       companyName: _companyCtrl.text.trim(),
@@ -68,6 +77,8 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
       website: _websiteCtrl.text.trim(),
       gstNumber: _gstCtrl.text.trim(),
       invocationText: _invocationCtrl.text.trim(),
+      customSoftwareFooter: isAdmin ? _softwareFooterCtrl.text.trim() : s.customSoftwareFooter,
+      customSlokaFooter: isAdmin ? _slokaFooterCtrl.text.trim() : s.customSlokaFooter,
     );
 
     await PdfSettingsService.saveSettings(updated);
@@ -104,6 +115,8 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
       _websiteCtrl.text = s.website;
       _gstCtrl.text = s.gstNumber;
       _invocationCtrl.text = s.invocationText;
+      _softwareFooterCtrl.text = s.softwareFooter;
+      _slokaFooterCtrl.text = s.slokaFooter;
     });
 
     if (mounted) {
@@ -231,44 +244,83 @@ class _CustomerDetailsSettingsScreenState extends State<CustomerDetailsSettingsS
                       _buildField(_invocationCtrl, 'மேல் முகப்பு வாசகம் (Invocation Line)', Icons.auto_awesome_rounded),
                       const SizedBox(height: 20),
 
-                      // Fixed Permanent Content Section (Read-Only)
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.backgroundDeep.withValues(alpha: 0.8),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.3)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.lock_outline_rounded, color: AppColors.lightGold, size: 16),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'நிலையான வாசகங்கள் (Fixed Application Content)',
-                                  style: GoogleFonts.outfit(
-                                    color: AppColors.lightGold,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
+                      // Fixed Content Section (Admin Editable / User Read-Only)
+                      if (AuthService.activeRole == 'Admin') ...[
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppColors.backgroundDeep.withValues(alpha: 0.8),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.6)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.admin_panel_settings_rounded, color: AppColors.primaryGold, size: 18),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'நிலையான வாசகங்கள் (Admin Editable Fixed/Static Text)',
+                                    style: GoogleFonts.outfit(
+                                      color: AppColors.lightGold,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'ஸ்லோகம்: ${PdfFixedContentConfig.slokaFooter}',
-                              style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11, fontStyle: FontStyle.italic),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'அடிக்குறிப்பு: ${PdfFixedContentConfig.softwareFooter}',
-                              style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11),
-                            ),
-                          ],
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'நிர்வாகி மட்டுமே (Admin Only) இந்த நிலையான ஸ்லோகம் மற்றும் மென்பொருள் அடிக்குறிப்பை மாற்றியமைக்க முடியும்.',
+                                style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 11),
+                              ),
+                              const SizedBox(height: 12),
+                              _buildField(_slokaFooterCtrl, 'ஸ்லோகம் (Sloka Text)', Icons.format_quote_rounded, maxLines: 2),
+                              const SizedBox(height: 12),
+                              _buildField(_softwareFooterCtrl, 'மென்பொருள் அடிக்குறிப்பு (Software Footer Text)', Icons.branding_watermark_rounded, maxLines: 2),
+                            ],
+                          ),
                         ),
-                      ),
+                      ] else ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.backgroundDeep.withValues(alpha: 0.8),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.3)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.lock_outline_rounded, color: AppColors.lightGold, size: 16),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'நிலையான வாசகங்கள் (Fixed Application Content)',
+                                    style: GoogleFonts.outfit(
+                                      color: AppColors.lightGold,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'ஸ்லோகம்: ${PdfSettingsService.currentSettings.slokaFooter}',
+                                style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11, fontStyle: FontStyle.italic),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'அடிக்குறிப்பு: ${PdfSettingsService.currentSettings.softwareFooter}',
+                                style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 24),
 
                       // Save Button

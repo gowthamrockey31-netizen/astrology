@@ -287,10 +287,17 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                   ],
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  'DOB: $dob • $tob • $pob',
-                  style: GoogleFonts.outfit(fontSize: 11, color: AppColors.textSecondary),
-                ),
+                () {
+                  String formattedDob = dob;
+                  final parsedDt = DateTime.tryParse(dob);
+                  if (parsedDt != null) {
+                    formattedDob = '${parsedDt.day.toString().padLeft(2, '0')} / ${parsedDt.month.toString().padLeft(2, '0')} / ${parsedDt.year}';
+                  }
+                  return Text(
+                    'DOB: $formattedDob • $tob • $pob',
+                    style: GoogleFonts.outfit(fontSize: 11, color: AppColors.textSecondary),
+                  );
+                }(),
                 const SizedBox(height: 2),
                 Text(
                   'Lagna: ${lagnaDetail.rasiNameTa} (${lagnaDetail.rasiNameEn}) • Rasi: ${moonDetail.rasiNameTa} • Nakshatra: ${moonDetail.nakshatraNameTa}-${moonDetail.pada}',

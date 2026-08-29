@@ -189,11 +189,24 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/daily_calendar'),
                   ),
                   _buildDrawerItem(
+                    icon: Icons.calendar_view_month_rounded,
+                    title: 'மாத நாள்காட்டி (Month Calendar)',
+                    subtitle: 'தமிழ் மாத பஞ்சாங்க அட்டவணை & நோக்கு நாள்',
+                    onTap: () => onSelectRoute('/tamil_month_calendar'),
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.picture_as_pdf_rounded,
                     title: 'PDF அமைப்புகள் (PDF Settings)',
                     subtitle: 'ஜோதிட நிலைய & வாடிக்கையாளர் விவரங்கள்',
                     onTap: () => onSelectRoute('/pdf_settings'),
                   ),
+                  if (role == 'Admin')
+                    _buildDrawerItem(
+                      icon: Icons.public_rounded,
+                      title: 'உலகியல் ஜோதிடம் (Mundane Astrology)',
+                      subtitle: 'Mundane & Global Astrological Trends',
+                      onTap: () => onSelectRoute('/mundane_astrology'),
+                    ),
 
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),

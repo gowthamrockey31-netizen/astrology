@@ -28,32 +28,31 @@ void main() {
       );
     });
 
-    test('Test 3: CustomerPdfSettings delegates fixed contents to PdfFixedContentConfig and ignores overrides', () {
+    test('Test 3: CustomerPdfSettings delegates fixed contents to default when custom is null or empty', () {
       final defaultSettings = const CustomerPdfSettings();
       expect(defaultSettings.softwareFooter, PdfFixedContentConfig.softwareFooter);
       expect(defaultSettings.slokaFooter, PdfFixedContentConfig.slokaFooter);
 
-      // Attempting to pass old JSON with modified footer/slokam should not override fixed values
-      final fromJson = CustomerPdfSettings.fromJson({
+      final fromJsonDefault = CustomerPdfSettings.fromJson({
         'companyName': 'Custom Astrology Center',
         'astrologerName': 'Dr. Custom',
-        'softwareFooter': 'HACKED FOOTER',
-        'slokaFooter': 'HACKED SLOKA',
       });
 
-      expect(fromJson.companyName, 'Custom Astrology Center');
-      expect(fromJson.astrologerName, 'Dr. Custom');
-      expect(fromJson.softwareFooter, PdfFixedContentConfig.softwareFooter);
-      expect(fromJson.slokaFooter, PdfFixedContentConfig.slokaFooter);
+      expect(fromJsonDefault.companyName, 'Custom Astrology Center');
+      expect(fromJsonDefault.astrologerName, 'Dr. Custom');
+      expect(fromJsonDefault.softwareFooter, PdfFixedContentConfig.softwareFooter);
+      expect(fromJsonDefault.slokaFooter, PdfFixedContentConfig.slokaFooter);
     });
 
-    test('Test 4: Customer Details remain editable and persistent', () async {
+    test('Test 4: Customer Details and Admin Custom Fixed Content remain editable and persistent', () async {
       final newSettings = const CustomerPdfSettings().copyWith(
         companyName: 'சென்னை ஜோதிட மையம்',
         astrologerName: 'ஜோதிட கலாநிதி',
         address: '100 அண்ணா சாலை, சென்னை',
         phone: '+91 9876543210',
         email: 'chennai.astro@example.com',
+        customSoftwareFooter: 'Custom Software Footer by Admin',
+        customSlokaFooter: 'Custom Slokam by Admin',
       );
 
       await PdfSettingsService.saveSettings(newSettings);
@@ -64,9 +63,9 @@ void main() {
       expect(active.address, '100 அண்ணா சாலை, சென்னை');
       expect(active.phone, '+91 9876543210');
       expect(active.email, 'chennai.astro@example.com');
-      // Fixed content must remain unchanged
-      expect(active.softwareFooter, PdfFixedContentConfig.softwareFooter);
-      expect(active.slokaFooter, PdfFixedContentConfig.slokaFooter);
+      // Admin custom static text is persistent
+      expect(active.softwareFooter, 'Custom Software Footer by Admin');
+      expect(active.slokaFooter, 'Custom Slokam by Admin');
     });
 
     test('Test 5: PDF Generator generates valid PDF containing Tamil, English, and Fixed Footers', () async {

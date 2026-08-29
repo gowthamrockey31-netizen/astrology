@@ -7,21 +7,38 @@ class PlanetDetail {
   final String name;
   final String tamilName;
   final String symbol;
+
+  // Single Source of Truth
   final double longitude; // 0° to 360° sidereal
+  final int totalArcseconds; // 0..1295999 exact arcseconds
+
+  // Rasi
   final int rasiIndex; // 0..11 (0=Mesham, 1=Rishabam, ..., 11=Meenam)
   final String rasiNameEn;
   final String rasiNameTa;
-  final double degreeInRasi;
+  final double degreeInRasi; // 0.0 .. <30.0
+  final int rasiArcseconds; // 0..107999
+
+  // Nakshatra
   final int nakshatraIndex; // 0..26 (0=Ashwini, ..., 26=Revati)
   final String nakshatraNameEn;
   final String nakshatraNameTa;
+
+  // Pada
   final int pada; // 1..4
+
+  // Star lord / Sub lord
   final String starLord;
   final String subLord;
   final String tamilStarLord;
   final String tamilSubLord;
+
+  // Navamsa
+  final int navamsaPart; // 0..8
   final int navamsaIndex; // 0..11
   final String navamsaRasiTa;
+  final String navamsaRasiEn;
+
   final bool isRetrograde;
 
   PlanetDetail({
@@ -29,10 +46,12 @@ class PlanetDetail {
     required this.tamilName,
     required this.symbol,
     required this.longitude,
+    int? totalArcseconds,
     required this.rasiIndex,
     required this.rasiNameEn,
     required this.rasiNameTa,
     required this.degreeInRasi,
+    int? rasiArcseconds,
     required this.nakshatraIndex,
     required this.nakshatraNameEn,
     required this.nakshatraNameTa,
@@ -41,16 +60,89 @@ class PlanetDetail {
     required this.subLord,
     required this.tamilStarLord,
     required this.tamilSubLord,
+    int? navamsaPart,
     required this.navamsaIndex,
     required this.navamsaRasiTa,
+    String? navamsaRasiEn,
     this.isRetrograde = false,
-  });
+  })  : totalArcseconds = totalArcseconds ?? ((longitude % 360.0 + 360.0) % 360.0 * 3600.0).round() % 1296000,
+        rasiArcseconds = rasiArcseconds ?? (((longitude % 360.0 + 360.0) % 360.0 * 3600.0).round() % 1296000) % 108000,
+        navamsaPart = navamsaPart ?? ((((longitude % 360.0 + 360.0) % 360.0 * 3600.0).round() % 1296000) % 108000) ~/ 12000,
+        navamsaRasiEn = navamsaRasiEn ?? AstrologyCalculator.rasiNamesEn[navamsaIndex];
+
+  /// Authoritative single-source factory deriving all astrological properties directly from exact sidereal longitude
+  factory PlanetDetail.fromSiderealLongitude({
+    required String name,
+    required String tamilName,
+    required String symbol,
+    required double longitude,
+    bool isRetrograde = false,
+  }) {
+    final normLong = AstrologyCalculator.normalizeDegrees(longitude);
+    final int totalSecs = (normLong * AstrologyCalculator.arcsecondsPerDegree).round() % AstrologyCalculator.totalArcseconds;
+
+    // Rasi calculation: 30° per Rasi = 108,000 arcseconds
+    final int rasiIndex = totalSecs ~/ AstrologyCalculator.arcsecondsPerRasi;
+    final int rasiSecs = totalSecs % AstrologyCalculator.arcsecondsPerRasi;
+    final double degreeInRasi = normLong - (rasiIndex * 30.0);
+
+    // Nakshatra calculation: 27 nakshatras × 48,000 arcseconds each (13°20')
+    final int nakshatraIndex = (totalSecs ~/ AstrologyCalculator.arcsecondsPerNakshatra).clamp(0, 26);
+    final int nakshatraRemainder = totalSecs % AstrologyCalculator.arcsecondsPerNakshatra;
+    final int pada = ((nakshatraRemainder ~/ AstrologyCalculator.arcsecondsPerPada)).clamp(0, 3) + 1;
+
+    final int starLordIndex = nakshatraIndex % 9;
+    final String starLord = AstrologyCalculator.planetLords[starLordIndex];
+    final String tamilStarLord = AstrologyCalculator.planetLordsTa[starLordIndex];
+
+    // Sub lord calculation
+    final int subLordIndex = ((nakshatraRemainder * 9) ~/ AstrologyCalculator.arcsecondsPerNakshatra).clamp(0, 8);
+    final String subLord = AstrologyCalculator.planetLords[subLordIndex];
+    final String tamilSubLord = AstrologyCalculator.planetLordsTa[subLordIndex];
+
+    // Navamsha calculation: 9 divisions of 12,000 arcseconds (3°20') per Rasi
+    final int navamsaPart = (rasiSecs ~/ AstrologyCalculator.arcsecondsPerPada).clamp(0, 8);
+    final int navamsaIndex = AstrologyCalculator.calculateNavamsaRasiIndex(rasiIndex, navamsaPart);
+
+    return PlanetDetail(
+      name: name,
+      tamilName: tamilName,
+      symbol: symbol,
+      longitude: normLong,
+      totalArcseconds: totalSecs,
+      rasiIndex: rasiIndex,
+      rasiNameEn: AstrologyCalculator.rasiNamesEn[rasiIndex],
+      rasiNameTa: AstrologyCalculator.rasiNamesTa[rasiIndex],
+      degreeInRasi: degreeInRasi,
+      rasiArcseconds: rasiSecs,
+      nakshatraIndex: nakshatraIndex,
+      nakshatraNameEn: AstrologyCalculator.nakshatrasEn[nakshatraIndex],
+      nakshatraNameTa: AstrologyCalculator.nakshatrasTa[nakshatraIndex],
+      pada: pada,
+      starLord: starLord,
+      subLord: subLord,
+      tamilStarLord: tamilStarLord,
+      tamilSubLord: tamilSubLord,
+      navamsaPart: navamsaPart,
+      navamsaIndex: navamsaIndex,
+      navamsaRasiTa: AstrologyCalculator.rasiNamesTa[navamsaIndex],
+      navamsaRasiEn: AstrologyCalculator.rasiNamesEn[navamsaIndex],
+      isRetrograde: isRetrograde,
+    );
+  }
 
   String get degreeFormatted => AstrologyCalculator.formatDMS(degreeInRasi);
 }
 
 /// High-Precision Thirukanitha Sidereal Astronomical Calculator
 class AstrologyCalculator {
+  // Boundary-Safe Arcsecond Constants for High Precision Calculations
+  static const int arcsecondsPerDegree = 3600;
+  static const int arcsecondsPerRasi = 108000; // 30 * 3600
+  static const int arcsecondsPerNakshatra = 48000; // 13°20' = 800' = 48000"
+  static const int arcsecondsPerPada = 12000; // 3°20' = 200' = 12000"
+  static const int totalArcseconds = 1296000; // 360 * 3600
+
   static const List<String> rasiNamesEn = [
     'Aries', 'Taurus', 'Gemini', 'Cancer',
     'Leo', 'Virgo', 'Libra', 'Scorpio',
@@ -180,6 +272,9 @@ class AstrologyCalculator {
   }
 
   /// Convert DateTime & Location to UTC Julian Day with correct month/year rollover
+  static double getJulianDay(DateTime dt, {double utcOffsetHours = 5.5}) =>
+      _dateTimeToJulianDay(dt, utcOffsetHours: utcOffsetHours);
+
   static double _dateTimeToJulianDay(DateTime dt, {double utcOffsetHours = 5.5}) {
     final totalOffsetMins = (utcOffsetHours * 60).round();
     final utcDt = dt.subtract(Duration(minutes: totalOffsetMins));
@@ -557,6 +652,26 @@ class AstrologyCalculator {
     };
   }
 
+  /// Calculate Navamsha starting sign and sign index according to Classical Parashara:
+  /// Movable / Chara (Mesham 0, Kadagam 3, Thulam 6, Magaram 9) -> Starts from the same sign
+  /// Fixed / Sthira (Rishabam 1, Simmam 4, Viruchigam 7, Kumbam 10) -> Starts from the 9th sign ((rasiIndex + 8) % 12)
+  /// Dual / Ubhaya (Mithunam 2, Kanni 5, Dhanusu 8, Meenam 11) -> Starts from the 5th sign ((rasiIndex + 4) % 12)
+  static int calculateNavamsaStartIndex(int rasiIndex) {
+    final rasiType = rasiIndex % 3; // 0: Movable (0,3,6,9), 1: Fixed (1,4,7,10), 2: Dual (2,5,8,11)
+    if (rasiType == 0) {
+      return rasiIndex;
+    } else if (rasiType == 1) {
+      return (rasiIndex + 8) % 12;
+    } else {
+      return (rasiIndex + 4) % 12;
+    }
+  }
+
+  static int calculateNavamsaRasiIndex(int rasiIndex, int navamsaPart) {
+    final startRasi = calculateNavamsaStartIndex(rasiIndex);
+    return (startRasi + navamsaPart) % 12;
+  }
+
   static PlanetDetail _createPlanetDetail(
     String name,
     String tamilName,
@@ -564,61 +679,11 @@ class AstrologyCalculator {
     double longitude, {
     bool isRetrograde = false,
   }) {
-    final normLong = _normalizeDegrees(longitude);
-    final rasiIndex = (normLong / 30.0).floor() % 12;
-    final degreeInRasi = normLong - (rasiIndex * 30.0);
-
-    // Nakshatra calculation: 27 nakshatras × 13°20' each
-    final double nakshatraSpan = 360.0 / 27.0; // 13.333333°
-    final double padaSpan = nakshatraSpan / 4.0; // 3.333333°
-    final nakshatraIndex = (normLong / nakshatraSpan).floor() % 27;
-    final nakshatraOffset = normLong - (nakshatraIndex * nakshatraSpan);
-    final pada = ((nakshatraOffset / padaSpan).floor()).clamp(0, 3) + 1;
-
-    final starLordIndex = nakshatraIndex % 9;
-    final starLord = planetLords[starLordIndex];
-    final tamilStarLord = planetLordsTa[starLordIndex];
-
-    // Sub lord calculation
-    final subLordIndex = ((nakshatraOffset / nakshatraSpan) * 9).floor() % 9;
-    final subLord = planetLords[subLordIndex];
-    final tamilSubLord = planetLordsTa[subLordIndex];
-
-    // Navamsha index calculation (D9)
-    final navamshaDiv = (degreeInRasi / (30.0 / 9.0)).floor().clamp(0, 8);
-    int navamshaStartRasi = 0;
-
-    if (rasiIndex % 4 == 0) {
-      navamshaStartRasi = 0;
-    } else if (rasiIndex % 4 == 1) {
-      navamshaStartRasi = 9;
-    } else if (rasiIndex % 4 == 2) {
-      navamshaStartRasi = 6;
-    } else {
-      navamshaStartRasi = 3;
-    }
-
-    final navamsaIndex = (navamshaStartRasi + navamshaDiv) % 12;
-
-    return PlanetDetail(
+    return PlanetDetail.fromSiderealLongitude(
       name: name,
       tamilName: tamilName,
       symbol: symbol,
-      longitude: normLong,
-      rasiIndex: rasiIndex,
-      rasiNameEn: rasiNamesEn[rasiIndex],
-      rasiNameTa: rasiNamesTa[rasiIndex],
-      degreeInRasi: degreeInRasi,
-      nakshatraIndex: nakshatraIndex,
-      nakshatraNameEn: nakshatrasEn[nakshatraIndex],
-      nakshatraNameTa: nakshatrasTa[nakshatraIndex],
-      pada: pada,
-      starLord: starLord,
-      subLord: subLord,
-      tamilStarLord: tamilStarLord,
-      tamilSubLord: tamilSubLord,
-      navamsaIndex: navamsaIndex,
-      navamsaRasiTa: rasiNamesTa[navamsaIndex],
+      longitude: longitude,
       isRetrograde: isRetrograde,
     );
   }
@@ -626,19 +691,18 @@ class AstrologyCalculator {
   /// Public helper to compute Nakshatra, Pada, and Lord details from any Sidereal Longitude
   static Map<String, dynamic> calculateNakshatraPadaFromLongitude(double longitude) {
     final normLong = _normalizeDegrees(longitude);
-    const double nakshatraSpan = 360.0 / 27.0; // 13.333333°
-    const double padaSpan = nakshatraSpan / 4.0; // 3.333333°
-    final nakshatraIndex = (normLong / nakshatraSpan).floor() % 27;
-    final nakshatraOffset = normLong - (nakshatraIndex * nakshatraSpan);
-    final pada = ((nakshatraOffset / padaSpan).floor()).clamp(0, 3) + 1;
+    final int totalSecs = (normLong * arcsecondsPerDegree).round() % totalArcseconds;
+    final int nakshatraIndex = (totalSecs ~/ arcsecondsPerNakshatra).clamp(0, 26);
+    final int nakshatraRemainder = totalSecs % arcsecondsPerNakshatra;
+    final int pada = ((nakshatraRemainder ~/ arcsecondsPerPada)).clamp(0, 3) + 1;
 
-    final starLordIndex = nakshatraIndex % 9;
-    final starLord = planetLords[starLordIndex];
-    final tamilStarLord = planetLordsTa[starLordIndex];
+    final int starLordIndex = nakshatraIndex % 9;
+    final String starLord = planetLords[starLordIndex];
+    final String tamilStarLord = planetLordsTa[starLordIndex];
 
-    final subLordIndex = ((nakshatraOffset / nakshatraSpan) * 9).floor() % 9;
-    final subLord = planetLords[subLordIndex];
-    final tamilSubLord = planetLordsTa[subLordIndex];
+    final int subLordIndex = ((nakshatraRemainder * 9) ~/ arcsecondsPerNakshatra).clamp(0, 8);
+    final String subLord = planetLords[subLordIndex];
+    final String tamilSubLord = planetLordsTa[subLordIndex];
 
     return {
       'nakshatraIndex': nakshatraIndex,
@@ -786,11 +850,14 @@ class AstrologyCalculator {
     return _normalizeDegrees(lagnaTrop - ayanamsa);
   }
 
-  static double _normalizeDegrees(double deg) {
+  /// Public degree normalizer ensuring 0.0 <= longitude < 360.0
+  static double normalizeDegrees(double deg) {
     double result = deg % 360.0;
     if (result < 0) result += 360.0;
     return result;
   }
+
+  static double _normalizeDegrees(double deg) => normalizeDegrees(deg);
 
   static double _degToRad(double deg) => deg * (pi / 180.0);
   static double _radToDeg(double rad) => rad * (180.0 / pi);

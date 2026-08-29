@@ -88,17 +88,7 @@ class VargaCalculator {
         // Fixed (1,4,7,10) -> starts 9th from it
         // Dual (2,5,8,11) -> starts 5th from it
         final part = (degreeInRasi / (30.0 / 9.0)).floor().clamp(0, 8);
-        int startRasi = 0;
-        if (rasiIdx % 4 == 0) {
-          startRasi = 0; // Aries, Leo, Sagittarius starts at Aries
-        } else if (rasiIdx % 4 == 1) {
-          startRasi = 9; // Taurus, Virgo, Capricorn starts at Capricorn
-        } else if (rasiIdx % 4 == 2) {
-          startRasi = 6; // Gemini, Libra, Aquarius starts at Libra
-        } else {
-          startRasi = 3; // Cancer, Scorpio, Pisces starts at Cancer
-        }
-        return (startRasi + part) % 12;
+        return AstrologyCalculator.calculateNavamsaRasiIndex(rasiIdx, part);
 
       case VargaType.d10: // Dasamsha (10 divisions of 3°)
         // Odd signs: starts from same sign. Even signs: starts from 9th sign.

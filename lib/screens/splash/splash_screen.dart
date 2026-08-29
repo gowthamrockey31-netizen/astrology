@@ -45,35 +45,37 @@ class _SplashScreenState extends State<SplashScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // App Logo Container with Golden Aura & Dynamic Animations
-                Container(
-                  width: 170,
-                  height: 170,
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: AppColors.goldBorderGradient,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryGold.withOpacity(0.6),
-                        blurRadius: 36,
-                        spreadRadius: 6,
-                      ),
-                    ],
-                  ),
+                Center(
                   child: Container(
-                    decoration: const BoxDecoration(
+                    width: 170,
+                    height: 170,
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.backgroundDeep,
+                      gradient: AppColors.goldBorderGradient,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primaryGold.withOpacity(0.6),
+                          blurRadius: 36,
+                          spreadRadius: 6,
+                        ),
+                      ],
                     ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Image.asset(
-                      AppConstants.appLogo,
-                      fit: BoxFit.cover,
-                      alignment: Alignment.center,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.auto_awesome,
-                        size: 80,
-                        color: AppColors.lightGold,
+                    child: Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: ClipOval(
+                        child: Image.asset(
+                          AppConstants.appLogo,
+                          fit: BoxFit.cover,
+                          alignment: Alignment.center,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            color: AppColors.backgroundDeep,
+                            child: const Icon(
+                              Icons.auto_awesome,
+                              size: 80,
+                              color: AppColors.lightGold,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),

@@ -18,14 +18,12 @@ class PdfFontManager {
   /// Get the active bold Tamil Unicode font
   static pw.Font get boldFont => _tamilBoldFont ?? pw.Font.helveticaBold();
 
-  /// Get fallback fonts list for mixed language (English + Tamil + Numbers + Symbols)
+  /// Get fallback fonts list for mixed language (Tamil + English + Numbers + Symbols)
   static List<pw.Font> get fallbackFonts => [
-        if (_latinRegularFont != null) _latinRegularFont!,
-        if (_latinBoldFont != null) _latinBoldFont!,
         if (_tamilRegularFont != null) _tamilRegularFont!,
         if (_tamilBoldFont != null) _tamilBoldFont!,
-        pw.Font.helvetica(),
-        pw.Font.helveticaBold(),
+        if (_latinRegularFont != null) _latinRegularFont!,
+        if (_latinBoldFont != null) _latinBoldFont!,
       ];
 
   /// Initialize and load Tamil & Latin Unicode TrueType fonts

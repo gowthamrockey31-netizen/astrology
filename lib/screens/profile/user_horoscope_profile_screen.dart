@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../models/user_model.dart';
 import '../../services/astrology_calculator.dart';
 import '../../services/auth_service.dart';
+import '../../services/geocoding_service.dart';
 import '../../widgets/cosmic_background.dart';
 import '../../widgets/golden_button.dart';
 import '../../widgets/golden_text_field.dart';
@@ -32,6 +33,9 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
   final _latController = TextEditingController(text: '${AuthService.currentUser?.latitude ?? 13.0827}');
   final _lonController = TextEditingController(text: '${AuthService.currentUser?.longitude ?? 80.2707}');
   final _tzController = TextEditingController(text: '${AuthService.currentUser?.timezone ?? 5.5}');
+
+  List<GeocodingLocation> _placeSuggestions = [];
+  bool _showSuggestions = false;
 
   String _gender = 'Male';
   DateTime _dob = DateTime(1996, 6, 15);
@@ -268,7 +272,7 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
                                   const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.lightGold),
                                   const SizedBox(width: 8),
                                   Text(
-                                    DateFormat('dd MMM yyyy').format(_dob),
+                                    DateFormat('dd / MM / yyyy').format(_dob),
                                     style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                                   ),
                                 ],
@@ -315,11 +319,67 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
                 const SizedBox(height: 14),
 
                 GoldenTextField(
-                  label: 'Place of Birth',
-                  hint: 'e.g. Hospital / Area',
+                  label: 'Place of Birth (பிறந்த ஊர் / நகரம்)',
+                  hint: 'Type City / Town e.g. Coimbatore, Madurai',
                   prefixIcon: Icons.place_rounded,
                   controller: _placeController,
+                  onChanged: (val) async {
+                    if (val.trim().length >= 2) {
+                      final results = await GeocodingService.searchPlaces(val);
+                      setState(() {
+                        _placeSuggestions = results;
+                        _showSuggestions = results.isNotEmpty;
+                      });
+                    } else {
+                      setState(() => _showSuggestions = false);
+                    }
+                  },
                 ),
+
+                // Location Suggestions Dropdown
+                if (_showSuggestions && _placeSuggestions.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(top: 4, bottom: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardSurface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.6)),
+                    ),
+                    constraints: const BoxConstraints(maxHeight: 180),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: _placeSuggestions.length,
+                      separatorBuilder: (_, __) => const Divider(color: Colors.white10, height: 1),
+                      itemBuilder: (context, idx) {
+                        final loc = _placeSuggestions[idx];
+                        return ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.location_on, color: AppColors.lightGold, size: 18),
+                          title: Text(
+                            loc.displayName,
+                            style: GoogleFonts.outfit(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            'Lat: ${loc.latitude.toStringAsFixed(4)}, Lon: ${loc.longitude.toStringAsFixed(4)}',
+                            style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 10),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _placeController.text = loc.cityName;
+                              _cityController.text = loc.cityName;
+                              _stateController.text = loc.state;
+                              _countryController.text = loc.country;
+                              _latController.text = loc.latitude.toString();
+                              _lonController.text = loc.longitude.toString();
+                              _tzController.text = loc.timezone.toString();
+                              _showSuggestions = false;
+                            });
+                            _recalculateAstrology();
+                          },
+                        );
+                      },
+                    ),
+                  ),
 
                 const SizedBox(height: 14),
 
