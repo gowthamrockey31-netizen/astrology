@@ -43,6 +43,9 @@ class TamilCalendarDayCell extends StatelessWidget {
     } else if (isToday) {
       bgColor = Colors.amber.withValues(alpha: 0.12);
       border = Border.all(color: Colors.amberAccent, width: 1.2);
+    } else if (dayData.isTamilMonthStart) {
+      bgColor = AppColors.primaryGold.withValues(alpha: 0.10);
+      border = Border.all(color: AppColors.primaryGold.withValues(alpha: 0.7), width: 1.0);
     } else {
       bgColor = isCurrentMonth ? AppColors.cardSurface.withValues(alpha: 0.85) : Colors.black26;
       border = Border.all(
@@ -51,7 +54,7 @@ class TamilCalendarDayCell extends StatelessWidget {
       );
     }
 
-    final double opacity = isCurrentMonth ? 1.0 : 0.45;
+    final double opacity = isCurrentMonth ? 1.0 : 0.40;
 
     return Opacity(
       opacity: opacity,
@@ -64,7 +67,7 @@ class TamilCalendarDayCell extends StatelessWidget {
           highlightColor: AppColors.primaryGold.withValues(alpha: 0.15),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: BorderRadius.circular(10),
@@ -75,29 +78,27 @@ class TamilCalendarDayCell extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Top Row: Tamil Date (Prominent) & English Date
+                // 1. Top Row: Gregorian Date Number & Date Tag (15 | 15/08)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    // Prominent Tamil Date
                     Text(
-                      '${dayData.tamilDay}',
+                      '${dayData.date.day}',
                       style: GoogleFonts.outfit(
-                        fontSize: 15,
+                        fontSize: 13.5,
                         fontWeight: FontWeight.w900,
                         color: isSelected
                             ? AppColors.lightGold
-                            : (dayData.isMuhurtham ? Colors.amberAccent : Colors.white),
+                            : (dayData.isTamilMonthStart ? Colors.amberAccent : Colors.white),
                         height: 1.0,
                       ),
                     ),
-                    // Gregorian Date (small)
                     Text(
                       gregorianFormatted,
                       style: GoogleFonts.outfit(
-                        fontSize: 9,
+                        fontSize: 8.5,
                         fontWeight: FontWeight.w500,
                         color: isSelected ? Colors.white : AppColors.textSecondary,
                         height: 1.0,
@@ -106,21 +107,44 @@ class TamilCalendarDayCell extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 2),
+                // 2. Tamil Solar Month & Date (e.g. "ஆடி 30" or highlighted "ஆவணி 1")
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 2.5, vertical: 0.5),
+                  decoration: BoxDecoration(
+                    color: dayData.isTamilMonthStart
+                        ? AppColors.primaryGold.withValues(alpha: 0.35)
+                        : Colors.white.withValues(alpha: 0.07),
+                    borderRadius: BorderRadius.circular(3),
+                    border: dayData.isTamilMonthStart
+                        ? Border.all(color: AppColors.primaryGold, width: 0.6)
+                        : null,
+                  ),
+                  child: Text(
+                    '${dayData.tamilMonth} ${dayData.tamilDay}',
+                    style: GoogleFonts.outfit(
+                      fontSize: 8.5,
+                      fontWeight: dayData.isTamilMonthStart ? FontWeight.w800 : FontWeight.w600,
+                      color: dayData.isTamilMonthStart ? AppColors.lightGold : Colors.white.withValues(alpha: 0.95),
+                      height: 1.0,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
 
-                // Middle: Indicators (Nokku & Tithi / Nakshatra)
+                // 3. Middle: Nokku & Tithi / Nakshatra
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Nokku & Tithi line
+                      // Nokku & Tithi
                       Row(
                         children: [
                           Text(
                             dayData.nokkuDinam.symbol,
                             style: TextStyle(
-                              fontSize: 9,
+                              fontSize: 8.5,
                               fontWeight: FontWeight.bold,
                               color: dayData.nokkuDinam == NokkuDinamType.mel
                                   ? Colors.greenAccent
@@ -134,7 +158,7 @@ class TamilCalendarDayCell extends StatelessWidget {
                             child: Text(
                               dayData.thithi,
                               style: GoogleFonts.outfit(
-                                fontSize: 8.5,
+                                fontSize: 8.0,
                                 fontWeight: FontWeight.w600,
                                 color: dayData.thithiNumber == 15
                                     ? Colors.amberAccent
@@ -151,13 +175,13 @@ class TamilCalendarDayCell extends StatelessWidget {
                       // Nakshatra line
                       Row(
                         children: [
-                          const Text('⭐', style: TextStyle(fontSize: 7)),
+                          const Text('⭐', style: TextStyle(fontSize: 6.5)),
                           const SizedBox(width: 2),
                           Expanded(
                             child: Text(
                               dayData.nakshatra,
                               style: GoogleFonts.outfit(
-                                fontSize: 8.5,
+                                fontSize: 8.0,
                                 color: AppColors.lightGold.withValues(alpha: 0.9),
                               ),
                               maxLines: 1,
@@ -170,7 +194,7 @@ class TamilCalendarDayCell extends StatelessWidget {
                   ),
                 ),
 
-                // Bottom Badges: Government Holiday / Festival / Muhurtham
+                // 4. Bottom Badges: Government Holiday / Festival / Muhurtham
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -179,7 +203,7 @@ class TamilCalendarDayCell extends StatelessWidget {
                         padding: EdgeInsets.only(right: 2),
                         child: Text(
                           '💍',
-                          style: TextStyle(fontSize: 8.5),
+                          style: TextStyle(fontSize: 8),
                         ),
                       ),
                     if (dayData.hasFestival)
@@ -191,7 +215,7 @@ class TamilCalendarDayCell extends StatelessWidget {
                             color: Colors.purple.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(3),
                           ),
-                          child: const Text('🎉', style: TextStyle(fontSize: 7)),
+                          child: const Text('🎉', style: TextStyle(fontSize: 6.5)),
                         ),
                       ),
                     if (dayData.isGovernmentHoliday)
@@ -201,7 +225,7 @@ class TamilCalendarDayCell extends StatelessWidget {
                           color: Colors.red.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(3),
                         ),
-                        child: const Text('🏛️', style: TextStyle(fontSize: 7)),
+                        child: const Text('🏛️', style: TextStyle(fontSize: 6.5)),
                       ),
                   ],
                 ),

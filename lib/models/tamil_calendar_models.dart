@@ -198,6 +198,9 @@ class CalendarDay {
     required this.soolamDirection,
     required this.pariharam,
   });
+
+  /// Indicates if this day is the exact astronomical start (Day 1 / Ingress) of a Tamil Solar Month
+  bool get isTamilMonthStart => tamilDay == 1;
 }
 
 /// Precise Tamil Calendar Date Representation
