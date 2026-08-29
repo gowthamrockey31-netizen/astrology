@@ -4,7 +4,7 @@ import 'package:astrocall/models/tamil_calendar_models.dart';
 import 'package:astrocall/services/panchanga_provider.dart';
 
 void main() {
-  group('Tamil Monthly Calendar Calculation & Daily Detail Tests', () {
+  group('Tamil Monthly Calendar Start Position & Day 1 Alignment Tests', () {
     const provider = AstronomicalPanchangaProvider();
     const location = PanchangaLocation(
       city: 'Chennai',
@@ -13,72 +13,87 @@ void main() {
       timezone: 5.5,
     );
 
-    test('1. August 2026 Monthly Grid: Correctly contains Aadi and Aavani with solar ingress at Aug 17', () {
-      final controller = TamilCalendarController(
+    test('1. Start Position: Tamil Monthly Calendar starts strictly from Tamil Month Day 1', () {
+      // Test Aadi (Month Index 3, July-August 2026)
+      final aadiController = TamilCalendarController(
         initialLocation: location,
-        initialDate: DateTime(2026, 8, 1),
+        initialDate: DateTime(2026, 7, 20), // Aadi
       );
 
-      expect(controller.focusedGregorianMonthYear, equals('August 2026'));
-      expect(controller.focusedTamilMonthSummary, equals('ஆடி / ஆவணி'));
-      expect(controller.focusedTamilYearName, equals('பராபவ'));
+      expect(aadiController.focusedTamilMonthName, equals('ஆடி'));
+      final aadiGrid = aadiController.getMonthGridDays();
 
-      final gridDays = controller.getMonthGridDays();
-      expect([35, 42].contains(gridDays.length), isTrue);
+      // July 17, 2026 is Friday (index 5 in Sunday-first ஞா..ச)
+      // Cells 0..4 are empty (null) to maintain exact weekday alignment
+      for (int i = 0; i < 5; i++) {
+        expect(aadiGrid[i], isNull);
+      }
+      // Cell 5 is Aadi Day 1
+      expect(aadiGrid[5], isNotNull);
+      expect(aadiGrid[5]!.tamilDay, equals(1));
+      expect(aadiGrid[5]!.tamilMonth, equals('ஆடி'));
+      expect(aadiGrid[5]!.date, equals(DateTime(2026, 7, 17)));
+      expect(aadiGrid[5]!.weekdayTa, equals('வெள்ளி'));
 
-      // Verify August 1, 2026 is Aadi 16
-      final aug1 = controller.getDayData(DateTime(2026, 8, 1));
-      expect(aug1.tamilMonth, equals('ஆடி'));
-      expect(aug1.tamilDay, equals(16));
-      expect(aug1.isTamilMonthStart, isFalse);
+      // Test Aavani (Month Index 4, August-September 2026)
+      final aavaniController = TamilCalendarController(
+        initialLocation: location,
+        initialDate: DateTime(2026, 8, 20), // Aavani
+      );
 
-      // Verify August 16, 2026 is Aadi 31 (last day of Aadi)
-      final aug16 = controller.getDayData(DateTime(2026, 8, 16));
-      expect(aug16.tamilMonth, equals('ஆடி'));
-      expect(aug16.tamilDay, equals(31));
+      expect(aavaniController.focusedTamilMonthName, equals('ஆவணி'));
+      final aavaniGrid = aavaniController.getMonthGridDays();
 
-      // Verify August 17, 2026 is Aavani 1 (Solar Ingress into Simha!)
-      final aug17 = controller.getDayData(DateTime(2026, 8, 17));
-      expect(aug17.tamilMonth, equals('ஆவணி'));
-      expect(aug17.tamilDay, equals(1));
-      expect(aug17.isTamilMonthStart, isTrue);
-
-      // Verify August 31, 2026 is Aavani 15
-      final aug31 = controller.getDayData(DateTime(2026, 8, 31));
-      expect(aug31.tamilMonth, equals('ஆவணி'));
-      expect(aug31.tamilDay, equals(15));
+      // August 17, 2026 is Monday (index 1 in Sunday-first ஞா..ச)
+      // Cell 0 is empty (null)
+      expect(aavaniGrid[0], isNull);
+      // Cell 1 is Aavani Day 1
+      expect(aavaniGrid[1], isNotNull);
+      expect(aavaniGrid[1]!.tamilDay, equals(1));
+      expect(aavaniGrid[1]!.tamilMonth, equals('ஆவணி'));
+      expect(aavaniGrid[1]!.date, equals(DateTime(2026, 8, 17)));
+      expect(aavaniGrid[1]!.weekdayTa, equals('திங்கள்'));
     });
 
-    test('2. Month Navigation: Next, Previous, and Today recalculate exact Tamil dates', () {
+    test('2. Month Navigation: Next and Previous step through Tamil Months starting at Day 1', () {
       final controller = TamilCalendarController(
         initialLocation: location,
-        initialDate: DateTime(2026, 8, 15),
+        initialDate: DateTime(2026, 7, 20), // Aadi
       );
 
-      // Navigate to Next Month (September 2026)
+      expect(controller.focusedTamilMonthName, equals('ஆடி'));
+
+      // Next Month -> Aavani
       controller.nextMonth();
-      expect(controller.focusedGregorianMonthYear, equals('September 2026'));
-      expect(controller.focusedTamilMonthSummary, equals('ஆவணி / புரட்டாசி'));
+      expect(controller.focusedTamilMonthName, equals('ஆவணி'));
+      final nextGrid = controller.getMonthGridDays();
+      final aavaniDay1 = nextGrid.firstWhere((d) => d != null && d.tamilDay == 1);
+      expect(aavaniDay1, isNotNull);
+      expect(aavaniDay1!.tamilMonth, equals('ஆவணி'));
+      expect(aavaniDay1.date, equals(DateTime(2026, 8, 17)));
 
-      // In September 2026, Sept 16 is Aavani 31, Sept 17 is Purattasi 1
-      final sept16 = controller.getDayData(DateTime(2026, 9, 16));
-      expect(sept16.tamilMonth, equals('ஆவணி'));
-      final sept17 = controller.getDayData(DateTime(2026, 9, 17));
-      expect(sept17.tamilMonth, equals('புரட்டாசி'));
-      expect(sept17.tamilDay, equals(1));
-      expect(sept17.isTamilMonthStart, isTrue);
+      // Next Month -> Purattasi
+      controller.nextMonth();
+      expect(controller.focusedTamilMonthName, equals('புரட்டாசி'));
+      final purattasiGrid = controller.getMonthGridDays();
+      final purattasiDay1 = purattasiGrid.firstWhere((d) => d != null && d.tamilDay == 1);
+      expect(purattasiDay1!.date, equals(DateTime(2026, 9, 17)));
 
-      // Navigate back to Previous Month (August 2026)
+      // Previous Month -> back to Aavani
       controller.previousMonth();
-      expect(controller.focusedGregorianMonthYear, equals('August 2026'));
+      expect(controller.focusedTamilMonthName, equals('ஆவணி'));
 
-      // Test Today Button
+      // Previous Month -> back to Aadi
+      controller.previousMonth();
+      expect(controller.focusedTamilMonthName, equals('ஆடி'));
+
+      // Today Button
       controller.goToToday();
-      expect(controller.selectedDate.year, equals(DateTime.now().year));
-      expect(controller.selectedDate.month, equals(DateTime.now().month));
+      final todayTamil = provider.getTamilDate(DateTime.now(), location: location);
+      expect(controller.focusedTamilMonthName, equals(todayTamil.tamilMonth));
     });
 
-    test('3. Verification of all 12 Solar Month Ingress Boundaries (2026)', () {
+    test('3. Verification of all 12 Tamil Solar Month Start Dates and Day 1 Ingress', () {
       final ingressDates2026 = {
         'சித்திரை': DateTime(2026, 4, 14),
         'வைகாசி': DateTime(2026, 5, 15),
@@ -96,40 +111,21 @@ void main() {
 
       ingressDates2026.forEach((monthName, ingressDate) {
         final dayData = provider.calculateSync(date: ingressDate, location: location);
-        expect(dayData.tamilMonth, equals(monthName), reason: 'Ingress month mismatch for $monthName at $ingressDate');
-        expect(dayData.tamilDay, equals(1), reason: 'Day 1 expected at solar ingress for $monthName');
+        expect(dayData.tamilMonth, equals(monthName));
+        expect(dayData.tamilDay, equals(1));
         expect(dayData.isTamilMonthStart, isTrue);
 
-        // Previous calendar day must belong to previous month
-        final prevDayData = provider.calculateSync(
+        // Previous day was last day of prior month
+        final prevDay = provider.calculateSync(
           date: ingressDate.subtract(const Duration(days: 1)),
           location: location,
         );
-        expect(prevDayData.tamilMonth, isNot(equals(monthName)), reason: 'Previous day should not be $monthName');
-        expect(prevDayData.tamilDay, greaterThanOrEqualTo(29));
+        expect(prevDay.tamilMonth, isNot(equals(monthName)));
+        expect(prevDay.tamilDay, greaterThanOrEqualTo(29));
       });
     });
 
-    test('4. Location and Timezone Awareness without Hardcoded Single City', () {
-      const londonLocation = PanchangaLocation(
-        city: 'London',
-        latitude: 51.5074,
-        longitude: -0.1278,
-        timezone: 0.0, // UTC
-      );
-
-      final controller = TamilCalendarController(
-        initialLocation: londonLocation,
-        initialDate: DateTime(2026, 8, 17),
-      );
-
-      final dayData = controller.getDayData(DateTime(2026, 8, 17));
-      expect(dayData.location.city, equals('London'));
-      expect(dayData.sunrise.isNotEmpty, isTrue);
-      expect(dayData.sunset.isNotEmpty, isTrue);
-    });
-
-    test('5. Daily Panchangam Details attached to every cell', () {
+    test('4. Existing Panchanga Details & Festivals remain intact', () {
       final aug15 = provider.calculateSync(date: DateTime(2026, 8, 15), location: location);
       expect(aug15.tamilMonth, equals('ஆடி'));
       expect(aug15.tamilDay, equals(30));

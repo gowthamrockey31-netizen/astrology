@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../controllers/tamil_calendar_controller.dart';
 import '../../core/theme/app_colors.dart';
 import 'tamil_calendar_day_cell.dart';
 import 'tamil_day_detail_sheet.dart';
 
-/// Full interactive monthly calendar grid for Tamil Month & Panchangam
+/// Full interactive monthly calendar grid starting strictly at Tamil Month Day 1
 class TamilMonthCalendarView extends StatelessWidget {
   final TamilCalendarController controller;
   final VoidCallback? onSwitchToDayView;
@@ -25,10 +26,11 @@ class TamilMonthCalendarView extends StatelessWidget {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
-        final focusedMonth = controller.focusedMonth;
-        final gregorianMonthYear = controller.focusedGregorianMonthYear;
-        final tamilMonthSummary = controller.focusedTamilMonthSummary;
+        final monthData = controller.currentMonthData;
+        final tamilMonthName = controller.focusedTamilMonthName;
         final tamilYearName = controller.focusedTamilYearName;
+        final dateRangeFormatted =
+            '${DateFormat('d MMMM yyyy').format(monthData.startDate)} – ${DateFormat('d MMMM yyyy').format(monthData.endDate)}';
         final gridDays = controller.getMonthGridDays();
         final selectedDate = controller.selectedDate;
         final today = DateTime.now();
@@ -39,9 +41,9 @@ class TamilMonthCalendarView extends StatelessWidget {
             // 1. Month Header & Navigator Card
             _buildMonthNavigatorCard(
               context: context,
-              gregorianMonthYear: gregorianMonthYear,
-              tamilMonthSummary: tamilMonthSummary,
+              tamilMonthName: tamilMonthName,
               tamilYearName: tamilYearName,
+              dateRangeFormatted: dateRangeFormatted,
             ),
 
             const SizedBox(height: 12),
@@ -51,22 +53,25 @@ class TamilMonthCalendarView extends StatelessWidget {
 
             const SizedBox(height: 8),
 
-            // 3. 7-Column Calendar Grid with accurate Tamil calendar details
+            // 3. 7-Column Calendar Grid starting at Tamil Month Day 1 with exact weekday alignment
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: gridDays.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 7,
-                childAspectRatio: 0.70,
+                childAspectRatio: 0.72,
                 crossAxisSpacing: 5,
                 mainAxisSpacing: 5,
               ),
               itemBuilder: (context, index) {
                 final dayData = gridDays[index];
 
-                final isCurrentMonth = dayData.date.month == focusedMonth.month &&
-                    dayData.date.year == focusedMonth.year;
+                // Leading / trailing padding slots are empty to preserve weekday alignment
+                if (dayData == null) {
+                  return const SizedBox.shrink();
+                }
+
                 final isSelected = dayData.date.year == selectedDate.year &&
                     dayData.date.month == selectedDate.month &&
                     dayData.date.day == selectedDate.day;
@@ -77,7 +82,7 @@ class TamilMonthCalendarView extends StatelessWidget {
                 return TamilCalendarDayCell(
                   dayData: dayData,
                   isSelected: isSelected,
-                  isCurrentMonth: isCurrentMonth,
+                  isCurrentMonth: true,
                   isToday: isToday,
                   onTap: () {
                     controller.selectDate(dayData.date);
@@ -105,9 +110,9 @@ class TamilMonthCalendarView extends StatelessWidget {
 
   Widget _buildMonthNavigatorCard({
     required BuildContext context,
-    required String gregorianMonthYear,
-    required String tamilMonthSummary,
+    required String tamilMonthName,
     required String tamilYearName,
+    required String dateRangeFormatted,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -131,33 +136,33 @@ class TamilMonthCalendarView extends StatelessWidget {
             tooltip: 'முந்தைய மாதம் (Previous Month)',
           ),
 
-          // Central Gregorian Month & Tamil Month Summary
+          // Central Tamil Month & Gregorian Date Range
           Expanded(
             child: Column(
               children: [
                 Text(
-                  'தமிழ் ஆண்டு: $tamilYearName வருடம்',
+                  'தமிழ் ஆண்டு: $tamilYearName வருடம்  •  தமிழ் மாதம்',
                   style: GoogleFonts.outfit(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textSecondary,
-                    letterSpacing: 1.0,
+                    letterSpacing: 1.1,
                   ),
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  gregorianMonthYear,
+                  tamilMonthName,
                   style: GoogleFonts.cinzel(
-                    fontSize: 19,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: AppColors.lightGold,
                   ),
                 ),
                 Text(
-                  'தமிழ் மாதம்: $tamilMonthSummary',
+                  dateRangeFormatted,
                   style: GoogleFonts.outfit(
                     fontSize: 11,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: Colors.white70,
                   ),
                 ),
