@@ -26,9 +26,11 @@ class TamilMonthCalendarView extends StatelessWidget {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
-        final focusedMonth = controller.focusedMonth;
-        final tamilMonthName = controller.getFocusedTamilMonthName();
-        final gregorianMonthYear = DateFormat('MMMM yyyy').format(focusedMonth);
+        final monthData = controller.currentMonthData;
+        final tamilMonthName = controller.focusedTamilMonthName;
+        final tamilYearName = controller.focusedTamilYearName;
+        final dateRangeFormatted =
+            '${DateFormat('d MMMM yyyy').format(monthData.startDate)} – ${DateFormat('d MMMM yyyy').format(monthData.endDate)}';
         final gridDays = controller.getMonthGridDays();
         final selectedDate = controller.selectedDate;
         final today = DateTime.now();
@@ -40,7 +42,8 @@ class TamilMonthCalendarView extends StatelessWidget {
             _buildMonthNavigatorCard(
               context: context,
               tamilMonthName: tamilMonthName,
-              gregorianMonthYear: gregorianMonthYear,
+              tamilYearName: tamilYearName,
+              dateRangeFormatted: dateRangeFormatted,
             ),
 
             const SizedBox(height: 12),
@@ -50,7 +53,7 @@ class TamilMonthCalendarView extends StatelessWidget {
 
             const SizedBox(height: 8),
 
-            // 3. 7-Column Calendar Grid
+            // 3. 7-Column Calendar Grid with Tamil Day 1 properly aligned
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -63,8 +66,12 @@ class TamilMonthCalendarView extends StatelessWidget {
               ),
               itemBuilder: (context, index) {
                 final dayData = gridDays[index];
-                final isCurrentMonth = dayData.date.month == focusedMonth.month &&
-                    dayData.date.year == focusedMonth.year;
+
+                // Leading / trailing padding cells are empty
+                if (dayData == null) {
+                  return const SizedBox.shrink();
+                }
+
                 final isSelected = dayData.date.year == selectedDate.year &&
                     dayData.date.month == selectedDate.month &&
                     dayData.date.day == selectedDate.day;
@@ -75,7 +82,7 @@ class TamilMonthCalendarView extends StatelessWidget {
                 return TamilCalendarDayCell(
                   dayData: dayData,
                   isSelected: isSelected,
-                  isCurrentMonth: isCurrentMonth,
+                  isCurrentMonth: true,
                   isToday: isToday,
                   onTap: () {
                     controller.selectDate(dayData.date);
@@ -104,7 +111,8 @@ class TamilMonthCalendarView extends StatelessWidget {
   Widget _buildMonthNavigatorCard({
     required BuildContext context,
     required String tamilMonthName,
-    required String gregorianMonthYear,
+    required String tamilYearName,
+    required String dateRangeFormatted,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -128,12 +136,12 @@ class TamilMonthCalendarView extends StatelessWidget {
             tooltip: 'முந்தைய மாதம் (Previous Month)',
           ),
 
-          // Central Tamil Month & Gregorian Year Title
+          // Central Tamil Month & Gregorian Date Range
           Expanded(
             child: Column(
               children: [
                 Text(
-                  'தமிழ் மாதம்',
+                  'தமிழ் ஆண்டு: $tamilYearName  •  தமிழ் மாதம்',
                   style: GoogleFonts.outfit(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -145,13 +153,13 @@ class TamilMonthCalendarView extends StatelessWidget {
                 Text(
                   tamilMonthName,
                   style: GoogleFonts.cinzel(
-                    fontSize: 18,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: AppColors.lightGold,
                   ),
                 ),
                 Text(
-                  gregorianMonthYear,
+                  dateRangeFormatted,
                   style: GoogleFonts.outfit(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,

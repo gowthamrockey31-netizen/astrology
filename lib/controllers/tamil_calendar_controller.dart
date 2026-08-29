@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import '../models/tamil_calendar_models.dart';
 import '../services/panchanga_provider.dart';
 
-/// Controller for Tamil Panchanga Calendar with high-performance caching
+/// Controller for Tamil Panchanga Calendar driven strictly by Tamil Solar Months
 class TamilCalendarController extends ChangeNotifier {
   final PanchangaProvider _provider;
   PanchangaLocation _location;
-  DateTime _focusedMonth;
+
+  int _focusedTamilYear;
+  int _focusedTamilMonthIndex; // 0..11 (0=Chithirai .. 11=Panguni)
   DateTime _selectedDate;
+  late TamilMonthData _currentMonthData;
 
   // In-memory cache for ultra-fast day retrieval (key: YYYY-MM-DD_lat_lon)
   final Map<String, CalendarDay> _cache = {};
@@ -18,18 +21,34 @@ class TamilCalendarController extends ChangeNotifier {
     DateTime? initialDate,
   })  : _provider = provider ?? const AstronomicalPanchangaProvider(),
         _location = initialLocation ?? PanchangaLocation.chennai,
-        _focusedMonth = DateTime(
-          (initialDate ?? DateTime.now()).year,
-          (initialDate ?? DateTime.now()).month,
-          1,
-        ),
-        _selectedDate = initialDate ?? DateTime.now();
+        _selectedDate = initialDate ?? DateTime.now(),
+        _focusedTamilYear = (initialDate ?? DateTime.now()).year,
+        _focusedTamilMonthIndex = 0 {
+    final initDt = initialDate ?? DateTime.now();
+    final tamilDt = _provider.getTamilDate(initDt, location: _location);
+    _focusedTamilYear = tamilDt.tamilYear;
+    _focusedTamilMonthIndex = tamilDt.tamilMonthIndex;
+    _refreshMonthData();
+  }
 
   // Getters
   PanchangaLocation get location => _location;
-  DateTime get focusedMonth => _focusedMonth;
+  int get focusedTamilYear => _focusedTamilYear;
+  int get focusedTamilMonthIndex => _focusedTamilMonthIndex;
+  String get focusedTamilMonthName => _currentMonthData.tamilMonth;
+  String get focusedTamilYearName => _currentMonthData.tamilYearName;
+  TamilMonthData get currentMonthData => _currentMonthData;
+  DateTime get focusedMonth => _currentMonthData.startDate;
   DateTime get selectedDate => _selectedDate;
   CalendarDay get selectedCalendarDay => getDayData(_selectedDate);
+
+  void _refreshMonthData() {
+    _currentMonthData = _provider.getTamilMonthData(
+      tamilYear: _focusedTamilYear,
+      tamilMonthIndex: _focusedTamilMonthIndex,
+      location: _location,
+    );
+  }
 
   /// Change user location and clear location-dependent cache entries
   void updateLocation(PanchangaLocation newLocation) {
@@ -38,46 +57,61 @@ class TamilCalendarController extends ChangeNotifier {
         _location.timezone != newLocation.timezone) {
       _location = newLocation;
       _cache.clear();
+      _refreshMonthData();
       notifyListeners();
     }
   }
 
-  /// Select a particular date
+  /// Select a particular Gregorian date and switch Tamil month if required
   void selectDate(DateTime date) {
     _selectedDate = DateTime(date.year, date.month, date.day);
-    if (_focusedMonth.year != date.year || _focusedMonth.month != date.month) {
-      _focusedMonth = DateTime(date.year, date.month, 1);
+    final selTamil = _provider.getTamilDate(_selectedDate, location: _location);
+    if (_focusedTamilYear != selTamil.tamilYear || _focusedTamilMonthIndex != selTamil.tamilMonthIndex) {
+      _focusedTamilYear = selTamil.tamilYear;
+      _focusedTamilMonthIndex = selTamil.tamilMonthIndex;
+      _refreshMonthData();
     }
     notifyListeners();
   }
 
-  /// Move to previous month
+  /// Move to previous Tamil month (e.g. ஆடி -> ஆனி)
   void previousMonth() {
-    _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1, 1);
+    if (_focusedTamilMonthIndex > 0) {
+      _focusedTamilMonthIndex--;
+    } else {
+      _focusedTamilMonthIndex = 11;
+      _focusedTamilYear--;
+    }
+    _refreshMonthData();
     notifyListeners();
   }
 
-  /// Move to next month
+  /// Move to next Tamil month (e.g. ஆடி -> ஆவணி)
   void nextMonth() {
-    _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 1);
+    if (_focusedTamilMonthIndex < 11) {
+      _focusedTamilMonthIndex++;
+    } else {
+      _focusedTamilMonthIndex = 0;
+      _focusedTamilYear++;
+    }
+    _refreshMonthData();
     notifyListeners();
   }
 
-  /// Jump back to Today
+  /// Jump back to Today's Tamil Month & Day
   void goToToday() {
     final now = DateTime.now();
     _selectedDate = DateTime(now.year, now.month, now.day);
-    _focusedMonth = DateTime(now.year, now.month, 1);
+    final todayTamil = _provider.getTamilDate(_selectedDate, location: _location);
+    _focusedTamilYear = todayTamil.tamilYear;
+    _focusedTamilMonthIndex = todayTamil.tamilMonthIndex;
+    _refreshMonthData();
     notifyListeners();
   }
 
   /// Move selected day by offset
   void changeDay(int daysOffset) {
-    _selectedDate = _selectedDate.add(Duration(days: daysOffset));
-    if (_focusedMonth.year != _selectedDate.year || _focusedMonth.month != _selectedDate.month) {
-      _focusedMonth = DateTime(_selectedDate.year, _selectedDate.month, 1);
-    }
-    notifyListeners();
+    selectDate(_selectedDate.add(Duration(days: daysOffset)));
   }
 
   /// Get single day data with caching
@@ -91,42 +125,35 @@ class TamilCalendarController extends ChangeNotifier {
     return data;
   }
 
-  /// Get list of all CalendarDays to build the monthly grid (including leading/trailing padding for Sunday..Saturday)
-  List<CalendarDay> getMonthGridDays() {
-    final year = _focusedMonth.year;
-    final month = _focusedMonth.month;
+  /// Get list of all CalendarDays to build the monthly grid (with leading/trailing null cells for Sunday..Saturday alignment)
+  List<CalendarDay?> getMonthGridDays() {
+    final daysInMonth = _currentMonthData.days;
+    if (daysInMonth.isEmpty) return [];
 
-    final firstDayOfMonth = DateTime(year, month, 1);
-    final daysInMonth = DateTime(year, month + 1, 0).day;
-
+    final firstDay = daysInMonth.first;
     // Sunday = 7 in DateTime.weekday. For Sunday-first header (ஞா=0, தி=1, ..., ச=6):
-    // If weekday is 7 (Sun), leading padding is 0. If 1 (Mon), padding is 1, etc.
-    final firstWeekday = firstDayOfMonth.weekday; // 1=Mon .. 7=Sun
+    final firstWeekday = firstDay.date.weekday;
     final leadingPadding = (firstWeekday == 7) ? 0 : firstWeekday;
 
-    final List<CalendarDay> gridDays = [];
+    final List<CalendarDay?> gridDays = [];
 
-    // 1. Leading days from previous month
-    for (int i = leadingPadding; i > 0; i--) {
-      final prevDate = firstDayOfMonth.subtract(Duration(days: i));
-      gridDays.add(getDayData(prevDate));
+    // 1. Leading empty cells before Tamil Day 1
+    for (int i = 0; i < leadingPadding; i++) {
+      gridDays.add(null);
     }
 
-    // 2. Current month days
-    for (int day = 1; day <= daysInMonth; day++) {
-      final curDate = DateTime(year, month, day);
-      gridDays.add(getDayData(curDate));
+    // 2. Actual Tamil Month Days (Day 1..N)
+    for (final day in daysInMonth) {
+      gridDays.add(day);
     }
 
-    // 3. Trailing days to complete standard 7-column grid (up to 35 or 42 cells)
+    // 3. Trailing empty cells to complete standard 7-column grid
     final totalCells = gridDays.length;
-    final targetCells = totalCells <= 35 ? 35 : 42;
+    final targetCells = totalCells <= 35 ? 35 : (totalCells <= 42 ? 42 : ((totalCells + 6) ~/ 7) * 7);
     final trailingCount = targetCells - totalCells;
-    final lastDayOfMonth = DateTime(year, month, daysInMonth);
 
-    for (int i = 1; i <= trailingCount; i++) {
-      final nextDate = lastDayOfMonth.add(Duration(days: i));
-      gridDays.add(getDayData(nextDate));
+    for (int i = 0; i < trailingCount; i++) {
+      gridDays.add(null);
     }
 
     return gridDays;
@@ -134,10 +161,7 @@ class TamilCalendarController extends ChangeNotifier {
 
   /// Helper to get prominent Tamil month name for the focused month
   String getFocusedTamilMonthName() {
-    // Check 15th of the focused month for the central Tamil month name
-    final midMonthDate = DateTime(_focusedMonth.year, _focusedMonth.month, 15);
-    final midData = getDayData(midMonthDate);
-    return midData.tamilMonth;
+    return _currentMonthData.tamilMonth;
   }
 
   static String _cacheKey(DateTime dt, PanchangaLocation loc) {

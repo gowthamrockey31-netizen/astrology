@@ -17,6 +17,24 @@ abstract class PanchangaProvider {
     required DateTime date,
     required PanchangaLocation location,
   });
+
+  /// Reversible astronomical conversion: Gregorian Date -> Tamil Date
+  TamilDate getTamilDate(DateTime gregorianDate, {PanchangaLocation location});
+
+  /// Reversible astronomical conversion: Tamil Date -> Gregorian Date
+  DateTime getGregorianDate({
+    required int tamilYear,
+    required String tamilMonth,
+    required int tamilDay,
+    PanchangaLocation location,
+  });
+
+  /// Authoritative generation of an entire Tamil Month with all consecutive days
+  TamilMonthData getTamilMonthData({
+    required int tamilYear,
+    required int tamilMonthIndex,
+    PanchangaLocation location,
+  });
 }
 
 /// Production Astronomical implementation of PanchangaProvider
@@ -76,6 +94,177 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
   static const Map<int, int> yamaParts = {1: 4, 2: 3, 3: 2, 4: 1, 5: 0, 6: 6, 7: 5};
   static const Map<int, int> gulikaiParts = {1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0, 7: 6};
 
+  /// Internal astronomical helper to get the Nirayana Sidereal Sun sign index (0..11)
+  int _getSunRasiIndex(DateTime dt, PanchangaLocation location) {
+    final midday = DateTime(dt.year, dt.month, dt.day, 12, 0);
+    final astroData = AstrologyCalculator.calculateHoroscope(
+      dateOfBirth: midday,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      utcOffsetHours: location.timezone,
+    );
+    final sunLong = (astroData.sun.longitude % 360.0 + 360.0) % 360.0;
+    return (sunLong / 30.0).floor() % 12;
+  }
+
+  /// Calculates the exact start date of Tamil Month [monthIndex] in CE year [year]
+  DateTime calculateTamilMonthStartDate({
+    required int year,
+    required int monthIndex,
+    PanchangaLocation location = PanchangaLocation.chennai,
+  }) {
+    // Month 0 (Chithirai) is in April of year Y ... Month 8 (Margazhi) in Dec of Y
+    // Month 9 (Thai) in Jan of Y+1 ... Month 11 (Panguni) in Mar of Y+1
+    int searchYear = year;
+    int searchMonth = monthIndex + 4;
+    if (searchMonth > 12) {
+      searchMonth -= 12;
+      searchYear += 1;
+    }
+
+    DateTime searchDate = DateTime(searchYear, searchMonth, 10);
+    while (searchDate.day <= 22) {
+      final rasi = _getSunRasiIndex(searchDate, location);
+      if (rasi == monthIndex) {
+        final prevRasi = _getSunRasiIndex(searchDate.subtract(const Duration(days: 1)), location);
+        if (prevRasi != monthIndex) {
+          return searchDate;
+        }
+      }
+      searchDate = searchDate.add(const Duration(days: 1));
+    }
+
+    // Fallback scan across full month
+    searchDate = DateTime(searchYear, searchMonth, 1);
+    while (searchDate.month == searchMonth) {
+      final rasi = _getSunRasiIndex(searchDate, location);
+      if (rasi == monthIndex) {
+        final prevRasi = _getSunRasiIndex(searchDate.subtract(const Duration(days: 1)), location);
+        if (prevRasi != monthIndex) {
+          return searchDate;
+        }
+      }
+      searchDate = searchDate.add(const Duration(days: 1));
+    }
+    return DateTime(searchYear, searchMonth, 14);
+  }
+
+  /// Calculates the exact end date of Tamil Month [monthIndex] in CE year [year]
+  DateTime calculateTamilMonthEndDate({
+    required int year,
+    required int monthIndex,
+    PanchangaLocation location = PanchangaLocation.chennai,
+  }) {
+    final nextMonthIdx = (monthIndex + 1) % 12;
+    final nextYear = (monthIndex == 11) ? year + 1 : year;
+    final nextMonthStart = calculateTamilMonthStartDate(
+      year: nextYear,
+      monthIndex: nextMonthIdx,
+      location: location,
+    );
+    return nextMonthStart.subtract(const Duration(days: 1));
+  }
+
+  @override
+  TamilDate getTamilDate(DateTime gregorianDate, {PanchangaLocation? location}) {
+    final loc = location ?? PanchangaLocation.chennai;
+    final cleanDate = DateTime(gregorianDate.year, gregorianDate.month, gregorianDate.day);
+    final monthIdx = _getSunRasiIndex(cleanDate, loc);
+    final monthName = tamilMonths[monthIdx];
+
+    // Scan backwards to find the exact start date of this solar month
+    DateTime startDate = cleanDate;
+    while (true) {
+      final prevDate = startDate.subtract(const Duration(days: 1));
+      if (_getSunRasiIndex(prevDate, loc) != monthIdx) {
+        break;
+      }
+      startDate = prevDate;
+    }
+
+    final tamilDay = cleanDate.difference(startDate).inDays + 1;
+
+    // Calculate Tamil Year based on Chithirai (Month 0) ingress
+    final chithiraiStartThisYear = calculateTamilMonthStartDate(
+      year: cleanDate.year,
+      monthIndex: 0,
+      location: loc,
+    );
+    final bool isBeforeTamilNewYear = cleanDate.isBefore(chithiraiStartThisYear);
+    final int tamilYear = isBeforeTamilNewYear ? cleanDate.year - 1 : cleanDate.year;
+
+    // 60-Year Jovian Cycle (1987 = Prabhava #0)
+    final int jovianIdx = ((tamilYear - 1987) % 60 + 60) % 60;
+    final String tamilYearName = tamilYearsTa[jovianIdx];
+
+    return TamilDate(
+      tamilYear: tamilYear,
+      tamilYearName: tamilYearName,
+      tamilMonth: monthName,
+      tamilMonthIndex: monthIdx,
+      tamilDay: tamilDay,
+      gregorianDate: cleanDate,
+    );
+  }
+
+  @override
+  DateTime getGregorianDate({
+    required int tamilYear,
+    required String tamilMonth,
+    required int tamilDay,
+    PanchangaLocation? location,
+  }) {
+    final loc = location ?? PanchangaLocation.chennai;
+    final monthIdx = tamilMonths.indexOf(tamilMonth);
+    if (monthIdx == -1) {
+      throw ArgumentError('Invalid Tamil month name: $tamilMonth');
+    }
+    final startDate = calculateTamilMonthStartDate(
+      year: tamilYear,
+      monthIndex: monthIdx,
+      location: loc,
+    );
+    return startDate.add(Duration(days: tamilDay - 1));
+  }
+
+  @override
+  TamilMonthData getTamilMonthData({
+    required int tamilYear,
+    required int tamilMonthIndex,
+    PanchangaLocation? location,
+  }) {
+    final loc = location ?? PanchangaLocation.chennai;
+    final startDate = calculateTamilMonthStartDate(
+      year: tamilYear,
+      monthIndex: tamilMonthIndex,
+      location: loc,
+    );
+    final endDate = calculateTamilMonthEndDate(
+      year: tamilYear,
+      monthIndex: tamilMonthIndex,
+      location: loc,
+    );
+
+    final List<CalendarDay> days = [];
+    DateTime cur = startDate;
+    while (!cur.isAfter(endDate)) {
+      days.add(calculateSync(date: cur, location: loc));
+      cur = cur.add(const Duration(days: 1));
+    }
+
+    final tamilDateInfo = getTamilDate(startDate, location: loc);
+
+    return TamilMonthData(
+      tamilYear: tamilYear,
+      tamilYearName: tamilDateInfo.tamilYearName,
+      tamilMonth: tamilMonths[tamilMonthIndex],
+      tamilMonthIndex: tamilMonthIndex,
+      startDate: startDate,
+      endDate: endDate,
+      days: days,
+    );
+  }
+
   @override
   Future<CalendarDay> calculate({
     required DateTime date,
@@ -89,8 +278,10 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
     required DateTime date,
     required PanchangaLocation location,
   }) {
+    final cleanDate = DateTime(date.year, date.month, date.day);
+
     // 1. Calculate Midday Ephemeris for authoritative celestial positions
-    final midday = DateTime(date.year, date.month, date.day, 12, 0);
+    final midday = DateTime(cleanDate.year, cleanDate.month, cleanDate.day, 12, 0);
     final astroData = AstrologyCalculator.calculateHoroscope(
       dateOfBirth: midday,
       latitude: location.latitude,
@@ -103,7 +294,7 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
 
     // 2. Exact Sunrise & Sunset using geographical coordinates and solar declination
     final sunTimes = AstrologyCalculator.calculateSunriseSunset(
-      date,
+      cleanDate,
       location.latitude,
       location.longitude,
       location.timezone,
@@ -111,21 +302,18 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
     final sunrise = sunTimes['sunrise']!;
     final sunset = sunTimes['sunset']!;
 
-    // 3. Tamil Month & Date from Sun's Sidereal Longitude (Nirayana Zodiac)
-    final double sunLong = sun.longitude % 360.0;
-    final int monthIdx = (sunLong / 30.0).floor() % 12;
-    final int tamilDay = (sunLong % 30.0).floor() + 1;
-    final String tamilMonth = tamilMonths[monthIdx];
+    // 3. Exact Tamil Date derived astronomically from Sun's Sidereal Longitude
+    final tamilDateObj = getTamilDate(cleanDate, location: location);
+    final String tamilMonth = tamilDateObj.tamilMonth;
+    final int monthIdx = tamilDateObj.tamilMonthIndex;
+    final int tamilDay = tamilDateObj.tamilDay;
+    final String tamilYearName = tamilDateObj.tamilYearName;
     final String tamilDateFormatted = '$tamilMonth $tamilDay';
 
-    // Tamil 60-Year cycle calculation (reference: 1987 = Prabhava #0)
-    final int tamilYearIdx = (date.year - 1987 + (date.month < 4 || (date.month == 4 && date.day < 14) ? -1 : 0)) % 60;
-    final String tamilYearName = tamilYearsTa[(tamilYearIdx >= 0 ? tamilYearIdx : tamilYearIdx + 60) % 60];
-
     // 4. Weekday
-    final int weekdayNum = date.weekday; // 1=Mon .. 7=Sun
+    final int weekdayNum = cleanDate.weekday; // 1=Mon .. 7=Sun
     final String weekdayTa = weekdaysTa[weekdayNum - 1];
-    final String weekdayEn = DateFormat('EEEE').format(date);
+    final String weekdayEn = DateFormat('EEEE').format(cleanDate);
 
     // 5. 30 Tithis & Paksha from Moon - Sun angular difference
     final tithiDetail = TithiCalculator.calculateTithi(

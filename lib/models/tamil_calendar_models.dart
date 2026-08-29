@@ -199,3 +199,50 @@ class CalendarDay {
     required this.pariharam,
   });
 }
+
+/// Precise Tamil Calendar Date Representation
+class TamilDate {
+  final int tamilYear; // CE equivalent year (e.g. 2026)
+  final String tamilYearName; // 60-year Jovian cycle name (e.g. 'பராபவ', 'குரோதி')
+  final String tamilMonth; // Tamil Month Name ('சித்திரை' .. 'பங்குனி')
+  final int tamilMonthIndex; // 0..11 (0=Chithirai, ..., 3=Aadi, ..., 11=Panguni)
+  final int tamilDay; // Actual Tamil Day 1..32
+  final DateTime gregorianDate;
+
+  const TamilDate({
+    required this.tamilYear,
+    required this.tamilYearName,
+    required this.tamilMonth,
+    required this.tamilMonthIndex,
+    required this.tamilDay,
+    required this.gregorianDate,
+  });
+
+  String get formatted => '$tamilMonth $tamilDay';
+
+  @override
+  String toString() => '$tamilYearName வருடம் $tamilMonth $tamilDay ($gregorianDate)';
+}
+
+/// Full Tamil Month Data Structure containing all calculated days
+class TamilMonthData {
+  final int tamilYear;
+  final String tamilYearName;
+  final String tamilMonth;
+  final int tamilMonthIndex; // 0..11
+  final DateTime startDate; // Exact Gregorian date of Tamil Day 1
+  final DateTime endDate; // Exact Gregorian date of last Tamil Day
+  final List<CalendarDay> days; // All consecutive days (Day 1..N)
+
+  const TamilMonthData({
+    required this.tamilYear,
+    required this.tamilYearName,
+    required this.tamilMonth,
+    required this.tamilMonthIndex,
+    required this.startDate,
+    required this.endDate,
+    required this.days,
+  });
+
+  int get totalDays => days.length;
+}

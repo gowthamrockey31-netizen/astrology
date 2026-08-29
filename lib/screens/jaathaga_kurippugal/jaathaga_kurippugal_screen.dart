@@ -55,11 +55,8 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
 
   final List<String> _tabs = [
     'பொது பஞ்சாங்க குறிப்புகள்',
-    'தினசுத்தி & வருடங்கள்',
     'அஷ்டவர்க்க சக்கரம்',
     'வர்க்க சக்கரம் (D1-D60)',
-    'கிரக நிலைகள் & நட்பு',
-    'ஆதி அந்த நாழிகை',
   ];
 
   static const Map<int, int> _gridIndexToRasiIndex = {
@@ -288,15 +285,9 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
       case 0:
         return _buildGeneralAndPanchangTab();
       case 1:
-        return _buildDinaSuddhiTab();
-      case 2:
         return _buildAshtakavargaTab();
-      case 3:
+      case 2:
         return _buildVargaChartsTab();
-      case 4:
-        return _buildPlanetStatusTab();
-      case 5:
-        return _buildNazhigaiTab();
       default:
         return _buildGeneralAndPanchangTab();
     }
@@ -309,6 +300,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // 1. பிறப்பு விவரங்கள் (Birth Profile)
         _buildSectionCard(
           title: 'பிறப்பு விவரங்கள் (Birth Profile)',
           icon: Icons.person_rounded,
@@ -324,6 +316,8 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
           ],
         ),
         const SizedBox(height: 14),
+
+        // 2. பொது பஞ்சாங்க குறிப்புகள் (General Panchangam)
         _buildSectionCard(
           title: 'பொது பஞ்சாங்க குறிப்புகள் (General Panchangam)',
           icon: Icons.calendar_today_rounded,
@@ -346,6 +340,20 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
           ],
         ),
         const SizedBox(height: 14),
+
+        // 3. தினசுத்தி & வருடங்கள் (Dina Suddhi & Year/Era Details)
+        _buildDinaSuddhiContent(),
+        const SizedBox(height: 14),
+
+        // 4. கிரக நிலைகள் & நட்பு (Planetary Status & Dignity)
+        _buildPlanetStatusContent(),
+        const SizedBox(height: 14),
+
+        // 5. ஆதி அந்த நாழிகை & உதயாதி நாழிகை (Aadhi Antha & Udayathi Nazhigai)
+        _buildNazhigaiContent(),
+        const SizedBox(height: 14),
+
+        // 6. சூரிய நேரங்கள் & விசேஷ குறிப்புகள்
         _buildSectionCard(
           title: 'சூரிய நேரங்கள் & விசேஷ குறிப்புகள்',
           icon: Icons.wb_sunny_rounded,
@@ -360,6 +368,8 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
           ],
         ),
         const SizedBox(height: 14),
+
+        // 7. ஜாதக கட்டங்கள் (South Indian Jathagam Widget)
         SouthIndianJathagamWidget(user: _user),
         const SizedBox(height: 20),
       ],
@@ -367,9 +377,9 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   }
 
   // ---------------------------------------------------------------------------
-  // Tab 1: Dina Suddhi (தினசுத்தி & வருடக் குறிப்புகள்)
+  // Topic 1: Dina Suddhi & Varudangal (தினசுத்தி & வருடங்கள்)
   // ---------------------------------------------------------------------------
-  Widget _buildDinaSuddhiTab() {
+  Widget _buildDinaSuddhiContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -388,7 +398,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
                   const Icon(Icons.verified_rounded, color: AppColors.primaryGold, size: 22),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text('தினசுத்தி மதிப்பீடு:', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 14)),
+                    child: Text('தினசுத்தி மதிப்பீடு (Dina Suddhi):', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 14)),
                   ),
                 ],
               ),
@@ -402,17 +412,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
         const SizedBox(height: 14),
 
         _buildSectionCard(
-          title: 'முக்கிய நேர காலங்கள் (Important Timings)',
-          icon: Icons.timelapse_rounded,
-          rows: [
-            _InfoRow('குளிகை காலம்', _dinaSuddhiResult.gulikaiKalam),
-            _InfoRow('அபிஜித் முகூர்த்தம்', _dinaSuddhiResult.abhijitMuhurtham),
-          ],
-        ),
-        const SizedBox(height: 14),
-
-        _buildSectionCard(
-          title: 'வருடக் குறிப்புகள்',
+          title: 'வருடக் குறிப்புகள் (Year & Era Details)',
           icon: Icons.history_edu_rounded,
           rows: [
             _InfoRow('ஆங்கில வருடம்', '${_erasResult['gregorian_year']}'),
@@ -423,13 +423,140 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
             _InfoRow('ஹிஜ்ரி வருடம்', '${_erasResult['hijri_year']}'),
           ],
         ),
-        const SizedBox(height: 20),
       ],
     );
   }
 
   // ---------------------------------------------------------------------------
-  // Tab 2: Ashtakavarga Chakkaram (அஷ்டவர்க்க சக்கரம்)
+  // Topic 2: Detailed Planet Status (கிரக நிலைகள் & நட்பு)
+  // ---------------------------------------------------------------------------
+  Widget _buildPlanetStatusContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Summary metrics
+        Row(
+          children: [
+            Expanded(child: _buildMetricMiniCard('ஆட்சி / உச்சம்', '${_planetStatusReport.ownHouseCount + _planetStatusReport.exaltedCount}', Colors.greenAccent)),
+            const SizedBox(width: 8),
+            Expanded(child: _buildMetricMiniCard('அஸ்தமனம்', '${_planetStatusReport.combustCount}', Colors.orangeAccent)),
+            const SizedBox(width: 8),
+            Expanded(child: _buildMetricMiniCard('நீசம்', '${_planetStatusReport.debilitatedCount}', Colors.redAccent)),
+            const SizedBox(width: 8),
+            Expanded(child: _buildMetricMiniCard('வக்ரம்', '${_planetStatusReport.retrogradeCount}', Colors.cyanAccent)),
+          ],
+        ),
+        const SizedBox(height: 14),
+
+        // Structured Table
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.cardSurface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.5)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 14, right: 14, top: 14, bottom: 6),
+                child: Row(
+                  children: [
+                    const Icon(Icons.stars_rounded, color: AppColors.primaryGold, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'கிரக நிலைகள் & நட்பு (Planet Status & Dignity)',
+                        style: GoogleFonts.cinzel(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.lightGold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(color: AppColors.borderGold, height: 12),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  headingRowHeight: 38,
+                  dataRowMinHeight: 34,
+                  dataRowMaxHeight: 38,
+                  columnSpacing: 14,
+                  horizontalMargin: 12,
+                  headingRowColor: WidgetStateProperty.all(AppColors.backgroundMid),
+                  columns: [
+                    DataColumn(label: Text('கிரகம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                    DataColumn(label: Text('ராசி', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                    DataColumn(label: Text('நிலை / நட்பு', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                    DataColumn(label: Text('அஸ்தமனம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                    DataColumn(label: Text('நீசம் / உச்சம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                    DataColumn(label: Text('வக்ரம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+                  ],
+                  rows: _planetStatusReport.planetStatuses.map((s) {
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(s.nameTa, style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 11))),
+                        DataCell(Text(s.rasiNameTa, style: GoogleFonts.outfit(color: Colors.white, fontSize: 11))),
+                        DataCell(Text(s.dignity.tamilLabel, style: GoogleFonts.outfit(color: Colors.white70, fontSize: 11))),
+                        DataCell(Text(s.isCombust ? 'ஆம் (Combust)' : 'இல்லை', style: GoogleFonts.outfit(color: s.isCombust ? Colors.orangeAccent : Colors.white60, fontSize: 11))),
+                        DataCell(Text(s.isDebilitated ? 'நீசம்' : (s.isExalted ? 'உச்சம்' : 'இயல்பு'), style: GoogleFonts.outfit(color: s.isDebilitated ? Colors.redAccent : (s.isExalted ? Colors.greenAccent : Colors.white60), fontSize: 11))),
+                        DataCell(Text(s.isRetrograde ? 'வக்ரம்' : 'நேர்கதி', style: GoogleFonts.outfit(color: s.isRetrograde ? Colors.cyanAccent : Colors.white60, fontSize: 11))),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Topic 3: Nazhigai (ஆதி அந்த நாழிகை & உதயாதி நாழிகை)
+  // ---------------------------------------------------------------------------
+  Widget _buildNazhigaiContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionCard(
+          title: 'ஆதி அந்த பரம நாழிகை (Nakshatra Duration Metrics)',
+          icon: Icons.timer_rounded,
+          rows: [
+            _InfoRow('நட்சத்திரம்', '${_aadhiAnthaResult.nakshatraNameTa} (${_aadhiAnthaResult.pada}-ஆம் பாதம்)'),
+            _InfoRow('பரம நாழிகை (மொத்த அளவு)', _aadhiAnthaResult.paramaNazhigaiFormatted),
+            _InfoRow('ஆதி நாழிகை (சென்ற நாழிகை)', _aadhiAnthaResult.aadhiNazhigaiFormatted),
+            _InfoRow('அந்த நாழிகை (இருப்பு நாழிகை)', _aadhiAnthaResult.andhaNazhigaiFormatted),
+            _InfoRow('நட்சத்திர முன்னேற்றம்', '${_aadhiAnthaResult.progressPercent.toStringAsFixed(1)}%'),
+          ],
+        ),
+        const SizedBox(height: 14),
+
+        _buildSectionCard(
+          title: 'உதயாதி நாழிகை (Udayathi Nazhigai)',
+          icon: Icons.alarm_on_rounded,
+          rows: [
+            _InfoRow('சூரிய உதயம்', _notes.sunrise),
+            _InfoRow('பிறந்த நேரம்', _notes.timeOfBirth),
+            _InfoRow('உதயாதி நாழிகை முடிவு', _notes.udayathiNazhi),
+            _InfoRow('பிறந்த நேர ஓரை', _notes.hora),
+            _InfoRow('அகஸ் (பகல் அளவு)', _notes.akas),
+            _InfoRow('நேந்திரம் / ஜீவன்', '${_notes.nendhiram} / ${_notes.jeevan}'),
+          ],
+        ),
+      ],
+    );
+  }
+
+
+
+  // ---------------------------------------------------------------------------
+  // Tab 1: Ashtakavarga Chakkaram (அஷ்டவர்க்க சக்கரம்)
   // ---------------------------------------------------------------------------
   Widget _buildAshtakavargaTab() {
     List<int> currentScores;
@@ -745,7 +872,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   }
 
   // ---------------------------------------------------------------------------
-  // Tab 3: Varga Divisional Charts (D1 to D60)
+  // Tab 2: Varga Divisional Charts (D1 to D60)
   // ---------------------------------------------------------------------------
   Widget _buildVargaChartsTab() {
     return Column(
@@ -818,114 +945,6 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
       ],
     );
   }
-
-  // ---------------------------------------------------------------------------
-  // Tab 4: Detailed Planet Status (Friendship, Combustion, Debilitation, Retrograde)
-  // ---------------------------------------------------------------------------
-  Widget _buildPlanetStatusTab() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Summary metrics
-        Row(
-          children: [
-            Expanded(child: _buildMetricMiniCard('ஆட்சி / உச்சம்', '${_planetStatusReport.ownHouseCount + _planetStatusReport.exaltedCount}', Colors.greenAccent)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildMetricMiniCard('அஸ்தமனம்', '${_planetStatusReport.combustCount}', Colors.orangeAccent)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildMetricMiniCard('நீசம்', '${_planetStatusReport.debilitatedCount}', Colors.redAccent)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildMetricMiniCard('வக்ரம்', '${_planetStatusReport.retrogradeCount}', Colors.cyanAccent)),
-          ],
-        ),
-        const SizedBox(height: 14),
-
-        // Structured Table
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.cardSurface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.5)),
-          ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              headingRowHeight: 38,
-              dataRowMinHeight: 34,
-              dataRowMaxHeight: 38,
-              columnSpacing: 14,
-              horizontalMargin: 12,
-              headingRowColor: WidgetStateProperty.all(AppColors.backgroundMid),
-              columns: [
-                DataColumn(label: Text('கிரகம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
-                DataColumn(label: Text('ராசி', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
-                DataColumn(label: Text('நிலை / நட்பு', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
-                DataColumn(label: Text('அஸ்தமனம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
-                DataColumn(label: Text('நீசம் / உச்சம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
-                DataColumn(label: Text('வக்ரம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
-              ],
-              rows: _planetStatusReport.planetStatuses.map((s) {
-                return DataRow(
-                  cells: [
-                    DataCell(Text(s.nameTa, style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 11))),
-                    DataCell(Text(s.rasiNameTa, style: GoogleFonts.outfit(color: Colors.white, fontSize: 11))),
-                    DataCell(Text(s.dignity.tamilLabel, style: GoogleFonts.outfit(color: Colors.white70, fontSize: 11))),
-                    DataCell(Text(s.isCombust ? 'ஆம் (Combust)' : 'இல்லை', style: GoogleFonts.outfit(color: s.isCombust ? Colors.orangeAccent : Colors.white60, fontSize: 11))),
-                    DataCell(Text(s.isDebilitated ? 'நீசம்' : (s.isExalted ? 'உச்சம்' : 'இயல்பு'), style: GoogleFonts.outfit(color: s.isDebilitated ? Colors.redAccent : (s.isExalted ? Colors.greenAccent : Colors.white60), fontSize: 11))),
-                    DataCell(Text(s.isRetrograde ? 'வக்ரம்' : 'நேர்கதி', style: GoogleFonts.outfit(color: s.isRetrograde ? Colors.cyanAccent : Colors.white60, fontSize: 11))),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Tab 5: Nazhigai (Udayathi & Aadhi/Andha/Parama Nazhigai)
-  // ---------------------------------------------------------------------------
-  Widget _buildNazhigaiTab() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionCard(
-          title: 'ஆதி அந்த பரம நாழிகை (Nakshatra Duration Metrics)',
-          icon: Icons.timer_rounded,
-          rows: [
-            _InfoRow('நட்சத்திரம்', '${_aadhiAnthaResult.nakshatraNameTa} (${_aadhiAnthaResult.pada}-ஆம் பாதம்)'),
-            _InfoRow('பரம நாழிகை (மொத்த அளவு)', _aadhiAnthaResult.paramaNazhigaiFormatted),
-            _InfoRow('ஆதி நாழிகை (சென்ற நாழிகை)', _aadhiAnthaResult.aadhiNazhigaiFormatted),
-            _InfoRow('அந்த நாழிகை (இருப்பு நாழிகை)', _aadhiAnthaResult.andhaNazhigaiFormatted),
-            _InfoRow('நட்சத்திர முன்னேற்றம்', '${_aadhiAnthaResult.progressPercent.toStringAsFixed(1)}%'),
-          ],
-        ),
-        const SizedBox(height: 14),
-
-        _buildSectionCard(
-          title: 'உதயாதி நாழிகை (Udayathi Nazhigai)',
-          icon: Icons.alarm_on_rounded,
-          rows: [
-            _InfoRow('சூரிய உதயம்', _notes.sunrise),
-            _InfoRow('பிறந்த நேரம்', _notes.timeOfBirth),
-            _InfoRow('உதயாதி நாழிகை முடிவு', _notes.udayathiNazhi),
-            _InfoRow('பிறந்த நேர ஓரை', _notes.hora),
-            _InfoRow('அகஸ் (பகல் அளவு)', _notes.akas),
-            _InfoRow('நேந்திரம் / ஜீவன்', '${_notes.nendhiram} / ${_notes.jeevan}'),
-          ],
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-
-
-  // ---------------------------------------------------------------------------
-  // Helper UI Builders
-  // ---------------------------------------------------------------------------
   Widget _buildSectionCard({
     required String title,
     required IconData icon,

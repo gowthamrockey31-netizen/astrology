@@ -24,6 +24,7 @@ void main() {
       for (final tc in testCases) {
         final double lon = tc['dms'] as double;
         final detail = AstrologyCalculator.calculateNakshatraPadaFromLongitude(lon);
+        expect(detail['nakshatraIndex'], inInclusiveRange(0, 26));
         final int totalSecs = (lon * 3600.0).round() % AstrologyCalculator.totalArcseconds;
         final int rasiIdx = totalSecs ~/ AstrologyCalculator.arcsecondsPerRasi;
 
