@@ -998,12 +998,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           gradientColors: service.gradientColors,
           borderGoldColor: service.glowColor,
           onTap: () {
-            if (service.id == 'daily_horoscope') {
-              Navigator.of(context).pushNamed('/horoscope');
+            if (service.id == 'daily_calendar') {
+              Navigator.of(context).pushNamed('/daily_calendar');
             } else if (service.id == 'consult_astrologer') {
               setState(() => _selectedNavIndex = 1);
-            } else if (service.id == 'panchangam') {
-              Navigator.of(context).pushNamed('/panchang');
+            } else if (service.id == 'month_calendar') {
+              Navigator.of(context).pushNamed('/tamil_month_calendar');
             } else if (service.id == 'birth_chart') {
               Navigator.of(context).pushNamed('/birth_chart');
             }

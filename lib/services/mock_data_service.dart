@@ -12,11 +12,11 @@ class MockDataService {
   static List<ServiceItem> getQuickServices() {
     return [
       ServiceItem(
-        id: 'daily_horoscope',
-        title: "Daily Horoscope",
-        tamilTitle: "தினசரி ராசிபலன்",
-        subtitle: "Personalized transit analysis",
-        icon: Icons.auto_awesome,
+        id: 'daily_calendar',
+        title: "Daily Calendar",
+        tamilTitle: "தினசரி நாள்காட்டி",
+        subtitle: "Daily Tithi, Nakshatra & Nalla Neram",
+        icon: Icons.calendar_month_rounded,
         glowColor: const Color(0xFFFFD86B),
         gradientColors: [const Color(0xFF1E1500), const Color(0xFF0B1220)],
       ),
@@ -39,11 +39,11 @@ class MockDataService {
         gradientColors: [const Color(0xFF22003E), const Color(0xFF0B1220)],
       ),
       ServiceItem(
-        id: 'panchangam',
-        title: "Panchangam",
-        tamilTitle: "பஞ்சாங்கம்",
-        subtitle: "Auspicious Tithi & Nakshatra",
-        icon: Icons.calendar_today,
+        id: 'month_calendar',
+        title: "Month Calendar",
+        tamilTitle: "மாத நாள்காட்டி",
+        subtitle: "Tamil Month Calendar & Festivals",
+        icon: Icons.calendar_view_month_rounded,
         glowColor: const Color(0xFFFF5252),
         gradientColors: [const Color(0xFF3E0015), const Color(0xFF0B1220)],
       ),

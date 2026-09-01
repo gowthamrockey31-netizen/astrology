@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/user_model.dart';
 import '../../services/astrology_calculator.dart';
@@ -37,6 +36,12 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
   List<GeocodingLocation> _placeSuggestions = [];
   bool _showSuggestions = false;
 
+  List<GeocodingLocation> _citySuggestions = [];
+  bool _showCitySuggestions = false;
+
+  List<IndianState> _stateSuggestions = [];
+  bool _showStateSuggestions = false;
+
   String _gender = 'Male';
   DateTime _dob = DateTime(1996, 6, 15);
   TimeOfDay _tob = const TimeOfDay(hour: 8, minute: 30);
@@ -56,7 +61,59 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
       if (user.lagna.isNotEmpty) _selectedLagna = user.lagna;
       final parsedDob = DateTime.tryParse(user.dob);
       if (parsedDob != null) _dob = parsedDob;
+
+      if (user.name.isNotEmpty) _nameController.text = user.name;
+      if (user.placeOfBirth.isNotEmpty) _placeController.text = user.placeOfBirth;
+      if (user.city.isNotEmpty) _cityController.text = user.city;
+      if (user.state.isNotEmpty) _stateController.text = user.state;
+      if (user.country.isNotEmpty) _countryController.text = user.country;
+
+      // Auto-resolve city/state from place of birth if city is empty or default placeholder
+      if (_cityController.text.isEmpty || _cityController.text.toLowerCase() == 'city') {
+        final loc = GeocodingService.resolvePlace(_placeController.text);
+        if (loc != null) {
+          _cityController.text = loc.cityName;
+          _stateController.text = loc.state;
+          _countryController.text = loc.country;
+        }
+      }
+
+      _latController.text = '${user.latitude}';
+      _lonController.text = '${user.longitude}';
+      _tzController.text = '${user.timezone}';
     }
+    _recalculateAstrology();
+  }
+
+  void _applyLocation(GeocodingLocation loc) {
+    setState(() {
+      _placeController.text = loc.displayName;
+      _cityController.text = loc.cityName;
+      _stateController.text = loc.state;
+      _countryController.text = loc.country;
+      _latController.text = loc.latitude.toString();
+      _lonController.text = loc.longitude.toString();
+      _tzController.text = loc.timezone.toString();
+      _showSuggestions = false;
+      _showCitySuggestions = false;
+      _showStateSuggestions = false;
+    });
+    _recalculateAstrology();
+  }
+
+  void _applyState(IndianState state) {
+    setState(() {
+      _stateController.text = state.name;
+      _countryController.text = 'India';
+      _showStateSuggestions = false;
+      _showSuggestions = false;
+      _showCitySuggestions = false;
+      if (_cityController.text.isEmpty || _cityController.text.toLowerCase() == 'city') {
+        _latController.text = state.latitude.toString();
+        _lonController.text = state.longitude.toString();
+        _tzController.text = '5.5';
+      }
+    });
     _recalculateAstrology();
   }
 
@@ -228,7 +285,7 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
                           margin: const EdgeInsets.symmetric(horizontal: 4),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: selected ? AppColors.primaryGold.withOpacity(0.2) : AppColors.cardSurface,
+                            color: selected ? AppColors.primaryGold.withValues(alpha: 0.2) : AppColors.cardSurface,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: selected ? AppColors.lightGold : Colors.white12),
                           ),
@@ -260,7 +317,7 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
                           decoration: BoxDecoration(
                             color: AppColors.cardSurface,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.borderGold.withOpacity(0.5)),
+                            border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.5)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,7 +348,7 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
                           decoration: BoxDecoration(
                             color: AppColors.cardSurface,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.borderGold.withOpacity(0.5)),
+                            border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.5)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,205 +373,474 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
                   ],
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
 
+                // Place of Birth (Searches all Indian cities, districts & states)
                 GoldenTextField(
                   label: 'Place of Birth (பிறந்த ஊர் / நகரம்)',
-                  hint: 'Type City / Town e.g. Coimbatore, Madurai',
+                  hint: 'Type City / Town e.g. Chennai, Mumbai, Coimbatore, Pune',
                   prefixIcon: Icons.place_rounded,
                   controller: _placeController,
-                  onChanged: (val) async {
-                    if (val.trim().length >= 2) {
-                      final results = await GeocodingService.searchPlaces(val);
-                      setState(() {
-                        _placeSuggestions = results;
-                        _showSuggestions = results.isNotEmpty;
-                      });
-                    } else {
-                      setState(() => _showSuggestions = false);
-                    }
+                  onTap: () async {
+                    final results = await GeocodingService.searchPlaces(_placeController.text);
+                    setState(() {
+                      _placeSuggestions = results;
+                      _showSuggestions = results.isNotEmpty;
+                      _showCitySuggestions = false;
+                      _showStateSuggestions = false;
+                    });
                   },
+                  onChanged: (val) async {
+                    final results = await GeocodingService.searchPlaces(val);
+                    setState(() {
+                      _placeSuggestions = results;
+                      _showSuggestions = results.isNotEmpty;
+                      _showCitySuggestions = false;
+                      _showStateSuggestions = false;
+                    });
+                  },
+                  suffixIcon: _placeController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear_rounded, color: AppColors.textSecondary, size: 18),
+                          onPressed: () {
+                            _placeController.clear();
+                            final defaultResults = GeocodingService.searchOffline('');
+                            setState(() {
+                              _placeSuggestions = defaultResults;
+                              _showSuggestions = true;
+                              _showCitySuggestions = false;
+                              _showStateSuggestions = false;
+                            });
+                          },
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primaryGold, size: 22),
+                          onPressed: () {
+                            final defaultResults = GeocodingService.searchOffline('');
+                            setState(() {
+                              _placeSuggestions = defaultResults;
+                              _showSuggestions = !_showSuggestions;
+                              _showCitySuggestions = false;
+                              _showStateSuggestions = false;
+                            });
+                          },
+                        ),
                 ),
 
-                // Location Suggestions Dropdown
+                // Matching Location Suggestions Dropdown (All Indian Cities & Places)
                 if (_showSuggestions && _placeSuggestions.isNotEmpty)
                   Container(
-                    margin: const EdgeInsets.only(top: 4, bottom: 10),
+                    margin: const EdgeInsets.only(top: 6, bottom: 10),
                     decoration: BoxDecoration(
                       color: AppColors.cardSurface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.6)),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.7), width: 1.2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    constraints: const BoxConstraints(maxHeight: 180),
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      itemCount: _placeSuggestions.length,
-                      separatorBuilder: (_, __) => const Divider(color: Colors.white10, height: 1),
-                      itemBuilder: (context, idx) {
-                        final loc = _placeSuggestions[idx];
-                        return ListTile(
-                          dense: true,
-                          leading: const Icon(Icons.location_on, color: AppColors.lightGold, size: 18),
-                          title: Text(
-                            loc.displayName,
-                            style: GoogleFonts.outfit(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                    constraints: const BoxConstraints(maxHeight: 220),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryGold.withValues(alpha: 0.12),
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                           ),
-                          subtitle: Text(
-                            'Lat: ${loc.latitude.toStringAsFixed(4)}, Lon: ${loc.longitude.toStringAsFixed(4)}',
-                            style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_searching_rounded, size: 14, color: AppColors.lightGold),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Matching Indian Locations (${_placeSuggestions.length})',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.lightGold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              InkWell(
+                                onTap: () => setState(() => _showSuggestions = false),
+                                child: const Icon(Icons.close_rounded, size: 16, color: AppColors.textSecondary),
+                              ),
+                            ],
                           ),
-                          onTap: () {
+                        ),
+                        Flexible(
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: _placeSuggestions.length,
+                            separatorBuilder: (context, index) => const Divider(color: Colors.white12, height: 1),
+                            itemBuilder: (context, idx) {
+                              final loc = _placeSuggestions[idx];
+                              return InkWell(
+                                onTap: () => _applyLocation(loc),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryGold.withValues(alpha: 0.15),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(Icons.location_on_rounded, color: AppColors.lightGold, size: 16),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              loc.cityName,
+                                              style: GoogleFonts.outfit(
+                                                color: Colors.white,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              loc.displayName,
+                                              style: GoogleFonts.outfit(
+                                                color: AppColors.textSecondary,
+                                                fontSize: 11,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black38,
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: Colors.white12),
+                                        ),
+                                        child: Text(
+                                          '${loc.latitude.toStringAsFixed(2)}°, ${loc.longitude.toStringAsFixed(2)}°',
+                                          style: GoogleFonts.outfit(
+                                            color: AppColors.lightGold,
+                                            fontSize: 9.5,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                const SizedBox(height: 14),
+
+                Row(
+                  children: [
+                    // City Field with all Indian cities recommendation
+                    Expanded(
+                      child: GoldenTextField(
+                        label: 'City (நகரம்)',
+                        hint: 'Search all India cities e.g. Mumbai, Chennai',
+                        prefixIcon: Icons.location_city_rounded,
+                        controller: _cityController,
+                        onTap: () {
+                          final results = GeocodingService.searchCities(_cityController.text, stateFilter: _stateController.text);
+                          setState(() {
+                            _citySuggestions = results;
+                            _showCitySuggestions = results.isNotEmpty;
+                            _showSuggestions = false;
+                            _showStateSuggestions = false;
+                          });
+                        },
+                        onChanged: (val) async {
+                          final results = GeocodingService.searchCities(val, stateFilter: _stateController.text);
+                          setState(() {
+                            _citySuggestions = results;
+                            _showCitySuggestions = results.isNotEmpty;
+                            _showSuggestions = false;
+                            _showStateSuggestions = false;
+                          });
+                          final loc = GeocodingService.resolvePlace(val);
+                          if (loc != null) {
                             setState(() {
-                              _placeController.text = loc.cityName;
-                              _cityController.text = loc.cityName;
                               _stateController.text = loc.state;
                               _countryController.text = loc.country;
                               _latController.text = loc.latitude.toString();
                               _lonController.text = loc.longitude.toString();
                               _tzController.text = loc.timezone.toString();
-                              _showSuggestions = false;
                             });
                             _recalculateAstrology();
-                          },
-                        );
-                      },
-                    ),
-                  ),
-
-                const SizedBox(height: 14),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: GoldenTextField(
-                        label: 'City',
-                        hint: 'City',
-                        prefixIcon: Icons.location_city_rounded,
-                        controller: _cityController,
+                          }
+                        },
+                        suffixIcon: _cityController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded, color: AppColors.textSecondary, size: 18),
+                                onPressed: () {
+                                  _cityController.clear();
+                                  final results = GeocodingService.searchCities('', stateFilter: _stateController.text);
+                                  setState(() {
+                                    _citySuggestions = results;
+                                    _showCitySuggestions = true;
+                                    _showSuggestions = false;
+                                    _showStateSuggestions = false;
+                                  });
+                                },
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primaryGold, size: 22),
+                                onPressed: () {
+                                  final results = GeocodingService.searchCities(_cityController.text, stateFilter: _stateController.text);
+                                  setState(() {
+                                    _citySuggestions = results;
+                                    _showCitySuggestions = !_showCitySuggestions;
+                                    _showSuggestions = false;
+                                    _showStateSuggestions = false;
+                                  });
+                                },
+                              ),
                       ),
                     ),
                     const SizedBox(width: 10),
+
+                    // State Field with 28 States & UTs recommendation
                     Expanded(
                       child: GoldenTextField(
-                        label: 'State',
-                        hint: 'State',
+                        label: 'State (மாநிலம்)',
+                        hint: 'Search 28+ States e.g. Tamil Nadu, Maharashtra',
                         prefixIcon: Icons.map_rounded,
                         controller: _stateController,
+                        onTap: () {
+                          final results = GeocodingService.searchStates(_stateController.text);
+                          setState(() {
+                            _stateSuggestions = results;
+                            _showStateSuggestions = results.isNotEmpty;
+                            _showSuggestions = false;
+                            _showCitySuggestions = false;
+                          });
+                        },
+                        onChanged: (val) {
+                          final results = GeocodingService.searchStates(val);
+                          setState(() {
+                            _stateSuggestions = results;
+                            _showStateSuggestions = results.isNotEmpty;
+                            _showSuggestions = false;
+                            _showCitySuggestions = false;
+                          });
+                          final loc = GeocodingService.resolvePlace('$_cityController.text $val');
+                          if (loc != null) {
+                            setState(() {
+                              _latController.text = loc.latitude.toString();
+                              _lonController.text = loc.longitude.toString();
+                              _tzController.text = loc.timezone.toString();
+                            });
+                            _recalculateAstrology();
+                          }
+                        },
+                        suffixIcon: _stateController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded, color: AppColors.textSecondary, size: 18),
+                                onPressed: () {
+                                  _stateController.clear();
+                                  final allStates = GeocodingService.searchStates('');
+                                  setState(() {
+                                    _stateSuggestions = allStates;
+                                    _showStateSuggestions = true;
+                                    _showSuggestions = false;
+                                    _showCitySuggestions = false;
+                                  });
+                                },
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primaryGold, size: 22),
+                                onPressed: () {
+                                  final allStates = GeocodingService.searchStates('');
+                                  setState(() {
+                                    _stateSuggestions = allStates;
+                                    _showStateSuggestions = !_showStateSuggestions;
+                                    _showSuggestions = false;
+                                    _showCitySuggestions = false;
+                                  });
+                                },
+                              ),
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 20),
-
-                // Astrological Details Section Header with Auto-Calculate Action
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Astrological Details',
-                      style: GoogleFonts.cinzel(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.lightGold,
-                      ),
-                    ),
-                    InkWell(
-                      onTap: _recalculateAstrology,
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryGold.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.primaryGold.withOpacity(0.5)),
+                // City Recommendations Dropdown (All Indian Cities)
+                if (_showCitySuggestions && _citySuggestions.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(top: 6, bottom: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardSurface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.7)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.auto_awesome, size: 14, color: AppColors.lightGold),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Auto-Calculate',
-                              style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.lightGold),
-                            ),
-                          ],
-                        ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                // Zodiac Sign Dropdown
-                _buildDropdownField(
-                  label: 'Zodiac Sign (Rasi)',
-                  value: _selectedZodiac,
-                  items: AppConstants.zodiacSigns,
-                  icon: Icons.wb_sunny_rounded,
-                  onChanged: (val) {
-                    if (val != null) setState(() => _selectedZodiac = val);
-                  },
-                ),
-
-                const SizedBox(height: 14),
-
-                // Nakshatra Dropdown
-                _buildDropdownField(
-                  label: 'Nakshatra (Star)',
-                  value: _selectedNakshatra,
-                  items: AppConstants.nakshatras,
-                  icon: Icons.auto_awesome_rounded,
-                  onChanged: (val) {
-                    if (val != null) setState(() => _selectedNakshatra = val);
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                // Summary Astro Badges
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundMid,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.primaryGold, width: 1),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryGold.withOpacity(0.2),
-                        blurRadius: 12,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.stars_rounded, color: AppColors.lightGold, size: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            'ACTIVE HOROSCOPE PROFILE',
-                            style: GoogleFonts.cinzel(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.lightGold,
-                            ),
+                    constraints: const BoxConstraints(maxHeight: 200),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryGold.withValues(alpha: 0.1),
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildAstroBadge('ZODIAC', _selectedZodiac),
-                          _buildAstroBadge('NAKSHATRA', _selectedNakshatra),
-                        ],
-                      ),
-                    ],
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_city_rounded, size: 14, color: AppColors.lightGold),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Recommended Indian Cities (${_citySuggestions.length})',
+                                    style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                                  ),
+                                ],
+                              ),
+                              InkWell(
+                                onTap: () => setState(() => _showCitySuggestions = false),
+                                child: const Icon(Icons.close_rounded, size: 14, color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Flexible(
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: _citySuggestions.length,
+                            separatorBuilder: (context, index) => const Divider(color: Colors.white10, height: 1),
+                            itemBuilder: (context, idx) {
+                              final loc = _citySuggestions[idx];
+                              return ListTile(
+                                dense: true,
+                                leading: const Icon(Icons.location_city_rounded, color: AppColors.lightGold, size: 16),
+                                title: Text(
+                                  '${loc.cityName}, ${loc.state}',
+                                  style: GoogleFonts.outfit(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(
+                                  '${loc.country} | Lat: ${loc.latitude.toStringAsFixed(2)}°, Lon: ${loc.longitude.toStringAsFixed(2)}°',
+                                  style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 10),
+                                ),
+                                onTap: () => _applyLocation(loc),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+
+                // State Recommendations Dropdown (28 States & UTs)
+                if (_showStateSuggestions && _stateSuggestions.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(top: 6, bottom: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardSurface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.7)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    constraints: const BoxConstraints(maxHeight: 200),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryGold.withValues(alpha: 0.1),
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.map_rounded, size: 14, color: AppColors.lightGold),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Indian States & UTs (${_stateSuggestions.length})',
+                                    style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                                  ),
+                                ],
+                              ),
+                              InkWell(
+                                onTap: () => setState(() => _showStateSuggestions = false),
+                                child: const Icon(Icons.close_rounded, size: 14, color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Flexible(
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: _stateSuggestions.length,
+                            separatorBuilder: (context, index) => const Divider(color: Colors.white10, height: 1),
+                            itemBuilder: (context, idx) {
+                              final st = _stateSuggestions[idx];
+                              return ListTile(
+                                dense: true,
+                                leading: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryGold.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    st.code,
+                                    style: GoogleFonts.outfit(color: AppColors.lightGold, fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                title: Text(
+                                  '${st.name} (${st.nameTamil})',
+                                  style: GoogleFonts.outfit(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(
+                                  'Capital: ${st.capital} ${st.isUnionTerritory ? "(UT)" : "(State)"}',
+                                  style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 10.5),
+                                ),
+                                onTap: () => _applyState(st),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
                 const SizedBox(height: 24),
 
@@ -528,79 +854,6 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildDropdownField({
-    required String label,
-    required String value,
-    required List<String> items,
-    required IconData icon,
-    required ValueChanged<String?> onChanged,
-  }) {
-    String safeValue = items.contains(value)
-        ? value
-        : (items.firstWhere(
-            (item) => item.toLowerCase().contains(value.toLowerCase()) || value.toLowerCase().contains(item.toLowerCase()),
-            orElse: () => items.first,
-          ));
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 13)),
-        const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-          decoration: BoxDecoration(
-            color: AppColors.cardSurface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.borderGold.withOpacity(0.5)),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: AppColors.lightGold, size: 20),
-              const SizedBox(width: 10),
-              Expanded(
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: safeValue,
-                    isExpanded: true,
-                    dropdownColor: AppColors.backgroundMid,
-                    style: GoogleFonts.outfit(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.bold),
-                    icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.lightGold),
-                    items: items.map((String item) {
-                      return DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(
-                          item,
-                          style: GoogleFonts.outfit(color: AppColors.textPrimary),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: onChanged,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAstroBadge(String title, String value) {
-    return Column(
-      children: [
-        Text(title, style: GoogleFonts.outfit(fontSize: 10, color: AppColors.textSecondary, letterSpacing: 1)),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-          textAlign: TextAlign.center,
-        ),
-      ],
     );
   }
 }

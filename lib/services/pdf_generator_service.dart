@@ -5,7 +5,6 @@ import 'package:pdf/widgets.dart' as pw;
 import '../models/customer_pdf_settings_model.dart';
 import '../models/horoscope_calculation_result.dart';
 import '../models/jaathaga_kurippugal_model.dart';
-import '../models/pdf_fixed_content_config.dart';
 import '../models/user_model.dart';
 import 'astrology_calculator.dart';
 import 'jaathaga_kurippugal_calculator.dart';
@@ -48,7 +47,7 @@ class PdfGeneratorService {
               // 1. Top Header Invocation Line
               if (settings.invocationText.isNotEmpty)
                 pw.Center(
-                  child: pw.Text(
+                  child: _txt(
                     settings.invocationText,
                     style: pw.TextStyle(
                       font: fontBold,
@@ -76,8 +75,8 @@ class PdfGeneratorService {
                 color: PdfColors.grey200,
                 padding: const pw.EdgeInsets.symmetric(vertical: 3, horizontal: 6),
                 child: pw.Center(
-                  child: pw.Text(
-                    'திருக் கணித நிராயன கிரக நிலைகள் ( அயனாம்சம் : Lahiri ${astroData.ayanamsaFormatted} )',
+                  child: _txt(
+                    'திருக்கணித நிராயன கிரக நிலைகள் (அயனாம்சம் : Lahiri ${astroData.ayanamsaFormatted})',
                     style: pw.TextStyle(
                       font: fontBold,
                       fontFallback: fallbackFonts,
@@ -122,7 +121,7 @@ class PdfGeneratorService {
               pw.SizedBox(height: 8),
 
               // 8. Dasha Summary & Permanent Footer
-              _buildDashaFooterBlock(astroData, notes, fontReg, fontBold, fallbackFonts),
+              _buildDashaFooterBlock(settings, astroData, notes, fontReg, fontBold, fallbackFonts),
             ],
           );
         },
@@ -146,7 +145,7 @@ class PdfGeneratorService {
       padding: const pw.EdgeInsets.all(6),
       child: pw.Column(
         children: [
-          pw.Text(
+          _txt(
             settings.companyName,
             style: pw.TextStyle(
               font: fontBold,
@@ -157,7 +156,7 @@ class PdfGeneratorService {
           ),
           if (settings.astrologerName.isNotEmpty) ...[
             pw.SizedBox(height: 2),
-            pw.Text(
+            _txt(
               settings.astrologerName,
               style: pw.TextStyle(
                 font: fontBold,
@@ -168,7 +167,7 @@ class PdfGeneratorService {
           ],
           if (settings.titleSubtitle.isNotEmpty) ...[
             pw.SizedBox(height: 1),
-            pw.Text(
+            _txt(
               settings.titleSubtitle,
               style: pw.TextStyle(
                 font: fontReg,
@@ -179,8 +178,8 @@ class PdfGeneratorService {
           ],
           if (settings.address.isNotEmpty || settings.phone.isNotEmpty) ...[
             pw.SizedBox(height: 1),
-            pw.Text(
-              '${settings.address} ${settings.phone.isNotEmpty ? "செல்: ${settings.phone}" : ""}',
+            _txt(
+              '${settings.address}${settings.phone.isNotEmpty ? " | செல்: ${settings.phone}" : ""}',
               style: pw.TextStyle(
                 font: fontReg,
                 fontFallback: fallbackFonts,
@@ -188,21 +187,28 @@ class PdfGeneratorService {
               ),
             ),
           ],
-          // Fixed Slokam (Permanent Application Content)
+          // Fixed Slokam (Permanent Application Content with settings fallback)
           pw.SizedBox(height: 2),
-          pw.Text(
-            PdfFixedContentConfig.slokaFooter,
+          _txt(
+            settings.slokaFooter,
             textAlign: pw.TextAlign.center,
             style: pw.TextStyle(
               font: fontReg,
               fontFallback: fallbackFonts,
               fontSize: 7.5,
-              fontStyle: pw.FontStyle.italic,
             ),
           ),
         ],
       ),
     );
+  }
+
+  /// Helper to convert dynamic user gender into professional Tamil label
+  static String _formatGenderTa(String gender) {
+    final g = gender.trim().toLowerCase();
+    if (g == 'female' || g == 'பெண்') return 'பெண்';
+    if (g == 'other' || g == 'மற்றவை') return 'மற்றவை';
+    return 'ஆண்';
   }
 
   /// 3. Native Profile Box
@@ -223,8 +229,8 @@ class PdfGeneratorService {
             width: 70,
             padding: const pw.EdgeInsets.all(6),
             child: pw.Center(
-              child: pw.Text(
-                'ஜாதகர்\n( ${user.gender == "Male" ? "ஆண்" : "பெண்"} )',
+              child: _txt(
+                'ஜாதகர்\n( ${_formatGenderTa(user.gender)} )',
                 textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
                   font: fontBold,
@@ -244,7 +250,7 @@ class PdfGeneratorService {
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
-                      pw.Text(
+                      _txt(
                         'பெயர் : ${user.name.isNotEmpty ? user.name : "Divine Seeker"}',
                         style: pw.TextStyle(
                           font: fontBold,
@@ -252,7 +258,7 @@ class PdfGeneratorService {
                           fontSize: 9.5,
                         ),
                       ),
-                      pw.Text(
+                      _txt(
                         'வயது : ${user.calculatedAge} வருடம்',
                         style: pw.TextStyle(
                           font: fontBold,
@@ -266,15 +272,15 @@ class PdfGeneratorService {
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
-                      pw.Text(
-                        'பிறந்த தேதி : ${notes.englishDate} ( ${notes.tamilDate} )',
+                      _txt(
+                        'பிறந்த தேதி : ${notes.englishDate} (${notes.tamilDate})',
                         style: pw.TextStyle(
                           font: fontReg,
                           fontFallback: fallbackFonts,
                           fontSize: 8.5,
                         ),
                       ),
-                      pw.Text(
+                      _txt(
                         'கிழமை : ${notes.weekday}',
                         style: pw.TextStyle(
                           font: fontReg,
@@ -288,7 +294,7 @@ class PdfGeneratorService {
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
-                      pw.Text(
+                      _txt(
                         'பிறந்த நேரம் : ${notes.timeOfBirth}',
                         style: pw.TextStyle(
                           font: fontReg,
@@ -296,7 +302,7 @@ class PdfGeneratorService {
                           fontSize: 8.5,
                         ),
                       ),
-                      pw.Text(
+                      _txt(
                         'பிறந்த இடம் : ${notes.placeOfBirth}',
                         style: pw.TextStyle(
                           font: fontReg,
@@ -338,7 +344,7 @@ class PdfGeneratorService {
               children: [
                 _gridText('உதய லக்னம்', '${notes.lagna} (${notes.lagnaDegree})', fontReg, fontBold, fallbackFonts),
                 _gridText('ஜென்ம ராசி', notes.rasi, fontReg, fontBold, fallbackFonts),
-                _gridText('நட்சத்திரம்', '${notes.nakshatra} (${notes.pada})', fontReg, fontBold, fallbackFonts),
+                _gridText('ஜென்ம நட்சத்திரம்', '${notes.nakshatra} (${notes.pada})', fontReg, fontBold, fallbackFonts),
                 _gridText('நட்சத்திர நாதன்', notes.starLord, fontReg, fontBold, fallbackFonts),
                 _gridText('திதி', '${notes.paksha} ${notes.thithi}', fontReg, fontBold, fallbackFonts),
               ],
@@ -392,7 +398,7 @@ class PdfGeneratorService {
         children: [
           pw.SizedBox(
             width: 75,
-            child: pw.Text(
+            child: _txt(
               label,
               style: pw.TextStyle(
                 font: fontBold,
@@ -401,9 +407,9 @@ class PdfGeneratorService {
               ),
             ),
           ),
-          pw.Text(' : ', style: pw.TextStyle(font: fontReg, fontFallback: fallbackFonts, fontSize: 7.5)),
+          _txt(' : ', style: pw.TextStyle(font: fontReg, fontFallback: fallbackFonts, fontSize: 7.5)),
           pw.Expanded(
-            child: pw.Text(
+            child: _txt(
               value,
               style: pw.TextStyle(
                 font: fontReg,
@@ -456,7 +462,7 @@ class PdfGeneratorService {
               _td(p.tamilName, fontBold, fallbackFonts),
               _td(p.rasiNameTa, fontReg, fallbackFonts),
               _td(p.degreeFormatted, fontReg, fallbackFonts),
-              _td('${p.nakshatraNameTa}-${p.pada}', fontReg, fallbackFonts),
+              _td('${p.nakshatraNameTa} - ${p.pada}', fontReg, fallbackFonts),
               _td(p.tamilStarLord, fontReg, fallbackFonts),
               _td(p.tamilSubLord, fontReg, fallbackFonts),
             ],
@@ -470,7 +476,7 @@ class PdfGeneratorService {
     return pw.Padding(
       padding: const pw.EdgeInsets.all(2.5),
       child: pw.Center(
-        child: pw.Text(
+        child: _txt(
           text,
           style: pw.TextStyle(
             font: font,
@@ -486,7 +492,7 @@ class PdfGeneratorService {
     return pw.Padding(
       padding: const pw.EdgeInsets.all(2),
       child: pw.Center(
-        child: pw.Text(
+        child: _txt(
           text,
           style: pw.TextStyle(
             font: font,
@@ -523,7 +529,7 @@ class PdfGeneratorService {
             color: PdfColors.grey200,
             padding: const pw.EdgeInsets.symmetric(vertical: 2),
             child: pw.Center(
-              child: pw.Text(
+              child: _txt(
                 chartTitle,
                 style: pw.TextStyle(
                   font: fontBold,
@@ -545,7 +551,7 @@ class PdfGeneratorService {
                       return pw.Container(
                         height: 32,
                         child: pw.Center(
-                          child: pw.Text(
+                          child: _txt(
                             chartTitle,
                             style: pw.TextStyle(
                               font: fontBold,
@@ -569,7 +575,7 @@ class PdfGeneratorService {
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
-                        pw.Text(
+                        _txt(
                           rasiName,
                           style: pw.TextStyle(
                             font: fontReg,
@@ -579,7 +585,7 @@ class PdfGeneratorService {
                           ),
                         ),
                         pw.Center(
-                          child: pw.Text(
+                          child: _txt(
                             symbols.join(' '),
                             style: pw.TextStyle(
                               font: fontBold,
@@ -602,6 +608,7 @@ class PdfGeneratorService {
 
   /// 8. Dasha Footer with Permanent Fixed Software Footer
   static pw.Widget _buildDashaFooterBlock(
+    CustomerPdfSettings settings,
     HoroscopeCalculationResult astro,
     JaathagaKurippugalResult notes,
     pw.Font fontReg,
@@ -616,16 +623,16 @@ class PdfGeneratorService {
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Text(
-                'பிறந்த நேர தசா இருப்பு : ${notes.starLord} தசை - இருப்பு கணிதம்',
+              _txt(
+                'பிறந்த நேர திசா இருப்பு : ${astro.moon.tamilStarLord} திசை இருப்பு',
                 style: pw.TextStyle(
                   font: fontBold,
                   fontFallback: fallbackFonts,
                   fontSize: 8,
                 ),
               ),
-              pw.Text(
-                'நட்சத்திர செல்லாகி நின்ற நாழிகை : ${notes.nakshatraNazhi}',
+              _txt(
+                'நட்சத்திரம் சென்ற நாழிகை : ${notes.nakshatraNazhi}',
                 style: pw.TextStyle(
                   font: fontReg,
                   fontFallback: fallbackFonts,
@@ -635,10 +642,10 @@ class PdfGeneratorService {
             ],
           ),
           pw.SizedBox(height: 3),
-          // Permanent Application Software Footer (Fixed)
+          // Permanent Application Software Footer (Fixed / Dynamic Fallback)
           pw.Center(
-            child: pw.Text(
-              PdfFixedContentConfig.softwareFooter,
+            child: _txt(
+              settings.softwareFooter,
               style: pw.TextStyle(
                 font: fontBold,
                 fontFallback: fallbackFonts,
@@ -651,4 +658,20 @@ class PdfGeneratorService {
       ),
     );
   }
+
+  /// Helper to format text with correct Tamil Unicode and ligatures for PDF rendering
+  static pw.Text _txt(
+    String text, {
+    pw.TextStyle? style,
+    pw.TextAlign? textAlign,
+    int? maxLines,
+  }) {
+    return pw.Text(
+      PdfFontManager.formatText(text),
+      style: style,
+      textAlign: textAlign,
+      maxLines: maxLines,
+    );
+  }
 }
+

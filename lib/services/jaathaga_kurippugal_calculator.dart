@@ -173,7 +173,7 @@ class JaathagaKurippugalCalculator {
     ),
     NakshatraAttributes(
       name: "சுவாதி",
-      nameLetters: "ரு, ரே, రో, தா",
+      nameLetters: "ரு, ரே, ரோ, தா",
       gana: "தேவ கணம்",
       yoni: "எருமை",
       rajju: "கண்ட ரஜ்ஜு",
@@ -413,7 +413,7 @@ class JaathagaKurippugalCalculator {
       rasi: "${moon.rasiNameTa} (${moon.rasiNameEn})",
       nakshatra: moon.nakshatraNameTa,
       pada: "${moon.pada}-ஆம் பாதம்",
-      starLord: moon.starLord,
+      starLord: moon.tamilStarLord,
       thithi: astroData.tithi.tithiNameTa,
       paksha: astroData.tithi.pakshaTa,
       yoga: astroData.yogaNameTa,

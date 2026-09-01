@@ -14,6 +14,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _navigating = false;
+
   @override
   void initState() {
     super.initState();
@@ -21,8 +23,13 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToLogin() async {
-    await Future.delayed(const Duration(milliseconds: 2500));
-    if (!mounted) return;
+    await Future.delayed(const Duration(milliseconds: 3200));
+    _proceedToLogin();
+  }
+
+  void _proceedToLogin() {
+    if (_navigating || !mounted) return;
+    _navigating = true;
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 800),
@@ -36,118 +43,138 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isLandscape = size.width > size.height;
+
     return Scaffold(
-      body: CosmicBackground(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+      backgroundColor: const Color(0xFF03050C),
+      body: GestureDetector(
+        onTap: _proceedToLogin,
+        child: CosmicBackground(
+          showNebula: true,
+          child: SafeArea(
+            child: Stack(
               children: [
-                // App Logo Container with Golden Aura & Dynamic Animations
+                // Centered Splash Poster
                 Center(
                   child: Container(
-                    width: 170,
-                    height: 170,
+                    constraints: BoxConstraints(
+                      maxWidth: isLandscape ? size.height * 0.65 : 480,
+                      maxHeight: size.height,
+                    ),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: AppColors.goldBorderGradient,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primaryGold.withOpacity(0.6),
-                          blurRadius: 36,
-                          spreadRadius: 6,
+                          color: AppColors.primaryGold.withValues(alpha: 0.18),
+                          blurRadius: 40,
+                          spreadRadius: 4,
+                        ),
+                        BoxShadow(
+                          color: AppColors.purpleAccent.withValues(alpha: 0.25),
+                          blurRadius: 60,
+                          spreadRadius: 8,
                         ),
                       ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(3.0),
-                      child: ClipOval(
-                        child: Image.asset(
-                          AppConstants.appLogo,
-                          fit: BoxFit.cover,
-                          alignment: Alignment.center,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            color: AppColors.backgroundDeep,
-                            child: const Icon(
-                              Icons.auto_awesome,
-                              size: 80,
-                              color: AppColors.lightGold,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(isLandscape ? 20 : 0),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Main Divine Poster Image
+                          Image.asset(
+                            AppConstants.splashGanesha,
+                            fit: BoxFit.contain,
+                            alignment: Alignment.center,
+                            errorBuilder: (context, error, stackTrace) => Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(AppConstants.appLogo, width: 140, height: 140),
+                                const SizedBox(height: 20),
+                                Text(
+                                  AppConstants.appName,
+                                  style: GoogleFonts.cinzel(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.lightGold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
+
+                          // Subtle Golden Shimmer Highlight
+                          Positioned.fill(
+                            child: Container()
+                                .animate()
+                                .shimmer(
+                                  duration: 2200.ms,
+                                  delay: 800.ms,
+                                  color: AppColors.lightGold.withValues(alpha: 0.12),
+                                ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                )
-                    .animate()
-                    .scale(duration: 1200.ms, curve: Curves.easeOutBack)
-                    .fade(duration: 1000.ms)
-                    .shimmer(duration: 1800.ms, delay: 600.ms, color: AppColors.lightGold.withOpacity(0.4)),
-
-                const SizedBox(height: 32),
-
-                // Main Title: Astrocall
-                Text(
-                  AppConstants.appName,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.cinzel(
-                    fontSize: 44,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.lightGold,
-                    letterSpacing: 3.0,
-                    shadows: [
-                      Shadow(
-                        color: AppColors.primaryGold.withOpacity(0.8),
-                        blurRadius: 20,
+                  )
+                      .animate()
+                      .fade(duration: 900.ms, curve: Curves.easeOut)
+                      .scale(
+                        begin: const Offset(0.95, 0.95),
+                        end: const Offset(1.0, 1.0),
+                        duration: 1000.ms,
+                        curve: Curves.easeOutCubic,
                       ),
+                ),
+
+                // Bottom Loading Indicator & Tap to Continue hint
+                Positioned(
+                  bottom: 24,
+                  left: 0,
+                  right: 0,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF070B18).withValues(alpha: 0.65),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppColors.borderGold.withValues(alpha: 0.3),
+                            width: 0.8,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                color: AppColors.lightGold,
+                                strokeWidth: 2,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Entering Divine Sanctuary...',
+                              style: GoogleFonts.cinzel(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.lightGold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                          .animate()
+                          .fade(duration: 800.ms, delay: 600.ms)
+                          .slideY(begin: 0.4, end: 0, duration: 600.ms),
                     ],
                   ),
-                )
-                    .animate()
-                    .fade(duration: 1000.ms, delay: 400.ms)
-                    .slideY(begin: 0.3, end: 0, duration: 800.ms, curve: Curves.easeOut),
-
-                const SizedBox(height: 8),
-
-                // Ornament Divider
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(width: 40, height: 1, color: AppColors.borderGold),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Icon(Icons.star, size: 12, color: AppColors.lightGold),
-                    ),
-                    Container(width: 40, height: 1, color: AppColors.borderGold),
-                  ],
-                ).animate().fade(duration: 800.ms, delay: 700.ms),
-
-                const SizedBox(height: 8),
-
-                // Subtitle: Digital Astrology Centre
-                Text(
-                  AppConstants.appSubtitle,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.cinzel(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                    letterSpacing: 2.0,
-                  ),
-                ).animate().fade(duration: 1000.ms, delay: 900.ms),
-
-                const SizedBox(height: 48),
-
-                // Subtle Loading Ring
-                const SizedBox(
-                  width: 32,
-                  height: 32,
-                  child: CircularProgressIndicator(
-                    color: AppColors.lightGold,
-                    strokeWidth: 2,
-                  ),
-                ).animate().fade(duration: 600.ms, delay: 1200.ms),
+                ),
               ],
             ),
           ),

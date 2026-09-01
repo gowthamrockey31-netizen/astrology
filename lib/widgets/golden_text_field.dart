@@ -8,11 +8,15 @@ class GoldenTextField extends StatefulWidget {
   final String? hintText;
   final String? hint;
   final IconData? prefixIcon;
+  final Widget? suffixIcon;
   final bool isPassword;
   final TextInputType keyboardType;
   final int maxLines;
   final String? Function(String?)? validator;
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onTap;
+  final FocusNode? focusNode;
+  final bool readOnly;
 
   const GoldenTextField({
     super.key,
@@ -21,11 +25,15 @@ class GoldenTextField extends StatefulWidget {
     this.hintText,
     this.hint,
     this.prefixIcon,
+    this.suffixIcon,
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
     this.maxLines = 1,
     this.validator,
     this.onChanged,
+    this.onTap,
+    this.focusNode,
+    this.readOnly = false,
   });
 
   @override
@@ -69,6 +77,9 @@ class _GoldenTextFieldState extends State<GoldenTextField> {
           ),
           child: TextFormField(
             controller: widget.controller,
+            focusNode: widget.focusNode,
+            onTap: widget.onTap,
+            readOnly: widget.readOnly,
             obscureText: widget.isPassword ? _obscureText : false,
             keyboardType: widget.keyboardType,
             maxLines: widget.isPassword ? 1 : widget.maxLines,
@@ -87,20 +98,21 @@ class _GoldenTextFieldState extends State<GoldenTextField> {
                 color: AppColors.primaryGold,
                 size: 20,
               ),
-              suffixIcon: widget.isPassword
-                  ? IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        color: AppColors.primaryGold,
-                        size: 20,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
-                    )
-                  : null,
+              suffixIcon: widget.suffixIcon ??
+                  (widget.isPassword
+                      ? IconButton(
+                          icon: Icon(
+                            _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                            color: AppColors.primaryGold,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                        )
+                      : null),
             ),
           ),
         ),

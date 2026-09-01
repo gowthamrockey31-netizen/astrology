@@ -52,7 +52,21 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
   void _showUpdateBirthDetailsDialog() {
     final nameCtrl = TextEditingController(text: _user.name);
     DateTime selectedDob = DateTime.tryParse(_user.dob) ?? DateTime(1996, 6, 15);
-    final tobCtrl = TextEditingController(text: _user.timeOfBirth);
+    TimeOfDay selectedTob = const TimeOfDay(hour: 8, minute: 30);
+    try {
+      final rawTob = _user.timeOfBirth.trim();
+      final isPm = rawTob.toLowerCase().contains('pm');
+      final isAm = rawTob.toLowerCase().contains('am');
+      final digits = RegExp(r'(\d+):(\d+)').firstMatch(rawTob);
+      if (digits != null) {
+        int h = int.parse(digits.group(1)!);
+        int m = int.parse(digits.group(2)!);
+        if (isPm && h < 12) h += 12;
+        if (isAm && h == 12) h = 0;
+        selectedTob = TimeOfDay(hour: h, minute: m);
+      }
+    } catch (_) {}
+    final tobCtrl = TextEditingController(text: _user.timeOfBirth.isNotEmpty ? _user.timeOfBirth : selectedTob.format(context));
     final pobCtrl = TextEditingController(text: _user.placeOfBirth);
     final latCtrl = TextEditingController(text: _user.latitude.toString());
     final lonCtrl = TextEditingController(text: _user.longitude.toString());
@@ -172,7 +186,62 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                           ),
                         ),
                         const SizedBox(width: 10),
-                        Expanded(child: _buildTextField(tobCtrl, 'பிறந்த நேரம் (HH:MM AM/PM)', Icons.access_time_rounded)),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () async {
+                              final picked = await showTimePicker(
+                                context: context,
+                                initialTime: selectedTob,
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: ThemeData.dark().copyWith(
+                                      colorScheme: const ColorScheme.dark(
+                                        primary: AppColors.primaryGold,
+                                        onPrimary: AppColors.backgroundDeep,
+                                        surface: AppColors.backgroundMid,
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
+                              if (picked != null) {
+                                setModalState(() {
+                                  selectedTob = picked;
+                                  tobCtrl.text = selectedTob.format(context);
+                                });
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.cardSurface,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.5)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'பிறந்த நேரம் (Time of Birth)',
+                                    style: GoogleFonts.outfit(fontSize: 10, color: AppColors.textSecondary),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.access_time_rounded, size: 14, color: AppColors.lightGold),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        selectedTob.format(context),
+                                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -228,7 +297,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                         child: ListView.separated(
                           shrinkWrap: true,
                           itemCount: suggestions.length,
-                          separatorBuilder: (_, __) => const Divider(color: Colors.white10, height: 1),
+                          separatorBuilder: (context, index) => const Divider(color: Colors.white10, height: 1),
                           itemBuilder: (context, idx) {
                             final loc = suggestions[idx];
                             return ListTile(

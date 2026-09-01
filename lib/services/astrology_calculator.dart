@@ -197,7 +197,7 @@ class AstrologyCalculator {
 
   static const List<String> tamilMonthsTa = [
     'சித்திரை', 'வைகாசி', 'ஆனி', 'ஆடி', 'ஆவணி', 'புரட்டாசி',
-    'ஐப்பசி', 'கார்திகை', 'மார்கழி', 'தை', 'மாசி', 'பங்குனி'
+    'ஐப்பசி', 'கார்த்திகை', 'மார்கழி', 'தை', 'மாசி', 'பங்குனி'
   ];
 
   static const List<String> mobileKaranasTa = [

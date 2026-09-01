@@ -20,10 +20,10 @@ class PdfFontManager {
 
   /// Get fallback fonts list for mixed language (Tamil + English + Numbers + Symbols)
   static List<pw.Font> get fallbackFonts => [
-        if (_tamilRegularFont != null) _tamilRegularFont!,
-        if (_tamilBoldFont != null) _tamilBoldFont!,
-        if (_latinRegularFont != null) _latinRegularFont!,
-        if (_latinBoldFont != null) _latinBoldFont!,
+        ?_tamilRegularFont,
+        ?_tamilBoldFont,
+        ?_latinRegularFont,
+        ?_latinBoldFont,
       ];
 
   /// Initialize and load Tamil & Latin Unicode TrueType fonts
@@ -101,4 +101,15 @@ class PdfFontManager {
       fontStyle: fontStyle,
     );
   }
+
+  /// Formats Tamil text for PDF rendering, preserving "ஸ்ரீ" as an authentic ligature glyph
+  static String formatText(String text) {
+    if (text.isEmpty) return text;
+    return text
+        .replaceAll('\u0BB8\u0BCD\u0BB0\u0BC0', '\uE000') // Sa + Virama + Ra + II
+        .replaceAll('\u0BB6\u0BCD\u0BB0\u0BC0', '\uE000') // Sha + Virama + Ra + II
+        .replaceAll('ஸ்ரீ', '\uE000')
+        .replaceAll('ஶ்ரீ', '\uE000');
+  }
 }
+

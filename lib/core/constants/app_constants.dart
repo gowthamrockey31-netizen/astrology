@@ -12,6 +12,7 @@ class AppConstants {
 
   // Asset Images
   static const String appLogo = 'assets/images/app_logo.jpeg';
+  static const String splashGanesha = 'assets/images/splash_ganesha.png';
   static const String astrologyWheelBanner = 'assets/images/app_logo.jpeg';
   static const String loginReferenceImage = 'assets/images/login_reference.jpg';
   static const String roleCardsReferenceImage = 'assets/images/role_cards_reference.jpg';

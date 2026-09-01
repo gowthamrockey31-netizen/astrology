@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:astrocall/models/customer_pdf_settings_model.dart';
 import 'package:astrocall/models/pdf_fixed_content_config.dart';
 import 'package:astrocall/models/user_model.dart';
+import 'package:astrocall/services/astrology_calculator.dart';
+import 'package:astrocall/services/jaathaga_kurippugal_calculator.dart';
 import 'package:astrocall/services/pdf_font_manager.dart';
 import 'package:astrocall/services/pdf_generator_service.dart';
 import 'package:astrocall/services/pdf_settings_service.dart';
@@ -24,7 +26,7 @@ void main() {
       expect(PdfFixedContentConfig.softwareFooter, 'Software by AstroDashaCare Digital Astrology Centre');
       expect(
         PdfFixedContentConfig.slokaFooter,
-        'ஜெணனீஜென்ம ஸௌக்யானாம் ! வர்த்தனி குலஸம்பதாம் ! பதவிபூர்வ புண்யானாம்!! லிக்யதே ஜென்ம பத்திரிகா!!',
+        'ஜனனீ ஜன்ம ஸௌக்யானாம் வர்த்தனீ குலஸம்பதாம் | பதவிபூர்வ புண்யானாம் லிக்யதே ஜன்ம பத்ரிகா ||',
       );
     });
 
@@ -104,9 +106,54 @@ void main() {
       await PdfSettingsService.resetToDefault();
       final current = PdfSettingsService.currentSettings;
 
-      expect(current.companyName, 'ஸ்ரீ கல்யாண விநாயகர் ஜோதிட நிலையம்');
+      expect(current.companyName, 'ஸ்ரீகல்யாணவிநாயகர்ஜோதிட நிலையம்');
       expect(current.softwareFooter, PdfFixedContentConfig.softwareFooter);
       expect(current.slokaFooter, PdfFixedContentConfig.slokaFooter);
+    });
+
+    test('Test 7: Tamil Month and Nakshatra spellings are correct and contain no foreign glyphs', () {
+      expect(AstrologyCalculator.tamilMonthsTa.contains('கார்த்திகை'), isTrue);
+      expect(AstrologyCalculator.tamilMonthsTa.contains('கார்திகை'), isFalse);
+
+      final swatiAttr = JaathagaKurippugalCalculator.nakshatraMasterData
+          .firstWhere((n) => n.name == 'சுவாதி');
+      expect(swatiAttr.nameLetters, 'ரு, ரே, ரோ, தா');
+      expect(swatiAttr.nameLetters.contains('రో'), isFalse);
+    });
+
+    test('Test 8: PDF Generator supports Female and Other genders dynamically', () async {
+      final femaleUser = UserModel(
+        id: 'test_female_01',
+        name: 'கயல்விழி (Female Native)',
+        mobile: '+91 9876543211',
+        dob: '1998-04-12',
+        timeOfBirth: '02:30 PM',
+        placeOfBirth: 'சென்னை (Chennai)',
+        city: 'Chennai',
+        state: 'Tamil Nadu',
+        country: 'India',
+        gender: 'Female',
+        zodiac: 'Aries',
+        nakshatra: 'Ashwini',
+        lagna: 'Leo',
+        walletBalance: 100.0,
+        profilePhoto: '',
+        latitude: 13.0827,
+        longitude: 80.2707,
+        timezone: 5.5,
+      );
+
+      final otherUser = femaleUser.copyWith(
+        gender: 'Other',
+      );
+
+      final femalePdf = await PdfGeneratorService.generateHoroscopePdf(user: femaleUser);
+      final otherPdf = await PdfGeneratorService.generateHoroscopePdf(user: otherUser);
+
+      expect(femalePdf, isNotNull);
+      expect(femalePdf.length, greaterThan(1000));
+      expect(otherPdf, isNotNull);
+      expect(otherPdf.length, greaterThan(1000));
     });
   });
 }

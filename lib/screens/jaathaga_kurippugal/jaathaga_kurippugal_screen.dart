@@ -333,7 +333,6 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
             _InfoRow('முக்குண வேளை', _notes.mukkunaVelai),
             _InfoRow('யோகி', '${_yogiResult.yogiPlanetTa} (${_yogiResult.yogiNakshatraTa} - ${_yogiResult.yogiPada} பாதம்)'),
             _InfoRow('அவ யோகி', '${_yogiResult.avaYogiPlanetTa} (${_yogiResult.avaYogiNakshatraTa})'),
-            _InfoRow('தினசுத்தி நாழிகை', _notes.udayathiNazhi),
             _InfoRow('செவ்வாய் தோஷம்', _sevvaiResult.hasDosham ? 'தோஷம் உள்ளது (${_sevvaiResult.severityLevel})' : (_sevvaiResult.hasExemption ? 'தோஷ நிவர்த்தி (${_sevvaiResult.summaryTamil})' : 'தோஷம் இல்லை')),
             _InfoRow('ராகு தோஷம்', _rahuKetuResult.hasSarpaDosham ? 'சர்ப்ப தோஷம் உள்ளது (${_rahuKetuResult.rahuRasiTa})' : 'தோஷம் இல்லை (${_rahuKetuResult.rahuRasiTa})'),
             _InfoRow('கேது தோஷம்', 'கேது அமர்வு: ${_rahuKetuResult.ketuRasiTa} (${_rahuKetuResult.ketuHouseFromLagna}-ஆம் இடம்)'),

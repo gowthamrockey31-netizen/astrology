@@ -469,14 +469,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       AppConstants.appName,
                       style: GoogleFonts.cinzel(
-                        fontSize: 34,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: AppColors.lightGold,
-                        letterSpacing: 2.5,
+                        letterSpacing: 2.0,
                         shadows: [
                           Shadow(
                             color: AppColors.primaryGold.withOpacity(0.6),
-                            blurRadius: 15,
+                            blurRadius: 12,
                           ),
                         ],
                       ),

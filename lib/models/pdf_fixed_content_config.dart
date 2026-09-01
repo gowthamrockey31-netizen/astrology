@@ -7,7 +7,7 @@ class PdfFixedContentConfig {
 
   /// Permanent Fixed Slokam / Mangala Sloka (ஸ்லோகம்)
   static const String slokaFooter =
-      'ஜெணனீஜென்ம ஸௌக்யானாம் ! வர்த்தனி குலஸம்பதாம் ! பதவிபூர்வ புண்யானாம்!! லிக்யதே ஜென்ம பத்திரிகா!!';
+      'ஜனனீ ஜன்ம ஸௌக்யானாம் வர்த்தனீ குலஸம்பதாம் | பதவிபூர்வ புண்யானாம் லிக்யதே ஜன்ம பத்ரிகா ||';
 
   /// Application Name & Version Info
   static const String appName = 'AstroDashaCare';
