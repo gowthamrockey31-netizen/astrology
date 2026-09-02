@@ -10,6 +10,7 @@ import '../models/kp_result.dart';
 import 'kp_cusp_table.dart';
 import 'kp_dasha_view.dart';
 import 'kp_planet_table.dart';
+import 'kp_rasi_table.dart';
 import 'kp_rectification_view.dart';
 import 'kp_ruling_planet_card.dart';
 import 'kp_significator_table.dart';
@@ -33,6 +34,7 @@ class _KPMethodModel1PageState extends State<KPMethodModel1Page> {
 
   final List<String> _tabs = [
     'Horoscope',
+    'Rasi / கிரகங்கள்',
     'Ruling Planets',
     '12 Cusps',
     '9 Planets',
@@ -373,7 +375,7 @@ class _KPMethodModel1PageState extends State<KPMethodModel1Page> {
           ),
           const SizedBox(height: 18),
           Text(
-            'Calculating KP Horoscope...',
+            'கிரக நிலைகள் கணக்கிடப்படுகிறது...',
             style: GoogleFonts.cinzel(fontSize: 16, color: AppColors.lightGold, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
@@ -402,7 +404,7 @@ class _KPMethodModel1PageState extends State<KPMethodModel1Page> {
             const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
             const SizedBox(height: 16),
             Text(
-              'KP Calculation Engine Unavailable',
+              'கிரக நிலைகளை கணக்கிட முடியவில்லை',
               style: GoogleFonts.cinzel(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.redAccent),
             ),
             const SizedBox(height: 10),
@@ -434,21 +436,28 @@ class _KPMethodModel1PageState extends State<KPMethodModel1Page> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (_selectedTabIndex == 0) _buildOverviewTab(res),
-          if (_selectedTabIndex == 1) KPRulingPlanetCard(rulingPlanets: res.rulingPlanets),
-          if (_selectedTabIndex == 2) KPCuspTable(cusps: res.cusps),
-          if (_selectedTabIndex == 3) KPPlanetTable(planets: res.planets),
-          if (_selectedTabIndex == 4)
+          if (_selectedTabIndex == 1)
+            KPRasiTable(
+              planets: res.planets,
+              lagnaDegreeFormatted: res.cusps.isNotEmpty ? res.cusps.first.dmsFormatted : null,
+              lagnaRasiTa: res.cusps.isNotEmpty ? res.cusps.first.rasiNameTa : null,
+              lagnaNakshatraTa: res.cusps.isNotEmpty ? '${res.cusps.first.nakshatraNameTa} (${res.cusps.first.pada})' : null,
+            ),
+          if (_selectedTabIndex == 2) KPRulingPlanetCard(rulingPlanets: res.rulingPlanets),
+          if (_selectedTabIndex == 3) KPCuspTable(cusps: res.cusps),
+          if (_selectedTabIndex == 4) KPPlanetTable(planets: res.planets),
+          if (_selectedTabIndex == 5)
             KPSignificatorTable(
               planetSignificators: res.planetSignificators,
               houseSignificators: const [],
             ),
-          if (_selectedTabIndex == 5)
+          if (_selectedTabIndex == 6)
             KPSignificatorTable(
               planetSignificators: const [],
               houseSignificators: res.houseSignificators,
             ),
-          if (_selectedTabIndex == 6) KPDashaView(dashaHierarchy: res.dashaHierarchy),
-          if (_selectedTabIndex == 7)
+          if (_selectedTabIndex == 7) KPDashaView(dashaHierarchy: res.dashaHierarchy),
+          if (_selectedTabIndex == 8)
             KPRectificationView(
               birthData: res.birthData,
               rulingPlanets: res.rulingPlanets,
@@ -489,6 +498,16 @@ class _KPMethodModel1PageState extends State<KPMethodModel1Page> {
 
         const SizedBox(height: 16),
 
+        // Accurate KP Rasi & Planet Positions Table (Matching screenshot format)
+        KPRasiTable(
+          planets: res.planets,
+          lagnaDegreeFormatted: res.cusps.isNotEmpty ? res.cusps.first.dmsFormatted : null,
+          lagnaRasiTa: res.cusps.isNotEmpty ? res.cusps.first.rasiNameTa : null,
+          lagnaNakshatraTa: res.cusps.isNotEmpty ? '${res.cusps.first.nakshatraNameTa} (${res.cusps.first.pada})' : null,
+        ),
+
+        const SizedBox(height: 16),
+
         // Ruling Planets Summary
         KPRulingPlanetCard(rulingPlanets: res.rulingPlanets),
 
@@ -496,11 +515,6 @@ class _KPMethodModel1PageState extends State<KPMethodModel1Page> {
 
         // 12 Cusps Snapshot
         KPCuspTable(cusps: res.cusps),
-
-        const SizedBox(height: 16),
-
-        // 9 Planets Snapshot
-        KPPlanetTable(planets: res.planets),
       ],
     );
   }

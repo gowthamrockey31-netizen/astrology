@@ -386,7 +386,12 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
               color: isLagna ? WidgetStateProperty.all(AppColors.primaryGold.withOpacity(0.12)) : null,
               cells: [
                 DataCell(Text(p.tamilName, style: GoogleFonts.outfit(color: isLagna ? AppColors.lightGold : Colors.white, fontWeight: isLagna ? FontWeight.bold : FontWeight.normal, fontSize: 11))),
-                DataCell(Text(p.degreeFormatted, style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11))),
+                DataCell(Text(
+                  p.degreeFormatted,
+                  style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 11, letterSpacing: 0.5),
+                  maxLines: 1,
+                  softWrap: false,
+                )),
                 DataCell(Text(p.rasiNameTa, style: GoogleFonts.outfit(color: Colors.white, fontSize: 11))),
                 DataCell(Text("${p.nakshatraNameTa}-${p.pada}", style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.w600, fontSize: 11))),
                 DataCell(Text(p.tamilStarLord, style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11))),
