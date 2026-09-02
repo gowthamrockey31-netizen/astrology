@@ -19,6 +19,7 @@ import 'package:astrocall/services/auth_service.dart';
 import 'package:astrocall/services/firestore_service.dart';
 import 'package:astrocall/screens/login/login_screen.dart';
 import 'package:astrocall/screens/magazine/magazine_feed_screen.dart';
+import 'package:astrocall/kp_method_model_1/kp_method_model_1.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -228,6 +229,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildBannerCard().animate().fade(duration: 800.ms).slideY(begin: 0.1, end: 0),
+          const SizedBox(height: 18),
+          KPDashboardCard(
+            onTap: () => Navigator.of(context).pushNamed('/kp_method_model_1'),
+          ).animate().fade(delay: 120.ms).slideY(begin: 0.08, end: 0),
           const SizedBox(height: 20),
           _buildModuleSwitchSection().animate().fade(delay: 150.ms),
           const SizedBox(height: 24),
@@ -261,11 +266,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         {'title': 'Admin Control Panel', 'sub': 'CMS & Approvals', 'icon': Icons.admin_panel_settings_rounded, 'route': '/admin_dashboard', 'color': AppColors.blueAccent},
         {'title': 'உலகியல் ஜோதிடம்', 'sub': 'Mundane Astrology', 'icon': Icons.public_rounded, 'route': '/mundane_astrology', 'color': Colors.indigo.shade900},
       ],
+      {'title': 'KP Method Model 1', 'sub': 'KP Astrology Calculation & Analysis', 'icon': Icons.auto_awesome, 'route': '/kp_method_model_1', 'color': Colors.purple.shade900},
       {'title': 'ஜாதக / பஞ்சாங்க குறிப்புகள்', 'sub': 'பஞ்சாங்கம், தினசுத்தி, அஷ்டவர்க்கம்', 'icon': Icons.description_rounded, 'route': '/jaathaga_kurippugal', 'color': Colors.indigo.shade800},
       {'title': 'ஜாமகோள் ஆருடம்', 'sub': 'Jamakol Arudam', 'icon': Icons.compass_calibration_rounded, 'route': '/jamakol_arudam', 'color': Colors.deepPurple.shade800},
+      {'title': 'ஜாமகோள் ஆருடம்', 'sub': 'Model 1', 'icon': Icons.auto_awesome, 'route': '/jamakol_arudam_model1', 'color': Colors.deepPurple.shade700},
       {'title': 'KP Astrology', 'sub': 'Sub Lord Analysis', 'icon': Icons.hub_rounded, 'route': '/kp_astrology', 'color': Colors.amber.shade900},
       {'title': 'KP Horary / பிரசன்னம்', 'sub': '1-249 Horary Kundali', 'icon': Icons.help_center_rounded, 'route': '/kp_horary', 'color': Colors.blue.shade900},
       {'title': 'பிருகு நந்தி நாடி', 'sub': 'Bhrigu Nandi Nadi', 'icon': Icons.auto_awesome_motion_rounded, 'route': '/bhrigu_nandi_nadi', 'color': Colors.teal.shade800},
+      {'title': 'பிருகு நந்தி நாடி (முறை 1)', 'sub': 'BNN Method 1', 'icon': Icons.alt_route_rounded, 'route': '/bnn_method1', 'color': Colors.teal.shade700},
       {'title': 'எண்கணிதம்', 'sub': 'Numerology Calculator', 'icon': Icons.calculate_rounded, 'route': '/numerology', 'color': Colors.pink.shade800},
       {'title': 'தினசரி கிரக நிலைகள்', 'sub': 'Daily Ephemeris', 'icon': Icons.wb_sunny_rounded, 'route': '/daily_planet_positions', 'color': Colors.orange.shade800},
       {'title': 'தினசரி நாள்காட்டி', 'sub': 'Daily Calendar & Panchangam', 'icon': Icons.calendar_month_rounded, 'route': '/daily_calendar', 'color': Colors.deepOrange.shade800},

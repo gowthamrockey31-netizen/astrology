@@ -29,15 +29,18 @@ import 'screens/hora/live_hora_screen.dart';
 import 'screens/nazhigai/nazhigai_screen.dart';
 import 'screens/longevity/longevity_screen.dart';
 import 'screens/jamakol_arudam/jamakol_arudam_screen.dart';
+import 'screens/jamakol_arudam_model1_screen.dart';
 import 'screens/kp_astrology/kp_astrology_screen.dart';
 import 'screens/kp_horary/kp_horary_screen.dart';
 import 'screens/daily_planet_positions/daily_planet_positions_screen.dart';
 import 'screens/daily_calendar/daily_calendar_screen.dart';
 import 'screens/tamil_month_calendar/tamil_month_calendar_screen.dart';
 import 'screens/bhrigu_nandi_nadi/bhrigu_nandi_nadi_screen.dart';
+import 'screens/bnn_method1_screen.dart';
 import 'screens/numerology/numerology_screen.dart';
 import 'screens/pdf_settings/customer_details_settings_screen.dart';
 import 'screens/mundane_astrology/mundane_astrology_screen.dart';
+import 'kp_method_model_1/kp_method_model_1.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -212,12 +215,16 @@ class AstroDashaCareApp extends StatelessWidget {
         '/nazhigai': (context) => const NazhigaiScreen(),
         '/longevity': (context) => const LongevityScreen(),
         '/jamakol_arudam': (context) => const JamakolArudamScreen(),
+        '/jamakol_arudam_model1': (context) => const JamakolArudamModel1Screen(),
         '/kp_astrology': (context) => const KpAstrologyScreen(),
+        '/kp_method_model_1': (context) => const KPMethodModel1Page(),
+        '/kp-method-model-1': (context) => const KPMethodModel1Page(),
         '/kp_horary': (context) => const KpHoraryScreen(),
         '/daily_planet_positions': (context) => const DailyPlanetPositionsScreen(),
         '/daily_calendar': (context) => const DailyCalendarScreen(),
         '/tamil_month_calendar': (context) => const TamilMonthCalendarScreen(),
         '/bhrigu_nandi_nadi': (context) => const BhriguNandiNadiScreen(),
+        '/bnn_method1': (context) => const BnnMethod1Screen(),
         '/numerology': (context) => const NumerologyScreen(),
         '/pdf_settings': (context) => const CustomerDetailsSettingsScreen(),
         '/mundane_astrology': (context) => _guardedRoute(

@@ -466,31 +466,39 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // App Brand Logo Header
-                    Text(
-                      AppConstants.appName,
-                      style: GoogleFonts.cinzel(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.lightGold,
-                        letterSpacing: 2.0,
-                        shadows: [
-                          Shadow(
-                            color: AppColors.primaryGold.withOpacity(0.6),
-                            blurRadius: 12,
-                          ),
-                        ],
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        AppConstants.appName,
+                        maxLines: 1,
+                        style: GoogleFonts.cinzel(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.lightGold,
+                          letterSpacing: 1.2,
+                          shadows: [
+                            Shadow(
+                              color: AppColors.primaryGold.withValues(alpha: 0.6),
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
                       ),
                     ).animate().fade(duration: 800.ms).slideY(begin: -0.2, end: 0),
 
                     const SizedBox(height: 4),
 
-                    Text(
-                      AppConstants.appSubtitle,
-                      style: GoogleFonts.cinzel(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textSecondary,
-                        letterSpacing: 1.5,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        AppConstants.appSubtitle,
+                        maxLines: 1,
+                        style: GoogleFonts.cinzel(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary,
+                          letterSpacing: 1.1,
+                        ),
                       ),
                     ).animate().fade(duration: 800.ms, delay: 200.ms),
 
