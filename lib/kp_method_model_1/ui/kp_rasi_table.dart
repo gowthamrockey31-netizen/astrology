@@ -66,11 +66,11 @@ class KPRasiTable extends StatelessWidget {
             builder: (context, constraints) {
               final isDesktop = constraints.maxWidth > 600;
 
-              // Responsive column ratios
-              final double col1Width = constraints.maxWidth * (isDesktop ? 0.20 : 0.22);
-              final double col2Width = constraints.maxWidth * (isDesktop ? 0.26 : 0.30);
-              final double col3Width = constraints.maxWidth * (isDesktop ? 0.22 : 0.20);
-              final double col4Width = constraints.maxWidth * (isDesktop ? 0.32 : 0.28);
+              // Responsive column flex weights
+              final int flex1 = isDesktop ? 20 : 22;
+              final int flex2 = isDesktop ? 28 : 30;
+              final int flex3 = isDesktop ? 22 : 20;
+              final int flex4 = isDesktop ? 30 : 28;
 
               return Column(
                 children: [
@@ -84,10 +84,10 @@ class KPRasiTable extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        _headerCell('கிரகம்', col1Width, Alignment.centerLeft),
-                        _headerCell('ராசி ஸ்புடம்', col2Width, Alignment.centerLeft),
-                        _headerCell('ராசி', col3Width, Alignment.centerLeft),
-                        _headerCell('நட்சத்திரம்', col4Width, Alignment.centerLeft),
+                        _headerCell('கிரகம்', flex1, Alignment.centerLeft),
+                        _headerCell('ராசி ஸ்புடம்', flex2, Alignment.centerLeft),
+                        _headerCell('ராசி', flex3, Alignment.centerLeft),
+                        _headerCell('நட்சத்திரம்', flex4, Alignment.centerLeft),
                       ],
                     ),
                   ),
@@ -100,10 +100,10 @@ class KPRasiTable extends StatelessWidget {
                       degreeText: lagnaDegreeFormatted!,
                       rasiText: lagnaRasiTa!,
                       nakshatraText: lagnaNakshatraTa ?? '-',
-                      col1: col1Width,
-                      col2: col2Width,
-                      col3: col3Width,
-                      col4: col4Width,
+                      flex1: flex1,
+                      flex2: flex2,
+                      flex3: flex3,
+                      flex4: flex4,
                       isHighlight: true,
                     ),
 
@@ -114,10 +114,10 @@ class KPRasiTable extends StatelessWidget {
                       degreeText: p.dmsFormatted,
                       rasiText: p.rasiNameTa,
                       nakshatraText: p.nakshatraWithPadaTa,
-                      col1: col1Width,
-                      col2: col2Width,
-                      col3: col3Width,
-                      col4: col4Width,
+                      flex1: flex1,
+                      flex2: flex2,
+                      flex3: flex3,
+                      flex4: flex4,
                       isHighlight: false,
                     );
                   }),
@@ -130,9 +130,9 @@ class KPRasiTable extends StatelessWidget {
     );
   }
 
-  Widget _headerCell(String title, double width, Alignment align) {
-    return SizedBox(
-      width: width,
+  Widget _headerCell(String title, int flex, Alignment align) {
+    return Expanded(
+      flex: flex,
       child: Align(
         alignment: align,
         child: Text(
@@ -142,6 +142,8 @@ class KPRasiTable extends StatelessWidget {
             fontWeight: FontWeight.bold,
             color: AppColors.lightGold,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );
@@ -152,10 +154,10 @@ class KPRasiTable extends StatelessWidget {
     required String degreeText,
     required String rasiText,
     required String nakshatraText,
-    required double col1,
-    required double col2,
-    required double col3,
-    required double col4,
+    required int flex1,
+    required int flex2,
+    required int flex3,
+    required int flex4,
     required bool isHighlight,
   }) {
     return Container(
@@ -173,8 +175,8 @@ class KPRasiTable extends StatelessWidget {
       child: Row(
         children: [
           // Column 1: Planet Name
-          SizedBox(
-            width: col1,
+          Expanded(
+            flex: flex1,
             child: Text(
               planetText,
               style: AppTheme.tamilTextStyle(
@@ -189,8 +191,8 @@ class KPRasiTable extends StatelessWidget {
 
           // Column 2: EXACT DEGREE DISPLAY (CIRCLED AREA)
           // Monospaced, zero-padding, non-wrapping DD°MM'SS"
-          SizedBox(
-            width: col2,
+          Expanded(
+            flex: flex2,
             child: Text(
               degreeText,
               style: GoogleFonts.outfit(
@@ -201,13 +203,13 @@ class KPRasiTable extends StatelessWidget {
               ),
               maxLines: 1,
               softWrap: false,
-              overflow: TextOverflow.visible,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
 
           // Column 3: Rasi Name
-          SizedBox(
-            width: col3,
+          Expanded(
+            flex: flex3,
             child: Text(
               rasiText,
               style: AppTheme.tamilTextStyle(
@@ -221,8 +223,8 @@ class KPRasiTable extends StatelessWidget {
           ),
 
           // Column 4: Nakshatra (Pada)
-          SizedBox(
-            width: col4,
+          Expanded(
+            flex: flex4,
             child: Text(
               nakshatraText,
               style: AppTheme.tamilTextStyle(

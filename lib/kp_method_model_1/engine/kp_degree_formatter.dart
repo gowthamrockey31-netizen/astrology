@@ -20,6 +20,8 @@ class KPDegreeFormatter {
     double norm = longitude % 360.0;
     if (norm < 0) norm += 360.0;
 
+    int rasiIndex = (norm / 30.0).floor().clamp(0, 11);
+
     // 2. Degree inside sign (0 <= signDegree < 30)
     double signDegree = norm % 30.0;
 
@@ -45,10 +47,17 @@ class KPDegreeFormatter {
       degree += 1;
     }
     if (degree >= 30) {
-      // Stay within sign boundary (cap at 29°59'59" or 00°00'00" if exact boundary)
-      degree = 29;
-      minute = 59;
-      second = 59;
+      if (rasiIndex == 11 && norm >= 359.999) {
+        // Pisces boundary: stays in Meenam at max valid second, preventing invalid 30°
+        degree = 29;
+        minute = 59;
+        second = 59;
+      } else {
+        // Moves to next sign boundary at 00°00'00"
+        degree = 0;
+        minute = 0;
+        second = 0;
+      }
     }
 
     // 8. Return DD°MM'SS"

@@ -151,5 +151,73 @@ void main() {
       expect(chart1.sun.degreeFormatted, isNotEmpty);
       expect(chart2.sun.degreeFormatted, isNotEmpty);
     });
+
+    test('User Specification Boundary Tests (Cases 1 to 5)', () {
+      // CASE 1: longitude = 0.0 -> Expected: மேஷம் 00°00'00"
+      final p1 = PlanetDetail.fromSiderealLongitude(name: 'Sun', tamilName: 'சூரியன்', symbol: 'சூ', longitude: 0.0);
+      expect(p1.rasiNameTa, 'மேஷம்');
+      expect(p1.degreeFormatted, '00°00\'00"');
+      expect(AstrologyCalculator.formatRasiDegree(0.0), '00°00\'00"');
+
+      // CASE 2: longitude = 29.999999 -> Expected: Next valid Rasi (ரிஷபம்) 00°00'00", never 29°59'60" or 30°
+      final p2 = PlanetDetail.fromSiderealLongitude(name: 'Sun', tamilName: 'சூரியன்', symbol: 'சூ', longitude: 29.999999);
+      expect(p2.rasiNameTa, 'ரிஷபம்');
+      expect(p2.degreeFormatted, '00°00\'00"');
+      expect(p2.degreeFormatted, isNot(contains('30°')));
+      expect(p2.degreeFormatted, isNot(contains('60"')));
+      expect(AstrologyCalculator.formatRasiDegree(29.999999), '00°00\'00"');
+
+      // CASE 3: longitude = 30.0 -> Expected: ரிஷபம் 00°00'00"
+      final p3 = PlanetDetail.fromSiderealLongitude(name: 'Sun', tamilName: 'சூரியன்', symbol: 'சூ', longitude: 30.0);
+      expect(p3.rasiNameTa, 'ரிஷபம்');
+      expect(p3.degreeFormatted, '00°00\'00"');
+      expect(AstrologyCalculator.formatRasiDegree(30.0), '00°00\'00"');
+
+      // CASE 4: longitude = 53.234444 -> Expected: ரிஷபம் 23°14'04"
+      final p4 = PlanetDetail.fromSiderealLongitude(name: 'Sun', tamilName: 'சூரியன்', symbol: 'சூ', longitude: 53.234444);
+      expect(p4.rasiNameTa, 'ரிஷபம்');
+      expect(p4.degreeFormatted, '23°14\'04"');
+      expect(AstrologyCalculator.formatRasiDegree(53.234444), '23°14\'04"');
+
+      // CASE 5: longitude = 359.999999 -> Expected: மீனம் with correct final DMS rounding and no invalid 30°
+      final p5 = PlanetDetail.fromSiderealLongitude(name: 'Sun', tamilName: 'சூரியன்', symbol: 'சூ', longitude: 359.999999);
+      expect(p5.rasiNameTa, 'மீனம்');
+      expect(p5.degreeFormatted, isNot(contains('30°')));
+      expect(p5.degreeFormatted, isNot(contains('60"')));
+      expect(p5.degreeFormatted, '29°59\'59"');
+      expect(AstrologyCalculator.formatRasiDegree(359.999999), '29°59\'59"');
+    });
+
+    test('User Specification Test with Birth Data (15-08-1995, 1:25 PM, Erode, TN)', () {
+      final dt = DateTime(1995, 8, 15, 13, 25);
+      final result = AstrologyCalculator.calculateHoroscope(
+        dateOfBirth: dt,
+        latitude: 11.3410,
+        longitude: 77.7172,
+        utcOffsetHours: 5.5,
+      );
+
+      final dmsPattern = RegExp(r'^[0-2][0-9]°[0-5][0-9]\x27[0-5][0-9]"$');
+
+      for (final entry in result.planets.entries) {
+        final p = entry.value;
+
+        // Longitude must be within 0° to 360°
+        expect(p.longitude, greaterThanOrEqualTo(0.0));
+        expect(p.longitude, lessThan(360.0));
+
+        // Rasi index must be 0..11
+        expect(p.rasiIndex, inInclusiveRange(0, 11));
+
+        // Degree in Rasi must be strictly in [0.0, 30.0)
+        expect(p.degreeInRasi, greaterThanOrEqualTo(0.0));
+        expect(p.degreeInRasi, lessThan(30.0));
+
+        // Formatted degree must be strictly 2-digit DD°MM'SS" and NEVER absolute longitude
+        expect(dmsPattern.hasMatch(p.degreeFormatted), isTrue);
+        expect(p.degreeFormatted.length, 9); // e.g. "23°14'04"" is exactly 9 characters
+        expect(int.parse(p.degreeFormatted.substring(0, 2)), lessThan(30)); // First 2 digits < 30
+      }
+    });
   });
 }

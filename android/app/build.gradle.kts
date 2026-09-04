@@ -54,11 +54,14 @@ tasks.matching { it.name == "assembleRelease" }.configureEach {
         val altSrcApk = File(project.layout.buildDirectory.get().asFile, "outputs/apk/release/app-release.apk")
         val targetDir = File(rootDir, "../build/app/outputs/flutter-apk")
         val rootApk = File(rootDir, "../AstroDashaCare.apk")
+        val vName = flutter.versionName ?: "latest"
+        val versionedApk = File(rootDir, "../AstroDashaCare_v${vName}.apk")
         val finalSrc = if (srcApk.exists()) srcApk else altSrcApk
         if (finalSrc.exists()) {
             targetDir.mkdirs()
             finalSrc.copyTo(File(targetDir, "app-release.apk"), overwrite = true)
             finalSrc.copyTo(rootApk, overwrite = true)
+            finalSrc.copyTo(versionedApk, overwrite = true)
         }
     }
 }

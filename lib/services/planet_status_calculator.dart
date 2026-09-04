@@ -1,3 +1,6 @@
+import '../engine/avastha_engine.dart';
+import '../engine/dignity_engine.dart';
+import '../models/planet_position.dart';
 import '../models/planet_status_model.dart';
 import 'astrology_calculator.dart';
 
@@ -119,32 +122,37 @@ class PlanetStatusCalculator {
       final p = planets[key];
       if (p == null) continue;
 
-      final isSunOrLagnaOrNodes = key == 'Sun' || key == 'Lagna' || key == 'Mandi' || key == 'Rahu' || key == 'Ketu';
-
       // 1. Own House (ஆட்சி)
       final bool isOwn = ownSigns[key]?.contains(p.rasiIndex) ?? false;
       if (isOwn) ownHouseCount++;
 
-      // 2. Exalted (உச்சம்)
-      final bool isExalt = (exaltationSigns[key] == p.rasiIndex);
+      final planetPos = PlanetPosition.fromKey(
+        key,
+        p.longitude,
+        isRetrograde: p.isRetrograde,
+        rasiIndex: p.rasiIndex,
+        navamsaIndex: p.navamsaIndex,
+      );
+
+      // 2 & 3. Dignity (உச்சம் / நீசம்) via DignityEngine
+      final dignityRes = DignityEngine.get(planetPos);
+      final bool isExalt = dignityRes?.name == 'உச்சம்' || (exaltationSigns[key] == p.rasiIndex);
       if (isExalt) exaltedCount++;
 
-      // 3. Debilitated (நீசம்)
-      final bool isDebil = (debilitationSigns[key] == p.rasiIndex);
+      final bool isDebil = dignityRes?.name == 'நீசம்' || (debilitationSigns[key] == p.rasiIndex);
       if (isDebil) debilitatedCount++;
 
-      // 4. Combustion (அஸ்தமனம்) from Sun
+      // 4. Combustion (அஸ்தமனம்) from Sun using AvasthaEngine
       double distFromSun = 0.0;
       double orb = 0.0;
       bool isComb = false;
 
-      if (!isSunOrLagnaOrNodes) {
-        final rawDist = (p.longitude - sunLongitude).abs();
-        distFromSun = rawDist > 180.0 ? 360.0 - rawDist : rawDist;
-        orb = p.isRetrograde
-            ? (combustionOrbsRetrograde[key] ?? combustionOrbsDirect[key] ?? 14.0)
-            : (combustionOrbsDirect[key] ?? 14.0);
-        isComb = distFromSun <= orb;
+      final avasthaTags = AvasthaEngine.calculate(planet: planetPos, sunLongitude: sunLongitude);
+      final limit = AvasthaEngine.combustionLimit(planetPos.planet);
+      if (limit != null) {
+        distFromSun = AvasthaEngine.angularDistance(p.longitude, sunLongitude);
+        orb = limit;
+        isComb = avasthaTags.any((a) => a.name == 'அஸ்தமனம்');
         if (isComb) combustCount++;
       }
 

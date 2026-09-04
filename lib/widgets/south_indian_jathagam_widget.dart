@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_colors.dart';
+import '../engine/avastha_engine.dart';
+import '../engine/dignity_engine.dart';
 import '../models/horoscope_calculation_result.dart';
+import '../models/planet_position.dart';
 import '../models/user_model.dart';
 import '../services/astrology_calculator.dart';
 import '../services/dasha_calculator.dart';
@@ -355,6 +358,8 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
 
   Widget _buildPathasaramTable(Map<String, PlanetDetail> planets) {
     final planetKeys = ['Lagna', 'Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
+    final sun = planets['Sun'];
+    final double sunLong = sun?.longitude ?? 0.0;
 
     return Container(
       decoration: BoxDecoration(
@@ -378,16 +383,48 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
             DataColumn(label: Text('நட்சத்திரம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
             DataColumn(label: Text('சார நாதன்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
             DataColumn(label: Text('உப நாதன்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+            DataColumn(label: Text('வக்ரம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+            DataColumn(label: Text('வர்கோத்தமம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+            DataColumn(label: Text('அஸ்தமனம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
+            DataColumn(label: Text('உச்சம் / நீசம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
           ],
           rows: planetKeys.map((key) {
             final p = planets[key]!;
             final isLagna = key == 'Lagna';
+            final planetPos = PlanetPosition.fromKey(
+              key,
+              p.longitude,
+              isRetrograde: p.isRetrograde,
+              rasiIndex: p.rasiIndex,
+              navamsaIndex: p.navamsaIndex,
+            );
+            final avasthas = AvasthaEngine.calculate(
+              planet: planetPos,
+              sunLongitude: sunLong,
+            );
+            final isVakram = avasthas.any((a) => a.name == 'வக்ரம்');
+            final isVargottama = avasthas.any((a) => a.name == 'வர்கோத்தமம்');
+            final isCombust = avasthas.any((a) => a.name == 'அஸ்தமனம்');
+            final dignityRes = DignityEngine.calculate(planetPos);
+
+            String dignityText = 'இயல்பு';
+            Color dignityColor = Colors.white60;
+            FontWeight dignityWeight = FontWeight.normal;
+
+            if (dignityRes != null) {
+              dignityText = '${dignityRes.symbol} ${dignityRes.title}';
+              dignityColor = dignityRes.title == 'உச்சம்' ? Colors.greenAccent : Colors.redAccent;
+              dignityWeight = FontWeight.bold;
+            }
+
             return DataRow(
               color: isLagna ? WidgetStateProperty.all(AppColors.primaryGold.withOpacity(0.12)) : null,
               cells: [
                 DataCell(Text(p.tamilName, style: GoogleFonts.outfit(color: isLagna ? AppColors.lightGold : Colors.white, fontWeight: isLagna ? FontWeight.bold : FontWeight.normal, fontSize: 11))),
                 DataCell(Text(
-                  p.degreeFormatted,
+                  '${p.degree}° '
+                  '${p.minute}′ '
+                  '${p.second.toStringAsFixed(0)}″',
                   style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 11, letterSpacing: 0.5),
                   maxLines: 1,
                   softWrap: false,
@@ -396,6 +433,43 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                 DataCell(Text("${p.nakshatraNameTa}-${p.pada}", style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.w600, fontSize: 11))),
                 DataCell(Text(p.tamilStarLord, style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11))),
                 DataCell(Text(p.tamilSubLord, style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11))),
+                DataCell(Text(
+                  isVakram ? '↺ வக்ரம்' : 'இல்லை',
+                  style: GoogleFonts.outfit(
+                    color: isVakram ? Colors.cyanAccent : Colors.white60,
+                    fontWeight: isVakram ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 11,
+                  ),
+                )),
+                DataCell(Text(
+                  isVargottama ? '★ வர்கோத்தமம்' : 'இல்லை',
+                  style: GoogleFonts.outfit(
+                    color: isVargottama ? AppColors.lightGold : Colors.white60,
+                    fontWeight: isVargottama ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 11,
+                  ),
+                )),
+                DataCell(Text(
+                  isCombust ? '☀ அஸ்தமனம்' : 'இல்லை',
+                  style: GoogleFonts.outfit(
+                    color: isCombust ? Colors.orangeAccent : Colors.white60,
+                    fontWeight: isCombust ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 11,
+                  ),
+                )),
+                DataCell(
+                  Tooltip(
+                    message: dignityRes?.explanation ?? 'கிரகம் இயல்பான ராசியில் உள்ளது',
+                    child: Text(
+                      dignityText,
+                      style: GoogleFonts.outfit(
+                        color: dignityColor,
+                        fontWeight: dignityWeight,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             );
           }).toList(),

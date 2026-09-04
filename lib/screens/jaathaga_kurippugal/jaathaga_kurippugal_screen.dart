@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
+import '../../engine/dignity_engine.dart';
 import '../../models/dosham_result_model.dart';
 import '../../models/horoscope_calculation_result.dart';
 import '../../models/jaathaga_kurippugal_model.dart';
+import '../../models/planet_position.dart';
 import '../../models/planet_status_model.dart';
 import '../../models/user_model.dart';
 import '../../models/varga_chart_model.dart';
@@ -495,13 +497,33 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
                     DataColumn(label: Text('வக்ரம்', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.lightGold, fontSize: 11))),
                   ],
                   rows: _planetStatusReport.planetStatuses.map((s) {
+                    final pos = PlanetPosition.fromKey(s.planetKey, s.degreeInRasi, rasiIndex: s.rasiIndex);
+                    final dignityRes = DignityEngine.get(pos);
+                    String dignityText = 'இயல்பு';
+                    Color dignityColor = Colors.white60;
+                    FontWeight dignityWeight = FontWeight.normal;
+
+                    if (dignityRes != null) {
+                      dignityText = '${dignityRes.symbol} ${dignityRes.name}';
+                      dignityColor = dignityRes.name == 'உச்சம்' ? Colors.greenAccent : Colors.redAccent;
+                      dignityWeight = FontWeight.bold;
+                    } else if (s.isExalted) {
+                      dignityText = '↑ உச்சம்';
+                      dignityColor = Colors.greenAccent;
+                      dignityWeight = FontWeight.bold;
+                    } else if (s.isDebilitated) {
+                      dignityText = '↓ நீசம்';
+                      dignityColor = Colors.redAccent;
+                      dignityWeight = FontWeight.bold;
+                    }
+
                     return DataRow(
                       cells: [
                         DataCell(Text(s.nameTa, style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 11))),
                         DataCell(Text(s.rasiNameTa, style: GoogleFonts.outfit(color: Colors.white, fontSize: 11))),
                         DataCell(Text(s.dignity.tamilLabel, style: GoogleFonts.outfit(color: Colors.white70, fontSize: 11))),
-                        DataCell(Text(s.isCombust ? 'ஆம் (Combust)' : 'இல்லை', style: GoogleFonts.outfit(color: s.isCombust ? Colors.orangeAccent : Colors.white60, fontSize: 11))),
-                        DataCell(Text(s.isDebilitated ? 'நீசம்' : (s.isExalted ? 'உச்சம்' : 'இயல்பு'), style: GoogleFonts.outfit(color: s.isDebilitated ? Colors.redAccent : (s.isExalted ? Colors.greenAccent : Colors.white60), fontSize: 11))),
+                        DataCell(Text(s.isCombust ? '☀ அஸ்தமனம்' : 'இல்லை', style: GoogleFonts.outfit(color: s.isCombust ? Colors.orangeAccent : Colors.white60, fontWeight: s.isCombust ? FontWeight.bold : FontWeight.normal, fontSize: 11))),
+                        DataCell(Text(dignityText, style: GoogleFonts.outfit(color: dignityColor, fontWeight: dignityWeight, fontSize: 11))),
                         DataCell(Text(s.isRetrograde ? 'வக்ரம்' : 'நேர்கதி', style: GoogleFonts.outfit(color: s.isRetrograde ? Colors.cyanAccent : Colors.white60, fontSize: 11))),
                       ],
                     );

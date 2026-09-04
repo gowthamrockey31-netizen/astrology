@@ -82,9 +82,30 @@ class PlanetDetail {
     final int totalSecs = (normLong * AstrologyCalculator.arcsecondsPerDegree).round() % AstrologyCalculator.totalArcseconds;
 
     // Rasi calculation: 30° per Rasi = 108,000 arcseconds
-    final int rasiIndex = totalSecs ~/ AstrologyCalculator.arcsecondsPerRasi;
+    int rasiIndex = (normLong / 30.0).floor().clamp(0, 11);
     final int rasiSecs = totalSecs % AstrologyCalculator.arcsecondsPerRasi;
     final double degreeInRasi = normLong - (rasiIndex * 30.0);
+
+    // Boundary check for rounding
+    int degrees = degreeInRasi.floor();
+    double minDec = (degreeInRasi - degrees) * 60.0;
+    int mins = minDec.floor();
+    int secs = ((minDec - mins) * 60.0).round();
+    if (secs == 60) {
+      secs = 0;
+      mins++;
+    }
+    if (mins == 60) {
+      mins = 0;
+      degrees++;
+    }
+    if (degrees == 30) {
+      if (rasiIndex == 11 && normLong >= 359.999) {
+        // Stays in Pisces at boundary
+      } else {
+        rasiIndex = (rasiIndex + 1) % 12;
+      }
+    }
 
     // Nakshatra calculation: 27 nakshatras × 48,000 arcseconds each (13°20')
     final int nakshatraIndex = (totalSecs ~/ AstrologyCalculator.arcsecondsPerNakshatra).clamp(0, 26);
@@ -131,7 +152,26 @@ class PlanetDetail {
     );
   }
 
-  String get degreeFormatted => AstrologyCalculator.formatDMS(degreeInRasi);
+  /// Exact Rasi-relative degree formatted as DD°MM'SS"
+  String get degreeFormatted => AstrologyCalculator.formatRasiDegree(longitude);
+
+  /// DMS components for Rasi Sphudam
+  int get degree => AstrologyCalculator.toDms(degreeInRasi).degree;
+  int get minute => AstrologyCalculator.toDms(degreeInRasi).minute;
+  double get second => AstrologyCalculator.toDms(degreeInRasi).second;
+}
+
+/// Structured Degree-Minute-Second component holder
+class DmsPosition {
+  final int degree;
+  final int minute;
+  final double second;
+
+  const DmsPosition({
+    required this.degree,
+    required this.minute,
+    required this.second,
+  });
 }
 
 /// High-Precision Thirukanitha Sidereal Astronomical Calculator
@@ -246,22 +286,82 @@ class AstrologyCalculator {
     6: 4, // Sat -> Saturn
   };
 
-  /// Centralized DMS Formatter: accurately converts degree (0..30) into DD°MM'SS"
-  static String formatDMS(double degreeWithinRasi) {
-    double deg = degreeWithinRasi % 30.0;
-    if (deg < 0) deg += 30.0;
+  /// Authoritative single function: format sidereal longitude into Rasi-relative DD°MM'SS"
+  static String formatRasiDegree(double siderealLongitude) {
+    // 1. Normalize longitude to 0°–360°
+    double norm = siderealLongitude % 360.0;
+    if (norm < 0) norm += 360.0;
 
-    int totalSeconds = (deg * 3600.0).round();
-    if (totalSeconds >= 30 * 3600) {
-      totalSeconds = 30 * 3600 - 1; // Cap to 29° 59' 59" to prevent invalid 30° in a single sign
+    int rasiIndex = (norm / 30.0).floor().clamp(0, 11);
+
+    // 2. Degree inside sign (0°..30°)
+    double degreeInsideRasi = norm % 30.0;
+
+    // 3. Extract degrees, minutes, seconds
+    int degrees = degreeInsideRasi.floor();
+    double minutesDecimal = (degreeInsideRasi - degrees) * 60.0;
+    int minutes = minutesDecimal.floor();
+    int seconds = ((minutesDecimal - minutes) * 60.0).round();
+
+    // 4. Handle rounding correctly
+    if (seconds == 60) {
+      seconds = 0;
+      minutes++;
+    }
+    if (minutes == 60) {
+      minutes = 0;
+      degrees++;
+    }
+    if (degrees == 30) {
+      if (rasiIndex == 11 && norm >= 359.999) {
+        // Pisces boundary: stays in Meenam at max valid second, preventing invalid 30°
+        degrees = 29;
+        minutes = 59;
+        seconds = 59;
+      } else {
+        // Moves to next sign boundary at 00°00'00"
+        degrees = 0;
+        minutes = 0;
+        seconds = 0;
+      }
     }
 
-    final d = totalSeconds ~/ 3600;
-    final remSec = totalSeconds % 3600;
-    final m = remSec ~/ 60;
-    final s = remSec % 60;
+    final degStr = degrees.toString().padLeft(2, '0');
+    final minStr = minutes.toString().padLeft(2, '0');
+    final secStr = seconds.toString().padLeft(2, '0');
 
-    return "${d.toString().padLeft(2, '0')}°${m.toString().padLeft(2, '0')}'${s.toString().padLeft(2, '0')}\"";
+    return '$degStr°$minStr\'$secStr"';
+  }
+
+  /// Calculation engine helper converting decimal degree into DmsPosition
+  static DmsPosition toDms(double degree) {
+    double deg = degree % 30.0;
+    if (deg < 0) deg += 30.0;
+
+    int d = deg.floor();
+    final minuteFloat = (deg - d) * 60.0;
+    int m = minuteFloat.floor();
+    double seconds = (minuteFloat - m) * 60.0;
+
+    if (seconds.round() >= 60) {
+      seconds = 0.0;
+      m += 1;
+    }
+    if (m >= 60) {
+      m = 0;
+      d = (d + 1) % 30;
+    }
+
+    return DmsPosition(
+      degree: d,
+      minute: m,
+      second: seconds,
+    );
+  }
+
+  /// Centralized DMS Formatter: accurately converts degree (0..30) into DD°MM'SS"
+  static String formatDMS(double degreeWithinRasi) {
+    return formatRasiDegree(degreeWithinRasi);
   }
 
   /// Calculate Lahiri Ayanamsa accurately for a given DateTime
@@ -771,7 +871,6 @@ class AstrologyCalculator {
     final px2 = r2 * (cos(nodeRad) * cos(u2) - sin(nodeRad) * sin(u2) * cos(inc));
     final py2 = r2 * (sin(nodeRad) * cos(u2) + cos(nodeRad) * sin(u2) * cos(inc));
 
-    final sunTrop2 = _normalizeDegrees(sunTrop + 0.041068); // ~1 hr sun movement
     final earthX2 = -earthX * cos(_degToRad(0.041068)) + earthY * sin(_degToRad(0.041068));
     final earthY2 = -earthX * sin(_degToRad(0.041068)) - earthY * cos(_degToRad(0.041068));
 
