@@ -27,6 +27,7 @@ import '../../widgets/astro_card.dart';
 import '../../widgets/cosmic_background.dart';
 import '../../widgets/south_indian_jathagam_widget.dart';
 import '../../widgets/varga_chart_widget.dart';
+import '../../modules/horoscope/current_age_card.dart';
 import 'package:printing/printing.dart';
 
 class JaathagaKurippugalScreen extends StatefulWidget {
@@ -38,6 +39,7 @@ class JaathagaKurippugalScreen extends StatefulWidget {
 
 class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> with SingleTickerProviderStateMixin {
   late UserModel _user;
+  late DateTime _birthDt;
   late HoroscopeCalculationResult _astroData;
   late JaathagaKurippugalResult _notes;
   late PlanetStatusReport _planetStatusReport;
@@ -127,16 +129,16 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
       if (_user.timeOfBirth.toUpperCase().contains('AM') && hour == 12) hour = 0;
     }
 
-    final birthDt = DateTime(parsedDob.year, parsedDob.month, parsedDob.day, hour, minute);
+    _birthDt = DateTime(parsedDob.year, parsedDob.month, parsedDob.day, hour, minute);
 
     _astroData = AstrologyCalculator.calculateHoroscope(
-      dateOfBirth: birthDt,
+      dateOfBirth: _birthDt,
       latitude: _user.latitude,
       longitude: _user.longitude,
       utcOffsetHours: _user.timezone,
     );
 
-    _notes = JaathagaKurippugalCalculator.calculateNotes(user: _user, birthDateTime: birthDt);
+    _notes = JaathagaKurippugalCalculator.calculateNotes(user: _user, birthDateTime: _birthDt);
     _planetStatusReport = PlanetStatusCalculator.calculatePlanetStatuses(_astroData.planets);
     _yogiResult = YogiCalculator.calculateYogi(
       sunLongitude: _astroData.sun.longitude,
@@ -150,7 +152,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
       nakshatraNameTa: _astroData.moon.nakshatraNameTa,
     );
     _dinaSuddhiResult = DinaSuddhiCalculator.calculate(
-      date: birthDt,
+      date: _birthDt,
       sunLongitude: _astroData.sun.longitude,
       moonLongitude: _astroData.moon.longitude,
       latitude: _user.latitude,
@@ -158,11 +160,11 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
       utcOffsetHours: _user.timezone,
     );
     _erasResult = JathagaErasCalculator.calculateAllEras(
-      day: birthDt.day,
-      month: birthDt.month,
-      year: birthDt.year,
-      hour: birthDt.hour,
-      minute: birthDt.minute,
+      day: _birthDt.day,
+      month: _birthDt.month,
+      year: _birthDt.year,
+      hour: _birthDt.hour,
+      minute: _birthDt.minute,
     );
 
     _currentVargaResult = VargaCalculator.calculateVarga(type: _selectedVarga, planets: _astroData.planets);
@@ -317,6 +319,10 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
             _InfoRow('பிறந்த இடம்', _notes.placeOfBirth),
           ],
         ),
+        const SizedBox(height: 14),
+
+        // நடப்பு வயது (Current Age)
+        CurrentAgeCard(birthDateTime: _birthDt),
         const SizedBox(height: 14),
 
         // 2. பொது பஞ்சாங்க குறிப்புகள் (General Panchangam)

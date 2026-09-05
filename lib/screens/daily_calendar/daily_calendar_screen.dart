@@ -526,36 +526,6 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 14),
-
-                // SECTION 11: கிரக பாதசார குறிப்புகள்
-                _buildCardContainer(
-                  title: 'கிரக பாதசார குறிப்புகள்',
-                  icon: Icons.notes_rounded,
-                  accentColor: Colors.amberAccent,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ..._calendarData.padaSaramNotes.map((note) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 6.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('• ', style: TextStyle(color: AppColors.primaryGold, fontSize: 14)),
-                              Expanded(
-                                child: Text(
-                                  note,
-                                  style: GoogleFonts.poppins(fontSize: 11.5, color: Colors.white.withValues(alpha: 0.9)),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                ),
 
                 const SizedBox(height: 14),
 

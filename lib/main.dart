@@ -41,6 +41,9 @@ import 'screens/numerology/numerology_screen.dart';
 import 'screens/pdf_settings/customer_details_settings_screen.dart';
 import 'screens/mundane_astrology/mundane_astrology_screen.dart';
 import 'kp_method_model_1/kp_method_model_1.dart';
+import 'kp_method_2/kp_method_2.dart';
+import 'modules/bnn_method_2/bnn_method_2.dart';
+import 'modules/jamakol_arudam_model_2/jamakol_arudam_model_2.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -216,15 +219,21 @@ class AstroDashaCareApp extends StatelessWidget {
         '/longevity': (context) => const LongevityScreen(),
         '/jamakol_arudam': (context) => const JamakolArudamScreen(),
         '/jamakol_arudam_model1': (context) => const JamakolArudamModel1Screen(),
+        '/jamakol_arudam_model2': (context) => const JamakkolPrasannamPage(),
+        '/jamakol-arudam-model-2': (context) => const JamakkolPrasannamPage(),
         '/kp_astrology': (context) => const KpAstrologyScreen(),
         '/kp_method_model_1': (context) => const KPMethodModel1Page(),
         '/kp-method-model-1': (context) => const KPMethodModel1Page(),
+        '/kp_method_2': (context) => const KPMethod2Page(),
+        '/kp-method-2': (context) => const KPMethod2Page(),
         '/kp_horary': (context) => const KpHoraryScreen(),
         '/daily_planet_positions': (context) => const DailyPlanetPositionsScreen(),
         '/daily_calendar': (context) => const DailyCalendarScreen(),
         '/tamil_month_calendar': (context) => const TamilMonthCalendarScreen(),
         '/bhrigu_nandi_nadi': (context) => const BhriguNandiNadiScreen(),
         '/bnn_method1': (context) => const BnnMethod1Screen(),
+        '/bnn_method_2': (context) => const BhriguNandiNadiMethod2Screen(),
+        '/bnn-method-2': (context) => const BhriguNandiNadiMethod2Screen(),
         '/numerology': (context) => const NumerologyScreen(),
         '/pdf_settings': (context) => const CustomerDetailsSettingsScreen(),
         '/mundane_astrology': (context) => _guardedRoute(

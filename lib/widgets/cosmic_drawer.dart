@@ -159,6 +159,12 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/jamakol_arudam_model1'),
                   ),
                   _buildDrawerItem(
+                    icon: Icons.stars_rounded,
+                    title: 'ஜாமகோள் ஆருடம்',
+                    subtitle: 'Model 2',
+                    onTap: () => onSelectRoute('/jamakol_arudam_model2'),
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.hub_rounded,
                     title: 'KP Astrology (உப நாத முறை)',
                     subtitle: '12 Cusps, Placidus Sub & Sub-Sub Lords',
@@ -177,6 +183,12 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/kp_method_model_1'),
                   ),
                   _buildDrawerItem(
+                    icon: Icons.stars_rounded,
+                    title: '⭐ KP Method 2',
+                    subtitle: 'கே.பி முறை 2 - பிளாசிடஸ் & அட்வான்டேஜ்',
+                    onTap: () => onSelectRoute('/kp_method_2'),
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.auto_awesome_motion_rounded,
                     title: 'பிருகு நந்தி நாடி முறை (Bhrigu Nandi Nadi)',
                     subtitle: 'திசை திரிகோண கிரக சேர்க்கைகள் & ஜீவ-கர்ம பலன்',
@@ -187,6 +199,12 @@ class CosmicDrawer extends StatelessWidget {
                     title: 'பிருகு நந்தி நாடி (முறை 1)',
                     subtitle: 'BNN Method 1 (1,5,9 → 3,11 → 7 → 2 → 12)',
                     onTap: () => onSelectRoute('/bnn_method1'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.alt_route_rounded,
+                    title: 'பிருகு நந்தி நாடி - BNN Method 2',
+                    subtitle: 'BNN Method 2 (திசை தொடர்புகள் & காரக பகுப்பாய்வு)',
+                    onTap: () => onSelectRoute('/bnn_method_2'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.calculate_rounded,

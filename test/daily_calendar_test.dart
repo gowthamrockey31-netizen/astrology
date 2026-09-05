@@ -111,5 +111,23 @@ void main() {
       expect(chennai.sunsetStr, isNot(equals(delhi.sunsetStr)));
       expect(chennai.rahuKalam, isNot(equals(delhi.rahuKalam)));
     });
+
+    test('TEST 7: Karana transition contains real Tamil names and dynamic timing without placeholder indices', () {
+      final dt = DateTime(2026, 9, 5, 12, 30);
+      final res = DailyCalendarEngine.calculate(targetDate: dt);
+
+      // Must not contain hardcoded placeholder 'Index'
+      expect(res.karanaTransition.previousName.contains('Index'), false);
+      expect(res.karanaTransition.nextName.contains('Index'), false);
+
+      // Must contain real Tamil names
+      expect(res.karanaTransition.currentName.isNotEmpty, true);
+      expect(res.karanaTransition.previousName.isNotEmpty, true);
+      expect(res.karanaTransition.nextName.isNotEmpty, true);
+
+      // Must contain dynamic timing (e.g. 'இன்று ... வரை')
+      expect(res.karanaTransition.currentTiming.contains('வரை'), true);
+      expect(res.karanaTransition.nextTiming.contains('முதல்'), true);
+    });
   });
 }

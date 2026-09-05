@@ -156,6 +156,27 @@ class GeocodingService {
     GeocodingLocation(cityName: 'Tirupathur', displayName: 'Tirupathur, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 12.4925, longitude: 78.5678, timezone: 5.5),
     GeocodingLocation(cityName: 'Kodaikanal', displayName: 'Kodaikanal, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 10.2381, longitude: 77.4892, timezone: 5.5),
 
+    GeocodingLocation(cityName: 'Tiruchendur', displayName: 'Tiruchendur, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 8.4947, longitude: 78.1219, timezone: 5.5),
+    GeocodingLocation(cityName: 'Cumbum', displayName: 'Cumbum, Theni, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 9.7347, longitude: 77.2811, timezone: 5.5),
+    GeocodingLocation(cityName: 'Tiruvarur', displayName: 'Tiruvarur, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 10.7725, longitude: 79.6366, timezone: 5.5),
+    GeocodingLocation(cityName: 'Mannargudi', displayName: 'Mannargudi, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 10.6637, longitude: 79.4447, timezone: 5.5),
+    GeocodingLocation(cityName: 'Pattukkottai', displayName: 'Pattukkottai, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 10.4277, longitude: 79.3175, timezone: 5.5),
+    GeocodingLocation(cityName: 'Srirangam', displayName: 'Srirangam, Tiruchirappalli, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 10.8622, longitude: 78.6946, timezone: 5.5),
+    GeocodingLocation(cityName: 'Gobichettipalayam', displayName: 'Gobichettipalayam, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 11.4554, longitude: 77.4336, timezone: 5.5),
+    GeocodingLocation(cityName: 'Sathyamangalam', displayName: 'Sathyamangalam, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 11.5034, longitude: 77.2344, timezone: 5.5),
+    GeocodingLocation(cityName: 'Coonoor', displayName: 'Coonoor, Nilgiris, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 11.3530, longitude: 76.7959, timezone: 5.5),
+    GeocodingLocation(cityName: 'Kotagiri', displayName: 'Kotagiri, Nilgiris, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 11.4230, longitude: 76.8660, timezone: 5.5),
+    GeocodingLocation(cityName: 'Mettupalayam', displayName: 'Mettupalayam, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 11.3013, longitude: 76.9456, timezone: 5.5),
+    GeocodingLocation(cityName: 'Bhavani', displayName: 'Bhavani, Erode, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 11.4485, longitude: 77.6835, timezone: 5.5),
+    GeocodingLocation(cityName: 'Tiruchengode', displayName: 'Tiruchengode, Namakkal, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 11.3789, longitude: 77.8967, timezone: 5.5),
+    GeocodingLocation(cityName: 'Rasipuram', displayName: 'Rasipuram, Namakkal, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 11.4646, longitude: 78.1722, timezone: 5.5),
+    GeocodingLocation(cityName: 'Attur', displayName: 'Attur, Salem, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 11.5975, longitude: 78.5997, timezone: 5.5),
+    GeocodingLocation(cityName: 'Mettur', displayName: 'Mettur, Salem, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 11.7963, longitude: 77.8016, timezone: 5.5),
+    GeocodingLocation(cityName: 'Arakkonam', displayName: 'Arakkonam, Ranipet, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 13.0784, longitude: 79.6677, timezone: 5.5),
+    GeocodingLocation(cityName: 'Tindivanam', displayName: 'Tindivanam, Villupuram, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 12.2355, longitude: 79.6517, timezone: 5.5),
+    GeocodingLocation(cityName: 'Srivilliputhur', displayName: 'Srivilliputhur, Virudhunagar, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 9.5108, longitude: 77.6322, timezone: 5.5),
+    GeocodingLocation(cityName: 'Sankarankovil', displayName: 'Sankarankovil, Tenkasi, Tamil Nadu, India', state: 'Tamil Nadu', country: 'India', latitude: 9.1725, longitude: 77.5332, timezone: 5.5),
+
     // Maharashtra
     GeocodingLocation(cityName: 'Mumbai', displayName: 'Mumbai (Bombay), Maharashtra, India', state: 'Maharashtra', country: 'India', latitude: 19.0760, longitude: 72.8777, timezone: 5.5),
     GeocodingLocation(cityName: 'Pune', displayName: 'Pune, Maharashtra, India', state: 'Maharashtra', country: 'India', latitude: 18.5204, longitude: 73.8567, timezone: 5.5),
@@ -177,6 +198,9 @@ class GeocodingService {
     GeocodingLocation(cityName: 'Satara', displayName: 'Satara, Maharashtra, India', state: 'Maharashtra', country: 'India', latitude: 17.6805, longitude: 73.9936, timezone: 5.5),
     GeocodingLocation(cityName: 'Shirdi', displayName: 'Shirdi, Maharashtra, India', state: 'Maharashtra', country: 'India', latitude: 19.7645, longitude: 74.4762, timezone: 5.5),
 
+    GeocodingLocation(cityName: 'Dhule', displayName: 'Dhule, Maharashtra, India', state: 'Maharashtra', country: 'India', latitude: 20.9042, longitude: 74.7749, timezone: 5.5),
+    GeocodingLocation(cityName: 'Ratnagiri', displayName: 'Ratnagiri, Maharashtra, India', state: 'Maharashtra', country: 'India', latitude: 16.9902, longitude: 73.3120, timezone: 5.5),
+
     // Karnataka
     GeocodingLocation(cityName: 'Bengaluru', displayName: 'Bengaluru (Bangalore), Karnataka, India', state: 'Karnataka', country: 'India', latitude: 12.9716, longitude: 77.5946, timezone: 5.5),
     GeocodingLocation(cityName: 'Mysuru', displayName: 'Mysuru (Mysore), Karnataka, India', state: 'Karnataka', country: 'India', latitude: 12.2958, longitude: 76.6394, timezone: 5.5),
@@ -193,6 +217,19 @@ class GeocodingService {
     GeocodingLocation(cityName: 'Hassan', displayName: 'Hassan, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 13.0072, longitude: 76.1032, timezone: 5.5),
     GeocodingLocation(cityName: 'Chikkamagaluru', displayName: 'Chikkamagaluru, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 13.3161, longitude: 75.7720, timezone: 5.5),
 
+    GeocodingLocation(cityName: 'Mandya', displayName: 'Mandya, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 12.5244, longitude: 76.8967, timezone: 5.5),
+    GeocodingLocation(cityName: 'Bidar', displayName: 'Bidar, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 17.9104, longitude: 77.5199, timezone: 5.5),
+    GeocodingLocation(cityName: 'Raichur', displayName: 'Raichur, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 16.2076, longitude: 77.3463, timezone: 5.5),
+    GeocodingLocation(cityName: 'Chitradurga', displayName: 'Chitradurga, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 14.2251, longitude: 76.3980, timezone: 5.5),
+    GeocodingLocation(cityName: 'Kolar', displayName: 'Kolar, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 13.1378, longitude: 78.1291, timezone: 5.5),
+    GeocodingLocation(cityName: 'Bagalkot', displayName: 'Bagalkot, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 16.1691, longitude: 75.6615, timezone: 5.5),
+    GeocodingLocation(cityName: 'Gadag', displayName: 'Gadag, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 15.4167, longitude: 75.6333, timezone: 5.5),
+    GeocodingLocation(cityName: 'Koppal', displayName: 'Koppal, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 15.3477, longitude: 76.1554, timezone: 5.5),
+    GeocodingLocation(cityName: 'Yadgir', displayName: 'Yadgir, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 16.7644, longitude: 77.1378, timezone: 5.5),
+    GeocodingLocation(cityName: 'Madikeri', displayName: 'Madikeri (Coorg), Karnataka, India', state: 'Karnataka', country: 'India', latitude: 12.4244, longitude: 75.7382, timezone: 5.5),
+    GeocodingLocation(cityName: 'Karwar', displayName: 'Karwar, Karnataka, India', state: 'Karnataka', country: 'India', latitude: 14.8135, longitude: 74.1298, timezone: 5.5),
+    GeocodingLocation(cityName: 'Hospet', displayName: 'Hosapete (Hampi), Karnataka, India', state: 'Karnataka', country: 'India', latitude: 15.2689, longitude: 76.3909, timezone: 5.5),
+
     // Kerala
     GeocodingLocation(cityName: 'Thiruvananthapuram', displayName: 'Thiruvananthapuram (Trivandrum), Kerala, India', state: 'Kerala', country: 'India', latitude: 8.5241, longitude: 76.9366, timezone: 5.5),
     GeocodingLocation(cityName: 'Kochi', displayName: 'Kochi (Cochin), Kerala, India', state: 'Kerala', country: 'India', latitude: 9.9312, longitude: 76.2673, timezone: 5.5),
@@ -207,6 +244,11 @@ class GeocodingService {
     GeocodingLocation(cityName: 'Guruvayur', displayName: 'Guruvayur, Kerala, India', state: 'Kerala', country: 'India', latitude: 10.5946, longitude: 76.0409, timezone: 5.5),
     GeocodingLocation(cityName: 'Kasaragod', displayName: 'Kasaragod, Kerala, India', state: 'Kerala', country: 'India', latitude: 12.4996, longitude: 74.9869, timezone: 5.5),
 
+    GeocodingLocation(cityName: 'Pathanamthitta', displayName: 'Pathanamthitta, Kerala, India', state: 'Kerala', country: 'India', latitude: 9.2648, longitude: 76.7870, timezone: 5.5),
+    GeocodingLocation(cityName: 'Idukki', displayName: 'Painavu (Idukki), Kerala, India', state: 'Kerala', country: 'India', latitude: 9.8497, longitude: 76.9806, timezone: 5.5),
+    GeocodingLocation(cityName: 'Kalpetta', displayName: 'Kalpetta (Wayanad), Kerala, India', state: 'Kerala', country: 'India', latitude: 11.6103, longitude: 76.0827, timezone: 5.5),
+    GeocodingLocation(cityName: 'Thalassery', displayName: 'Thalassery, Kannur, Kerala, India', state: 'Kerala', country: 'India', latitude: 11.7491, longitude: 75.4890, timezone: 5.5),
+
     // Andhra Pradesh
     GeocodingLocation(cityName: 'Visakhapatnam', displayName: 'Visakhapatnam (Vizag), Andhra Pradesh, India', state: 'Andhra Pradesh', country: 'India', latitude: 17.6868, longitude: 83.2185, timezone: 5.5),
     GeocodingLocation(cityName: 'Vijayawada', displayName: 'Vijayawada, Andhra Pradesh, India', state: 'Andhra Pradesh', country: 'India', latitude: 16.5062, longitude: 80.6480, timezone: 5.5),
@@ -220,6 +262,12 @@ class GeocodingService {
     GeocodingLocation(cityName: 'Anantapur', displayName: 'Anantapur, Andhra Pradesh, India', state: 'Andhra Pradesh', country: 'India', latitude: 14.6819, longitude: 77.6006, timezone: 5.5),
     GeocodingLocation(cityName: 'Amaravati', displayName: 'Amaravati, Andhra Pradesh, India', state: 'Andhra Pradesh', country: 'India', latitude: 16.5417, longitude: 80.5158, timezone: 5.5),
 
+    GeocodingLocation(cityName: 'Eluru', displayName: 'Eluru, Andhra Pradesh, India', state: 'Andhra Pradesh', country: 'India', latitude: 16.7107, longitude: 81.0952, timezone: 5.5),
+    GeocodingLocation(cityName: 'Ongole', displayName: 'Ongole, Andhra Pradesh, India', state: 'Andhra Pradesh', country: 'India', latitude: 15.5057, longitude: 80.0499, timezone: 5.5),
+    GeocodingLocation(cityName: 'Chittoor', displayName: 'Chittoor, Andhra Pradesh, India', state: 'Andhra Pradesh', country: 'India', latitude: 13.2172, longitude: 79.1003, timezone: 5.5),
+    GeocodingLocation(cityName: 'Srikakulam', displayName: 'Srikakulam, Andhra Pradesh, India', state: 'Andhra Pradesh', country: 'India', latitude: 18.2949, longitude: 83.8938, timezone: 5.5),
+    GeocodingLocation(cityName: 'Vizianagaram', displayName: 'Vizianagaram, Andhra Pradesh, India', state: 'Andhra Pradesh', country: 'India', latitude: 18.1133, longitude: 83.4077, timezone: 5.5),
+
     // Telangana
     GeocodingLocation(cityName: 'Hyderabad', displayName: 'Hyderabad, Telangana, India', state: 'Telangana', country: 'India', latitude: 17.3850, longitude: 78.4867, timezone: 5.5),
     GeocodingLocation(cityName: 'Warangal', displayName: 'Warangal, Telangana, India', state: 'Telangana', country: 'India', latitude: 17.9689, longitude: 79.5941, timezone: 5.5),
@@ -227,6 +275,11 @@ class GeocodingService {
     GeocodingLocation(cityName: 'Karimnagar', displayName: 'Karimnagar, Telangana, India', state: 'Telangana', country: 'India', latitude: 18.4386, longitude: 79.1288, timezone: 5.5),
     GeocodingLocation(cityName: 'Khammam', displayName: 'Khammam, Telangana, India', state: 'Telangana', country: 'India', latitude: 17.2473, longitude: 80.1514, timezone: 5.5),
     GeocodingLocation(cityName: 'Ramagundam', displayName: 'Ramagundam, Telangana, India', state: 'Telangana', country: 'India', latitude: 18.7638, longitude: 79.4750, timezone: 5.5),
+
+    GeocodingLocation(cityName: 'Mahabubnagar', displayName: 'Mahabubnagar, Telangana, India', state: 'Telangana', country: 'India', latitude: 16.7488, longitude: 77.9942, timezone: 5.5),
+    GeocodingLocation(cityName: 'Nalgonda', displayName: 'Nalgonda, Telangana, India', state: 'Telangana', country: 'India', latitude: 17.0577, longitude: 79.2684, timezone: 5.5),
+    GeocodingLocation(cityName: 'Adilabad', displayName: 'Adilabad, Telangana, India', state: 'Telangana', country: 'India', latitude: 19.6641, longitude: 78.5320, timezone: 5.5),
+    GeocodingLocation(cityName: 'Siddipet', displayName: 'Siddipet, Telangana, India', state: 'Telangana', country: 'India', latitude: 18.1018, longitude: 78.8520, timezone: 5.5),
 
     // Delhi / NCR
     GeocodingLocation(cityName: 'New Delhi', displayName: 'New Delhi (Delhi), India', state: 'Delhi', country: 'India', latitude: 28.6139, longitude: 77.2090, timezone: 5.5),
@@ -249,6 +302,11 @@ class GeocodingService {
     GeocodingLocation(cityName: 'Bhuj', displayName: 'Bhuj, Gujarat, India', state: 'Gujarat', country: 'India', latitude: 23.2420, longitude: 69.6669, timezone: 5.5),
     GeocodingLocation(cityName: 'Vapi', displayName: 'Vapi, Gujarat, India', state: 'Gujarat', country: 'India', latitude: 20.3893, longitude: 72.9106, timezone: 5.5),
 
+    GeocodingLocation(cityName: 'Anand', displayName: 'Anand, Gujarat, India', state: 'Gujarat', country: 'India', latitude: 22.5645, longitude: 72.9289, timezone: 5.5),
+    GeocodingLocation(cityName: 'Morbi', displayName: 'Morbi, Gujarat, India', state: 'Gujarat', country: 'India', latitude: 22.8173, longitude: 70.8370, timezone: 5.5),
+    GeocodingLocation(cityName: 'Dwarka', displayName: 'Dwarka, Gujarat, India', state: 'Gujarat', country: 'India', latitude: 22.2442, longitude: 68.9685, timezone: 5.5),
+    GeocodingLocation(cityName: 'Somnath', displayName: 'Veraval (Somnath), Gujarat, India', state: 'Gujarat', country: 'India', latitude: 20.9000, longitude: 70.3667, timezone: 5.5),
+
     // Rajasthan
     GeocodingLocation(cityName: 'Jaipur', displayName: 'Jaipur, Rajasthan, India', state: 'Rajasthan', country: 'India', latitude: 26.9124, longitude: 75.7873, timezone: 5.5),
     GeocodingLocation(cityName: 'Jodhpur', displayName: 'Jodhpur, Rajasthan, India', state: 'Rajasthan', country: 'India', latitude: 26.2389, longitude: 73.0243, timezone: 5.5),
@@ -259,6 +317,10 @@ class GeocodingService {
     GeocodingLocation(cityName: 'Bhilwara', displayName: 'Bhilwara, Rajasthan, India', state: 'Rajasthan', country: 'India', latitude: 25.3216, longitude: 74.6413, timezone: 5.5),
     GeocodingLocation(cityName: 'Alwar', displayName: 'Alwar, Rajasthan, India', state: 'Rajasthan', country: 'India', latitude: 27.5530, longitude: 76.6346, timezone: 5.5),
     GeocodingLocation(cityName: 'Jaisalmer', displayName: 'Jaisalmer, Rajasthan, India', state: 'Rajasthan', country: 'India', latitude: 26.9157, longitude: 70.9083, timezone: 5.5),
+
+    GeocodingLocation(cityName: 'Bharatpur', displayName: 'Bharatpur, Rajasthan, India', state: 'Rajasthan', country: 'India', latitude: 27.2152, longitude: 77.5030, timezone: 5.5),
+    GeocodingLocation(cityName: 'Sikar', displayName: 'Sikar, Rajasthan, India', state: 'Rajasthan', country: 'India', latitude: 27.6094, longitude: 75.1398, timezone: 5.5),
+    GeocodingLocation(cityName: 'Pali', displayName: 'Pali, Rajasthan, India', state: 'Rajasthan', country: 'India', latitude: 25.7711, longitude: 73.3234, timezone: 5.5),
 
     // Uttar Pradesh
     GeocodingLocation(cityName: 'Lucknow', displayName: 'Lucknow, Uttar Pradesh, India', state: 'Uttar Pradesh', country: 'India', latitude: 26.8467, longitude: 80.9462, timezone: 5.5),
@@ -274,6 +336,8 @@ class GeocodingService {
     GeocodingLocation(cityName: 'Ayodhya', displayName: 'Ayodhya (Faizabad), Uttar Pradesh, India', state: 'Uttar Pradesh', country: 'India', latitude: 26.7922, longitude: 82.1998, timezone: 5.5),
     GeocodingLocation(cityName: 'Mathura', displayName: 'Mathura, Uttar Pradesh, India', state: 'Uttar Pradesh', country: 'India', latitude: 27.4924, longitude: 77.6737, timezone: 5.5),
     GeocodingLocation(cityName: 'Jhansi', displayName: 'Jhansi, Uttar Pradesh, India', state: 'Uttar Pradesh', country: 'India', latitude: 25.4484, longitude: 78.5685, timezone: 5.5),
+
+    GeocodingLocation(cityName: 'Saharanpur', displayName: 'Saharanpur, Uttar Pradesh, India', state: 'Uttar Pradesh', country: 'India', latitude: 29.9640, longitude: 77.5460, timezone: 5.5),
 
     // West Bengal
     GeocodingLocation(cityName: 'Kolkata', displayName: 'Kolkata (Calcutta), West Bengal, India', state: 'West Bengal', country: 'India', latitude: 22.5726, longitude: 88.3639, timezone: 5.5),
@@ -291,6 +355,9 @@ class GeocodingService {
     GeocodingLocation(cityName: 'Gwalior', displayName: 'Gwalior, Madhya Pradesh, India', state: 'Madhya Pradesh', country: 'India', latitude: 26.2183, longitude: 78.1828, timezone: 5.5),
     GeocodingLocation(cityName: 'Ujjain', displayName: 'Ujjain, Madhya Pradesh, India', state: 'Madhya Pradesh', country: 'India', latitude: 23.1765, longitude: 75.7885, timezone: 5.5),
     GeocodingLocation(cityName: 'Sagar', displayName: 'Sagar, Madhya Pradesh, India', state: 'Madhya Pradesh', country: 'India', latitude: 23.8388, longitude: 78.7378, timezone: 5.5),
+
+    GeocodingLocation(cityName: 'Satna', displayName: 'Satna, Madhya Pradesh, India', state: 'Madhya Pradesh', country: 'India', latitude: 24.6005, longitude: 80.8322, timezone: 5.5),
+    GeocodingLocation(cityName: 'Rewa', displayName: 'Rewa, Madhya Pradesh, India', state: 'Madhya Pradesh', country: 'India', latitude: 24.5362, longitude: 81.3037, timezone: 5.5),
 
     // Bihar
     GeocodingLocation(cityName: 'Patna', displayName: 'Patna, Bihar, India', state: 'Bihar', country: 'India', latitude: 25.5941, longitude: 85.1376, timezone: 5.5),

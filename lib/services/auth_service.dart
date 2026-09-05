@@ -130,6 +130,9 @@ class AuthService {
       walletBalance: role == 'Admin' ? 99999.0 : 750.0,
       role: role,
       profilePhoto: '',
+      latitude: 13.0827,
+      longitude: 80.2707,
+      timezone: 5.5,
     );
 
     return AuthResult(

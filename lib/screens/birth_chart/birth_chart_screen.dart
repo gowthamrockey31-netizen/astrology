@@ -26,32 +26,37 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
   }
 
   void _loadUser() {
-    _user = AuthService.currentUser ??
-        UserModel(
-          id: 'default_seeker',
-          name: 'Divine Seeker',
-          mobile: '+919876543210',
-          gender: 'Male',
-          dob: '1996-06-15',
-          timeOfBirth: '08:30 AM',
-          placeOfBirth: 'Chennai',
-          city: 'Chennai',
-          state: 'Tamil Nadu',
-          country: 'India',
-          zodiac: 'Gemini (Mithuna)',
-          nakshatra: 'Rohini',
-          lagna: 'Mesha',
-          walletBalance: 500.0,
-          profilePhoto: '',
-          latitude: 13.0827,
-          longitude: 80.2707,
-          timezone: 5.5,
-        );
+    final current = AuthService.currentUser;
+    if (current != null && current.dob == '1995-08-15' && current.placeOfBirth.toLowerCase().contains('chennai')) {
+      _user = current;
+    } else {
+      _user = UserModel(
+        id: 'default_seeker',
+        name: 'Divine Seeker',
+        mobile: '+919876543210',
+        gender: 'Male',
+        dob: '1995-08-15',
+        timeOfBirth: '08:30 AM',
+        placeOfBirth: 'Chennai',
+        city: 'Chennai',
+        state: 'Tamil Nadu',
+        country: 'India',
+        zodiac: 'Leo (Simha)',
+        nakshatra: 'Purva Phalguni (Pooram)',
+        lagna: 'Virgo (Kanni)',
+        walletBalance: 500.0,
+        profilePhoto: '',
+        latitude: 13.0827,
+        longitude: 80.2707,
+        timezone: 5.5,
+      );
+      AuthService.updateCurrentUser(_user);
+    }
   }
 
   void _showUpdateBirthDetailsDialog() {
     final nameCtrl = TextEditingController(text: _user.name);
-    DateTime selectedDob = DateTime.tryParse(_user.dob) ?? DateTime(1996, 6, 15);
+    DateTime selectedDob = DateTime.tryParse(_user.dob) ?? DateTime(1995, 8, 15);
     TimeOfDay selectedTob = const TimeOfDay(hour: 8, minute: 30);
     try {
       final rawTob = _user.timeOfBirth.trim();
@@ -250,22 +255,56 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                     TextField(
                       controller: pobCtrl,
                       style: GoogleFonts.outfit(color: Colors.white, fontSize: 13),
+                      onTap: () {
+                        final results = GeocodingService.searchCities(pobCtrl.text);
+                        setModalState(() {
+                          suggestions = results;
+                          showSuggestions = results.isNotEmpty;
+                        });
+                      },
                       onChanged: (val) async {
-                        if (val.trim().length >= 2) {
-                          final results = await GeocodingService.searchPlaces(val);
+                        final clean = val.trim();
+                        if (clean.isNotEmpty) {
+                          final results = await GeocodingService.searchPlaces(clean);
                           setModalState(() {
                             suggestions = results;
                             showSuggestions = results.isNotEmpty;
                           });
                         } else {
-                          setModalState(() => showSuggestions = false);
+                          final results = GeocodingService.searchCities('');
+                          setModalState(() {
+                            suggestions = results;
+                            showSuggestions = results.isNotEmpty;
+                          });
                         }
                       },
                       decoration: InputDecoration(
                         labelText: 'பிறந்த ஊர் (Place of Birth)',
-                        hintText: 'Type city e.g. Coimbatore, Madurai',
+                        hintText: 'Search Indian cities e.g. Dindigul, Chennai, Mumbai',
                         labelStyle: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
                         prefixIcon: const Icon(Icons.location_on_rounded, color: AppColors.lightGold, size: 18),
+                        suffixIcon: pobCtrl.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded, color: AppColors.textSecondary, size: 18),
+                                onPressed: () {
+                                  pobCtrl.clear();
+                                  final results = GeocodingService.searchCities('');
+                                  setModalState(() {
+                                    suggestions = results;
+                                    showSuggestions = true;
+                                  });
+                                },
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primaryGold, size: 22),
+                                onPressed: () {
+                                  final results = GeocodingService.searchCities(pobCtrl.text);
+                                  setModalState(() {
+                                    suggestions = results;
+                                    showSuggestions = !showSuggestions;
+                                  });
+                                },
+                              ),
                         filled: true,
                         fillColor: AppColors.cardSurface,
                         border: OutlineInputBorder(

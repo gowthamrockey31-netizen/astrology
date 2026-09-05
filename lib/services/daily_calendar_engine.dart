@@ -390,14 +390,38 @@ class DailyCalendarEngine {
     final nextIdx = (curIdx + 1) % 60;
     final prevIdx = (curIdx - 1 + 60) % 60;
 
+    // Calculate elongation and progress through the 6° span of current Karana
+    final double elongation = ((moonLong - sunLong) % 360.0 + 360.0) % 360.0;
+    final double degInKarana = elongation % 6.0;
+    final double remainingDeg = 6.0 - degInKarana;
+
+    // Average relative daily motion of Moon relative to Sun is ~12.1907 degrees/day
+    final double hrsRemaining = (remainingDeg / 12.1907) * 24.0;
+    final endDt = dt.add(Duration(minutes: (hrsRemaining * 60).round()));
+    final timeStr = DateFormat('hh:mm a').format(endDt);
+
+    final isToday = endDt.day == dt.day;
+    final currentTimingStr = isToday ? 'இன்று $timeStr வரை' : 'நாளை $timeStr வரை';
+    final nextTimingStr = isToday ? 'இன்று $timeStr முதல்' : 'நாளை $timeStr முதல்';
+
     return PanchangamTransition(
       currentName: cur['nameTa'] as String,
-      currentTiming: 'அரை திதி காலம்',
-      previousName: 'முந்தைய கரணம் (Index $prevIdx)',
-      previousTiming: 'நிறைவுற்றது',
-      nextName: 'அடுத்த கரணம் (Index $nextIdx)',
-      nextTiming: 'தொடங்கும் நேரம்',
+      currentTiming: currentTimingStr,
+      previousName: _getKaranaNameTa(prevIdx),
+      previousTiming: 'முந்தைய கரணம்',
+      nextName: _getKaranaNameTa(nextIdx),
+      nextTiming: nextTimingStr,
     );
+  }
+
+  static String _getKaranaNameTa(int idx) {
+    final norm = (idx % 60 + 60) % 60;
+    if (norm == 0) return 'கிம்ஸ்துக்னம்';
+    if (norm == 57) return 'சகுனி';
+    if (norm == 58) return 'சதுஷ்பாதம்';
+    if (norm == 59) return 'நாகவம்';
+    final mobileIdx = (norm - 1) % 7;
+    return AstrologyCalculator.mobileKaranasTa[mobileIdx];
   }
 
   static List<DailyPlanetTransit> _buildPlanetaryTransits(Map<String, PlanetDetail> planets) {

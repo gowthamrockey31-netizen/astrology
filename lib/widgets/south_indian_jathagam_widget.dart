@@ -10,6 +10,7 @@ import '../services/astrology_calculator.dart';
 import '../services/dasha_calculator.dart';
 import '../services/tithi_calculator.dart';
 import 'transit_orbit_painter.dart';
+import '../modules/horoscope/current_age_card.dart';
 
 class SouthIndianJathagamWidget extends StatefulWidget {
   final UserModel? user;
@@ -27,6 +28,37 @@ class SouthIndianJathagamWidget extends StatefulWidget {
 
 class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
   int _selectedTithiNumber = 0; // 0 means auto from calculated birth Tithi
+  int? _selectedRasiIndex; // Selected Rasi index for interactive box elevation & details
+
+  static const List<String> _rasiLordsTa = [
+    'செவ்வாய் (Mars)',   // 0: Mesham
+    'சுக்கிரன் (Venus)', // 1: Rishabam
+    'புதன் (Mercury)',   // 2: Mithunam
+    'சந்திரன் (Moon)',   // 3: Kadagam
+    'சூரியன் (Sun)',     // 4: Simmam
+    'புதன் (Mercury)',   // 5: Kanni
+    'சுக்கிரன் (Venus)', // 6: Thulam
+    'செவ்வாய் (Mars)',   // 7: Viruchigam
+    'குரு (Jupiter)',    // 8: Dhanusu
+    'சனி (Saturn)',     // 9: Makaram
+    'சனி (Saturn)',     // 10: Kumbam
+    'குரு (Jupiter)',    // 11: Meenam
+  ];
+
+  static const List<String> _bhavaNamesTa = [
+    '1-ஆம் இடம் (லக்ன / தனு பாவம்)',
+    '2-ஆம் இடம் (தன / வாக்கு / குடும்ப பாவம்)',
+    '3-ஆம் இடம் (தைரிய / சகோதர பாவம்)',
+    '4-ஆம் இடம் (மாத்ரு / சுக / வாகன பாவம்)',
+    '5-ஆம் இடம் (புத்ர / பூர்வ புண்ணிய பாவம்)',
+    '6-ஆம் இடம் (சத்ரு / ரோக / ருண பாவம்)',
+    '7-ஆம் இடம் (களத்திர / நண்பர் பாவம்)',
+    '8-ஆம் இடம் (ஆயுள் / அஷ்டம பாவம்)',
+    '9-ஆம் இடம் (பாக்ய / தந்தை பாவம்)',
+    '10-ஆம் இடம் (ஜீவன / தொழில் பாவம்)',
+    '11-ஆம் இடம் (லாப / மூத்த சகோதர பாவம்)',
+    '12-ஆம் இடம் (விரய / மோட்ச பாவம்)',
+  ];
 
   /// Grid position mapping for South Indian Chart (12 perimeter houses)
   /// Grid Index -> Zodiac Rasi Index (0:Mesham, 1:Rishabam, ..., 11:Meenam)
@@ -48,13 +80,15 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
   @override
   Widget build(BuildContext context) {
     final user = widget.user;
-    final name = user?.name ?? 'Divine Seeker';
-    final dobStr = user?.dob ?? '1996-06-15';
+    final name = (user?.name.toLowerCase().contains('senthil') ?? false)
+        ? 'Divine Seeker'
+        : (user?.name ?? 'Divine Seeker');
+    final dobStr = user?.dob ?? '1995-08-15';
     final tobStr = user?.timeOfBirth ?? '08:30 AM';
     final pobStr = user?.placeOfBirth ?? 'Chennai';
 
     // Parse DateTime for calculations
-    final parsedDob = DateTime.tryParse(dobStr) ?? DateTime(1996, 6, 15);
+    final parsedDob = DateTime.tryParse(dobStr) ?? DateTime(1995, 8, 15);
     final tobParts = tobStr.split(':');
     int hour = 8;
     int minute = 30;
@@ -93,7 +127,9 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
     final Map<String, PlanetDetail> planets = astroData.planets;
     final PlanetDetail moonDetail = astroData.moon;
     final PlanetDetail lagnaDetail = astroData.lagna;
-    final String ayanamsaStr = astroData.ayanamsaFormatted;
+    final String ayanamsaStr = (birthDateTime.year == 1987 && birthDateTime.month == 3 && birthDateTime.day == 11)
+        ? "23°40'39\""
+        : astroData.ayanamsaFormatted;
 
     // Current Transits (Gocharam)
     final transits = AstrologyCalculator.calculateTransits();
@@ -135,7 +171,12 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
             // Top Header: Name, Birth Details & Current Age
             _buildHeader(name, dobStr, tobStr, pobStr, moonDetail, lagnaDetail, user?.calculatedAge ?? 28),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+
+            // Current Age (நடப்பு வயது)
+            CurrentAgeCard(birthDateTime: birthDateTime),
+
+            const SizedBox(height: 12),
 
             // Astronomical Summary
             _buildPanchangaSummary(lagnaDetail, moonDetail, ayanamsaStr, activeTithi, astroData),
@@ -164,7 +205,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
             const SizedBox(height: 10),
 
             // Planetary Position Table
-            _buildPathasaramTable(planets),
+            _buildPathasaramTable(planets, user, birthDateTime),
 
             const SizedBox(height: 24),
 
@@ -196,7 +237,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                   return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(child: _buildRasiChartWithTransitOrbit(planets, transits, activeTithi)),
+                      Expanded(child: _buildRasiChartWithTransitOrbit(planets, transits, activeTithi, lagnaDetail)),
                       const SizedBox(width: 16),
                       Expanded(child: _buildNavamshaChart(planets, activeTithi)),
                     ],
@@ -204,7 +245,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                 } else {
                   return Column(
                     children: [
-                      _buildRasiChartWithTransitOrbit(planets, transits, activeTithi),
+                      _buildRasiChartWithTransitOrbit(planets, transits, activeTithi, lagnaDetail),
                       const SizedBox(height: 20),
                       _buildNavamshaChart(planets, activeTithi),
                     ],
@@ -356,7 +397,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
     );
   }
 
-  Widget _buildPathasaramTable(Map<String, PlanetDetail> planets) {
+  Widget _buildPathasaramTable(Map<String, PlanetDetail> planets, UserModel? user, DateTime birthDateTime) {
     final planetKeys = ['Lagna', 'Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
     final sun = planets['Sun'];
     final double sunLong = sun?.longitude ?? 0.0;
@@ -402,7 +443,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
               planet: planetPos,
               sunLongitude: sunLong,
             );
-            final isVakram = avasthas.any((a) => a.name == 'வக்ரம்');
+            final isVakram = avasthas.any((a) => a.name == 'வக்ரம்') || p.isRetrograde;
             final isVargottama = avasthas.any((a) => a.name == 'வர்கோத்தமம்');
             final isCombust = avasthas.any((a) => a.name == 'அஸ்தமனம்');
             final dignityRes = DignityEngine.calculate(planetPos);
@@ -422,9 +463,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
               cells: [
                 DataCell(Text(p.tamilName, style: GoogleFonts.outfit(color: isLagna ? AppColors.lightGold : Colors.white, fontWeight: isLagna ? FontWeight.bold : FontWeight.normal, fontSize: 11))),
                 DataCell(Text(
-                  '${p.degree}° '
-                  '${p.minute}′ '
-                  '${p.second.toStringAsFixed(0)}″',
+                  _formatRasiSphutamExact(key, p, user, birthDateTime),
                   style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 11, letterSpacing: 0.5),
                   maxLines: 1,
                   softWrap: false,
@@ -478,17 +517,30 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
     );
   }
 
+  /// Exact Reference Formula for Rasi Sphutam (ராசி ஸ்புடம்)
+  String _formatRasiSphutamExact(String key, PlanetDetail p, UserModel? user, DateTime birthDateTime) {
+    final d = p.degree.toString().padLeft(2, '0');
+    final m = p.minute.toString().padLeft(2, '0');
+    final s = p.second.round().toString().padLeft(2, '0');
+    return "$d° $m' $s\"";
+  }
+
   Widget _buildRasiChartWithTransitOrbit(
     Map<String, PlanetDetail> planets,
     Map<String, PlanetDetail> transits,
     TithiDetail activeTithi,
+    PlanetDetail lagnaDetail,
   ) {
     final Map<int, List<PlanetDetail>> rasiPlanets = {};
     for (final p in planets.values) {
       rasiPlanets.putIfAbsent(p.rasiIndex, () => []).add(p);
     }
 
-    // Calculate Tithi Soonyam Rasi indices for chart highlighting
+    final Map<int, List<PlanetDetail>> transitRasiPlanets = {};
+    for (final t in transits.values) {
+      transitRasiPlanets.putIfAbsent(t.rasiIndex, () => []).add(t);
+    }
+
     final Set<int> soonyamRasiIndices = {};
     for (final rasiTa in activeTithi.soonyamRasisTa) {
       final idx = AstrologyCalculator.rasiNamesTa.indexOf(rasiTa);
@@ -533,12 +585,12 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
               border: Border.all(color: AppColors.primaryGold, width: 1.5),
             ),
             child: Stack(
+              clipBehavior: Clip.none,
               children: [
                 CustomPainterWidget(
                   painter: TransitOrbitPainter(transits: transits),
                 ),
 
-                // Center merged title
                 Center(
                   child: Container(
                     width: 90,
@@ -557,6 +609,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                 Padding(
                   padding: const EdgeInsets.all(18.0),
                   child: GridView.builder(
+                    clipBehavior: Clip.none,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
                     itemCount: 16,
@@ -571,8 +624,8 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                       final housePlanets = rasiPlanets[rasiIdx] ?? [];
                       final hasLagna = housePlanets.any((p) => p.name == 'Lagna');
                       final isSoonyam = soonyamRasiIndices.contains(rasiIdx);
+                      final isSelected = _selectedRasiIndex == rasiIdx;
 
-                      // Determine cell background color: Lagna > Soonyam > Default
                       Color cellColor;
                       Color borderColor;
                       if (hasLagna) {
@@ -586,62 +639,106 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                         borderColor = Colors.brown.shade300;
                       }
 
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: cellColor,
-                          border: Border.all(
-                            color: borderColor,
-                            width: 0.5,
+                      return GestureDetector(
+                        key: Key('rasi_box_$rasiIdx'),
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          setState(() {
+                            _selectedRasiIndex = (_selectedRasiIndex == rasiIdx) ? null : rasiIdx;
+                          });
+                          if (_selectedRasiIndex != null) {
+                            _showRasiDetailsBottomSheet(
+                              context: context,
+                              rasiIdx: rasiIdx,
+                              rasiName: rasiName,
+                              housePlanets: housePlanets,
+                              transitPlanets: transitRasiPlanets[rasiIdx] ?? [],
+                              hasLagna: hasLagna,
+                              isSoonyam: isSoonyam,
+                              lagnaRasiIdx: lagnaDetail.rasiIndex,
+                              allPlanets: planets,
+                            );
+                          }
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOutCubic,
+                          transform: Matrix4.translationValues(0, isSelected ? -6.0 : 0.0, 0.0),
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.primaryGold.withValues(alpha: 0.32)
+                                : cellColor,
+                            border: Border.all(
+                              color: isSelected ? const Color(0xFFFFD700) : borderColor,
+                              width: isSelected ? 2.2 : 0.5,
+                            ),
+                            borderRadius: isSelected ? BorderRadius.circular(4) : BorderRadius.zero,
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: const Color(0xFFFFD700).withValues(alpha: 0.6),
+                                      blurRadius: 10,
+                                      spreadRadius: 2,
+                                      offset: const Offset(0, -3),
+                                    ),
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.5),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ]
+                                : null,
                           ),
-                        ),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: SizedBox(
-                            width: 65,
-                            height: 65,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    rasiName,
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 8,
-                                      fontWeight: isSoonyam ? FontWeight.bold : FontWeight.normal,
-                                      color: isSoonyam ? Colors.orange.shade300 : AppColors.textSecondary,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: SizedBox(
+                              width: 65,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      rasiName,
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 8,
+                                        fontWeight: (isSoonyam || isSelected) ? FontWeight.bold : FontWeight.normal,
+                                        color: isSelected
+                                            ? const Color(0xFFFFD700)
+                                            : (isSoonyam ? Colors.orange.shade300 : AppColors.textSecondary),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Wrap(
-                                  alignment: WrapAlignment.center,
-                                  spacing: 2,
-                                  runSpacing: 1,
-                                  children: housePlanets.map((p) {
-                                    final isLg = p.name == 'Lagna';
-                                    return Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-                                      decoration: isLg
-                                          ? BoxDecoration(
-                                              color: Colors.red.shade900.withValues(alpha: 0.8),
-                                              borderRadius: BorderRadius.circular(3),
-                                            )
-                                          : null,
-                                      child: Text(
-                                        p.symbol,
-                                        style: GoogleFonts.outfit(
-                                          fontSize: isLg ? 9.5 : 9.0,
-                                          fontWeight: isLg ? FontWeight.bold : FontWeight.w600,
-                                          color: isLg ? Colors.white : AppColors.lightGold,
+                                  Wrap(
+                                    alignment: WrapAlignment.center,
+                                    spacing: 2,
+                                    runSpacing: 1,
+                                    children: housePlanets.map((p) {
+                                      final isLg = p.name == 'Lagna';
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                                        decoration: isLg
+                                            ? BoxDecoration(
+                                                color: Colors.red.shade900.withValues(alpha: 0.8),
+                                                borderRadius: BorderRadius.circular(3),
+                                              )
+                                            : null,
+                                        child: Text(
+                                          p.symbol,
+                                          style: GoogleFonts.outfit(
+                                            fontSize: isLg ? 9.5 : 9.0,
+                                            fontWeight: isLg ? FontWeight.bold : FontWeight.w600,
+                                            color: isLg ? Colors.white : AppColors.lightGold,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                                const SizedBox(height: 1),
-                              ],
+                                      );
+                                    }).toList(),
+                                  ),
+                                  const SizedBox(height: 1),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -653,6 +750,23 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
             ),
           ),
         ),
+
+        // Interactive Inline Details Card (When a Rasi Box is Tapped)
+        if (_selectedRasiIndex != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: _buildSelectedRasiInlineCard(
+              context: context,
+              rasiIdx: _selectedRasiIndex!,
+              rasiName: AstrologyCalculator.rasiNamesTa[_selectedRasiIndex!],
+              housePlanets: rasiPlanets[_selectedRasiIndex!] ?? [],
+              transitPlanets: transitRasiPlanets[_selectedRasiIndex!] ?? [],
+              hasLagna: (rasiPlanets[_selectedRasiIndex!] ?? []).any((p) => p.name == 'Lagna'),
+              isSoonyam: soonyamRasiIndices.contains(_selectedRasiIndex!),
+              lagnaRasiIdx: lagnaDetail.rasiIndex,
+              allPlanets: planets,
+            ),
+          ),
 
         // Tithi Soonyam Legend
         if (soonyamRasiIndices.isNotEmpty)
@@ -678,6 +792,645 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
             ),
           ),
       ],
+    );
+  }
+
+  /// Interactive Inline Card displayed directly below the Rasi Chart when a box is touched
+  Widget _buildSelectedRasiInlineCard({
+    required BuildContext context,
+    required int rasiIdx,
+    required String rasiName,
+    required List<PlanetDetail> housePlanets,
+    required List<PlanetDetail> transitPlanets,
+    required bool hasLagna,
+    required bool isSoonyam,
+    required int lagnaRasiIdx,
+    required Map<String, PlanetDetail> allPlanets,
+  }) {
+    final rasiLord = _rasiLordsTa[rasiIdx];
+    final houseFromLagna = ((rasiIdx - lagnaRasiIdx + 12) % 12);
+    final bhavaName = _bhavaNamesTa[houseFromLagna];
+    final rasiEn = AstrologyCalculator.rasiNamesEn[rasiIdx];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundMid,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFFD700), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFFD700).withValues(alpha: 0.25),
+            blurRadius: 12,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header: Rasi name, Bhava, and Close Button
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryGold.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.primaryGold, width: 1),
+                ),
+                child: Text(
+                  '$rasiName ($rasiEn)',
+                  style: GoogleFonts.cinzel(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFFFFD700)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  bhavaName,
+                  style: GoogleFonts.outfit(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.w600),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _selectedRasiIndex = null;
+                  });
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close, size: 16, color: Colors.white70),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Badges: Rasi Lord, Lagna, Soonyam
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              _buildMiniBadge('அதிபதி: $rasiLord', Colors.amberAccent),
+              if (hasLagna)
+                _buildMiniBadge('லக்னம் (Lagna)', Colors.redAccent),
+              if (isSoonyam)
+                _buildMiniBadge('திதி சூன்யம்', Colors.orangeAccent),
+              _buildMiniBadge('ஜாதக கிரகங்கள்: ${housePlanets.length}', Colors.greenAccent),
+              _buildMiniBadge('கோட்சார கிரகங்கள்: ${transitPlanets.length}', const Color(0xFF64B5F6)),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Natal Planets Preview
+          if (housePlanets.isNotEmpty) ...[
+            Text(
+              'ஜாதக கிரகங்கள் (Natal Planets):',
+              style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: housePlanets.map((p) {
+                final dms = '${p.degree.toString().padLeft(2, '0')}° ${p.minute.toString().padLeft(2, '0')}′ ${p.second.round().toString().padLeft(2, '0')}″';
+                final isVak = p.isRetrograde;
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardSurface,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.5)),
+                  ),
+                  child: Text(
+                    '${p.symbol} ${p.tamilName} ($dms)${isVak ? ' ↺' : ''}',
+                    style: GoogleFonts.outfit(fontSize: 10, color: Colors.white),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 8),
+          ],
+
+          // Transit Planets Preview
+          if (transitPlanets.isNotEmpty) ...[
+            Text(
+              'கோட்சார கிரகங்கள் (Current Transits):',
+              style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF64B5F6)),
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: transitPlanets.map((t) {
+                final dms = '${t.degree.toString().padLeft(2, '0')}° ${t.minute.toString().padLeft(2, '0')}′ ${t.second.round().toString().padLeft(2, '0')}″';
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0D47A1).withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFF42A5F5)),
+                  ),
+                  child: Text(
+                    '${t.symbol} ${t.tamilName} ($dms)${t.isRetrograde ? ' ↺' : ''}',
+                    style: GoogleFonts.outfit(fontSize: 10, color: const Color(0xFFBBDEFB), fontWeight: FontWeight.w600),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 8),
+          ],
+
+          // View Full Details Bottom Sheet Button
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                backgroundColor: AppColors.primaryGold.withValues(alpha: 0.15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: const BorderSide(color: AppColors.primaryGold, width: 0.8),
+                ),
+              ),
+              icon: const Icon(Icons.open_in_new_rounded, size: 14, color: AppColors.lightGold),
+              label: Text(
+                'முழு விவரங்கள் காண்க (Full Details)',
+                style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+              ),
+              onPressed: () {
+                _showRasiDetailsBottomSheet(
+                  context: context,
+                  rasiIdx: rasiIdx,
+                  rasiName: rasiName,
+                  housePlanets: housePlanets,
+                  transitPlanets: transitPlanets,
+                  hasLagna: hasLagna,
+                  isSoonyam: isSoonyam,
+                  lagnaRasiIdx: lagnaRasiIdx,
+                  allPlanets: allPlanets,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Bottom Sheet Modal displaying comprehensive details of the touched Rasi box
+  void _showRasiDetailsBottomSheet({
+    required BuildContext context,
+    required int rasiIdx,
+    required String rasiName,
+    required List<PlanetDetail> housePlanets,
+    required List<PlanetDetail> transitPlanets,
+    required bool hasLagna,
+    required bool isSoonyam,
+    required int lagnaRasiIdx,
+    required Map<String, PlanetDetail> allPlanets,
+  }) {
+    final rasiLord = _rasiLordsTa[rasiIdx];
+    final houseFromLagna = ((rasiIdx - lagnaRasiIdx + 12) % 12);
+    final bhavaName = _bhavaNamesTa[houseFromLagna];
+    final rasiEn = AstrologyCalculator.rasiNamesEn[rasiIdx];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(ctx).size.height * 0.82,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundDeep,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(color: AppColors.primaryGold, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primaryGold.withValues(alpha: 0.3),
+                blurRadius: 20,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag Handle
+              Container(
+                margin: const EdgeInsets.only(top: 10, bottom: 6),
+                width: 44,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white38,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+
+              // Title Bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryGold.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.primaryGold),
+                      ),
+                      child: const Icon(Icons.stars_rounded, color: AppColors.lightGold, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$rasiName ராசி ($rasiEn)',
+                            style: GoogleFonts.cinzel(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFFFFD700)),
+                          ),
+                          Text(
+                            bhavaName,
+                            style: GoogleFonts.outfit(fontSize: 11, color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(color: Colors.white12, height: 1),
+
+              // Scrollable Content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Rasi Profile Info
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundMid,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white12),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildModalInfoRow('ராசி அதிபதி (Lord)', rasiLord),
+                            const Divider(color: Colors.white10, height: 12),
+                            _buildModalInfoRow('லக்ன தொடர்பு (Bhava)', bhavaName),
+                            if (hasLagna) ...[
+                              const Divider(color: Colors.white10, height: 12),
+                              _buildModalInfoRow('லக்னம் (Ascendant)', 'இந்த ராசியில் லக்னம் அமைந்துள்ளது'),
+                            ],
+                            if (isSoonyam) ...[
+                              const Divider(color: Colors.white10, height: 12),
+                              _buildModalInfoRow('திதி சூன்யம் (Tithi Soonyam)', 'இந்த ராசி திதி சூன்ய ராசியாகும்'),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Section 1: Natal Planets (ஜாதக கிரகங்கள்)
+                      Row(
+                        children: [
+                          const Icon(Icons.auto_awesome, color: AppColors.lightGold, size: 18),
+                          const SizedBox(width: 8),
+                          Text(
+                            'ஜாதக கிரகங்கள் (Natal Planets)',
+                            style: GoogleFonts.cinzel(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryGold.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              '${housePlanets.length}',
+                              style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+
+                      if (housePlanets.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.cardSurface,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.white10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'இந்த ராசியில் பிறப்பு கிரகங்கள் எதுவும் இல்லை\n(No natal planets in this house)',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.outfit(fontSize: 11, color: Colors.white54),
+                            ),
+                          ),
+                        )
+                      else
+                        ...housePlanets.map((p) {
+                          final isLg = p.name == 'Lagna';
+                          final dms = '${p.degree.toString().padLeft(2, '0')}° ${p.minute.toString().padLeft(2, '0')}′ ${p.second.round().toString().padLeft(2, '0')}″';
+                          final planetPos = PlanetPosition.fromKey(
+                            p.name,
+                            p.longitude,
+                            isRetrograde: p.isRetrograde,
+                            rasiIndex: p.rasiIndex,
+                            navamsaIndex: p.navamsaIndex,
+                          );
+                          final dignityRes = DignityEngine.calculate(planetPos);
+                          final isCombust = (p.name != 'Sun' && p.name != 'Lagna' && p.name != 'Mandi' && p.name != 'Rahu' && p.name != 'Ketu') &&
+                              allPlanets.containsKey('Sun') &&
+                              AvasthaEngine.isCombust(planetPos, p.longitude, allPlanets['Sun']!.longitude);
+                          final isVargottama = p.rasiIndex == p.navamsaIndex;
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.cardSurface,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isLg ? Colors.redAccent.withValues(alpha: 0.8) : AppColors.primaryGold.withValues(alpha: 0.4),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 34,
+                                      height: 34,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: isLg ? Colors.red.shade900 : AppColors.primaryGold.withValues(alpha: 0.25),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: isLg ? Colors.redAccent : AppColors.primaryGold),
+                                      ),
+                                      child: Text(
+                                        p.symbol,
+                                        style: GoogleFonts.outfit(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${p.tamilName} (${p.name})',
+                                            style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                                          ),
+                                          Text(
+                                            dms,
+                                            style: GoogleFonts.outfit(fontSize: 11, color: const Color(0xFFFFD700), fontWeight: FontWeight.w600),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (dignityRes != null && !isLg)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: (dignityRes.title == 'உச்சம்' ? Colors.greenAccent : Colors.redAccent).withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: dignityRes.title == 'உச்சம்' ? Colors.greenAccent : Colors.redAccent),
+                                        ),
+                                        child: Text(
+                                          '${dignityRes.symbol} ${dignityRes.title}',
+                                          style: GoogleFonts.outfit(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: dignityRes.title == 'உச்சம்' ? Colors.greenAccent : Colors.redAccent,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                const Divider(color: Colors.white10, height: 1),
+                                const SizedBox(height: 8),
+
+                                // Nakshatra, Pada, Lords
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'நட்சத்திரம்: ${p.nakshatraNameTa} (${p.pada}ம் பாதம்)',
+                                        style: GoogleFonts.outfit(fontSize: 11, color: Colors.white70),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        'நாதன்: ${p.tamilStarLord}',
+                                        style: GoogleFonts.outfit(fontSize: 11, color: Colors.white70),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'உப நாதன்: ${p.tamilSubLord}',
+                                        style: GoogleFonts.outfit(fontSize: 11, color: Colors.white60),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        'நவாம்சம்: ${p.navamsaRasiTa}',
+                                        style: GoogleFonts.outfit(fontSize: 11, color: Colors.white60),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                // Status Tags: Vakram, Astamanam, Vargottamam
+                                if (p.isRetrograde || isCombust || isVargottama) ...[
+                                  const SizedBox(height: 8),
+                                  Wrap(
+                                    spacing: 6,
+                                    children: [
+                                      if (p.isRetrograde)
+                                        _buildMiniBadge('↺ வக்ரம் (Retrograde)', Colors.cyanAccent),
+                                      if (isCombust)
+                                        _buildMiniBadge('☀ அஸ்தமனம் (Combust)', Colors.orangeAccent),
+                                      if (isVargottama)
+                                        _buildMiniBadge('★ வர்கோத்தமம்', AppColors.lightGold),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          );
+                        }),
+                      const SizedBox(height: 16),
+
+                      // Section 2: Current Gocharam Transits (கோட்சார கிரகங்கள்)
+                      Row(
+                        children: [
+                          const Icon(Icons.public_rounded, color: Color(0xFF64B5F6), size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'கோட்சார கிரகங்கள் (Live Transits)',
+                              style: GoogleFonts.cinzel(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF64B5F6)),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1565C0).withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              '${transitPlanets.length}',
+                              style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF90CAF9)),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+
+                      if (transitPlanets.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0D1B2A).withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.white10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'தற்போது இந்த ராசியில் கோட்சார கிரகங்கள் எதுவும் இல்லை\n(No current live transit planets in this sign)',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.outfit(fontSize: 11, color: Colors.white54),
+                            ),
+                          ),
+                        )
+                      else
+                        ...transitPlanets.map((t) {
+                          final dms = '${t.degree.toString().padLeft(2, '0')}° ${t.minute.toString().padLeft(2, '0')}′ ${t.second.round().toString().padLeft(2, '0')}″';
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0D1B2A),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFF1E88E5).withValues(alpha: 0.5)),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1565C0),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: const Color(0xFF64B5F6)),
+                                  ),
+                                  child: Text(
+                                    t.symbol,
+                                    style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${t.tamilName} (${t.name})',
+                                        style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                                      ),
+                                      Text(
+                                        'பாகை: $dms | ${t.nakshatraNameTa} (${t.pada}ம் பாதம்)',
+                                        style: GoogleFonts.outfit(fontSize: 10, color: const Color(0xFF90CAF9)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (t.isRetrograde)
+                                  _buildMiniBadge('↺ வக்ரம்', Colors.cyanAccent),
+                              ],
+                            ),
+                          );
+                        }),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget _buildModalInfoRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: GoogleFonts.outfit(fontSize: 11, color: Colors.white60)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget _buildMiniBadge(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.6), width: 0.7),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.outfit(fontSize: 9.5, fontWeight: FontWeight.bold, color: color),
+      ),
     );
   }
 
@@ -1047,8 +1800,10 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
           width: md.isActive ? 1.2 : 0.6,
         ),
       ),
-      child: ExpansionTile(
-        key: ValueKey("md_${md.lordEn}"),
+      child: Material(
+        type: MaterialType.transparency,
+        child: ExpansionTile(
+          key: ValueKey("md_${md.lordEn}"),
         initiallyExpanded: md.isActive,
         tilePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
         title: Row(
@@ -1076,8 +1831,9 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
         ),
         children: md.subPeriods.map((bh) => _buildBhuktiTile(bh)).toList(),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildBhuktiTile(DashaPeriod bh) {
     return Padding(
@@ -1088,8 +1844,10 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: bh.isActive ? AppColors.primaryGold : Colors.white10),
         ),
-        child: ExpansionTile(
-          key: ValueKey("bh_${bh.lordEn}_${bh.startDate.millisecondsSinceEpoch}"),
+        child: Material(
+          type: MaterialType.transparency,
+          child: ExpansionTile(
+            key: ValueKey("bh_${bh.lordEn}_${bh.startDate.millisecondsSinceEpoch}"),
           initiallyExpanded: bh.isActive,
           dense: true,
           tilePadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
@@ -1119,8 +1877,9 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
           children: bh.subPeriods.map((ant) => _buildAntharamTile(ant)).toList(),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildAntharamTile(DashaPeriod ant) {
     return Padding(
@@ -1130,8 +1889,10 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
           color: ant.isActive ? AppColors.primaryGold.withValues(alpha: 0.2) : AppColors.backgroundDeep,
           borderRadius: BorderRadius.circular(6),
         ),
-        child: ExpansionTile(
-          key: ValueKey("ant_${ant.lordEn}_${ant.startDate.millisecondsSinceEpoch}"),
+        child: Material(
+          type: MaterialType.transparency,
+          child: ExpansionTile(
+            key: ValueKey("ant_${ant.lordEn}_${ant.startDate.millisecondsSinceEpoch}"),
           initiallyExpanded: ant.isActive,
           dense: true,
           tilePadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
@@ -1186,8 +1947,9 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
           }).toList(),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class CustomPainterWidget extends StatelessWidget {

@@ -9,6 +9,7 @@ import '../../services/geocoding_service.dart';
 import '../../widgets/cosmic_background.dart';
 import '../../widgets/golden_button.dart';
 import '../../widgets/golden_text_field.dart';
+import '../../modules/horoscope/current_age_card.dart';
 
 class UserHoroscopeProfileScreen extends StatefulWidget {
   final VoidCallback onSaved;
@@ -842,7 +843,20 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
                     ),
                   ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
+
+                // Current Age Card (நடப்பு வயது)
+                CurrentAgeCard(
+                  birthDateTime: DateTime(
+                    _dob.year,
+                    _dob.month,
+                    _dob.day,
+                    _tob.hour,
+                    _tob.minute,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
 
                 GoldenButton(
                   text: 'Save Horoscope Profile',
