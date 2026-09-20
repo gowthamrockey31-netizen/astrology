@@ -14,12 +14,12 @@ import 'package:astrocall/widgets/glowing_icon.dart';
 import 'package:astrocall/widgets/golden_button.dart';
 import 'package:astrocall/widgets/premium_app_bar.dart';
 import 'package:astrocall/widgets/cosmic_drawer.dart';
-import 'package:astrocall/widgets/bottom_notification_bar.dart';
 import 'package:astrocall/services/auth_service.dart';
 import 'package:astrocall/services/firestore_service.dart';
 import 'package:astrocall/screens/login/login_screen.dart';
 import 'package:astrocall/screens/magazine/magazine_feed_screen.dart';
 import 'package:astrocall/kp_method_model_1/kp_method_model_1.dart';
+import 'package:astrocall/widgets/jamakkol_dashboard_card.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -230,6 +230,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           _buildBannerCard().animate().fade(duration: 800.ms).slideY(begin: 0.1, end: 0),
           const SizedBox(height: 18),
+          JamakkolDashboardCard(
+            onTap: () => Navigator.of(context).pushNamed('/jamakkol_prasannam'),
+          ).animate().fade(delay: 100.ms).slideY(begin: 0.08, end: 0),
+          const SizedBox(height: 18),
           KPDashboardCard(
             onTap: () => Navigator.of(context).pushNamed('/kp_method_model_1'),
           ).animate().fade(delay: 120.ms).slideY(begin: 0.08, end: 0),
@@ -266,8 +270,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         {'title': 'Admin Control Panel', 'sub': 'CMS & Approvals', 'icon': Icons.admin_panel_settings_rounded, 'route': '/admin_dashboard', 'color': AppColors.blueAccent},
         {'title': 'உலகியல் ஜோதிடம்', 'sub': 'Mundane Astrology', 'icon': Icons.public_rounded, 'route': '/mundane_astrology', 'color': Colors.indigo.shade900},
       ],
+      {'title': 'ஜாமக்கோள் பிரசன்னம்', 'sub': 'Jamakkol Prasannam Module', 'icon': Icons.explore_rounded, 'route': '/jamakkol_prasannam', 'color': Colors.amber.shade900},
       {'title': 'KP Method Model 1', 'sub': 'KP Astrology Calculation & Analysis', 'icon': Icons.auto_awesome, 'route': '/kp_method_model_1', 'color': Colors.purple.shade900},
       {'title': 'KP Method 2', 'sub': 'கே.பி முறை 2 - அட்வான்டேஜ் விதிமுறை', 'icon': Icons.stars_rounded, 'route': '/kp_method_2', 'color': Colors.deepPurple.shade900},
+      {'title': 'KP Method', 'sub': 'Model 3', 'icon': Icons.hub_rounded, 'route': '/kp_method_model_3', 'color': Colors.blueGrey.shade900},
       {'title': 'ஜாதக / பஞ்சாங்க குறிப்புகள்', 'sub': 'பஞ்சாங்கம், தினசுத்தி, அஷ்டவர்க்கம்', 'icon': Icons.description_rounded, 'route': '/jaathaga_kurippugal', 'color': Colors.indigo.shade800},
       {'title': 'ஜாமகோள் ஆருடம்', 'sub': 'Jamakol Arudam', 'icon': Icons.compass_calibration_rounded, 'route': '/jamakol_arudam', 'color': Colors.deepPurple.shade800},
       {'title': 'ஜாமகோள் ஆருடம்', 'sub': 'Model 1', 'icon': Icons.auto_awesome, 'route': '/jamakol_arudam_model1', 'color': Colors.deepPurple.shade700},
@@ -290,6 +296,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       {'title': 'ஆயுள் கணிதம்', 'sub': 'Pindayu Longevity', 'icon': Icons.health_and_safety_rounded, 'route': '/longevity', 'color': Colors.green.shade800},
       {'title': 'Daily Horoscopes', 'sub': '12 Zodiac Signs', 'icon': Icons.brightness_7_rounded, 'route': '/horoscope', 'color': Colors.amber.shade900},
       {'title': 'Live Panchangam', 'sub': 'Tithi & Rahu Kalam', 'icon': Icons.calendar_month_rounded, 'route': '/panchang', 'color': Colors.deepOrange.shade900},
+      {'title': 'சுப முகூர்த்தம்', 'sub': 'Professional நல்ல நேரம்', 'icon': Icons.hourglass_top_rounded, 'route': '/professional_muhurtha', 'color': Colors.amber.shade900},
+      {'title': 'அயன கால கணிப்பு', 'sub': 'உத்தராயணம் / தட்சிணாயணம்', 'icon': Icons.brightness_6_rounded, 'route': '/ayana_kala', 'color': Colors.amber.shade900},
       {'title': 'AI Horoscope Guru', 'sub': 'Ask AI Assistant', 'icon': Icons.smart_toy_rounded, 'route': '/ai_assistant', 'color': Colors.indigo.shade900},
       {'title': 'Birth Chart', 'sub': 'Vedic Kundali', 'icon': Icons.brightness_5_rounded, 'route': '/birth_chart', 'color': Colors.cyan.shade900},
       {'title': 'AstroDashaCare Shop', 'sub': 'Gems & Yantras', 'icon': Icons.shopping_bag_rounded, 'route': '/shop', 'color': Colors.pink.shade900},

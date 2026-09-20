@@ -147,6 +147,12 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/birth_chart'),
                   ),
                   _buildDrawerItem(
+                    icon: Icons.explore_rounded,
+                    title: 'ஜாமக்கோள் பிரசன்னம் (Jamakkol Prasannam)',
+                    subtitle: 'உதயம், ஆருடம், கவிப்பு, ஜாம கிரகங்கள் & சக்கரம்',
+                    onTap: () => onSelectRoute('/jamakkol_prasannam'),
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.compass_calibration_rounded,
                     title: 'ஜாமகோள் ஆருடம் (Jamakol Arudam)',
                     subtitle: 'உதயம், ஆருடம், கவிப்பு பிரசன்ன ஆய்வு',
@@ -187,6 +193,12 @@ class CosmicDrawer extends StatelessWidget {
                     title: '⭐ KP Method 2',
                     subtitle: 'கே.பி முறை 2 - பிளாசிடஸ் & அட்வான்டேஜ்',
                     onTap: () => onSelectRoute('/kp_method_2'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.hub_rounded,
+                    title: '🪐 KP Method (Model 3)',
+                    subtitle: 'கே.பி முறை 3 - முழுமையான கணிதம் & நேரத் திருத்தம்',
+                    onTap: () => onSelectRoute('/kp_method_model_3'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.auto_awesome_motion_rounded,
@@ -285,6 +297,12 @@ class CosmicDrawer extends StatelessWidget {
                     title: 'Live Panchangam',
                     subtitle: 'Tithi, Nakshatra, Rahu Kalam',
                     onTap: () => onSelectRoute('/panchang'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.hourglass_top_rounded,
+                    title: 'சுப முகூர்த்தம் / நல்ல நேரம்',
+                    subtitle: 'Professional Muhurtha / Nalla Neram Engine',
+                    onTap: () => onSelectRoute('/professional_muhurtha'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.smart_toy_rounded,

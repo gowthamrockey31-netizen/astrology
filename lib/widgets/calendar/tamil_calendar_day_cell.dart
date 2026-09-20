@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
+import '../../controllers/tamil_calendar_controller.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/tamil_calendar_models.dart';
 
-/// Single interactive day cell for the Tamil Month Grid
+/// Single interactive day cell for the Tamil Month Grid (Zero-Overflow, Ultra-Responsive)
 class TamilCalendarDayCell extends StatelessWidget {
   final CalendarDay dayData;
   final bool isSelected;
   final bool isCurrentMonth;
   final bool isToday;
+  final CalendarDisplayMode displayMode;
   final VoidCallback onTap;
 
   const TamilCalendarDayCell({
@@ -18,12 +19,13 @@ class TamilCalendarDayCell extends StatelessWidget {
     required this.isSelected,
     required this.isCurrentMonth,
     required this.isToday,
+    this.displayMode = CalendarDisplayMode.tamilMonth,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final gregorianFormatted = DateFormat('dd/MM').format(dayData.date);
+    final bool isSunday = dayData.weekdayNumber == 7;
 
     // Dynamic border & background styling
     Color bgColor;
@@ -32,11 +34,11 @@ class TamilCalendarDayCell extends StatelessWidget {
 
     if (isSelected) {
       bgColor = AppColors.primaryGold.withValues(alpha: 0.22);
-      border = Border.all(color: AppColors.primaryGold, width: 1.5);
+      border = Border.all(color: AppColors.primaryGold, width: 1.4);
       shadows = [
         BoxShadow(
           color: AppColors.primaryGold.withValues(alpha: 0.35),
-          blurRadius: 8,
+          blurRadius: 6,
           spreadRadius: 1,
         ),
       ];
@@ -44,14 +46,23 @@ class TamilCalendarDayCell extends StatelessWidget {
       bgColor = Colors.amber.withValues(alpha: 0.12);
       border = Border.all(color: Colors.amberAccent, width: 1.2);
     } else {
-      bgColor = isCurrentMonth ? AppColors.cardSurface.withValues(alpha: 0.85) : Colors.black26;
+      bgColor = isCurrentMonth ? AppColors.cardSurface.withValues(alpha: 0.9) : Colors.black26;
       border = Border.all(
-        color: isCurrentMonth ? AppColors.borderGold.withValues(alpha: 0.35) : Colors.white10,
-        width: 0.8,
+        color: isCurrentMonth ? AppColors.borderGold.withValues(alpha: 0.3) : Colors.white10,
+        width: 0.6,
       );
     }
 
     final double opacity = isCurrentMonth ? 1.0 : 0.45;
+
+    // Numbers display based on mode
+    final String mainNumber = (displayMode == CalendarDisplayMode.tamilMonth)
+        ? '${dayData.tamilDay}'
+        : '${dayData.date.day}';
+
+    final String subNumber = (displayMode == CalendarDisplayMode.tamilMonth)
+        ? '${dayData.date.day}'
+        : '${dayData.tamilMonth.length > 3 ? dayData.tamilMonth.substring(0, 3) : dayData.tamilMonth} ${dayData.tamilDay}';
 
     return Opacity(
       opacity: opacity,
@@ -59,15 +70,15 @@ class TamilCalendarDayCell extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
           splashColor: AppColors.primaryGold.withValues(alpha: 0.25),
           highlightColor: AppColors.primaryGold.withValues(alpha: 0.15),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            duration: const Duration(milliseconds: 160),
+            padding: const EdgeInsets.symmetric(horizontal: 2.5, vertical: 3),
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
               border: border,
               boxShadow: shadows,
             ),
@@ -75,40 +86,45 @@ class TamilCalendarDayCell extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Top Row: Tamil Date (Prominent) & Gregorian Date
+                // 1. Top Row: Primary Number & Secondary Reference
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Prominent Tamil Date Number (1..32)
+                    // Main Date Number
                     Text(
-                      '${dayData.tamilDay}',
+                      mainNumber,
                       style: GoogleFonts.outfit(
-                        fontSize: 15,
+                        fontSize: 13.5,
                         fontWeight: FontWeight.w900,
                         color: isSelected
                             ? AppColors.lightGold
-                            : (dayData.isMuhurtham ? Colors.amberAccent : Colors.white),
+                            : (isSunday
+                                ? Colors.redAccent
+                                : (dayData.isMuhurtham ? Colors.amberAccent : Colors.white)),
                         height: 1.0,
                       ),
                     ),
-                    // Gregorian Date (small: dd/MM)
-                    Text(
-                      gregorianFormatted,
-                      style: GoogleFonts.outfit(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w500,
-                        color: isSelected ? Colors.white : AppColors.textSecondary,
-                        height: 1.0,
+                    // Sub Date Label
+                    Flexible(
+                      child: Text(
+                        subNumber,
+                        style: GoogleFonts.outfit(
+                          fontSize: 8.0,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected ? Colors.white : AppColors.textSecondary,
+                          height: 1.0,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
 
-                // Middle: Indicators (Nokku & Tithi / Nakshatra)
+                // 2. Middle: Nokku, Tithi & Nakshatra
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +136,7 @@ class TamilCalendarDayCell extends StatelessWidget {
                           Text(
                             dayData.nokkuDinam.symbol,
                             style: TextStyle(
-                              fontSize: 9,
+                              fontSize: 7.5,
                               fontWeight: FontWeight.bold,
                               color: dayData.nokkuDinam == NokkuDinamType.mel
                                   ? Colors.greenAccent
@@ -129,12 +145,12 @@ class TamilCalendarDayCell extends StatelessWidget {
                                       : Colors.cyanAccent),
                             ),
                           ),
-                          const SizedBox(width: 2),
+                          const SizedBox(width: 1.5),
                           Expanded(
                             child: Text(
                               dayData.thithi,
                               style: GoogleFonts.outfit(
-                                fontSize: 8.5,
+                                fontSize: 7.5,
                                 fontWeight: FontWeight.w600,
                                 color: dayData.thithiNumber == 15
                                     ? Colors.amberAccent
@@ -148,16 +164,17 @@ class TamilCalendarDayCell extends StatelessWidget {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 0.5),
                       // Nakshatra line
                       Row(
                         children: [
-                          const Text('⭐', style: TextStyle(fontSize: 7)),
-                          const SizedBox(width: 2),
+                          const Text('★', style: TextStyle(fontSize: 6.5, color: AppColors.lightGold)),
+                          const SizedBox(width: 1.5),
                           Expanded(
                             child: Text(
                               dayData.nakshatra,
                               style: GoogleFonts.outfit(
-                                fontSize: 8.5,
+                                fontSize: 7.5,
                                 color: AppColors.lightGold.withValues(alpha: 0.9),
                               ),
                               maxLines: 1,
@@ -170,40 +187,41 @@ class TamilCalendarDayCell extends StatelessWidget {
                   ),
                 ),
 
-                // Bottom Badges: Government Holiday / Festival / Muhurtham
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (dayData.isMuhurtham)
-                      const Padding(
-                        padding: EdgeInsets.only(right: 2),
-                        child: Text(
-                          '💍',
-                          style: TextStyle(fontSize: 8.5),
+                // 3. Bottom Badges: Muhurtham / Festival / Holiday
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.bottomRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (dayData.isMuhurtham)
+                        const Padding(
+                          padding: EdgeInsets.only(right: 1.5),
+                          child: Text('💍', style: TextStyle(fontSize: 7.5)),
                         ),
-                      ),
-                    if (dayData.hasFestival)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 2),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 2.5, vertical: 0.5),
-                          decoration: BoxDecoration(
-                            color: Colors.purple.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(3),
+                      if (dayData.hasFestival)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 1.5),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0.5),
+                            decoration: BoxDecoration(
+                              color: Colors.purple.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                            child: const Text('🎉', style: TextStyle(fontSize: 6.5)),
                           ),
-                          child: const Text('🎉', style: TextStyle(fontSize: 7)),
                         ),
-                      ),
-                    if (dayData.isGovernmentHoliday)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 2.5, vertical: 0.5),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(3),
+                      if (dayData.isGovernmentHoliday)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0.5),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          child: const Text('🏛️', style: TextStyle(fontSize: 6.5)),
                         ),
-                        child: const Text('🏛️', style: TextStyle(fontSize: 7)),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

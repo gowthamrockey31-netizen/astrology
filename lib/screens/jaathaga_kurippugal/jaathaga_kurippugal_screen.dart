@@ -1,8 +1,13 @@
+import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../engine/dignity_engine.dart';
+import '../../models/daily_calendar_models.dart';
 import '../../models/dosham_result_model.dart';
+import '../../models/hora_result.dart';
 import '../../models/horoscope_calculation_result.dart';
 import '../../models/jaathaga_kurippugal_model.dart';
 import '../../models/planet_position.dart';
@@ -14,8 +19,11 @@ import '../../services/aadhi_antha_nazhigai_calculator.dart';
 import '../../services/ashtakavarga_calculator.dart';
 import '../../services/astrology_calculator.dart';
 import '../../services/auth_service.dart';
+import '../../services/daily_calendar_engine.dart';
 import '../../services/dina_suddhi_calculator.dart';
+import '../../services/hora_calculator.dart';
 import '../../services/jaathaga_kurippugal_calculator.dart';
+import '../../services/jamakkol_chart_engine.dart';
 import '../../services/jathaga_eras_calculator.dart';
 import '../../services/pdf_generator_service.dart';
 import '../../services/planet_status_calculator.dart';
@@ -31,7 +39,8 @@ import '../../modules/horoscope/current_age_card.dart';
 import 'package:printing/printing.dart';
 
 class JaathagaKurippugalScreen extends StatefulWidget {
-  const JaathagaKurippugalScreen({super.key});
+  final UserModel? user;
+  const JaathagaKurippugalScreen({super.key, this.user});
 
   @override
   State<JaathagaKurippugalScreen> createState() => _JaathagaKurippugalScreenState();
@@ -56,6 +65,8 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
 
   int _selectedTabIndex = 0;
   String _selectedAshtakavargaPlanet = 'SAV';
+  late Timer _liveClockTimer;
+  DateTime _liveNow = DateTime.now();
 
   final List<String> _tabs = [
     'பொது பஞ்சாங்க குறிப்புகள்',
@@ -93,49 +104,113 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   void initState() {
     super.initState();
     _loadAndCalculateData();
+    _liveNow = DateTime.now();
+    _liveClockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _liveNow = DateTime.now());
+    });
   }
 
-  void _loadAndCalculateData() {
-    _user = AuthService.currentUser ??
+  @override
+  void dispose() {
+    _liveClockTimer.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is UserModel && args != _user) {
+      setState(() {
+        _loadAndCalculateData(args);
+      });
+    } else if (widget.user == null && AuthService.currentUser != null && AuthService.currentUser != _user) {
+      setState(() {
+        _loadAndCalculateData(AuthService.currentUser);
+      });
+    }
+  }
+
+  DateTime _parseDob(String dob) {
+    final clean = dob.trim();
+    final iso = DateTime.tryParse(clean);
+    if (iso != null) return iso;
+
+    final separator = clean.contains('/') ? '/' : (clean.contains('-') ? '-' : null);
+    if (separator != null) {
+      final parts = clean.split(separator);
+      if (parts.length == 3) {
+        if (parts[0].length == 4) {
+          // YYYY-MM-DD
+          final y = int.tryParse(parts[0]);
+          final m = int.tryParse(parts[1]);
+          final d = int.tryParse(parts[2]);
+          if (y != null && m != null && d != null) return DateTime(y, m, d);
+        } else {
+          // DD-MM-YYYY
+          final d = int.tryParse(parts[0]);
+          final m = int.tryParse(parts[1]);
+          final y = int.tryParse(parts[2]);
+          if (y != null && m != null && d != null) return DateTime(y, m, d);
+        }
+      }
+    }
+    return DateTime(1999, 10, 9);
+  }
+
+  (int, int) _parseTob(String tob) {
+    final clean = tob.trim();
+    int hour = 9;
+    int minute = 20;
+    final digits = RegExp(r'(\d+):(\d+)').firstMatch(clean);
+    if (digits != null) {
+      hour = int.tryParse(digits.group(1)!) ?? 9;
+      minute = int.tryParse(digits.group(2)!) ?? 20;
+      if (clean.toUpperCase().contains('PM') && hour < 12) hour += 12;
+      if (clean.toUpperCase().contains('AM') && hour == 12) hour = 0;
+    }
+    return (hour, minute);
+  }
+
+  void _loadAndCalculateData([UserModel? customUser]) {
+    _user = customUser ??
+        widget.user ??
+        AuthService.currentUser ??
         UserModel(
-          id: 'default_usr',
-          name: 'Divine Seeker',
+          id: 'default_sankara',
+          name: 'SANKARA NARAYANAN A',
           mobile: '+919876543210',
           gender: 'Male',
-          dob: '1996-06-15',
-          timeOfBirth: '08:30 AM',
-          placeOfBirth: 'Chennai',
-          city: 'Chennai',
+          dob: '1999-10-09',
+          timeOfBirth: '09:20 AM',
+          placeOfBirth: 'Dindigul',
+          city: 'Dindigul',
           state: 'Tamil Nadu',
           country: 'India',
-          zodiac: 'Gemini (Mithuna)',
-          nakshatra: 'Rohini',
-          lagna: 'Mesha',
+          zodiac: 'Virgo (Kanni)',
+          nakshatra: 'Hasta',
+          lagna: 'Scorpio',
           walletBalance: 500.0,
           profilePhoto: '',
-          latitude: 13.0827,
-          longitude: 80.2707,
+          latitude: 10.3673,
+          longitude: 77.9803,
           timezone: 5.5,
         );
 
-    final parsedDob = DateTime.tryParse(_user.dob) ?? DateTime(1996, 6, 15);
-    final tobParts = _user.timeOfBirth.split(':');
-    int hour = 8;
-    int minute = 30;
-    if (tobParts.length >= 2) {
-      hour = int.tryParse(tobParts[0].replaceAll(RegExp(r'[^0-9]'), '')) ?? 8;
-      minute = int.tryParse(tobParts[1].replaceAll(RegExp(r'[^0-9]'), '')) ?? 30;
-      if (_user.timeOfBirth.toUpperCase().contains('PM') && hour < 12) hour += 12;
-      if (_user.timeOfBirth.toUpperCase().contains('AM') && hour == 12) hour = 0;
-    }
+    final parsedDob = _parseDob(_user.dob);
+    final (hour, minute) = _parseTob(_user.timeOfBirth);
 
     _birthDt = DateTime(parsedDob.year, parsedDob.month, parsedDob.day, hour, minute);
 
+    final double lat = (_user.latitude != 0.0) ? _user.latitude : 10.3673;
+    final double lon = (_user.longitude != 0.0) ? _user.longitude : 77.9803;
+    final double tz = (_user.timezone != 0.0) ? _user.timezone : 5.5;
+
     _astroData = AstrologyCalculator.calculateHoroscope(
       dateOfBirth: _birthDt,
-      latitude: _user.latitude,
-      longitude: _user.longitude,
-      utcOffsetHours: _user.timezone,
+      latitude: lat,
+      longitude: lon,
+      utcOffsetHours: tz,
     );
 
     _notes = JaathagaKurippugalCalculator.calculateNotes(user: _user, birthDateTime: _birthDt);
@@ -155,9 +230,9 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
       date: _birthDt,
       sunLongitude: _astroData.sun.longitude,
       moonLongitude: _astroData.moon.longitude,
-      latitude: _user.latitude,
-      longitude: _user.longitude,
-      utcOffsetHours: _user.timezone,
+      latitude: lat,
+      longitude: lon,
+      utcOffsetHours: tz,
     );
     _erasResult = JathagaErasCalculator.calculateAllEras(
       day: _birthDt.day,
@@ -195,8 +270,8 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
                 child: Row(
                   children: [
                     IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.arrow_back_ios_rounded, color: AppColors.lightGold),
+                       onPressed: () => Navigator.of(context).pop(),
+                       icon: const Icon(Icons.arrow_back_ios_rounded, color: AppColors.lightGold),
                     ),
                     Expanded(
                       child: Column(
@@ -212,11 +287,31 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
                             ),
                           ),
                           Text(
-                            '${_user.name} • ${_user.dob}',
+                            '${_user.name} • ${_user.dob} • ${_user.placeOfBirth.isNotEmpty ? _user.placeOfBirth : _user.city}',
                             style: GoogleFonts.outfit(fontSize: 11, color: AppColors.textSecondary),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.sync_rounded, color: AppColors.lightGold),
+                      tooltip: 'புதுப்பி (Sync with Current Profile)',
+                      onPressed: () {
+                        setState(() {
+                          _loadAndCalculateData(AuthService.currentUser);
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: AppColors.backgroundMid,
+                            duration: const Duration(seconds: 2),
+                            content: Text(
+                              'ஜாதக விவரங்கள் புதுப்பிக்கப்பட்டன: ${_user.name} (${_user.dob} ${_user.timeOfBirth})',
+                              style: GoogleFonts.outfit(color: AppColors.lightGold),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     IconButton(
                       icon: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.primaryGold),
@@ -304,6 +399,10 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // நடப்பு நேரலை பஞ்சாங்கம் (Live Panchangam)
+        _buildLivePanchangamSection(),
+        const SizedBox(height: 14),
+
         // 1. பிறப்பு விவரங்கள் (Birth Profile)
         _buildSectionCard(
           title: 'பிறப்பு விவரங்கள் (Birth Profile)',
@@ -330,6 +429,8 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
           title: 'பொது பஞ்சாங்க குறிப்புகள் (General Panchangam)',
           icon: Icons.calendar_today_rounded,
           rows: [
+            _InfoRow('தமிழ் வருடம்', _notes.tamilYearName),
+            _InfoRow('அயனம்', _notes.ayanaKalam),
             _InfoRow('லக்னம்', '${_notes.lagna} (${_notes.lagnaDegree})'),
             _InfoRow('ராசி', _notes.rasi),
             _InfoRow('நட்சத்திரம்', '${_notes.nakshatra} (${_notes.pada})'),
@@ -377,7 +478,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
         const SizedBox(height: 14),
 
         // 7. ஜாதக கட்டங்கள் (South Indian Jathagam Widget)
-        SouthIndianJathagamWidget(user: _user),
+        SouthIndianJathagamWidget(user: _user, isLivePanchangam: true),
         const SizedBox(height: 20),
       ],
     );
@@ -427,6 +528,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
             _InfoRow('சாலிவாகன வருடம் / சகாப்தம்', '${_erasResult['salivahana_year']}'),
             _InfoRow('கலியுகாதி வருடம்', '${_erasResult['kaliyugadhi_year']}'),
             _InfoRow('கொல்லம் வருடம்', '${_erasResult['kollam_year']}'),
+            _InfoRow('பசலி ஆண்டு', '${_erasResult['fasli_year']}'),
             _InfoRow('ஹிஜ்ரி வருடம்', '${_erasResult['hijri_year']}'),
           ],
         ),
@@ -561,6 +663,41 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
             _InfoRow('அந்த நாழிகை (இருப்பு நாழிகை)', _aadhiAnthaResult.andhaNazhigaiFormatted),
             _InfoRow('நட்சத்திர முன்னேற்றம்', '${_aadhiAnthaResult.progressPercent.toStringAsFixed(1)}%'),
           ],
+        ),
+        const SizedBox(height: 6),
+
+        // குறிப்பு (Note)
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundMid.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.35)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.info_outline_rounded, color: AppColors.primaryGold, size: 15),
+              const SizedBox(width: 8),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    style: GoogleFonts.outfit(fontSize: 11.5, color: AppColors.lightGold),
+                    children: [
+                      TextSpan(
+                        text: 'குறிப்பு: ',
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.primaryGold),
+                      ),
+                      const TextSpan(
+                        text: 'இங்கு தரப்பட்டுள்ள இந்த கணித தோராயமானது - சரிபார்த்து கொள்ளுங்கள்',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 14),
 
@@ -1028,6 +1165,73 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
               )),
         ],
       ),
+    );
+  }
+
+  Widget _buildLivePanchangamSection() {
+    final double lat = (_user.latitude != 0.0) ? _user.latitude : 13.08784;
+    final double lon = (_user.longitude != 0.0) ? _user.longitude : 80.27847;
+    final double tz = (_user.timezone != 0.0) ? _user.timezone : 5.5;
+
+    final liveCalendar = DailyCalendarEngine.calculate(
+      targetDate: _liveNow,
+      latitude: lat,
+      longitude: lon,
+      utcOffsetHours: tz,
+    );
+
+    final jamakkol = JamakkolChartEngine.calculate(
+      queryTime: _liveNow,
+      latitude: lat,
+      longitude: lon,
+      utcOffsetHours: tz,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 1. பஞ்ச அங்கம் (Core 5 Angas)
+        _buildSectionCard(
+          title: 'பஞ்ச அங்கம் (Core 5 Angas)',
+          icon: Icons.auto_awesome_rounded,
+          rows: [
+            _InfoRow('திதி', '${liveCalendar.tithiPakshaTa} ${liveCalendar.tithiNameTa} ${liveCalendar.tithiTransition.currentTiming.isNotEmpty ? '(${liveCalendar.tithiTransition.currentTiming})' : ''}'),
+            _InfoRow('நட்சத்திரம்', '${liveCalendar.nakshatraNameTa} - ${liveCalendar.nakshatraPada}-ஆம் பாதம் (அதிபதி: ${liveCalendar.nakshatraLordTa})'),
+            _InfoRow('யோகம்', '${liveCalendar.yogaNameTa} (${liveCalendar.amirthathiYogaTa})'),
+            _InfoRow('கரணம்', liveCalendar.karanaNameTa),
+            _InfoRow('நோக்கு நாள் / கிழமை', '${liveCalendar.nokkuNaalTa} • ${liveCalendar.weekdayTa}'),
+          ],
+        ),
+        const SizedBox(height: 14),
+
+        // 2. சுப & அசுப நேரங்கள் (Auspicious & Inauspicious Timings)
+        _buildSectionCard(
+          title: 'சுப & அசுப நேரங்கள்',
+          icon: Icons.hourglass_top_rounded,
+          rows: [
+            _InfoRow('நல்ல நேரம்', 'காலை: ${liveCalendar.morningNallaNeram} | மாலை: ${liveCalendar.eveningNallaNeram}'),
+            _InfoRow('ராகு காலம்', liveCalendar.rahuKalam),
+            _InfoRow('எமகண்டம்', liveCalendar.yamaGandam),
+            _InfoRow('குளிகை', liveCalendar.gulikaiKalam),
+            _InfoRow('சூரிய உதயம் / அஸ்தமனம்', '${liveCalendar.sunriseStr} / ${liveCalendar.sunsetStr}'),
+            _InfoRow('சந்திராஷ்டமம்', '${liveCalendar.chandrashtamaRasiTa} (${liveCalendar.chandrashtamaNakshatrasTa})'),
+            _InfoRow('சூலம் & பரிகாரம்', '${liveCalendar.soolamDirectionTa} (பரிகாரம்: ${liveCalendar.pariharamTa})'),
+          ],
+        ),
+        const SizedBox(height: 14),
+
+        // 3. ஜாமக்கோள் சிறப்பு புள்ளிகள் (Live Points)
+        _buildSectionCard(
+          title: 'ஜாமக்கோள் சிறப்பு புள்ளிகள் (Live Points)',
+          icon: Icons.explore_rounded,
+          rows: [
+            _InfoRow('உதயம் (Udhayam)', '${AstrologyCalculator.rasiNamesTa[jamakkol.udhayam.rasiIndex]} (${jamakkol.udhayam.formattedDms}) ★ ${jamakkol.udhayam.starName} - ${jamakkol.udhayam.pada} பாதம்'),
+            _InfoRow('ஆருடம் (Aarudam)', '${AstrologyCalculator.rasiNamesTa[jamakkol.aarudam.rasiIndex]} ★ ${jamakkol.aarudam.starName} - ${jamakkol.aarudam.pada} பாதம்'),
+            _InfoRow('கவிப்பு (Kavippu)', '${AstrologyCalculator.rasiNamesTa[jamakkol.kavippu.rasiIndex]} ★ ${jamakkol.kavippu.starName} - ${jamakkol.kavippu.pada} பாதம்'),
+            _InfoRow('கோச்சார லக்னம்', liveCalendar.currentTransitLagna),
+          ],
+        ),
+      ],
     );
   }
 

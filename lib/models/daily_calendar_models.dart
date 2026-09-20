@@ -15,6 +15,27 @@ class GowriPeriod {
   });
 }
 
+/// Represents a 2-hour Transit Lagna period (கோச்சார லக்னம்)
+class DailyLagnaPeriod {
+  final int rasiIndex;
+  final String rasiNameTa;
+  final String rasiNameEn;
+  final String timeRange;
+  final DateTime startTime;
+  final DateTime endTime;
+  final bool isCurrent;
+
+  const DailyLagnaPeriod({
+    required this.rasiIndex,
+    required this.rasiNameTa,
+    required this.rasiNameEn,
+    required this.timeRange,
+    required this.startTime,
+    required this.endTime,
+    required this.isCurrent,
+  });
+}
+
 /// Transition info for Tithi, Nakshatra, Yoga, Karana
 class PanchangamTransition {
   final String currentName;
@@ -133,6 +154,10 @@ class DailyCalendarData {
   final String udayathiNazhigai;
   final String nakshatraNazhigai;
 
+  // Transit Lagna (கோச்சார லக்னம் - சூரியன் இருக்கும் ராசியிலிருந்து 2 மணி நேர சுழற்சி)
+  final String currentTransitLagna;
+  final List<DailyLagnaPeriod> transitLagnas;
+
   // Transits
   final Map<String, PlanetDetail> rawPlanets;
   final List<DailyPlanetTransit> transits;
@@ -187,5 +212,7 @@ class DailyCalendarData {
     required this.transits,
     required this.padaSaramNotes,
     required this.specialEvents,
+    required this.currentTransitLagna,
+    required this.transitLagnas,
   });
 }

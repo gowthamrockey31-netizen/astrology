@@ -6,7 +6,7 @@ import '../../core/theme/app_colors.dart';
 import 'tamil_calendar_day_cell.dart';
 import 'tamil_day_detail_sheet.dart';
 
-/// Full interactive monthly calendar grid starting strictly at Tamil Month Day 1
+/// Full interactive monthly calendar grid supporting both Tamil Month and Gregorian Month views
 class TamilMonthCalendarView extends StatelessWidget {
   final TamilCalendarController controller;
   final VoidCallback? onSwitchToDayView;
@@ -26,43 +26,58 @@ class TamilMonthCalendarView extends StatelessWidget {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
+        final displayMode = controller.displayMode;
         final monthData = controller.currentMonthData;
-        final tamilMonthName = controller.focusedTamilMonthName;
-        final tamilYearName = controller.focusedTamilYearName;
-        final dateRangeFormatted =
-            '${DateFormat('d MMMM yyyy').format(monthData.startDate)} – ${DateFormat('d MMMM yyyy').format(monthData.endDate)}';
-        final gridDays = controller.getMonthGridDays();
         final selectedDate = controller.selectedDate;
         final today = DateTime.now();
+        final gridDays = controller.getMonthGridDays();
+
+        String mainTitle;
+        String subTitle;
+        String dateRangeFormatted;
+
+        if (displayMode == CalendarDisplayMode.tamilMonth) {
+          mainTitle = controller.focusedTamilMonthName;
+          subTitle = 'தமிழ் ஆண்டு: ${controller.focusedTamilYearName} வருடம்';
+          dateRangeFormatted =
+              '${DateFormat('d MMMM yyyy').format(monthData.startDate)} – ${DateFormat('d MMMM yyyy').format(monthData.endDate)}';
+        } else {
+          mainTitle = '${controller.focusedGregorianMonthNameTa} ${controller.focusedGregorianYear}';
+          subTitle = '${controller.focusedGregorianMonthNameEn} ${controller.focusedGregorianYear}';
+          final firstDate = DateTime(controller.focusedGregorianYear, controller.focusedGregorianMonth, 1);
+          final lastDate = DateTime(controller.focusedGregorianYear, controller.focusedGregorianMonth + 1, 0);
+          dateRangeFormatted =
+              '${DateFormat('d MMMM').format(firstDate)} – ${DateFormat('d MMMM yyyy').format(lastDate)}';
+        }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Month Header & Navigator Card
+            // Month Header & Navigator Card
             _buildMonthNavigatorCard(
               context: context,
-              tamilMonthName: tamilMonthName,
-              tamilYearName: tamilYearName,
+              mainTitle: mainTitle,
+              subTitle: subTitle,
               dateRangeFormatted: dateRangeFormatted,
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
-            // 2. Weekday Header Row (ஞா, தி, செ, பு, வி, வெ, ச)
+            // Weekday Header Row (ஞா, தி, செ, பு, வி, வெ, ச)
             _buildWeekdayHeaders(),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
 
-            // 3. 7-Column Calendar Grid starting at Tamil Month Day 1 with exact weekday alignment
+            // 7-Column Calendar Grid with exact weekday alignment
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: gridDays.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 7,
-                childAspectRatio: 0.72,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
+                childAspectRatio: 0.78,
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 4,
               ),
               itemBuilder: (context, index) {
                 final dayData = gridDays[index];
@@ -84,6 +99,7 @@ class TamilMonthCalendarView extends StatelessWidget {
                   isSelected: isSelected,
                   isCurrentMonth: true,
                   isToday: isToday,
+                  displayMode: displayMode,
                   onTap: () {
                     controller.selectDate(dayData.date);
                     TamilDayDetailSheet.show(
@@ -98,9 +114,9 @@ class TamilMonthCalendarView extends StatelessWidget {
               },
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
-            // 4. Quick Legend / Guide
+            // Quick Legend / Guide (Scrollable horizontally to prevent overflow)
             _buildCalendarLegend(),
           ],
         );
@@ -110,20 +126,20 @@ class TamilMonthCalendarView extends StatelessWidget {
 
   Widget _buildMonthNavigatorCard({
     required BuildContext context,
-    required String tamilMonthName,
-    required String tamilYearName,
+    required String mainTitle,
+    required String subTitle,
     required String dateRangeFormatted,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.cardSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.6)),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
             color: AppColors.primaryGold.withValues(alpha: 0.08),
-            blurRadius: 10,
+            blurRadius: 8,
           ),
         ],
       ),
@@ -136,35 +152,41 @@ class TamilMonthCalendarView extends StatelessWidget {
             tooltip: 'முந்தைய மாதம் (Previous Month)',
           ),
 
-          // Central Tamil Month & Gregorian Date Range
+          // Central Month & Date Range
           Expanded(
             child: Column(
               children: [
                 Text(
-                  'தமிழ் ஆண்டு: $tamilYearName வருடம்  •  தமிழ் மாதம்',
+                  subTitle,
                   style: GoogleFonts.outfit(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textSecondary,
-                    letterSpacing: 1.1,
+                    letterSpacing: 0.8,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  tamilMonthName,
+                  mainTitle,
                   style: GoogleFonts.cinzel(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.lightGold,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   dateRangeFormatted,
                   style: GoogleFonts.outfit(
-                    fontSize: 11,
+                    fontSize: 10.5,
                     fontWeight: FontWeight.w500,
                     color: Colors.white70,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -183,7 +205,7 @@ class TamilMonthCalendarView extends StatelessWidget {
 
   Widget _buildWeekdayHeaders() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
         color: AppColors.backgroundMid.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(8),
@@ -197,7 +219,7 @@ class TamilMonthCalendarView extends StatelessWidget {
               child: Text(
                 weekdayHeadersTa[index],
                 style: GoogleFonts.outfit(
-                  fontSize: 12,
+                  fontSize: 11.5,
                   fontWeight: FontWeight.bold,
                   color: isSunday ? Colors.redAccent : AppColors.lightGold,
                 ),
@@ -211,21 +233,30 @@ class TamilMonthCalendarView extends StatelessWidget {
 
   Widget _buildCalendarLegend() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: AppColors.backgroundMid.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.white10),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildLegendItem('⬆', 'மேல் நோக்கு', Colors.greenAccent),
-          _buildLegendItem('⬇', 'கீழ் நோக்கு', Colors.orangeAccent),
-          _buildLegendItem('↔', 'சம நோக்கு', Colors.cyanAccent),
-          _buildLegendItem('💍', 'முகூர்த்தம்', Colors.amberAccent),
-          _buildLegendItem('🏛️', 'அரசு விடுமுறை', Colors.redAccent),
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildLegendItem('⬆', 'மேல் நோக்கு', Colors.greenAccent),
+            const SizedBox(width: 12),
+            _buildLegendItem('⬇', 'கீழ் நோக்கு', Colors.orangeAccent),
+            const SizedBox(width: 12),
+            _buildLegendItem('↔', 'சம நோக்கு', Colors.cyanAccent),
+            const SizedBox(width: 12),
+            _buildLegendItem('💍', 'முகூர்த்தம்', Colors.amberAccent),
+            const SizedBox(width: 12),
+            _buildLegendItem('🎉', 'விசேஷம்', Colors.purpleAccent),
+            const SizedBox(width: 12),
+            _buildLegendItem('🏛️', 'அரசு விடுமுறை', Colors.redAccent),
+          ],
+        ),
       ),
     );
   }

@@ -77,10 +77,34 @@ class VargaCalculator {
         final part = (degreeInRasi / 7.5).floor().clamp(0, 3);
         return (rasiIdx + part * 3) % 12;
 
+      case VargaType.d5: // Panchamsha (5 divisions of 6°)
+        final part = (degreeInRasi / 6.0).floor().clamp(0, 4);
+        if (isOddSign) {
+          // Odd signs: Mars (0: Aries), Saturn (10: Aquarius), Jupiter (8: Sagittarius), Mercury (2: Gemini), Venus (6: Libra)
+          const oddSigns = [0, 10, 8, 2, 6];
+          return oddSigns[part];
+        } else {
+          // Even signs: Venus (1: Taurus), Mercury (5: Virgo), Jupiter (11: Pisces), Saturn (9: Capricorn), Mars (7: Scorpio)
+          const evenSigns = [1, 5, 11, 9, 7];
+          return evenSigns[part];
+        }
+
+      case VargaType.d6: // Shashtamsha (6 divisions of 5°)
+        // Odd signs: starts from same sign. Even signs: starts from 7th sign.
+        final part = (degreeInRasi / 5.0).floor().clamp(0, 5);
+        final startRasi = isOddSign ? rasiIdx : (rasiIdx + 6) % 12;
+        return (startRasi + part) % 12;
+
       case VargaType.d7: // Saptamsha (7 divisions of 4°17'8.57")
         // Odd signs: starts from same sign. Even signs: starts from 7th sign.
         final part = (degreeInRasi / (30.0 / 7.0)).floor().clamp(0, 6);
         final startRasi = isOddSign ? rasiIdx : (rasiIdx + 6) % 12;
+        return (startRasi + part) % 12;
+
+      case VargaType.d8: // Ashtamsha (8 divisions of 3°45')
+        final part = (degreeInRasi / 3.75).floor().clamp(0, 7);
+        // Movable (Chara) starts Aries (0), Fixed (Sthira) starts Sagittarius (8), Dual (Dvisvabhava) starts Leo (4)
+        final int startRasi = (rasiIdx % 3 == 0) ? 0 : ((rasiIdx % 3 == 1) ? 8 : 4);
         return (startRasi + part) % 12;
 
       case VargaType.d9: // Navamsha (9 divisions of 3°20')
@@ -97,9 +121,8 @@ class VargaCalculator {
         return (startRasi + part) % 12;
 
       case VargaType.d12: // Dwadasamsha (12 divisions of 2°30')
-        // Starts from the sign itself and proceeds in order
         final part = (degreeInRasi / 2.5).floor().clamp(0, 11);
-        return (rasiIdx + part) % 12;
+        return part;
 
       case VargaType.d16: // Shodashamsha (16 divisions of 1°52'30")
         // Movable (Aries) starts Aries, Fixed starts Leo, Dual starts Sagittarius
@@ -155,9 +178,9 @@ class VargaCalculator {
         return (startRasi + part) % 12;
 
       case VargaType.d60: // Shastiamsha (60 divisions of 30')
-        // Starts from the sign itself and proceeds in regular zodiac order
+        // Starts from Aries (0) and advances with each 30 arc-minute division
         final part = (degreeInRasi / 0.5).floor().clamp(0, 59);
-        return (rasiIdx + part) % 12;
+        return part % 12;
     }
   }
 }

@@ -62,10 +62,12 @@ class PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ],
               ),
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 18,
                 backgroundColor: AppColors.backgroundMid,
-                backgroundImage: CachedNetworkImageProvider(AppConstants.userAvatarUrl),
+                backgroundImage: const AssetImage(AppConstants.appLogo),
+                onBackgroundImageError: (_, __) {},
+                child: const Icon(Icons.person, color: AppColors.lightGold, size: 18),
               ),
             ),
             const SizedBox(width: 10),

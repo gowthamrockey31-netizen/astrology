@@ -396,24 +396,42 @@ class AstrologyCalculator {
         day + b - 1524.5;
   }
 
-  /// Calculate exact Sunrise & Sunset for location and date
+  /// Calculate exact Sunrise & Sunset for location and date using NOAA solar algorithm
   static Map<String, DateTime> calculateSunriseSunset(DateTime dt, double lat, double lon, double tz) {
     final dayOfYear = dt.difference(DateTime(dt.year, 1, 1)).inDays + 1;
-    final declination = 23.45 * sin(_degToRad(360 / 365 * (dayOfYear - 81)));
-    
-    final latRad = _degToRad(lat);
-    final decRad = _degToRad(declination);
-    final cosH = -tan(latRad) * tan(decRad);
-    final H = _radToDeg(acos(cosH.clamp(-1.0, 1.0))) / 15.0;
+    final gamma = 2 * pi / 365.0 * (dayOfYear - 1 + (12 - 12) / 24.0);
 
-    final lonDiffMinutes = (82.5 - lon) * 4.0;
-    final solarNoonMinutes = 12 * 60 + lonDiffMinutes;
+    // Equation of time in minutes
+    final eqtime = 229.18 * (0.000075 + 0.001868 * cos(gamma) - 0.032077 * sin(gamma)
+        - 0.014615 * cos(2 * gamma) - 0.040849 * sin(2 * gamma));
 
-    final sunriseMinutes = (solarNoonMinutes - H * 60).round();
-    final sunsetMinutes = (solarNoonMinutes + H * 60).round();
+    // Solar declination in radians
+    final decl = 0.006918 - 0.399912 * cos(gamma) + 0.070257 * sin(gamma)
+        - 0.006758 * cos(2 * gamma) + 0.000907 * sin(2 * gamma)
+        - 0.002697 * cos(3 * gamma) + 0.00148 * sin(3 * gamma);
 
-    final sunrise = DateTime(dt.year, dt.month, dt.day, sunriseMinutes ~/ 60, sunriseMinutes % 60, 30);
-    final sunset = DateTime(dt.year, dt.month, dt.day, sunsetMinutes ~/ 60, sunsetMinutes % 60, 42);
+    final latRad = lat * pi / 180.0;
+    // Standard solar zenith angle for sunrise/sunset: 90° 50' = 90.8333° (accounts for 34' refraction + 16' solar disc radius)
+    const zenithRad = 90.8333 * pi / 180.0;
+
+    final cosH = (cos(zenithRad) - sin(latRad) * sin(decl)) / (cos(latRad) * cos(decl));
+    final hRad = acos(cosH.clamp(-1.0, 1.0));
+    final hDeg = hRad * 180.0 / pi;
+
+    final timeOffset = 4.0 * (lon - (tz * 15.0)); // in minutes
+    final solarNoon = 720.0 - timeOffset - eqtime;
+    final sunriseMin = solarNoon - (hDeg * 4.0);
+    final sunsetMin = solarNoon + (hDeg * 4.0);
+
+    final sH = sunriseMin ~/ 60;
+    final sM = (sunriseMin % 60).floor();
+    final sS = (((sunriseMin % 60) - sM) * 60.0).round().clamp(0, 59);
+    final eH = sunsetMin ~/ 60;
+    final eM = (sunsetMin % 60).floor();
+    final eS = (((sunsetMin % 60) - eM) * 60.0).round().clamp(0, 59);
+
+    final sunrise = DateTime(dt.year, dt.month, dt.day, sH, sM, sS);
+    final sunset = DateTime(dt.year, dt.month, dt.day, eH, eM, eS);
 
     return {'sunrise': sunrise, 'sunset': sunset};
   }

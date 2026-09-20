@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:astrocall/controllers/tamil_calendar_controller.dart';
 import 'package:astrocall/models/tamil_calendar_models.dart';
 import 'package:astrocall/services/panchanga_provider.dart';
+import 'package:astrocall/services/astrology_calculator.dart';
 
 void main() {
   group('Tamil Monthly Calendar Start Position & Day 1 Alignment Tests', () {
@@ -77,7 +78,9 @@ void main() {
       expect(controller.focusedTamilMonthName, equals('புரட்டாசி'));
       final purattasiGrid = controller.getMonthGridDays();
       final purattasiDay1 = purattasiGrid.firstWhere((d) => d != null && d.tamilDay == 1);
-      expect(purattasiDay1!.date, equals(DateTime(2026, 9, 17)));
+      expect(purattasiDay1!.date, equals(DateTime(2026, 9, 18)));
+      expect(purattasiDay1.tamilDay, equals(1));
+      expect(purattasiDay1.weekdayTa, equals('வெள்ளி'));
 
       // Previous Month -> back to Aavani
       controller.previousMonth();
@@ -100,7 +103,7 @@ void main() {
         'ஆனி': DateTime(2026, 6, 16),
         'ஆடி': DateTime(2026, 7, 17),
         'ஆவணி': DateTime(2026, 8, 17),
-        'புரட்டாசி': DateTime(2026, 9, 17),
+        'புரட்டாசி': DateTime(2026, 9, 18),
         'ஐப்பசி': DateTime(2026, 10, 18),
         'கார்த்திகை': DateTime(2026, 11, 17),
         'மார்கழி': DateTime(2026, 12, 16),
@@ -123,6 +126,31 @@ void main() {
         expect(prevDay.tamilMonth, isNot(equals(monthName)));
         expect(prevDay.tamilDay, greaterThanOrEqualTo(29));
       });
+
+      // Explicit verification:
+      // September 17, 2026 = Aavani 32 (ஆவணி 32)
+      final sep17 = provider.calculateSync(date: DateTime(2026, 9, 17), location: location);
+      expect(sep17.tamilMonth, equals('ஆவணி'));
+      expect(sep17.tamilDay, equals(32));
+      expect(sep17.weekdayTa, equals('வியாழன்'));
+
+      // September 18, 2026 = Purattasi 1 (புரட்டாசி 1)
+      final sep18 = provider.calculateSync(date: DateTime(2026, 9, 18), location: location);
+      expect(sep18.tamilMonth, equals('புரட்டாசி'));
+      expect(sep18.tamilDay, equals(1));
+      expect(sep18.weekdayTa, equals('வெள்ளி'));
+
+      // September 19, 2026 = Purattasi 2 (புரட்டாசி 2 - User's exact issue fixed!)
+      final sep19 = provider.calculateSync(date: DateTime(2026, 9, 19), location: location);
+      expect(sep19.tamilMonth, equals('புரட்டாசி'));
+      expect(sep19.tamilDay, equals(2));
+      expect(sep19.weekdayTa, equals('சனி'));
+
+      // September 20, 2026 = Purattasi 3 (புரட்டாசி 3)
+      final sep20 = provider.calculateSync(date: DateTime(2026, 9, 20), location: location);
+      expect(sep20.tamilMonth, equals('புரட்டாசி'));
+      expect(sep20.tamilDay, equals(3));
+      expect(sep20.weekdayTa, equals('ஞாயிறு'));
     });
 
     test('4. Existing Panchanga Details & Festivals remain intact', () {
@@ -133,6 +161,55 @@ void main() {
       expect(aug15.nakshatra.isNotEmpty, isTrue);
       expect(aug15.governmentHoliday, isNotNull);
       expect(aug15.governmentHoliday!.nameTa, contains('சுதந்திர தினம்'));
+    });
+
+    test('5. Gregorian Month Mode: Exactly aligns with 2026 Tamil Wall Calendar (Image 1)', () {
+      final gregController = TamilCalendarController(
+        initialLocation: location,
+        initialDate: DateTime(2026, 8, 1), // August 2026
+      );
+      gregController.setDisplayMode(CalendarDisplayMode.gregorianMonth);
+
+      expect(gregController.focusedGregorianMonthNameTa, equals('ஆகஸ்ட்'));
+      expect(gregController.focusedGregorianYear, equals(2026));
+
+      final augGrid = gregController.getMonthGridDays();
+
+      // Aug 1, 2026 is Saturday (Index 6 in Sunday-first ஞா..ச)
+      // Leading cells 0..5 are null
+      for (int i = 0; i < 6; i++) {
+        expect(augGrid[i], isNull);
+      }
+      // Cell 6 is Aug 1 (Aadi 16)
+      expect(augGrid[6], isNotNull);
+      expect(augGrid[6]!.date, equals(DateTime(2026, 8, 1)));
+      expect(augGrid[6]!.tamilMonth, equals('ஆடி'));
+      expect(augGrid[6]!.tamilDay, equals(16));
+
+      // Aug 17 is Monday (Cell 6 + 16 = 22, column 1)
+      final aug17 = augGrid.firstWhere((d) => d != null && d.date == DateTime(2026, 8, 17));
+      expect(aug17, isNotNull);
+      expect(aug17!.tamilMonth, equals('ஆவணி'));
+      expect(aug17.tamilDay, equals(1));
+      expect(aug17.weekdayTa, equals('திங்கள்'));
+
+      // Test Jan 2026 (Thai Pongal on Jan 15)
+      gregController.selectDate(DateTime(2026, 1, 1));
+      final janGrid = gregController.getMonthGridDays();
+
+      // Jan 1, 2026 is Thursday (Index 4 in Sunday-first ஞா..ச)
+      for (int i = 0; i < 4; i++) {
+        expect(janGrid[i], isNull);
+      }
+      expect(janGrid[4]!.date, equals(DateTime(2026, 1, 1)));
+      expect(janGrid[4]!.tamilMonth, equals('மார்கழி'));
+      expect(janGrid[4]!.tamilDay, equals(17));
+
+      // Jan 15 is Thai 1 (Thursday, Pongal)
+      final jan15 = janGrid.firstWhere((d) => d != null && d.date == DateTime(2026, 1, 15));
+      expect(jan15!.tamilMonth, equals('தை'));
+      expect(jan15.tamilDay, equals(1));
+      expect(jan15.weekdayTa, equals('வியாழன்'));
     });
   });
 }

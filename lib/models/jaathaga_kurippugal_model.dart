@@ -52,6 +52,10 @@ class JaathagaKurippugalResult {
   final String nendhiram;
   final String jeevan;
 
+  // Tamil Year & Ayana
+  final String tamilYearName;
+  final String ayanaKalam;
+
   const JaathagaKurippugalResult({
     required this.personName,
     required this.gender,
@@ -91,5 +95,7 @@ class JaathagaKurippugalResult {
     required this.akas,
     required this.nendhiram,
     required this.jeevan,
+    required this.tamilYearName,
+    required this.ayanaKalam,
   });
 }

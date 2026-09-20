@@ -226,4 +226,27 @@ class SwissEphemerisCalculator {
 
     return normalizeDegrees(geoLon * 180.0 / pi - ayanamsa);
   }
+
+  /// High-speed calculation of Sidereal Sun and Moon longitudes with Delta T correction
+  static ({double sun, double moon, double ayanamsa}) calculateSunMoonSidereal(
+    DateTime localDateTime, {
+    double utcOffsetHours = 5.5,
+  }) {
+    final jdUtc = getJulianDay(localDateTime, utcOffsetHours: utcOffsetHours);
+    // Delta T (TT - UT) in days (polynomial approximation ~69.3s for 2026)
+    final year = localDateTime.year;
+    final tYears = year - 2000.0;
+    final deltaTSecs = 64.0 + 0.5 * tYears;
+    final jdTt = jdUtc + (deltaTSecs / 86400.0);
+
+    final aya = calculateLahiriAyanamsa(jdUtc);
+    final earth = pp.Planet(pp.planetEarth);
+    final sunEcl = solar.apparentVSOP87(earth, jdTt);
+    final sunSid = normalizeDegrees(sunEcl.lon * 180.0 / pi - aya);
+
+    final moonPos = mp.position(jdTt);
+    final moonSid = normalizeDegrees(moonPos.lon * 180.0 / pi - aya);
+
+    return (sun: sunSid, moon: moonSid, ayanamsa: aya);
+  }
 }

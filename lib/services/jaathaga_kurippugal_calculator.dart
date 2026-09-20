@@ -313,6 +313,16 @@ class JaathagaKurippugalCalculator {
     "ஞாயிறு",
   ];
 
+  /// 60 Tamil Year cycle names (பிரபவ முதல் அட்சய வரை)
+  static const List<String> tamilYearsTa = [
+    "பிரபவ", "விபவ", "சுக்ல", "பிரமோதூத", "பிரஜோற்பத்தி", "ஆங்கீரச", "ஸ்ரீமுக", "பவ", "யுவ", "தாது",
+    "ஈஸ்வர", "வெகுதானிய", "பிரமாதி", "விக்ரம", "விஷு", "சித்ரபானு", "சுபானு", "தாரண", "பார்த்திப", "விய",
+    "சர்வசித்து", "சர்வதாரி", "விரோதி", "விக்ருதி", "கர", "நந்தன", "விஜய", "ஜய", "மன்மத", "துன்முகி",
+    "ஹேவிளம்பி", "விளம்பி", "விகாரி", "சார்வரி", "பிலவ", "சுபகிருது", "சோபகிருது", "குரோதி", "விஸ்வாசுவசு", "பராபவ",
+    "பிலவங்க", "கீலக", "சௌமிய", "சாதாரண", "விரோதகிருது", "பரிதாபி", "பிரமாதீச", "ஆனந்த", "ராட்சச", "நள",
+    "பிங்கள", "காளயுக்தி", "சித்தார்த்தி", "ரௌத்திரி", "துன்மதி", "துந்துபி", "ருத்ரோத்காரி", "ரக்தாட்சி", "குரோதன", "அட்சய"
+  ];
+
   static const List<String> avaYogiLords = [
     "கேது",
     "சுக்கிரன்",
@@ -387,17 +397,35 @@ class JaathagaKurippugalCalculator {
     // Amirthathi Yoga
     final amirthathiStr = _calculateAmirthathiYoga(dt.weekday, moon.nakshatraIndex);
 
-    // Mukkuna Velai (extracted for future client-approved modifications)
-    final mukkunaStr = _calculateMukkunaVelai(dt);
+    // Mukkuna Velai (ஜாதக அலங்காரம் - முக்குண வேளை முறை)
+    final mukkunaStr = calculateMukkunaVelai(
+      birthDateTime: dt,
+      sunrise: astroData.sunrise,
+    );
 
     // Dynamic Sunrise/Sunset from Central Engine
     final sunriseFormatted = DateFormat('hh:mm a').format(astroData.sunrise);
     final sunsetFormatted = DateFormat('hh:mm a').format(astroData.sunset);
 
-    // Akas, Nendhiram, Jeevan
+    // Tamil Year Name (60-year Jovian cycle)
+    final bool isBeforeTamilNewYear = (dt.month < 4 || (dt.month == 4 && dt.day < 14));
+    final int tamilYearNum = isBeforeTamilNewYear ? dt.year - 1 : dt.year;
+    final int jovianIdx = ((tamilYearNum - 1987) % 60 + 60) % 60;
+    final String tamilYearName = "${tamilYearsTa[jovianIdx]} வருடம்";
+
+    // Ayana Kalam (Sun's Sidereal Longitude: Kadagam to Dhanusu is Dakshinayana, Makaram to Mithunam is Uttarayana)
+    final double sunLong = (astroData.sun.longitude % 360.0 + 360.0) % 360.0;
+    final String ayanaKalam = (sunLong >= 90.0 && sunLong < 270.0)
+        ? "தட்சிணாயன காலம் (Dakshinayana)"
+        : "உத்தராயண காலம் (Uttarayana)";
+
+    // Authentic Nendhiram & Jeevan based on Sun Nakshatra -> Moon Nakshatra count
+    final nendhiramJeevan = calculateNendhiramJeevan(astroData.sun.nakshatraIndex, moon.nakshatraIndex);
+    final nendhiramStr = nendhiramJeevan['nendhiram']!;
+    final jeevanStr = nendhiramJeevan['jeevan']!;
+
+    // Akas
     final akasStr = "30 நாழிகை 0 வினாடி";
-    final nendhiramStr = "2 நேந்திரம் (சாதகம்)";
-    final jeevanStr = "1 ஜீவன் (முழு பலன்)";
 
     return JaathagaKurippugalResult(
       personName: name,
@@ -438,7 +466,59 @@ class JaathagaKurippugalCalculator {
       akas: akasStr,
       nendhiram: nendhiramStr,
       jeevan: jeevanStr,
+      tamilYearName: tamilYearName,
+      ayanaKalam: ayanaKalam,
     );
+  }
+
+  /// Authentic Tamil Panchangam Netram & Jeevan calculation
+  /// Count k = 1..27 from Sun Nakshatra to Moon Nakshatra
+  static Map<String, String> calculateNendhiramJeevan(int sunNakIdx, int moonNakIdx) {
+    final k = ((moonNakIdx - sunNakIdx) % 27 + 27) % 27 + 1; // 1 to 27
+    int nVal;
+    double jVal;
+    String nDesc;
+    String jDesc;
+
+    if (k == 1 || k == 2 || k == 3 || k == 27) {
+      nVal = 0; jVal = 0.0;
+      nDesc = "சுபம் இல்லை (குருட்டு நாள்)";
+      jDesc = "ஜீவன் அற்ற நாள்";
+    } else if (k == 4 || k == 25 || k == 26) {
+      nVal = 0; jVal = 0.5;
+      nDesc = "சுபம் இல்லை (குருட்டு நாள்)";
+      jDesc = "அரை ஜீவன் (மத்திமம்)";
+    } else if ((k >= 5 && k <= 8) || (k >= 21 && k <= 24)) {
+      nVal = 1; jVal = 0.5;
+      nDesc = "மத்திமம்";
+      jDesc = "அரை ஜீவன் (மத்திமம்)";
+    } else if (k == 9) {
+      nVal = 2; jVal = 0.5;
+      nDesc = "முழு சுபம்";
+      jDesc = "அரை ஜீவன் (மத்திமம்)";
+    } else if (k == 10) {
+      nVal = 2; jVal = 0.0;
+      nDesc = "முழு சுபம்";
+      jDesc = "ஜீவன் அற்ற நாள்";
+    } else if (k >= 11 && k <= 19) {
+      nVal = 2; jVal = 1.0;
+      nDesc = "முழு சுபம்";
+      jDesc = "சுப பலன்";
+    } else if (k == 20) {
+      nVal = 2; jVal = 0.5;
+      nDesc = "முழு சுபம்";
+      jDesc = "அரை ஜீவன் (மத்திமம்)";
+    } else {
+      nVal = 1; jVal = 0.5;
+      nDesc = "மத்திமம்";
+      jDesc = "அரை ஜீவன் (மத்திமம்)";
+    }
+
+    final jStr = jVal == 0.0 ? "0" : (jVal == 0.5 ? "½" : "1");
+    return {
+      'nendhiram': '$nVal நேந்திரம் ($nDesc)',
+      'jeevan': '$jStr ஜீவன் ($jDesc)',
+    };
   }
 
   static String _calculateAmirthathiYoga(int weekday, int nakshatraIndex) {
@@ -448,20 +528,62 @@ class JaathagaKurippugalCalculator {
     return "மரண யோகம் (கவனம் தேவை)";
   }
 
-  /// Mukkuna Velai Calculation
-  /// TODO: Client has requested changes to this section but exact requirements are pending.
-  /// Current implementation uses basic time-of-day classification:
-  ///   6 AM–12 PM → சாத்வீகம் (Sattvic)
-  ///   12 PM–6 PM → ராஜஸம் (Rajasic)
-  ///   6 PM–6 AM  → தாமஸம் (Tamasic)
-  /// The architecture is ready for rule updates without affecting other modules.
-  static String _calculateMukkunaVelai(DateTime dt) {
-    if (dt.hour >= 6 && dt.hour < 12) {
-      return "சாத்வீகம்";
-    } else if (dt.hour >= 12 && dt.hour < 18) {
-      return "ராஜஸம்";
-    } else {
-      return "தாமஸம்";
+  /// Mukkuna Velai Calculation (ஜாதக அலங்காரம் - முக்குண வேளை கணிதம்)
+  /// Each Mukkuna Velai is 3.75 Nazhigai (மூன்றே முக்கால் நாழிகை = 90 minutes).
+  /// A full 24-hour day (60 Nazhigai) contains 16 Velais (8 Day, 8 Night).
+  /// The starting Guna at Sunrise depends on the Weekday:
+  ///   - Monday & Thursday (சாத்வீக நாட்கள்): Starts with சாத்வீகம்
+  ///   - Tuesday & Friday (ராஜச நாட்கள்): Starts with ராஜசம்
+  ///   - Sunday, Wednesday, Saturday (தாமச நாட்கள்): Starts with தாமசம்
+  /// The Gunas cycle continuously: சாத்வீகம் -> ராஜசம் -> தாமசம் -> சாத்வீகம்...
+  static String calculateMukkunaVelai({
+    required DateTime birthDateTime,
+    required DateTime sunrise,
+  }) {
+    DateTime effectiveSunrise = DateTime(
+      birthDateTime.year,
+      birthDateTime.month,
+      birthDateTime.day,
+      sunrise.hour,
+      sunrise.minute,
+      sunrise.second,
+    );
+    int astrologicalWeekday = birthDateTime.weekday; // 1=Mon .. 7=Sun
+
+    // If born before sunrise, the Vedic astrological day is the previous weekday
+    if (birthDateTime.isBefore(effectiveSunrise)) {
+      effectiveSunrise = effectiveSunrise.subtract(const Duration(days: 1));
+      astrologicalWeekday = (birthDateTime.weekday - 2 + 7) % 7 + 1;
     }
+
+    final diffMins = birthDateTime.difference(effectiveSunrise).inMinutes;
+    // Each Mukkuna Velai is 3.75 Nazhigai = 90 minutes
+    final periodIndex = (diffMins / 90.0).floor().clamp(0, 15);
+
+    // Starting Guna by astrological weekday:
+    // Monday (1), Thursday (4) -> Starts with சாத்வீகம் (0)
+    // Tuesday (2), Friday (5) -> Starts with ராஜசம் (1)
+    // Sunday (7), Wednesday (3), Saturday (6) -> Starts with தாமசம் (2)
+    int startGuna;
+    switch (astrologicalWeekday) {
+      case 1: // Monday
+      case 4: // Thursday
+        startGuna = 0; // சாத்வீகம்
+        break;
+      case 2: // Tuesday
+      case 5: // Friday
+        startGuna = 1; // ராஜசம்
+        break;
+      case 3: // Wednesday
+      case 6: // Saturday
+      case 7: // Sunday
+      default:
+        startGuna = 2; // தாமசம்
+        break;
+    }
+
+    const gunas = ['சாத்வீகம்', 'ராஜசம்', 'தாமசம்'];
+    final currentGunaIndex = (startGuna + periodIndex) % 3;
+    return gunas[currentGunaIndex];
   }
 }

@@ -373,6 +373,35 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pushNamed('/jamakkol_prasannam'),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardSurface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.6)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.explore_rounded, color: AppColors.lightGold, size: 28),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('ஜாமக்கோள் பிரசன்னம் (Jamakkol Prasannam)', style: GoogleFonts.cinzel(fontSize: 13.5, fontWeight: FontWeight.bold, color: Colors.white)),
+                              Text('உதயம், ஆருடம், கவிப்பு, ஜாம கிரகங்கள் & சக்கரம்', style: GoogleFonts.outfit(fontSize: 10.5, color: AppColors.textSecondary)),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.lightGold, size: 16),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

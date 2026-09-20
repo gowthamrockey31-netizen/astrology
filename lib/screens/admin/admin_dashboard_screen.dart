@@ -525,6 +525,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   icon: Icons.public_rounded,
                   onTap: () => widget.onNavigate('/mundane_astrology'),
                 ),
+                _buildCmsTile(
+                  title: 'ஜாமக்கோள் பிரசன்னம் (Jamakkol Prasannam)',
+                  subtitle: 'உதயம், ஆருடம், கவிப்பு, ஜாம கிரகங்கள் & சக்கரம்',
+                  icon: Icons.explore_rounded,
+                  onTap: () => widget.onNavigate('/jamakkol_prasannam'),
+                ),
 
                 const SizedBox(height: 24),
 

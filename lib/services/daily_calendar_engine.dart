@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import '../models/daily_calendar_models.dart';
 import 'astrology_calculator.dart';
+import 'swiss_ephemeris_calculator.dart';
 import 'tithi_calculator.dart';
 
 /// Comprehensive Calculation Engine for Daily Calendar (தினசரி நாள்காட்டி)
@@ -29,29 +30,38 @@ class DailyCalendarEngine {
     4: {'morning': 'காலை 09:30 AM - 10:30 AM', 'evening': 'மாலை 06:30 PM - 07:30 PM'},
     5: {'morning': 'காலை 09:30 AM - 10:30 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'},
     6: {'morning': 'காலை 07:30 AM - 08:30 AM', 'evening': 'மாலை 05:00 PM - 06:00 PM'},
-    7: {'morning': 'காலை 07:30 AM - 08:30 AM', 'evening': 'மாலை 03:30 PM - 04:30 PM'},
+    7: {'morning': 'காலை 07:30 AM - 08:30 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'},
   };
 
   /// Gowri order for Day by weekday (1=Mon ... 7=Sun)
+  /// Authentic sequence: உத்தி -> அமிர்தம் -> ரோகம் -> லாபம் -> தனம் -> விஷம் -> சோரம் -> சுகம்
   static const Map<int, List<String>> gowriDayOrder = {
-    1: ['அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சுகம்', 'சோரம்', 'உத்தி'],
-    2: ['ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சுகம்', 'சோரம்', 'உத்தி', 'அமிர்தம்'],
-    3: ['லாபம்', 'தனம்', 'விஷம்', 'சுகம்', 'சோரம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்'],
-    4: ['தனம்', 'விஷம்', 'சுகம்', 'சோரம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்'],
-    5: ['விஷம்', 'சுகம்', 'சோரம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்'],
-    6: ['சுகம்', 'சோரம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்'],
-    7: ['உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சுகம்', 'சோரம்'],
+    1: ['அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சோரம்', 'சுகம்', 'உத்தி'],
+    2: ['ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சோரம்', 'சுகம்', 'உத்தி', 'அமிர்தம்'],
+    3: ['லாபம்', 'தனம்', 'விஷம்', 'சோரம்', 'சுகம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்'],
+    4: ['தனம்', 'விஷம்', 'சோரம்', 'சுகம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்'],
+    5: ['விஷம்', 'சோரம்', 'சுகம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்'],
+    6: ['சோரம்', 'சுகம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்'],
+    7: ['உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சோரம்', 'சுகம்'],
   };
 
   /// Gowri order for Night by weekday (1=Mon ... 7=Sun)
+  /// Authentic sequence from Tamil Panchangam (Page 151):
+  /// திங்கள்: சோரம், உத்தி, விஷம், ரோகம், தனம், சுகம், லாபம், அமிர்தம்
+  /// செவ்வாய்: சுகம், லாபம், அமிர்தம், விஷம், ரோகம், சோரம், உத்தி, தனம்
+  /// புதன்: விஷம், ரோகம், சோரம், உத்தி, தனம், சுகம், லாபம், அமிர்தம்
+  /// வியாழன்: லாபம், அமிர்தம், விஷம், ரோகம், சோரம், உத்தி, தனம், சுகம்
+  /// வெள்ளி: ரோகம், சோரம், உத்தி, தனம், சுகம், லாபம், அமிர்தம், விஷம்
+  /// சனி: அமிர்தம், விஷம், ரோகம், சோரம், உத்தி, தனம், சுகம், லாபம்
+  /// ஞாயிறு: தனம், சுகம், லாபம், அமிர்தம், விஷம், ரோகம், சோரம், உத்தி
   static const Map<int, List<String>> gowriNightOrder = {
-    1: ['சுகம்', 'சோரம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்'],
-    2: ['உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சுகம்', 'சோரம்'],
-    3: ['அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சுகம்', 'சோரம்', 'உத்தி'],
-    4: ['ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சுகம்', 'சோரம்', 'உத்தி', 'அமிர்தம்'],
-    5: ['லாபம்', 'தனம்', 'விஷம்', 'சுகம்', 'சோரம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்'],
-    6: ['தனம்', 'விஷம்', 'சுகம்', 'சோரம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்'],
-    7: ['விஷம்', 'சுகம்', 'சோரம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்'],
+    1: ['சோரம்', 'உத்தி', 'விஷம்', 'ரோகம்', 'தனம்', 'சுகம்', 'லாபம்', 'அமிர்தம்'],
+    2: ['சுகம்', 'லாபம்', 'அமிர்தம்', 'விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி', 'தனம்'],
+    3: ['விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி', 'தனம்', 'சுகம்', 'லாபம்', 'அமிர்தம்'],
+    4: ['லாபம்', 'அமிர்தம்', 'விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி', 'தனம்', 'சுகம்'],
+    5: ['ரோகம்', 'சோரம்', 'உத்தி', 'தனம்', 'சுகம்', 'லாபம்', 'அமிர்தம்', 'விஷம்'],
+    6: ['அமிர்தம்', 'விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி', 'தனம்', 'சுகம்', 'லாபம்'],
+    7: ['தனம்', 'சுகம்', 'லாபம்', 'அமிர்தம்', 'விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி'],
   };
 
   /// Calculate all Daily Calendar details for a given date and location
@@ -61,23 +71,26 @@ class DailyCalendarEngine {
     double longitude = 80.2707,
     double utcOffsetHours = 5.5,
   }) {
-    // 1. Calculate authoritative ephemeris and sunrise/sunset
+    // 1. Calculate authoritative ephemeris and sunrise/sunset (NOAA EoT + 50' refraction)
     final sunTimes = AstrologyCalculator.calculateSunriseSunset(targetDate, latitude, longitude, utcOffsetHours);
     final sunrise = sunTimes['sunrise']!;
     final sunset = sunTimes['sunset']!;
 
-    // Use midday for stable day-level transit evaluation
-    final targetMidday = DateTime(targetDate.year, targetDate.month, targetDate.day, 12, 0);
+    // In Vedic Panchangam, the day's prevailing elements are evaluated at Sunrise
+    final smSunrise = SwissEphemerisCalculator.calculateSunMoonSidereal(
+      sunrise,
+      utcOffsetHours: utcOffsetHours,
+    );
+    final sunLongSunrise = smSunrise.sun;
+    final moonLongSunrise = smSunrise.moon;
 
     final astroData = AstrologyCalculator.calculateHoroscope(
-      dateOfBirth: targetMidday,
+      dateOfBirth: sunrise,
       latitude: latitude,
       longitude: longitude,
       utcOffsetHours: utcOffsetHours,
     );
 
-    final sun = astroData.sun;
-    final moon = astroData.moon;
     final weekdayIdx = targetDate.weekday; // 1=Mon .. 7=Sun
     final weekdayTa = weekdaysTa[weekdayIdx - 1];
     final weekdayEn = DateFormat('EEEE').format(targetDate);
@@ -88,36 +101,55 @@ class DailyCalendarEngine {
     final tamilDay = astroData.tamilDay;
     final tamilDateFormatted = astroData.tamilDateFormatted;
 
-    // 3. Tithi & Paksha
-    final tithi = astroData.tithi;
-    final pakshaTa = tithi.isShuklaPaksha ? 'வளர்பிறை (சுக்ல பக்ஷம்)' : 'தேய்பிறை (கிருஷ்ண பக்ஷம்)';
+    // 3. Tithi & Paksha at Sunrise
+    final elongSunrise = (moonLongSunrise - sunLongSunrise + 360.0) % 360.0;
+    final tithiIdx = (elongSunrise / 12.0).floor() % 30;
+    final tithiName = TithiCalculator.tithiNamesTa[tithiIdx];
+    final isShukla = tithiIdx < 15;
+    final pakshaTa = isShukla ? 'வளர்பிறை (சுக்ல பக்ஷம்)' : 'தேய்பிறை (கிருஷ்ண பக்ஷம்)';
+    final tithiFullName = (tithiIdx == 14 || tithiIdx == 29)
+        ? tithiName
+        : '${isShukla ? "சுக்ல பக்ஷம்" : "கிருஷ்ண பக்ஷம்"} $tithiName';
 
-    // 4. Nakshatra, Pada, Star Lord
+    // 4. Nakshatra, Pada, Star Lord at Sunrise
     const double nakSpan = 360.0 / 27.0;
     const double padaSpan = nakSpan / 4.0;
-    final int nakIdx = (moon.longitude / nakSpan).floor() % 27;
-    final double nakOffset = moon.longitude - (nakIdx * nakSpan);
+    final int nakIdx = (moonLongSunrise / nakSpan).floor() % 27;
+    final double nakOffset = (moonLongSunrise - (nakIdx * nakSpan) + 360.0) % 360.0;
     final int pada = ((nakOffset / padaSpan).floor()).clamp(0, 3) + 1;
     final String nakTa = AstrologyCalculator.nakshatrasTa[nakIdx];
-    final String starLordTa = moon.tamilStarLord;
+    final String starLordTa = AstrologyCalculator.planetLordsTa[nakIdx % 9];
 
-    // 5. Nokku Naal
+    // 5. Nama Yoga at Sunrise
+    final double yogaSumSunrise = (sunLongSunrise + moonLongSunrise) % 360.0;
+    final int yogaIdx = (yogaSumSunrise / nakSpan).floor() % 27;
+    final String yogaNameTa = AstrologyCalculator.yogaNamesTa[yogaIdx];
+
+    // 6. Karana at Sunrise
+    final int karanaNum = (elongSunrise / 6.0).floor() % 60;
+    final String karanaNameTa = _getKaranaNameTa(karanaNum);
+
+    // 7. Nokku Naal
     final nokkuNaalTa = _calculateNokkuNaal(nakIdx);
 
-    // 6. Amirthathi Yoga
+    // 8. Amirthathi Yoga
     final rem = (weekdayIdx + nakIdx) % 3;
     String amirthathiYogaTa;
-    if (rem == 0) amirthathiYogaTa = "அமிர்த யோகம் (மிக சுபம்)";
-    else if (rem == 1) amirthathiYogaTa = "சித்த யோகம் (சுபம்)";
-    else amirthathiYogaTa = "மரண யோகம் (கவனம் தேவை)";
+    if (rem == 0) {
+      amirthathiYogaTa = "அமிர்த யோகம் (மிக சுபம்)";
+    } else if (rem == 1) {
+      amirthathiYogaTa = "சித்த யோகம் (சுபம்)";
+    } else {
+      amirthathiYogaTa = "மரண யோகம் (கவனம் தேவை)";
+    }
 
-    // 7. Good Times & Gowri Periods
+    // 9. Good Times & Gowri Periods
     final nallaNeram = nallaNeramByWeekday[weekdayIdx] ?? {'morning': '07:30 AM - 08:30 AM', 'evening': '04:30 PM - 05:30 PM'};
     final dayGowri = _calculateGowriPeriods(sunrise, sunset, gowriDayOrder[weekdayIdx]!);
     final nextDaySunrise = sunrise.add(const Duration(days: 1));
     final nightGowri = _calculateGowriPeriods(sunset, nextDaySunrise, gowriNightOrder[weekdayIdx]!);
 
-    // 8. Dynamic Daytime Inauspicious & Muhurtha Windows
+    // 10. Dynamic Daytime Inauspicious & Muhurtha Windows
     final dayMinutes = sunset.difference(sunrise).inMinutes;
     final partMinutes = dayMinutes / 8.0;
 
@@ -131,38 +163,189 @@ class DailyCalendarEngine {
     final abhijitEnd = abhijitStart.add(Duration(minutes: muhurthaLenMins.round()));
     final abhijitMuhurtham = '${DateFormat('hh:mm a').format(abhijitStart)} - ${DateFormat('hh:mm a').format(abhijitEnd)}';
 
-    // 9. Chandrashtama
-    final moonRasiIdx = moon.rasiIndex; // 0..11
+    // 11. Chandrashtama
+    final moonRasiIdx = (moonLongSunrise / 30.0).floor() % 12;
     final chandraRasiIdx = (moonRasiIdx - 7 + 12) % 12; // Sign experiencing Chandrashtama
     final chandrashtamaRasiTa = '${AstrologyCalculator.rasiNamesTa[chandraRasiIdx]} (${AstrologyCalculator.rasiNamesEn[chandraRasiIdx]})';
     final chandrashtamaNaks = _getNakshatrasForRasi(chandraRasiIdx);
 
-    // 10. Nendhiram & Jeevan
-    final nendhiramJeevan = _calculateNendhiramJeevan(nakIdx);
+    // 12. Nendhiram & Jeevan (Authentic Sun Nakshatra -> Moon Nakshatra count)
+    final int sunNakIdx = (sunLongSunrise / nakSpan).floor() % 27;
+    final nendhiramJeevan = _calculateNendhiramJeevan(sunNakIdx, nakIdx);
 
-    // 11. Soolam & Pariharam
+    // 13. Soolam & Pariharam
     final soolamInfo = soolamByWeekday[weekdayIdx] ?? {'direction': 'வடக்கு', 'pariharam': 'பால்'};
 
-    // 12. Transitions for Tithi, Nakshatra, Yoga, Karana across the day
-    final tithiTrans = _calculateTithiTransition(
-      targetDate: targetDate,
-      referenceTime: sunrise,
+    // 14. Exact boundary bisection transitions for Tithi, Nakshatra, Yoga, Karana
+    final tithiEnd = _findNextBoundaryCrossing(
+      startTime: sunrise,
+      getAngle: (t) {
+        final sm = SwissEphemerisCalculator.calculateSunMoonSidereal(t, utcOffsetHours: utcOffsetHours);
+        return (sm.moon - sm.sun + 360.0) % 360.0;
+      },
+      currentIdx: tithiIdx,
+      span: 12.0,
       utcOffsetHours: utcOffsetHours,
-      latitude: latitude,
-      longitude: longitude,
     );
-    final nakTrans = _calculateNakshatraTransition(targetDate, moon.longitude);
-    final yogaTrans = _calculateYogaTransition(targetDate, sun.longitude, moon.longitude);
-    final karanaTrans = _calculateKaranaTransition(targetDate, sun.longitude, moon.longitude);
+    final prevTithi = TithiCalculator.tithiNamesTa[(tithiIdx - 1 + 30) % 30];
+    final nextTithi = TithiCalculator.tithiNamesTa[(tithiIdx + 1) % 30];
+    final tithiTrans = PanchangamTransition(
+      currentName: tithiFullName,
+      currentTiming: _formatTransitionTime(targetDate, tithiEnd),
+      previousName: prevTithi,
+      previousTiming: 'முந்தைய திதி',
+      nextName: nextTithi,
+      nextTiming: _formatTransitionStart(targetDate, tithiEnd),
+    );
 
-    // 13. Transits for 9 planets
+    final nakEnd = _findNextBoundaryCrossing(
+      startTime: sunrise,
+      getAngle: (t) => SwissEphemerisCalculator.calculateSunMoonSidereal(t, utcOffsetHours: utcOffsetHours).moon,
+      currentIdx: nakIdx,
+      span: nakSpan,
+      utcOffsetHours: utcOffsetHours,
+    );
+    final prevNak = AstrologyCalculator.nakshatrasTa[(nakIdx - 1 + 27) % 27];
+    final nextNak = AstrologyCalculator.nakshatrasTa[(nakIdx + 1) % 27];
+    final nakTrans = PanchangamTransition(
+      currentName: nakTa,
+      currentTiming: _formatTransitionTime(targetDate, nakEnd),
+      previousName: prevNak,
+      previousTiming: 'முந்தைய நட்சத்திரம்',
+      nextName: nextNak,
+      nextTiming: _formatTransitionStart(targetDate, nakEnd),
+    );
+
+    final yogaEnd = _findNextBoundaryCrossing(
+      startTime: sunrise,
+      getAngle: (t) {
+        final sm = SwissEphemerisCalculator.calculateSunMoonSidereal(t, utcOffsetHours: utcOffsetHours);
+        return (sm.sun + sm.moon) % 360.0;
+      },
+      currentIdx: yogaIdx,
+      span: nakSpan,
+      utcOffsetHours: utcOffsetHours,
+    );
+    final prevYoga = AstrologyCalculator.yogaNamesTa[(yogaIdx - 1 + 27) % 27];
+    final nextYoga = AstrologyCalculator.yogaNamesTa[(yogaIdx + 1) % 27];
+    final yogaTrans = PanchangamTransition(
+      currentName: yogaNameTa,
+      currentTiming: _formatTransitionTime(targetDate, yogaEnd),
+      previousName: prevYoga,
+      previousTiming: 'முந்தைய யோகம்',
+      nextName: nextYoga,
+      nextTiming: _formatTransitionStart(targetDate, yogaEnd),
+    );
+
+    final karanaEnd1 = _findNextBoundaryCrossing(
+      startTime: sunrise,
+      getAngle: (t) {
+        final sm = SwissEphemerisCalculator.calculateSunMoonSidereal(t, utcOffsetHours: utcOffsetHours);
+        return (sm.moon - sm.sun + 360.0) % 360.0;
+      },
+      currentIdx: karanaNum,
+      span: 6.0,
+      utcOffsetHours: utcOffsetHours,
+    );
+    final prevKarana = _getKaranaNameTa((karanaNum - 1 + 60) % 60);
+
+    // Look ahead to the subsequent karana (since karanas span 6° / ~12 hours)
+    final nextKaranaNum = (karanaNum + 1) % 60;
+    final nextKaranaName = _getKaranaNameTa(nextKaranaNum);
+    final karanaEnd2 = _findNextBoundaryCrossing(
+      startTime: karanaEnd1.add(const Duration(minutes: 2)),
+      getAngle: (t) {
+        final sm = SwissEphemerisCalculator.calculateSunMoonSidereal(t, utcOffsetHours: utcOffsetHours);
+        return (sm.moon - sm.sun + 360.0) % 360.0;
+      },
+      currentIdx: nextKaranaNum,
+      span: 6.0,
+      utcOffsetHours: utcOffsetHours,
+    );
+
+    String nextKaranaDisplay;
+    if (karanaEnd2.isBefore(nextDaySunrise)) {
+      final thirdKaranaName = _getKaranaNameTa((karanaNum + 2) % 60);
+      nextKaranaDisplay = '$nextKaranaName (${_formatShortTime(karanaEnd2)} வரை), மறு $thirdKaranaName';
+    } else {
+      nextKaranaDisplay = nextKaranaName;
+    }
+
+    final karanaTrans = PanchangamTransition(
+      currentName: karanaNameTa,
+      currentTiming: _formatTransitionTime(targetDate, karanaEnd1),
+      previousName: prevKarana,
+      previousTiming: 'முந்தைய கரணம்',
+      nextName: nextKaranaDisplay,
+      nextTiming: _formatTransitionStart(targetDate, karanaEnd1),
+    );
+
+    // 15. Transits for 9 planets
     final transits = _buildPlanetaryTransits(astroData.planets);
 
-    // 14. Pada Saram Notes & Special Events
+    // 16. Pada Saram Notes & Special Events
     final padaSaramNotes = _generatePadaSaramNotes(transits);
-    final specialEvents = _detectSpecialEvents(tithi.tithiNumber, nakIdx, tamilDay, tamilMonth);
+    final specialEvents = _detectSpecialEvents(tithiIdx + 1, nakIdx, tamilDay, tamilMonth);
 
     final timeFormatter = DateFormat('hh:mm a');
+
+    // 15. Transit Lagna (கோச்சார லக்னம் - சூரியன் இருக்கும் ராசியிலிருந்து 2 மணி நேரத்திற்கு ஒரு ராசி மாற்றம்)
+    final int sunRasiIdx = (sunLongSunrise / 30.0).floor() % 12;
+    final nowTime = DateTime.now();
+    final bool isToday = (nowTime.year == targetDate.year && nowTime.month == targetDate.month && nowTime.day == targetDate.day);
+    final DateTime evalTime = isToday ? nowTime : sunrise;
+
+    final List<DailyLagnaPeriod> transitLagnaList = [];
+    int activeLagnaRasi = sunRasiIdx;
+    String activeLagnaStr = '${AstrologyCalculator.rasiNamesTa[sunRasiIdx]} (${AstrologyCalculator.rasiNamesEn[sunRasiIdx]})';
+
+    for (int i = 0; i < 12; i++) {
+      final pStart = sunrise.add(Duration(minutes: i * 120));
+      final pEnd = sunrise.add(Duration(minutes: (i + 1) * 120));
+      final rIdx = (sunRasiIdx + i) % 12;
+      final isCurr = !evalTime.isBefore(pStart) && evalTime.isBefore(pEnd);
+      if (isCurr) {
+        activeLagnaRasi = rIdx;
+        activeLagnaStr = '${AstrologyCalculator.rasiNamesTa[rIdx]} (${AstrologyCalculator.rasiNamesEn[rIdx]})';
+      }
+
+      transitLagnaList.add(DailyLagnaPeriod(
+        rasiIndex: rIdx,
+        rasiNameTa: AstrologyCalculator.rasiNamesTa[rIdx],
+        rasiNameEn: AstrologyCalculator.rasiNamesEn[rIdx],
+        timeRange: '${timeFormatter.format(pStart)} - ${timeFormatter.format(pEnd)}',
+        startTime: pStart,
+        endTime: pEnd,
+        isCurrent: isCurr,
+      ));
+    }
+
+    // Update rawPlanets with the active Transit Lagna point for the chart display
+    final updatedPlanets = Map<String, PlanetDetail>.from(astroData.planets);
+    final lagnaLong = (activeLagnaRasi * 30.0 + 15.0);
+    updatedPlanets['Lagna'] = PlanetDetail(
+      name: 'Lagna',
+      tamilName: 'லக்னம்',
+      symbol: 'Asc',
+      longitude: lagnaLong,
+      rasiIndex: activeLagnaRasi,
+      rasiNameEn: AstrologyCalculator.rasiNamesEn[activeLagnaRasi],
+      rasiNameTa: AstrologyCalculator.rasiNamesTa[activeLagnaRasi],
+      degreeInRasi: 15.0,
+      nakshatraIndex: (lagnaLong / nakSpan).floor() % 27,
+      nakshatraNameEn: AstrologyCalculator.nakshatrasEn[(lagnaLong / nakSpan).floor() % 27],
+      nakshatraNameTa: AstrologyCalculator.nakshatrasTa[(lagnaLong / nakSpan).floor() % 27],
+      pada: 2,
+      starLord: AstrologyCalculator.planetLords[((lagnaLong / nakSpan).floor() % 27) % 9],
+      subLord: '',
+      tamilStarLord: AstrologyCalculator.planetLordsTa[((lagnaLong / nakSpan).floor() % 27) % 9],
+      tamilSubLord: '',
+      navamsaPart: 4,
+      navamsaIndex: activeLagnaRasi,
+      navamsaRasiTa: AstrologyCalculator.rasiNamesTa[activeLagnaRasi],
+      navamsaRasiEn: AstrologyCalculator.rasiNamesEn[activeLagnaRasi],
+      isRetrograde: false,
+    );
 
     return DailyCalendarData(
       date: targetDate,
@@ -183,18 +366,18 @@ class DailyCalendarEngine {
       eveningNallaNeram: nallaNeram['evening']!,
       dayGowriPeriods: dayGowri,
       nightGowriPeriods: nightGowri,
-      tithiNameTa: tithi.tithiNameTa,
-      tithiPakshaTa: tithi.pakshaTa,
-      tithiNumber: tithi.tithiNumber,
+      tithiNameTa: tithiName,
+      tithiPakshaTa: pakshaTa,
+      tithiNumber: tithiIdx + 1,
       tithiTransition: tithiTrans,
       nakshatraNameTa: nakTa,
       nakshatraPada: pada,
       nakshatraLordTa: starLordTa,
       nakshatraTransition: nakTrans,
-      yogaNameTa: astroData.yogaNameTa,
+      yogaNameTa: yogaNameTa,
       yogaTransition: yogaTrans,
       amirthathiYogaTa: amirthathiYogaTa,
-      karanaNameTa: astroData.karanaNameTa,
+      karanaNameTa: karanaNameTa,
       karanaTransition: karanaTrans,
       chandrashtamaRasiTa: chandrashtamaRasiTa,
       chandrashtamaNakshatrasTa: chandrashtamaNaks,
@@ -208,10 +391,12 @@ class DailyCalendarEngine {
       pariharamTa: soolamInfo['pariharam']!,
       udayathiNazhigai: astroData.udayathiNazhiStr,
       nakshatraNazhigai: astroData.nakshatraNazhiStr,
-      rawPlanets: astroData.planets,
+      rawPlanets: updatedPlanets,
       transits: transits,
       padaSaramNotes: padaSaramNotes,
       specialEvents: specialEvents,
+      currentTransitLagna: activeLagnaStr,
+      transitLagnas: transitLagnaList,
     );
   }
 
@@ -239,7 +424,7 @@ class DailyCalendarEngine {
     final formatter = DateFormat('hh:mm a');
     final List<GowriPeriod> list = [];
 
-    const goodNames = ['அமிர்தம்', 'சுகம்', 'லாபம்', 'தனம்'];
+    const goodNames = ['உத்தி', 'அமிர்தம்', 'அமுதம்', 'சுபம்', 'சுகம்', 'லாபம்', 'தனம்'];
 
     for (int i = 0; i < 8; i++) {
       final pStart = start.add(Duration(minutes: (i * sliceMins).round()));
@@ -318,100 +503,53 @@ class DailyCalendarEngine {
     return naks.join(', ');
   }
 
-  static Map<String, String> _calculateNendhiramJeevan(int nakIdx) {
-    // Traditional table: Odd nakshatras have 2 Nendhiram, 1 Jeevan; others standard
-    final int nVal = (nakIdx % 2 == 0) ? 2 : 1;
-    final int jVal = (nakIdx % 3 == 0) ? 1 : 2;
+  static Map<String, String> _calculateNendhiramJeevan(int sunNakIdx, int moonNakIdx) {
+    // Count k = 1..27 from Sun Nakshatra to Moon Nakshatra
+    final k = ((moonNakIdx - sunNakIdx) % 27 + 27) % 27 + 1;
+    int nVal;
+    double jVal;
+    String nDesc;
+    String jDesc;
+
+    if (k == 1 || k == 2 || k == 3 || k == 27) {
+      nVal = 0; jVal = 0.0;
+      nDesc = "சுபம் இல்லை (குருட்டு நாள்)";
+      jDesc = "ஜீவன் அற்ற நாள்";
+    } else if (k == 4 || k == 25 || k == 26) {
+      nVal = 0; jVal = 0.5;
+      nDesc = "சுபம் இல்லை (குருட்டு நாள்)";
+      jDesc = "அரை ஜீவன் (மத்திமம்)";
+    } else if ((k >= 5 && k <= 8) || (k >= 21 && k <= 24)) {
+      nVal = 1; jVal = 0.5;
+      nDesc = "மத்திமம்";
+      jDesc = "அரை ஜீவன் (மத்திமம்)";
+    } else if (k == 9) {
+      nVal = 2; jVal = 0.5;
+      nDesc = "முழு சுபம்";
+      jDesc = "அரை ஜீவன் (மத்திமம்)";
+    } else if (k == 10) {
+      nVal = 2; jVal = 0.0;
+      nDesc = "முழு சுபம்";
+      jDesc = "ஜீவன் அற்ற நாள்";
+    } else if (k >= 11 && k <= 19) {
+      nVal = 2; jVal = 1.0;
+      nDesc = "முழு சுபம்";
+      jDesc = "சுப பலன்";
+    } else if (k == 20) {
+      nVal = 2; jVal = 0.5;
+      nDesc = "முழு சுபம்";
+      jDesc = "அரை ஜீவன் (மத்திமம்)";
+    } else {
+      nVal = 1; jVal = 0.5;
+      nDesc = "மத்திமம்";
+      jDesc = "அரை ஜீவன் (மத்திமம்)";
+    }
+
+    final jStr = jVal == 0.0 ? "0" : (jVal == 0.5 ? "½" : "1");
     return {
-      'nendhiram': '$nVal நேந்திரம் (${nVal >= 2 ? "முழு சுபம்" : "மத்திமம்"})',
-      'jeevan': '$jVal ஜீவன் (${jVal >= 1 ? "சுப பலன்" : "அற்ப பலன்"})',
+      'nendhiram': '$nVal நேந்திரம் ($nDesc)',
+      'jeevan': '$jStr ஜீவன் ($jDesc)',
     };
-  }
-
-  static PanchangamTransition _calculateTithiTransition({
-    required DateTime targetDate,
-    required DateTime referenceTime,
-    double utcOffsetHours = 5.5,
-    double latitude = 13.0827,
-    double longitude = 80.2707,
-  }) {
-    return TithiCalculator.calculatePanchangamTransition(
-      targetDate: targetDate,
-      referenceTime: referenceTime,
-      utcOffsetHours: utcOffsetHours,
-      latitude: latitude,
-      longitude: longitude,
-    );
-  }
-
-  static PanchangamTransition _calculateNakshatraTransition(DateTime dt, double moonLong) {
-    const double span = 360.0 / 27.0;
-    final int curIdx = (moonLong / span).floor() % 27;
-    final int prevIdx = (curIdx - 1 + 27) % 27;
-    final int nextIdx = (curIdx + 1) % 27;
-
-    final double degInNak = moonLong % span;
-    final double remainingDeg = span - degInNak;
-    final double hrsRemaining = (remainingDeg / span) * 24.0;
-
-    final endDt = dt.add(Duration(minutes: (hrsRemaining * 60).round()));
-    final timeStr = DateFormat('hh:mm a').format(endDt);
-
-    return PanchangamTransition(
-      currentName: AstrologyCalculator.nakshatrasTa[curIdx],
-      currentTiming: 'இன்று $timeStr வரை',
-      previousName: AstrologyCalculator.nakshatrasTa[prevIdx],
-      previousTiming: 'நேற்று நிறைவடைந்தது',
-      nextName: AstrologyCalculator.nakshatrasTa[nextIdx],
-      nextTiming: 'இன்று $timeStr முதல்',
-    );
-  }
-
-  static PanchangamTransition _calculateYogaTransition(DateTime dt, double sunLong, double moonLong) {
-    const double span = 360.0 / 27.0;
-    final double sum = (sunLong + moonLong) % 360.0;
-    final int curIdx = (sum / span).floor() % 27;
-    final int prevIdx = (curIdx - 1 + 27) % 27;
-    final int nextIdx = (curIdx + 1) % 27;
-
-    return PanchangamTransition(
-      currentName: AstrologyCalculator.yogaNamesTa[curIdx],
-      currentTiming: 'முழு பகல் நேரம்',
-      previousName: AstrologyCalculator.yogaNamesTa[prevIdx],
-      previousTiming: 'முந்தைய யோகம்',
-      nextName: AstrologyCalculator.yogaNamesTa[nextIdx],
-      nextTiming: 'அடுத்த யோகம்',
-    );
-  }
-
-  static PanchangamTransition _calculateKaranaTransition(DateTime dt, double sunLong, double moonLong) {
-    final cur = AstrologyCalculator.calculateKarana(sunLong, moonLong);
-    final curIdx = cur['index'] as int;
-    final nextIdx = (curIdx + 1) % 60;
-    final prevIdx = (curIdx - 1 + 60) % 60;
-
-    // Calculate elongation and progress through the 6° span of current Karana
-    final double elongation = ((moonLong - sunLong) % 360.0 + 360.0) % 360.0;
-    final double degInKarana = elongation % 6.0;
-    final double remainingDeg = 6.0 - degInKarana;
-
-    // Average relative daily motion of Moon relative to Sun is ~12.1907 degrees/day
-    final double hrsRemaining = (remainingDeg / 12.1907) * 24.0;
-    final endDt = dt.add(Duration(minutes: (hrsRemaining * 60).round()));
-    final timeStr = DateFormat('hh:mm a').format(endDt);
-
-    final isToday = endDt.day == dt.day;
-    final currentTimingStr = isToday ? 'இன்று $timeStr வரை' : 'நாளை $timeStr வரை';
-    final nextTimingStr = isToday ? 'இன்று $timeStr முதல்' : 'நாளை $timeStr முதல்';
-
-    return PanchangamTransition(
-      currentName: cur['nameTa'] as String,
-      currentTiming: currentTimingStr,
-      previousName: _getKaranaNameTa(prevIdx),
-      previousTiming: 'முந்தைய கரணம்',
-      nextName: _getKaranaNameTa(nextIdx),
-      nextTiming: nextTimingStr,
-    );
   }
 
   static String _getKaranaNameTa(int idx) {
@@ -421,7 +559,146 @@ class DailyCalendarEngine {
     if (norm == 58) return 'சதுஷ்பாதம்';
     if (norm == 59) return 'நாகவம்';
     final mobileIdx = (norm - 1) % 7;
-    return AstrologyCalculator.mobileKaranasTa[mobileIdx];
+    const names = ['பவம்', 'பாலவம்', 'கௌலவம்', 'தைதுலை', 'கரசை', 'வனசை', 'பத்திரை'];
+    return names[mobileIdx];
+  }
+
+  static String _formatTransitionTime(DateTime targetCalendarDate, DateTime endDt) {
+    final hour = endDt.hour;
+    String period;
+    if (hour >= 3 && hour < 6) {
+      period = 'அதிகாலை';
+    } else if (hour >= 6 && hour < 12) {
+      period = (hour >= 9) ? 'பகல்' : 'காலை';
+    } else if (hour >= 12 && hour < 16) {
+      period = 'மதியம்';
+    } else if (hour >= 16 && hour < 20) {
+      period = 'மாலை';
+    } else {
+      period = 'இரவு';
+    }
+
+    final timeStr = DateFormat('hh:mm a').format(endDt);
+
+    final isSameDay = targetCalendarDate.year == endDt.year &&
+        targetCalendarDate.month == endDt.month &&
+        targetCalendarDate.day == endDt.day;
+
+    final nextDay = targetCalendarDate.add(const Duration(days: 1));
+    final isNextDay = nextDay.year == endDt.year &&
+        nextDay.month == endDt.month &&
+        nextDay.day == endDt.day;
+
+    if (isSameDay) {
+      return 'இன்று $period $timeStr வரை';
+    } else if (isNextDay) {
+      return 'நாளை $period $timeStr வரை';
+    } else {
+      return '$period $timeStr வரை';
+    }
+  }
+
+  static String _formatShortTime(DateTime dt) {
+    final hour = dt.hour;
+    String period;
+    if (hour >= 3 && hour < 6) {
+      period = 'அதிகாலை';
+    } else if (hour >= 6 && hour < 12) {
+      period = (hour >= 9) ? 'பகல்' : 'காலை';
+    } else if (hour >= 12 && hour < 16) {
+      period = 'மதியம்';
+    } else if (hour >= 16 && hour < 20) {
+      period = 'மாலை';
+    } else {
+      period = 'இரவு';
+    }
+    final timeStr = DateFormat('hh:mm a').format(dt);
+    return '$period $timeStr';
+  }
+
+  static String _formatTransitionStart(DateTime targetCalendarDate, DateTime startDt) {
+    final hour = startDt.hour;
+    String period;
+    if (hour >= 3 && hour < 6) {
+      period = 'அதிகாலை';
+    } else if (hour >= 6 && hour < 12) {
+      period = (hour >= 9) ? 'பகல்' : 'காலை';
+    } else if (hour >= 12 && hour < 16) {
+      period = 'மதியம்';
+    } else if (hour >= 16 && hour < 20) {
+      period = 'மாலை';
+    } else {
+      period = 'இரவு';
+    }
+
+    final timeStr = DateFormat('hh:mm a').format(startDt);
+
+    final isSameDay = targetCalendarDate.year == startDt.year &&
+        targetCalendarDate.month == startDt.month &&
+        targetCalendarDate.day == startDt.day;
+
+    final nextDay = targetCalendarDate.add(const Duration(days: 1));
+    final isNextDay = nextDay.year == startDt.year &&
+        nextDay.month == startDt.month &&
+        nextDay.day == startDt.day;
+
+    if (isSameDay) {
+      return 'இன்று $period $timeStr முதல்';
+    } else if (isNextDay) {
+      return 'நாளை $period $timeStr முதல்';
+    } else {
+      return '$period $timeStr முதல்';
+    }
+  }
+
+  static DateTime _findNextBoundaryCrossing({
+    required DateTime startTime,
+    required double Function(DateTime) getAngle,
+    required int currentIdx,
+    required double span,
+    required double utcOffsetHours,
+  }) {
+    final targetBoundary = ((currentIdx + 1) * span) % 360.0;
+    final effectiveTarget = (targetBoundary == 0.0) ? 360.0 : targetBoundary;
+
+    bool isPast(double angle) {
+      if (effectiveTarget == 360.0) {
+        return angle < (currentIdx * span) || angle >= 360.0;
+      }
+      return angle >= effectiveTarget;
+    }
+
+    DateTime lower = startTime;
+    DateTime upper = startTime.add(const Duration(hours: 36));
+
+    // Coarse scan: 10-minute intervals
+    DateTime t = lower;
+    while (t.isBefore(upper)) {
+      final nextT = t.add(const Duration(minutes: 10));
+      final a1 = getAngle(t);
+      final a2 = getAngle(nextT);
+      if (!isPast(a1) && isPast(a2)) {
+        lower = t;
+        upper = nextT;
+        break;
+      }
+      t = nextT;
+    }
+
+    // Binary search (bisection) down to 1 second precision
+    while (upper.difference(lower).inSeconds > 1) {
+      final mid = lower.add(Duration(milliseconds: upper.difference(lower).inMilliseconds ~/ 2));
+      final aMid = getAngle(mid);
+      if (isPast(aMid)) {
+        upper = mid;
+      } else {
+        lower = mid;
+      }
+    }
+
+    final exact = lower.add(Duration(seconds: upper.difference(lower).inSeconds ~/ 2));
+    final roundedMinute = (exact.second >= 30) ? exact.minute + 1 : exact.minute;
+    return DateTime(exact.year, exact.month, exact.day, exact.hour, roundedMinute);
   }
 
   static List<DailyPlanetTransit> _buildPlanetaryTransits(Map<String, PlanetDetail> planets) {

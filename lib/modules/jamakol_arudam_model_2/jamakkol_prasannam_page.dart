@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
@@ -768,7 +769,7 @@ class _JamakkolChart extends StatelessWidget {
             children: [
               CustomPaint(
                 size: size,
-                painter: _JamakkolPainter(),
+                painter: _JamakkolPainter(result: result),
               ),
               ..._buildCells(size),
               _buildCenterSection(size),
@@ -811,8 +812,6 @@ class _JamakkolChart extends StatelessWidget {
       final y = row * cellH;
 
       final marks = result.marksByRasi[rasiIdx] ?? [];
-      final outer = result.outerPlanetsByRasi[rasiIdx] ?? [];
-      final transit = result.transitPlanetsByRasi[rasiIdx] ?? [];
 
       // Calculate house number from Udhayam
       final house = (((rasiIdx - result.udhayam.rasiIndex) % 12 + 12) % 12) + 1;
@@ -823,7 +822,7 @@ class _JamakkolChart extends StatelessWidget {
         width: cellW,
         height: cellH,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -876,41 +875,6 @@ class _JamakkolChart extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: m.color,
                         ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-
-              // Outer Planets (வெளிவட்டம்)
-              if (outer.isNotEmpty)
-                Wrap(
-                  spacing: 2,
-                  runSpacing: 1,
-                  children: outer.map((op) {
-                    return Text(
-                      "${op.symbol} ${op.formattedDegree}",
-                      style: GoogleFonts.notoSansTamil(
-                        fontSize: 7.5,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFBA68C8),
-                      ),
-                    );
-                  }).toList(),
-                ),
-
-              // Transit Planets (கோச்சாரம்)
-              if (transit.isNotEmpty)
-                Wrap(
-                  spacing: 2,
-                  runSpacing: 1,
-                  children: transit.map((tp) {
-                    final isR = tp.isRetrograde ? '(R)' : '';
-                    return Text(
-                      "${tp.symbol}$isR ${tp.formattedDegree}",
-                      style: GoogleFonts.notoSansTamil(
-                        fontSize: 7.5,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF29B6F6),
                       ),
                     );
                   }).toList(),
@@ -990,13 +954,107 @@ class _JamakkolChart extends StatelessWidget {
   }
 }
 
-/// CustomPainter for the South Indian Rasi Chart grid
+/// CustomPainter for the Jamakkol Prasannam Circular Chart with
+/// exact-degree Inner Circle (Kochara) and Outer Circle (Jamam) planet positions.
 class _JamakkolPainter extends CustomPainter {
+  final JamakkolResult result;
+
+  const _JamakkolPainter({required this.result});
+
+
+  /// Normalizes celestial longitude strictly into 0.0 <= lon < 360.0
+  static double normalizeLongitude(double longitude) {
+    double lon = longitude % 360.0;
+    if (lon < 0) lon += 360.0;
+    return lon;
+  }
+
+  /// Centralized angle conversion: converts celestial longitude (0° to 360°)
+  /// to the exact continuous angle in radians for the South Indian 4x4 chart layout:
+  ///
+  /// Row 0: Meenam (11), Mesham (0), Rishabam (1), Mithunam (2)
+  /// Row 1: Kumbam (10),             Center,       Katakam (3)
+  /// Row 2: Makaram (9),             Center,       Simham (4)
+  /// Row 3: Dhanusu (8), Viruchigam (7), Thulam (6), Kanni (5)
+  static double longitudeToChartAngle(double longitude) {
+    final normDeg = normalizeLongitude(longitude);
+    final int rasiIdx = (normDeg / 30.0).floor() % 12;
+    final double frac = (normDeg % 30.0) / 30.0;
+
+    const atan1_5 = 0.5880026035475675; // atan(1.0 / 1.5) = 33.69°
+    const atan15_1 = 0.982793723247329; // atan(1.5 / 1.0) = 56.31°
+    const halfPi = math.pi / 2.0;       // 90.0°
+    const piVal = math.pi;
+
+    double startAngle;
+    double endAngle;
+
+    switch (rasiIdx) {
+      case 0: // Mesham (Col 1, Row 0)
+        startAngle = -(piVal - atan15_1); // -123.69°
+        endAngle = -halfPi;               // -90.0°
+        break;
+      case 1: // Rishabam (Col 2, Row 0)
+        startAngle = -halfPi;             // -90.0°
+        endAngle = -atan15_1;             // -56.31°
+        break;
+      case 2: // Mithunam (Col 3, Row 0)
+        startAngle = -atan15_1;           // -56.31°
+        endAngle = -atan1_5;              // -33.69°
+        break;
+      case 3: // Kadagam (Col 3, Row 1)
+        startAngle = -atan1_5;            // -33.69°
+        endAngle = 0.0;                   // 0.0°
+        break;
+      case 4: // Simmam (Col 3, Row 2)
+        startAngle = 0.0;                 // 0.0°
+        endAngle = atan1_5;               // +33.69°
+        break;
+      case 5: // Kanni (Col 3, Row 3)
+        startAngle = atan1_5;             // +33.69°
+        endAngle = atan15_1;              // +56.31°
+        break;
+      case 6: // Thulam (Col 2, Row 3)
+        startAngle = atan15_1;            // +56.31°
+        endAngle = halfPi;                // +90.0°
+        break;
+      case 7: // Viruchigam (Col 1, Row 3)
+        startAngle = halfPi;              // +90.0°
+        endAngle = piVal - atan15_1;      // +123.69°
+        break;
+      case 8: // Dhanusu (Col 0, Row 3)
+        startAngle = piVal - atan15_1;    // +123.69°
+        endAngle = piVal - atan1_5;       // +146.31°
+        break;
+      case 9: // Makaram (Col 0, Row 2)
+        startAngle = piVal - atan1_5;     // +146.31°
+        endAngle = piVal;                 // +180.0°
+        break;
+      case 10: // Kumbam (Col 0, Row 1)
+        startAngle = -piVal;              // -180.0°
+        endAngle = -(piVal - atan1_5);    // -146.31°
+        break;
+      case 11: // Meenam (Col 0, Row 0)
+      default:
+        startAngle = -(piVal - atan1_5);  // -146.31°
+        endAngle = -(piVal - atan15_1);   // -123.69°
+        break;
+    }
+
+    return startAngle + frac * (endAngle - startAngle);
+  }
+
+
   @override
   void paint(Canvas canvas, Size size) {
     final cellW = size.width / 4;
     final cellH = size.height / 4;
+    final chartSize = math.min(size.width, size.height);
+    if (chartSize <= 0) return;
 
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // 1. Draw Grid Lines
     final gridPaint = Paint()
       ..color = AppColors.primaryGold.withValues(alpha: 0.4)
       ..strokeWidth = 1.0
@@ -1007,7 +1065,6 @@ class _JamakkolPainter extends CustomPainter {
       ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
 
-    // Draw horizontal grid lines
     for (int i = 1; i < 4; i++) {
       canvas.drawLine(
         Offset(0, i * cellH),
@@ -1016,7 +1073,6 @@ class _JamakkolPainter extends CustomPainter {
       );
     }
 
-    // Draw vertical grid lines
     for (int i = 1; i < 4; i++) {
       canvas.drawLine(
         Offset(i * cellW, 0),
@@ -1030,8 +1086,279 @@ class _JamakkolPainter extends CustomPainter {
       Rect.fromLTWH(cellW, cellH, cellW * 2, cellH * 2),
       centerBorderPaint,
     );
+
+    // 2. Dual Concentric Circular Orbits
+    // innerRadius runs comfortably through the inner section of the 12 boxes, strictly outside center 2x2
+    // outerRadius runs through the outer section of the 12 boxes, strictly inside chart border
+    final innerRadius = chartSize * 0.358;
+    final outerRadius = chartSize * 0.435;
+
+    // Draw subtle orbit tracks matching legend colors
+    final innerOrbitPaint = Paint()
+      ..color = const Color(0xFF29B6F6).withValues(alpha: 0.22)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    final outerOrbitPaint = Paint()
+      ..color = const Color(0xFFBA68C8).withValues(alpha: 0.22)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    canvas.drawCircle(center, innerRadius, innerOrbitPaint);
+    canvas.drawCircle(center, outerRadius, outerOrbitPaint);
+
+    // 3. Render Outer Circle (Jamam Planets - வெளிவட்டம்)
+    _renderPlanetGroup(
+      canvas: canvas,
+      planets: result.outerPlanets,
+      radius: outerRadius,
+      center: center,
+      canvasSize: size,
+      badgeColor: const Color(0xFF1E0B2B),
+      borderColor: const Color(0xFFBA68C8),
+      textColor: const Color(0xFFE1BEE7),
+      isOuter: true,
+    );
+
+    // 4. Render Inner Circle (Transit / Kochara Planets - கோச்சாரம்)
+    _renderPlanetGroup(
+      canvas: canvas,
+      planets: result.transitPlanets,
+      radius: innerRadius,
+      center: center,
+      canvasSize: size,
+      badgeColor: const Color(0xFF091B2C),
+      borderColor: const Color(0xFF29B6F6),
+      textColor: const Color(0xFFB3E5FC),
+      isOuter: false,
+    );
+  }
+
+  void _renderPlanetGroup({
+    required Canvas canvas,
+    required List<JamakkolPlanetInfo> planets,
+    required double radius,
+    required Offset center,
+    required Size canvasSize,
+    required Color badgeColor,
+    required Color borderColor,
+    required Color textColor,
+    required bool isOuter,
+  }) {
+    if (planets.isEmpty) return;
+
+    // Group planets whose longitudes are within collision tolerance (4.5 degrees)
+    final groups = _groupPlanets(planets, 4.5);
+
+    for (final group in groups) {
+      final count = group.length;
+
+      for (int i = 0; i < count; i++) {
+        final planet = group[i];
+        final normLon = normalizeLongitude(planet.longitude);
+        final radians = longitudeToChartAngle(normLon);
+
+        // Calculate exact astronomical Canvas position
+        final baseX = center.dx + radius * math.cos(radians);
+        final baseY = center.dy + radius * math.sin(radians);
+        final basePos = Offset(baseX, baseY);
+
+        // Visual collision offset for marker
+        final visualOffset = _calculateVisualOffset(i, count, radians);
+        final markerPos = basePos + visualOffset;
+
+        // Draw planet marker dot on orbit
+        _drawPlanetMarker(
+          canvas: canvas,
+          pos: markerPos,
+          badgeColor: badgeColor,
+          borderColor: borderColor,
+        );
+
+        // Label offset nudges slightly inward/outward along orbit tangent
+        final labelOffset = _calculateLabelOffset(i, count, radians, isOuter);
+        final labelText = isOuter
+            ? "${planet.symbol} ${planet.formattedDegree}"
+            : "${planet.symbol}${planet.isRetrograde ? '(R)' : ''} ${planet.formattedDegree}";
+
+        _drawPlanetBadge(
+          canvas: canvas,
+          markerPos: markerPos,
+          labelOffset: labelOffset,
+          text: labelText,
+          badgeColor: badgeColor,
+          borderColor: borderColor,
+          textColor: textColor,
+          canvasSize: canvasSize,
+        );
+      }
+    }
+  }
+
+  List<List<JamakkolPlanetInfo>> _groupPlanets(
+    List<JamakkolPlanetInfo> items,
+    double tolerance,
+  ) {
+    final remaining = List<JamakkolPlanetInfo>.from(items);
+    final groups = <List<JamakkolPlanetInfo>>[];
+
+    while (remaining.isNotEmpty) {
+      final current = remaining.removeAt(0);
+      final group = <JamakkolPlanetInfo>[current];
+
+      bool added = true;
+      while (added) {
+        added = false;
+        for (int i = remaining.length - 1; i >= 0; i--) {
+          final candidate = remaining[i];
+          final isNear = group.any(
+            (item) => _angularDistance(item.longitude, candidate.longitude) <= tolerance,
+          );
+          if (isNear) {
+            group.add(candidate);
+            remaining.removeAt(i);
+            added = true;
+          }
+        }
+      }
+
+      groups.add(group);
+    }
+
+    return groups;
+  }
+
+  static double _angularDistance(double a, double b) {
+    var diff = (a - b).abs() % 360.0;
+    if (diff > 180.0) diff = 360.0 - diff;
+    return diff;
+  }
+
+  Offset _calculateVisualOffset(int index, int totalInGroup, double radians) {
+    if (totalInGroup <= 1) return Offset.zero;
+
+    final tan = Offset(-math.sin(radians), math.cos(radians));
+    final sign = (index % 2 == 0) ? 1.0 : -1.0;
+    final step = (index ~/ 2) * 5.0;
+
+    return Offset(
+      tan.dx * (5.0 + step) * sign,
+      tan.dy * (5.0 + step) * sign,
+    );
+  }
+
+  Offset _calculateLabelOffset(
+    int index,
+    int totalInGroup,
+    double radians,
+    bool isOuter,
+  ) {
+    final tan = Offset(-math.sin(radians), math.cos(radians));
+    final rad = Offset(math.cos(radians), math.sin(radians));
+
+    // Bias outer labels slightly outward, inner labels slightly inward
+    final radialBias = isOuter ? 2.5 : -2.5;
+
+    if (totalInGroup <= 1) {
+      return Offset(
+        rad.dx * radialBias,
+        rad.dy * radialBias,
+      );
+    }
+
+    final sign = (index % 2 == 0) ? 1.0 : -1.0;
+    final step = (index ~/ 2) * 6.0;
+
+    return Offset(
+      tan.dx * (7.0 + step) * sign + rad.dx * radialBias,
+      tan.dy * (7.0 + step) * sign + rad.dy * radialBias,
+    );
+  }
+
+  void _drawPlanetMarker({
+    required Canvas canvas,
+    required Offset pos,
+    required Color badgeColor,
+    required Color borderColor,
+  }) {
+    const markerRadius = 3.0;
+
+    final fillPaint = Paint()
+      ..color = badgeColor
+      ..style = PaintingStyle.fill;
+
+    final borderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    final dotPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(pos, markerRadius, fillPaint);
+    canvas.drawCircle(pos, markerRadius, borderPaint);
+    canvas.drawCircle(pos, 1.0, dotPaint);
+  }
+
+  void _drawPlanetBadge({
+    required Canvas canvas,
+    required Offset markerPos,
+    required Offset labelOffset,
+    required String text,
+    required Color badgeColor,
+    required Color borderColor,
+    required Color textColor,
+    required Size canvasSize,
+  }) {
+    final textSpan = TextSpan(
+      text: text,
+      style: TextStyle(
+        color: textColor,
+        fontSize: 7.2,
+        fontWeight: FontWeight.bold,
+        shadows: const [
+          Shadow(color: Colors.black, blurRadius: 2.0),
+        ],
+      ),
+    );
+
+    final tp = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    final targetCenter = markerPos + labelOffset;
+    final halfW = tp.width / 2 + 2.5;
+    final halfH = tp.height / 2 + 1.0;
+
+    final clampedX = targetCenter.dx.clamp(halfW + 1.0, canvasSize.width - halfW - 1.0);
+    final clampedY = targetCenter.dy.clamp(halfH + 1.0, canvasSize.height - halfH - 1.0);
+    final finalCenter = Offset(clampedX, clampedY);
+
+    final bgRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: finalCenter, width: tp.width + 4.0, height: tp.height + 2.0),
+      const Radius.circular(3.5),
+    );
+
+    final bgPaint = Paint()
+      ..color = badgeColor.withValues(alpha: 0.92)
+      ..style = PaintingStyle.fill;
+
+    final borderPaint = Paint()
+      ..color = borderColor.withValues(alpha: 0.75)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.7;
+
+    canvas.drawRRect(bgRect, bgPaint);
+    canvas.drawRRect(bgRect, borderPaint);
+
+    tp.paint(canvas, Offset(finalCenter.dx - tp.width / 2, finalCenter.dy - tp.height / 2));
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _JamakkolPainter oldDelegate) {
+    return oldDelegate.result != result;
+  }
 }
+

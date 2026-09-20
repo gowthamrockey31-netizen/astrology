@@ -40,13 +40,15 @@ class JathagaErasCalculator {
       kollamYear -= 1;
     }
 
-    // 6. Hijri Year
-    // Mathematical approximation supplied by client
-    final double hijriCalc = (gregorianYear - 622) * (32 / 33);
-    int hijriYear = hijriCalc.floor();
-    if (month > 7) {
-      hijriYear += 1;
+    // 6. Fasli Year (revenue calendar starting July 1)
+    int fasliYear = gregorianYear - 590;
+    if (month < 7 || (month == 7 && day < 1)) {
+      fasliYear -= 1;
     }
+
+    // 7. Hijri Year
+    // Astronomical Julian Day Calculation (Epoch: July 16, 622 CE)
+    final int hijriYear = calculateHijriYear(gregorianYear, month, day);
 
     final String formattedDay = day.toString().padLeft(2, '0');
     final String formattedMonth = month.toString().padLeft(2, '0');
@@ -59,9 +61,28 @@ class JathagaErasCalculator {
       'salivahana_year': salivahanaYear,
       'kaliyugadhi_year': kaliyugadhiYear,
       'kollam_year': kollamYear,
+      'fasli_year': fasliYear,
       'hijri_year': hijriYear,
       'formatted_date': "$formattedDay-$formattedMonth-$year",
       'formatted_time': "$formattedHour:$formattedMinute",
     };
+  }
+
+  /// Accurate astronomical calculation of Islamic (Hijri) lunar year
+  static int calculateHijriYear(int year, int month, int day) {
+    int y = year;
+    int m = month;
+    if (m <= 2) {
+      y -= 1;
+      m += 12;
+    }
+    final a = (y / 100).floor();
+    final b = 2 - a + (a / 4).floor();
+    final jd = (365.25 * (y + 4716)).floor() + (30.6001 * (m + 1)).floor() + day + b - 1524.5;
+
+    // Islamic Epoch: JD 1948439.5 (July 16, 622 CE)
+    // Mean synodic lunar year = 354.367068 days
+    final hijriYear = ((jd - 1948439.5) / 354.367068).floor() + 1;
+    return hijriYear;
   }
 }

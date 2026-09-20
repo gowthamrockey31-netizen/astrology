@@ -22,6 +22,23 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
   DateTime _selectedDate = DateTime.now();
   late UserModel _user;
   late DailyCalendarData _calendarData;
+  late String _currentCity;
+  late double _latitude;
+  late double _longitude;
+
+  static const List<Map<String, dynamic>> _popularCities = [
+    {'name': 'திண்டுக்கல் (Dindigul)', 'city': 'Dindigul', 'lat': 10.3626, 'lon': 77.9920},
+    {'name': 'சென்னை (Chennai)', 'city': 'Chennai', 'lat': 13.0827, 'lon': 80.2707},
+    {'name': 'மதுரை (Madurai)', 'city': 'Madurai', 'lat': 9.9252, 'lon': 78.1198},
+    {'name': 'கோயம்புத்தூர் (Coimbatore)', 'city': 'Coimbatore', 'lat': 11.0168, 'lon': 76.9558},
+    {'name': 'திருச்சிராப்பள்ளி (Trichy)', 'city': 'Tiruchirappalli', 'lat': 10.7905, 'lon': 78.7047},
+    {'name': 'சேலம் (Salem)', 'city': 'Salem', 'lat': 11.6643, 'lon': 78.1460},
+    {'name': 'திருநெல்வேலி (Tirunelveli)', 'city': 'Tirunelveli', 'lat': 8.7139, 'lon': 77.7567},
+    {'name': 'ஈரோடு (Erode)', 'city': 'Erode', 'lat': 11.3410, 'lon': 77.7172},
+    {'name': 'வேலூர் (Vellore)', 'city': 'Vellore', 'lat': 12.9165, 'lon': 79.1325},
+    {'name': 'தஞ்சாவூர் (Thanjavur)', 'city': 'Thanjavur', 'lat': 10.7870, 'lon': 79.1378},
+    {'name': 'கன்னியாகுமரி (Kanyakumari)', 'city': 'Kanyakumari', 'lat': 8.0883, 'lon': 77.5385},
+  ];
 
   @override
   void initState() {
@@ -38,8 +55,8 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
           gender: 'Male',
           dob: '1996-06-15',
           timeOfBirth: '08:30 AM',
-          placeOfBirth: 'Chennai',
-          city: 'Chennai',
+          placeOfBirth: 'Dindigul',
+          city: 'Dindigul',
           state: 'Tamil Nadu',
           country: 'India',
           zodiac: 'Gemini (Mithuna)',
@@ -47,10 +64,14 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
           lagna: 'Mesha',
           walletBalance: 500.0,
           profilePhoto: '',
-          latitude: 13.0827,
-          longitude: 80.2707,
+          latitude: 10.3626,
+          longitude: 77.9920,
           timezone: 5.5,
         );
+
+    _currentCity = _user.city;
+    _latitude = _user.latitude;
+    _longitude = _user.longitude;
 
     _recalculate();
   }
@@ -58,9 +79,93 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
   void _recalculate() {
     _calendarData = DailyCalendarEngine.calculate(
       targetDate: _selectedDate,
-      latitude: _user.latitude,
-      longitude: _user.longitude,
+      latitude: _latitude,
+      longitude: _longitude,
       utcOffsetHours: _user.timezone,
+    );
+  }
+
+  void _showCityPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.backgroundMid,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        side: BorderSide(color: AppColors.borderGold, width: 0.8),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'இருப்பிடம் தேர்வு செய்க (Select City)',
+                      style: GoogleFonts.cinzel(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.lightGold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white70, size: 20),
+                      onPressed: () => Navigator.of(ctx).pop(),
+                    ),
+                  ],
+                ),
+                const Divider(color: AppColors.borderGold),
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _popularCities.length,
+                    itemBuilder: (context, idx) {
+                      final item = _popularCities[idx];
+                      final isSelected = _currentCity.toLowerCase() == (item['city'] as String).toLowerCase();
+                      return ListTile(
+                        dense: true,
+                        leading: Icon(
+                          Icons.location_city_rounded,
+                          color: isSelected ? AppColors.primaryGold : Colors.white54,
+                          size: 20,
+                        ),
+                        title: Text(
+                          item['name'] as String,
+                          style: GoogleFonts.outfit(
+                            fontSize: 13,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected ? AppColors.primaryGold : Colors.white,
+                          ),
+                        ),
+                        subtitle: Text(
+                          '${item['lat']}° N, ${item['lon']}° E',
+                          style: GoogleFonts.outfit(fontSize: 10, color: AppColors.textSecondary),
+                        ),
+                        trailing: isSelected
+                            ? const Icon(Icons.check_circle_rounded, color: AppColors.primaryGold, size: 18)
+                            : null,
+                        onTap: () {
+                          Navigator.of(ctx).pop();
+                          setState(() {
+                            _currentCity = item['city'] as String;
+                            _latitude = item['lat'] as double;
+                            _longitude = item['lon'] as double;
+                            _recalculate();
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -138,9 +243,29 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
                               letterSpacing: 1.2,
                             ),
                           ),
-                          Text(
-                            'Daily Calendar & Panchangam • ${_user.city}',
-                            style: GoogleFonts.outfit(fontSize: 11, color: AppColors.textSecondary),
+                          InkWell(
+                            onTap: _showCityPicker,
+                            borderRadius: BorderRadius.circular(6),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.location_on, size: 12, color: AppColors.primaryGold),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    'Daily Calendar & Panchangam • $_currentCity',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 11,
+                                      color: AppColors.lightGold,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  const Icon(Icons.arrow_drop_down, size: 15, color: AppColors.lightGold),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -529,6 +654,93 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
 
                 const SizedBox(height: 14),
 
+                // SECTION 11: கோச்சார லக்னம் (Transit Lagna 2-hour Progression)
+                _buildCardContainer(
+                  title: 'கோச்சார லக்னம் (Transit Lagna - 2 மணி நேர சுழற்சி)',
+                  icon: Icons.auto_awesome_rounded,
+                  accentColor: Colors.amberAccent,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryGold.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.5)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.stars_rounded, color: AppColors.primaryGold, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'நடப்பு கோச்சார லக்னம்: ${_calendarData.currentTransitLagna}',
+                                style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'சூரியன் இருக்கும் ராசியில் உதயமாகி, 2 மணி நேரத்திற்கு ஒரு முறை அடுத்த ராசிக்கு மாற்றம் ஏற்படும் கால அட்டவணை:',
+                        style: GoogleFonts.poppins(fontSize: 11, color: AppColors.textSecondary),
+                      ),
+                      const SizedBox(height: 10),
+                      ..._calendarData.transitLagnas.map((lagna) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: lagna.isCurrent ? AppColors.primaryGold.withValues(alpha: 0.18) : AppColors.backgroundMid,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: lagna.isCurrent ? AppColors.primaryGold : Colors.white10,
+                              width: lagna.isCurrent ? 1.2 : 0.8,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                '${lagna.rasiNameTa} (${lagna.rasiNameEn})',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 12.5,
+                                  fontWeight: lagna.isCurrent ? FontWeight.bold : FontWeight.w500,
+                                  color: lagna.isCurrent ? AppColors.lightGold : Colors.white,
+                                ),
+                              ),
+                              if (lagna.isCurrent) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.withValues(alpha: 0.25),
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(color: Colors.greenAccent, width: 0.6),
+                                  ),
+                                  child: Text('தற்போது', style: GoogleFonts.outfit(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.greenAccent)),
+                                ),
+                              ],
+                              const Spacer(),
+                              Text(
+                                lagna.timeRange,
+                                style: GoogleFonts.outfit(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: lagna.isCurrent ? Colors.white : AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
                 // SECTION 12: இன்று நடந்த முக்கிய நிகழ்வுகள்
                 _buildCardContainer(
                   title: 'இன்று நடந்த முக்கிய நிகழ்வுகள் (Special Events)',
@@ -787,10 +999,17 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
               ),
               const Divider(color: Colors.white10, height: 10),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('முந்தையது: ${trans.previousName}', style: GoogleFonts.outfit(fontSize: 9.5, color: AppColors.textSecondary)),
-                  Text('அடுத்தது: ${trans.nextName}', style: GoogleFonts.outfit(fontSize: 9.5, color: AppColors.textSecondary)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'அடுத்தது: ${trans.nextName}',
+                      textAlign: TextAlign.end,
+                      style: GoogleFonts.outfit(fontSize: 9.5, color: AppColors.textSecondary),
+                    ),
+                  ),
                 ],
               ),
             ],

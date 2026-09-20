@@ -47,7 +47,7 @@ void main() {
       expect(d9Result.type, VargaType.d9);
 
       final allVargas = VargaCalculator.calculateAllVargas(horoscope.planets);
-      expect(allVargas.length, 16);
+      expect(allVargas.length, VargaType.values.length);
       expect(allVargas.containsKey(VargaType.d60), true);
     });
   });
@@ -108,6 +108,37 @@ void main() {
       expect(res.progressPercent, greaterThanOrEqualTo(0.0));
       expect(res.progressPercent, lessThanOrEqualTo(100.0));
       expect(res.paramaNazhigaiTotal, 60.0);
+      expect(res.totalVinadi, 3600);
+      expect(res.padaVinadi, 900.0);
+    });
+
+    test('Traditional Panchang Nakshatra duration conversion (Notebook example)', () {
+      // 25 hours 37 minutes -> 64 nazhigai 03 vinadi (3843 vinadi)
+      final (nazhigai, vinadi, totalVinadi) = AadhiAnthaNazhigaiCalculator.convertDurationToNazhigai(
+        hours: 25,
+        minutes: 37,
+      );
+      expect(nazhigai, 64);
+      expect(vinadi, 3);
+      expect(totalVinadi, 3843);
+
+      // Thiruvathirai 2nd pada calculation:
+      // Elapsed 26 nazhigai 28 vinadi = 1588 vinadi
+      final res = AadhiAnthaNazhigaiCalculator.calculateFromDuration(
+        nakshatraNameTa: 'திருவாதிரை',
+        durationHours: 25,
+        durationMinutes: 37,
+        elapsedNazhigai: 26,
+        elapsedVinadi: 28,
+      );
+      expect(res.totalVinadi, 3843);
+      expect(res.padaVinadi, 3843 / 4.0); // 960.75
+      expect(res.aadhiVinadi, 1588);
+      expect(res.andhaVinadi, 2255);
+      expect(res.pada, 2); // 2nd pada (1588 > 960.75 and <= 1921.5)
+      expect(res.paramaNazhigaiFormatted, '64 நாழிகை 3 வினாடி');
+      expect(res.aadhiNazhigaiFormatted, '26 நாழிகை 28 வினாடி');
+      expect(res.andhaNazhigaiFormatted, '37 நாழிகை 35 வினாடி');
     });
 
     test('Dina Suddhi purity score calculation', () {

@@ -170,9 +170,10 @@ void main() {
     });
 
     testWidgets('DashboardScreen displays card with title ஜாமகோள் ஆருடம் and subtitle Model 2', (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.physicalSize = const Size(1000, 2000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -185,14 +186,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
 
-      final finder = find.text('Model 2');
-      for (int i = 0; i < 5; i++) {
-        if (finder.evaluate().isNotEmpty) break;
-        await tester.drag(find.byType(Scrollable).first, const Offset(0, -400));
-        await tester.pump(const Duration(milliseconds: 200));
-      }
-
-      expect(finder, findsAtLeastNWidgets(1));
+      expect(find.text('Model 2'), findsAtLeastNWidgets(1));
     });
   });
 }

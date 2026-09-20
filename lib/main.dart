@@ -42,8 +42,12 @@ import 'screens/pdf_settings/customer_details_settings_screen.dart';
 import 'screens/mundane_astrology/mundane_astrology_screen.dart';
 import 'kp_method_model_1/kp_method_model_1.dart';
 import 'kp_method_2/kp_method_2.dart';
+import 'kp_method_model_3/kp_method_model_3.dart' show KPMethodModel3Page;
 import 'modules/bnn_method_2/bnn_method_2.dart';
 import 'modules/jamakol_arudam_model_2/jamakol_arudam_model_2.dart';
+import 'modules/professional_muhurtha/professional_muhurtha.dart';
+import 'modules/ayana_kala/ayana_kala_module.dart';
+import 'jamakkol_prasannam_module.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -221,11 +225,16 @@ class AstroDashaCareApp extends StatelessWidget {
         '/jamakol_arudam_model1': (context) => const JamakolArudamModel1Screen(),
         '/jamakol_arudam_model2': (context) => const JamakkolPrasannamPage(),
         '/jamakol-arudam-model-2': (context) => const JamakkolPrasannamPage(),
+        '/jamakkol_prasannam': (context) => const JamakkolPrasannamModule(),
+        '/jamakkol_prasagam': (context) => const JamakkolPrasannamModule(),
+        '/jamakol_prasagam': (context) => const JamakkolPrasannamModule(),
         '/kp_astrology': (context) => const KpAstrologyScreen(),
         '/kp_method_model_1': (context) => const KPMethodModel1Page(),
         '/kp-method-model-1': (context) => const KPMethodModel1Page(),
         '/kp_method_2': (context) => const KPMethod2Page(),
         '/kp-method-2': (context) => const KPMethod2Page(),
+        '/kp_method_model_3': (context) => const KPMethodModel3Page(),
+        '/kp-method-model-3': (context) => const KPMethodModel3Page(),
         '/kp_horary': (context) => const KpHoraryScreen(),
         '/daily_planet_positions': (context) => const DailyPlanetPositionsScreen(),
         '/daily_calendar': (context) => const DailyCalendarScreen(),
@@ -236,6 +245,10 @@ class AstroDashaCareApp extends StatelessWidget {
         '/bnn-method-2': (context) => const BhriguNandiNadiMethod2Screen(),
         '/numerology': (context) => const NumerologyScreen(),
         '/pdf_settings': (context) => const CustomerDetailsSettingsScreen(),
+        '/professional_muhurtha': (context) => const ProfessionalMuhurthaPage(),
+        '/muhurtha': (context) => const ProfessionalMuhurthaPage(),
+        '/ayana_kala': (context) => const AyanaKalaModule(),
+        '/ayana': (context) => const AyanaKalaModule(),
         '/mundane_astrology': (context) => _guardedRoute(
               context: context,
               requiredRole: 'Admin',
