@@ -171,6 +171,12 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/jamakol_arudam_model2'),
                   ),
                   _buildDrawerItem(
+                    icon: Icons.auto_awesome_rounded,
+                    title: 'நட்சத்திர பிரசன்னம் (Nakshatra Prasannam)',
+                    subtitle: 'DRM, HRM, NPL, ஜீவா - சரீரா பிரசன்ன கணிதம்',
+                    onTap: () => onSelectRoute('/nakshatra_prasannam'),
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.hub_rounded,
                     title: 'KP Astrology (உப நாத முறை)',
                     subtitle: '12 Cusps, Placidus Sub & Sub-Sub Lords',
@@ -201,22 +207,16 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/kp_method_model_3'),
                   ),
                   _buildDrawerItem(
-                    icon: Icons.auto_awesome_motion_rounded,
-                    title: 'பிருகு நந்தி நாடி முறை (Bhrigu Nandi Nadi)',
-                    subtitle: 'திசை திரிகோண கிரக சேர்க்கைகள் & ஜீவ-கர்ம பலன்',
-                    onTap: () => onSelectRoute('/bhrigu_nandi_nadi'),
+                    icon: Icons.hub_outlined,
+                    title: '🌌 KP Method 4',
+                    subtitle: 'கே.பி முறை 4 - நட்சத்திர/உப தொடர்பு & பாவ கிரக தொடர்பு',
+                    onTap: () => onSelectRoute('/kp_method_4'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.alt_route_rounded,
                     title: 'பிருகு நந்தி நாடி (முறை 1)',
                     subtitle: 'BNN Method 1 (1,5,9 → 3,11 → 7 → 2 → 12)',
                     onTap: () => onSelectRoute('/bnn_method1'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.alt_route_rounded,
-                    title: 'பிருகு நந்தி நாடி - BNN Method 2',
-                    subtitle: 'BNN Method 2 (திசை தொடர்புகள் & காரக பகுப்பாய்வு)',
-                    onTap: () => onSelectRoute('/bnn_method_2'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.calculate_rounded,
@@ -303,6 +303,12 @@ class CosmicDrawer extends StatelessWidget {
                     title: 'சுப முகூர்த்தம் / நல்ல நேரம்',
                     subtitle: 'Professional Muhurtha / Nalla Neram Engine',
                     onTap: () => onSelectRoute('/professional_muhurtha'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.hourglass_bottom_rounded,
+                    title: 'தனிஷ்டா பஞ்சமி / திதி அடைப்பு',
+                    subtitle: 'Dhanishta Panchami & Adaippu Calculator',
+                    onTap: () => onSelectRoute('/dhanishta_panchami'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.smart_toy_rounded,

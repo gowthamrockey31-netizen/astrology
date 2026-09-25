@@ -367,3 +367,59 @@ class _TransitPlanetItem {
     this.detail,
   });
 }
+
+/// Draws an aesthetic glowing celestial orbit track loop around the perimeter
+/// of the South Indian Rasi Chart.
+class OuterOrbitTrackPainter extends CustomPainter {
+  final double orbitWidth;
+  final double orbitHeight;
+  final double padding;
+  final Color trackColor;
+  final Color glowColor;
+
+  const OuterOrbitTrackPainter({
+    required this.orbitWidth,
+    required this.orbitHeight,
+    this.padding = 5.0,
+    this.trackColor = const Color(0xFF1E88E5),
+    this.glowColor = const Color(0xFF42A5F5),
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.width <= 0 || size.height <= 0) return;
+
+    final rect = Rect.fromLTRB(
+      padding + orbitWidth / 2,
+      padding + orbitHeight / 2,
+      size.width - padding - orbitWidth / 2,
+      size.height - padding - orbitHeight / 2,
+    );
+
+    if (rect.width <= 0 || rect.height <= 0) return;
+
+    final glowPaint = Paint()
+      ..color = glowColor.withValues(alpha: 0.10)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.5;
+
+    final trackPaint = Paint()
+      ..color = trackColor.withValues(alpha: 0.28)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(16));
+    canvas.drawRRect(rrect, glowPaint);
+    canvas.drawRRect(rrect, trackPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant OuterOrbitTrackPainter oldDelegate) {
+    return oldDelegate.orbitWidth != orbitWidth ||
+        oldDelegate.orbitHeight != orbitHeight ||
+        oldDelegate.padding != padding ||
+        oldDelegate.trackColor != trackColor ||
+        oldDelegate.glowColor != glowColor;
+  }
+}
+

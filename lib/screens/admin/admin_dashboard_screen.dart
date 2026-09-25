@@ -508,6 +508,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   onTap: () => widget.onNavigate('/admin_panchang'),
                 ),
                 _buildCmsTile(
+                  title: 'சுப முகூர்த்த நேரம் CMS',
+                  subtitle: 'Add, Edit, Delete & Reorder Suba Muhurtham Table Rows',
+                  icon: Icons.event_available_rounded,
+                  onTap: () => widget.onNavigate('/admin_suba_muhurtham'),
+                ),
+                _buildCmsTile(
                   title: 'Daily Planet Chart CMS',
                   subtitle: 'Add, Edit & Delete Rasi, Degrees & Retrograde',
                   icon: Icons.public_rounded,

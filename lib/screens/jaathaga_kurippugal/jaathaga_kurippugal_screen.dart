@@ -1,13 +1,8 @@
-import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../engine/dignity_engine.dart';
-import '../../models/daily_calendar_models.dart';
 import '../../models/dosham_result_model.dart';
-import '../../models/hora_result.dart';
 import '../../models/horoscope_calculation_result.dart';
 import '../../models/jaathaga_kurippugal_model.dart';
 import '../../models/planet_position.dart';
@@ -15,16 +10,14 @@ import '../../models/planet_status_model.dart';
 import '../../models/user_model.dart';
 import '../../models/varga_chart_model.dart';
 import '../../models/yogi_calculation_result.dart';
+import '../../models/nazhigai_result.dart';
 import '../../services/aadhi_antha_nazhigai_calculator.dart';
 import '../../services/ashtakavarga_calculator.dart';
 import '../../services/astrology_calculator.dart';
 import '../../services/auth_service.dart';
-import '../../services/daily_calendar_engine.dart';
-import '../../services/dina_suddhi_calculator.dart';
-import '../../services/hora_calculator.dart';
 import '../../services/jaathaga_kurippugal_calculator.dart';
-import '../../services/jamakkol_chart_engine.dart';
 import '../../services/jathaga_eras_calculator.dart';
+import '../../services/nazhigai_calculator.dart';
 import '../../services/pdf_generator_service.dart';
 import '../../services/planet_status_calculator.dart';
 import '../../services/rahu_ketu_dosham_calculator.dart';
@@ -57,7 +50,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   late RahuKetuDoshamResult _rahuKetuResult;
   late AshtakavargaResult _ashtakavargaResult;
   late AadhiAnthaNazhigaiResult _aadhiAnthaResult;
-  late DinaSuddhiResult _dinaSuddhiResult;
+  late NazhigaiResult _udayadhiResult;
   late Map<String, dynamic> _erasResult;
   
   VargaType _selectedVarga = VargaType.d9;
@@ -65,8 +58,6 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
 
   int _selectedTabIndex = 0;
   String _selectedAshtakavargaPlanet = 'SAV';
-  late Timer _liveClockTimer;
-  DateTime _liveNow = DateTime.now();
 
   final List<String> _tabs = [
     'பொது பஞ்சாங்க குறிப்புகள்',
@@ -104,16 +95,6 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   void initState() {
     super.initState();
     _loadAndCalculateData();
-    _liveNow = DateTime.now();
-    _liveClockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() => _liveNow = DateTime.now());
-    });
-  }
-
-  @override
-  void dispose() {
-    _liveClockTimer.cancel();
-    super.dispose();
   }
 
   @override
@@ -225,11 +206,11 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
     _aadhiAnthaResult = AadhiAnthaNazhigaiCalculator.calculate(
       moonLongitude: _astroData.moon.longitude,
       nakshatraNameTa: _astroData.moon.nakshatraNameTa,
+      birthDateTime: _birthDt,
+      utcOffsetHours: tz,
     );
-    _dinaSuddhiResult = DinaSuddhiCalculator.calculate(
-      date: _birthDt,
-      sunLongitude: _astroData.sun.longitude,
-      moonLongitude: _astroData.moon.longitude,
+    _udayadhiResult = NazhigaiCalculator.calculateUdayadhiNazhigaiForLocation(
+      eventTime: _birthDt,
       latitude: lat,
       longitude: lon,
       utcOffsetHours: tz,
@@ -399,10 +380,6 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // நடப்பு நேரலை பஞ்சாங்கம் (Live Panchangam)
-        _buildLivePanchangamSection(),
-        const SizedBox(height: 14),
-
         // 1. பிறப்பு விவரங்கள் (Birth Profile)
         _buildSectionCard(
           title: 'பிறப்பு விவரங்கள் (Birth Profile)',
@@ -457,6 +434,10 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
         _buildPlanetStatusContent(),
         const SizedBox(height: 14),
 
+        // உதயாதி நாழிகை (Udayadhi Nazhigai)
+        _buildUdayadhiNazhigaiContent(),
+        const SizedBox(height: 14),
+
         // 5. ஆதி அந்த நாழிகை & உதயாதி நாழிகை (Aadhi Antha & Udayathi Nazhigai)
         _buildNazhigaiContent(),
         const SizedBox(height: 14),
@@ -478,7 +459,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
         const SizedBox(height: 14),
 
         // 7. ஜாதக கட்டங்கள் (South Indian Jathagam Widget)
-        SouthIndianJathagamWidget(user: _user, isLivePanchangam: true),
+        SouthIndianJathagamWidget(user: _user),
         const SizedBox(height: 20),
       ],
     );
@@ -488,50 +469,17 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   // Topic 1: Dina Suddhi & Varudangal (தினசுத்தி & வருடங்கள்)
   // ---------------------------------------------------------------------------
   Widget _buildDinaSuddhiContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: AppColors.backgroundMid,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.primaryGold, width: 1),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.verified_rounded, color: AppColors.primaryGold, size: 22),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text('தினசுத்தி மதிப்பீடு (Dina Suddhi):', style: GoogleFonts.cinzel(color: AppColors.lightGold, fontWeight: FontWeight.bold, fontSize: 14)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(_dinaSuddhiResult.overallPurityScore, style: GoogleFonts.outfit(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 15)),
-              const SizedBox(height: 4),
-              Text(_dinaSuddhiResult.finalVerdictTa, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-
-        _buildSectionCard(
-          title: 'வருடக் குறிப்புகள் (Year & Era Details)',
-          icon: Icons.history_edu_rounded,
-          rows: [
-            _InfoRow('ஆங்கில வருடம்', '${_erasResult['gregorian_year']}'),
-            _InfoRow('திருவள்ளுவர் ஆண்டு', '${_erasResult['thiruvalluvar_year']}'),
-            _InfoRow('சாலிவாகன வருடம் / சகாப்தம்', '${_erasResult['salivahana_year']}'),
-            _InfoRow('கலியுகாதி வருடம்', '${_erasResult['kaliyugadhi_year']}'),
-            _InfoRow('கொல்லம் வருடம்', '${_erasResult['kollam_year']}'),
-            _InfoRow('பசலி ஆண்டு', '${_erasResult['fasli_year']}'),
-            _InfoRow('ஹிஜ்ரி வருடம்', '${_erasResult['hijri_year']}'),
-          ],
-        ),
+    return _buildSectionCard(
+      title: 'தினசுத்தி வருடக் குறிப்புகள் (Dina Suddhi Year & Era Details)',
+      icon: Icons.history_edu_rounded,
+      rows: [
+        _InfoRow('ஆங்கில வருடம்', '${_erasResult['gregorian_year']}'),
+        _InfoRow('திருவள்ளுவர் ஆண்டு', '${_erasResult['thiruvalluvar_year']}'),
+        _InfoRow('சாலிவாகன வருடம் / சகாப்தம்', '${_erasResult['salivahana_year']}'),
+        _InfoRow('கலியுகாதி வருடம்', '${_erasResult['kaliyugadhi_year']}'),
+        _InfoRow('கொல்லம் வருடம்', '${_erasResult['kollam_year']}'),
+        _InfoRow('பசலி ஆண்டு', '${_erasResult['fasli_year']}'),
+        _InfoRow('ஹிஜ்ரி வருடம்', '${_erasResult['hijri_year']}'),
       ],
     );
   }
@@ -647,6 +595,98 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
   }
 
   // ---------------------------------------------------------------------------
+  // Udayadhi Nazhigai (உதயாதினாழிகை)
+  // ---------------------------------------------------------------------------
+  Widget _buildUdayadhiNazhigaiContent() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.cardSurface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.timer_rounded, color: AppColors.primaryGold, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'உதயாதினாழிகை (Udayadhi Nazhigai)',
+                  style: GoogleFonts.cinzel(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.lightGold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const Divider(color: AppColors.borderGold, height: 16),
+          const SizedBox(height: 8),
+          Center(
+            child: Column(
+              children: [
+                Text(
+                  _udayadhiResult.formattedValueTa,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.cinzel(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryGold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _udayadhiResult.formattedValueEn,
+                  style: GoogleFonts.outfit(fontSize: 13, color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Divider(color: Colors.white12),
+          const SizedBox(height: 10),
+
+          // Grid Breakdown
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    Text('நாழிகை', style: GoogleFonts.outfit(fontSize: 11, color: AppColors.textSecondary)),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${_udayadhiResult.nazhigai}',
+                      style: GoogleFonts.cinzel(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                    ),
+                  ],
+                ),
+              ),
+              Container(width: 1, height: 36, color: Colors.white12),
+              Expanded(
+                child: Column(
+                  children: [
+                    Text('விநாழிகை', style: GoogleFonts.outfit(fontSize: 11, color: AppColors.textSecondary)),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${_udayadhiResult.vinazhigai}',
+                      style: GoogleFonts.cinzel(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // Topic 3: Nazhigai (ஆதி அந்த நாழிகை & உதயாதி நாழிகை)
   // ---------------------------------------------------------------------------
   Widget _buildNazhigaiContent() {
@@ -658,7 +698,15 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
           icon: Icons.timer_rounded,
           rows: [
             _InfoRow('நட்சத்திரம்', '${_aadhiAnthaResult.nakshatraNameTa} (${_aadhiAnthaResult.pada}-ஆம் பாதம்)'),
+            if (_aadhiAnthaResult.nakshatraStartTimeFormatted.isNotEmpty)
+              _InfoRow('நட்சத்திர ஆரம்ப நேரம்', _aadhiAnthaResult.nakshatraStartTimeFormatted),
+            if (_aadhiAnthaResult.nakshatraEndTimeFormatted.isNotEmpty)
+              _InfoRow('நட்சத்திர முடிவு நேரம்', _aadhiAnthaResult.nakshatraEndTimeFormatted),
+            if (_aadhiAnthaResult.originalDurationFormatted.isNotEmpty)
+              _InfoRow('நட்சத்திர கால அளவு', _aadhiAnthaResult.originalDurationFormatted),
             _InfoRow('பரம நாழிகை (மொத்த அளவு)', _aadhiAnthaResult.paramaNazhigaiFormatted),
+            if (_aadhiAnthaResult.padaDurationFormatted.isNotEmpty)
+              _InfoRow('ஒரு பாத அளவு', _aadhiAnthaResult.padaDurationFormatted),
             _InfoRow('ஆதி நாழிகை (சென்ற நாழிகை)', _aadhiAnthaResult.aadhiNazhigaiFormatted),
             _InfoRow('அந்த நாழிகை (இருப்பு நாழிகை)', _aadhiAnthaResult.andhaNazhigaiFormatted),
             _InfoRow('நட்சத்திர முன்னேற்றம்', '${_aadhiAnthaResult.progressPercent.toStringAsFixed(1)}%'),
@@ -690,7 +738,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
                         style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.primaryGold),
                       ),
                       const TextSpan(
-                        text: 'இங்கு தரப்பட்டுள்ள இந்த கணித தோராயமானது - சரிபார்த்து கொள்ளுங்கள்',
+                        text: 'நட்சத்திர பரம நாழிகை கணிதம் பாரம்பரிய முறைப்படி (Hours × 2.5, Minutes × 2.5) துல்லியமாக கணக்கிடப்பட்டுள்ளது',
                       ),
                     ],
                   ),
@@ -1168,72 +1216,7 @@ class _JaathagaKurippugalScreenState extends State<JaathagaKurippugalScreen> wit
     );
   }
 
-  Widget _buildLivePanchangamSection() {
-    final double lat = (_user.latitude != 0.0) ? _user.latitude : 13.08784;
-    final double lon = (_user.longitude != 0.0) ? _user.longitude : 80.27847;
-    final double tz = (_user.timezone != 0.0) ? _user.timezone : 5.5;
 
-    final liveCalendar = DailyCalendarEngine.calculate(
-      targetDate: _liveNow,
-      latitude: lat,
-      longitude: lon,
-      utcOffsetHours: tz,
-    );
-
-    final jamakkol = JamakkolChartEngine.calculate(
-      queryTime: _liveNow,
-      latitude: lat,
-      longitude: lon,
-      utcOffsetHours: tz,
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 1. பஞ்ச அங்கம் (Core 5 Angas)
-        _buildSectionCard(
-          title: 'பஞ்ச அங்கம் (Core 5 Angas)',
-          icon: Icons.auto_awesome_rounded,
-          rows: [
-            _InfoRow('திதி', '${liveCalendar.tithiPakshaTa} ${liveCalendar.tithiNameTa} ${liveCalendar.tithiTransition.currentTiming.isNotEmpty ? '(${liveCalendar.tithiTransition.currentTiming})' : ''}'),
-            _InfoRow('நட்சத்திரம்', '${liveCalendar.nakshatraNameTa} - ${liveCalendar.nakshatraPada}-ஆம் பாதம் (அதிபதி: ${liveCalendar.nakshatraLordTa})'),
-            _InfoRow('யோகம்', '${liveCalendar.yogaNameTa} (${liveCalendar.amirthathiYogaTa})'),
-            _InfoRow('கரணம்', liveCalendar.karanaNameTa),
-            _InfoRow('நோக்கு நாள் / கிழமை', '${liveCalendar.nokkuNaalTa} • ${liveCalendar.weekdayTa}'),
-          ],
-        ),
-        const SizedBox(height: 14),
-
-        // 2. சுப & அசுப நேரங்கள் (Auspicious & Inauspicious Timings)
-        _buildSectionCard(
-          title: 'சுப & அசுப நேரங்கள்',
-          icon: Icons.hourglass_top_rounded,
-          rows: [
-            _InfoRow('நல்ல நேரம்', 'காலை: ${liveCalendar.morningNallaNeram} | மாலை: ${liveCalendar.eveningNallaNeram}'),
-            _InfoRow('ராகு காலம்', liveCalendar.rahuKalam),
-            _InfoRow('எமகண்டம்', liveCalendar.yamaGandam),
-            _InfoRow('குளிகை', liveCalendar.gulikaiKalam),
-            _InfoRow('சூரிய உதயம் / அஸ்தமனம்', '${liveCalendar.sunriseStr} / ${liveCalendar.sunsetStr}'),
-            _InfoRow('சந்திராஷ்டமம்', '${liveCalendar.chandrashtamaRasiTa} (${liveCalendar.chandrashtamaNakshatrasTa})'),
-            _InfoRow('சூலம் & பரிகாரம்', '${liveCalendar.soolamDirectionTa} (பரிகாரம்: ${liveCalendar.pariharamTa})'),
-          ],
-        ),
-        const SizedBox(height: 14),
-
-        // 3. ஜாமக்கோள் சிறப்பு புள்ளிகள் (Live Points)
-        _buildSectionCard(
-          title: 'ஜாமக்கோள் சிறப்பு புள்ளிகள் (Live Points)',
-          icon: Icons.explore_rounded,
-          rows: [
-            _InfoRow('உதயம் (Udhayam)', '${AstrologyCalculator.rasiNamesTa[jamakkol.udhayam.rasiIndex]} (${jamakkol.udhayam.formattedDms}) ★ ${jamakkol.udhayam.starName} - ${jamakkol.udhayam.pada} பாதம்'),
-            _InfoRow('ஆருடம் (Aarudam)', '${AstrologyCalculator.rasiNamesTa[jamakkol.aarudam.rasiIndex]} ★ ${jamakkol.aarudam.starName} - ${jamakkol.aarudam.pada} பாதம்'),
-            _InfoRow('கவிப்பு (Kavippu)', '${AstrologyCalculator.rasiNamesTa[jamakkol.kavippu.rasiIndex]} ★ ${jamakkol.kavippu.starName} - ${jamakkol.kavippu.pada} பாதம்'),
-            _InfoRow('கோச்சார லக்னம்', liveCalendar.currentTransitLagna),
-          ],
-        ),
-      ],
-    );
-  }
 
   Widget _buildMetricMiniCard(String label, String val, Color color) {
     return Container(

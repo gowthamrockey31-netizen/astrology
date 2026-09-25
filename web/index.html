@@ -32,15 +32,23 @@
   <title>AstroDashaCare</title>
   <link rel="manifest" href="manifest.json">
 </head>
-<body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+<body style="margin:0;padding:0;background:#050914;overflow:hidden;">
+  <!-- Loading screen shown while Flutter initializes -->
+  <div id="loading" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#050914 0%,#07131F 50%,#0B1220 80%,#050914 100%);z-index:999;">
+    <style>
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @keyframes pulse { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
+    </style>
+    <div style="width:48px;height:48px;border:3px solid rgba(212,175,55,0.2);border-top-color:#FFD86B;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+    <p style="margin-top:20px;font-family:'Segoe UI',sans-serif;font-size:13px;color:#FFD86B;letter-spacing:1.5px;animation:pulse 2s ease-in-out infinite;">ASTRODASHACARE</p>
+  </div>
+  <script>
+    // Remove loading screen once Flutter is ready
+    window.addEventListener('flutter-first-frame', function() {
+      var el = document.getElementById('loading');
+      if (el) el.remove();
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

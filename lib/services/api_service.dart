@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
@@ -10,6 +11,7 @@ import '../models/panchang_model.dart';
 
 class ApiService {
   static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static const Duration _timeout = Duration(seconds: 3);
 
   // AUTH & USERS
   static Future<UserModel?> register(String phone, String password, {String name = 'Divine Seeker', String role = 'User'}) async {
@@ -23,7 +25,7 @@ class ApiService {
           'name': name,
           'role': role,
         }),
-      );
+      ).timeout(_timeout);
       if (res.statusCode == 200 || res.statusCode == 201) {
         final data = jsonDecode(res.body);
         if (data['user'] != null) {
@@ -46,7 +48,7 @@ class ApiService {
           'password': password,
           'role': role,
         }),
-      );
+      ).timeout(_timeout);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data['user'] != null) {
@@ -69,7 +71,7 @@ class ApiService {
           'name': name,
           'role': role,
         }),
-      );
+      ).timeout(_timeout);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data['user'] != null) {
@@ -88,7 +90,7 @@ class ApiService {
         Uri.parse('$baseUrl/users/profile'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(user.toMap()),
-      );
+      ).timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) {
       print('[ApiService] Update profile error: $e');
@@ -99,7 +101,7 @@ class ApiService {
   // ASTROLOGERS
   static Future<List<AstrologerModel>> fetchAstrologers() async {
     try {
-      final res = await http.get(Uri.parse('$baseUrl/astrologers'));
+      final res = await http.get(Uri.parse('$baseUrl/astrologers')).timeout(_timeout);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         final List list = data['astrologers'] ?? [];
@@ -117,7 +119,7 @@ class ApiService {
         Uri.parse('$baseUrl/astrologers'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(ast.toMap()),
-      );
+      ).timeout(_timeout);
       return res.statusCode == 200 || res.statusCode == 201;
     } catch (e) {
       print('[ApiService] addAstrologer error: $e');
@@ -131,7 +133,7 @@ class ApiService {
         Uri.parse('$baseUrl/astrologers/${ast.id}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(ast.toMap()),
-      );
+      ).timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) {
       print('[ApiService] editAstrologer error: $e');
@@ -141,7 +143,7 @@ class ApiService {
 
   static Future<bool> deleteAstrologer(String id) async {
     try {
-      final res = await http.delete(Uri.parse('$baseUrl/astrologers/$id'));
+      final res = await http.delete(Uri.parse('$baseUrl/astrologers/$id')).timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) {
       print('[ApiService] deleteAstrologer error: $e');
@@ -151,7 +153,7 @@ class ApiService {
 
   static Future<bool> approveAstrologer(String id) async {
     try {
-      final res = await http.put(Uri.parse('$baseUrl/astrologers/$id/approve'));
+      final res = await http.put(Uri.parse('$baseUrl/astrologers/$id/approve')).timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) {
       print('[ApiService] approveAstrologer error: $e');
@@ -161,7 +163,7 @@ class ApiService {
 
   static Future<bool> rejectAstrologer(String id) async {
     try {
-      final res = await http.put(Uri.parse('$baseUrl/astrologers/$id/reject'));
+      final res = await http.put(Uri.parse('$baseUrl/astrologers/$id/reject')).timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) {
       print('[ApiService] rejectAstrologer error: $e');
@@ -172,7 +174,7 @@ class ApiService {
   // TERMS & CONDITIONS
   static Future<List<TermItemModel>> fetchTermsAndConditions() async {
     try {
-      final res = await http.get(Uri.parse('$baseUrl/terms'));
+      final res = await http.get(Uri.parse('$baseUrl/terms')).timeout(_timeout);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         final List list = data['terms'] ?? [];
@@ -190,7 +192,7 @@ class ApiService {
         Uri.parse('$baseUrl/terms'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(term.toMap()),
-      );
+      ).timeout(_timeout);
       return res.statusCode == 200 || res.statusCode == 201;
     } catch (e) {
       print('[ApiService] addTerm error: $e');
@@ -204,7 +206,7 @@ class ApiService {
         Uri.parse('$baseUrl/terms/${term.id}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(term.toMap()),
-      );
+      ).timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) {
       print('[ApiService] editTerm error: $e');
@@ -214,7 +216,7 @@ class ApiService {
 
   static Future<bool> deleteTerm(String id) async {
     try {
-      final res = await http.delete(Uri.parse('$baseUrl/terms/$id'));
+      final res = await http.delete(Uri.parse('$baseUrl/terms/$id')).timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) {
       print('[ApiService] deleteTerm error: $e');
@@ -225,7 +227,7 @@ class ApiService {
   // MAGAZINE ARTICLES
   static Future<List<MagazineArticleModel>> fetchMagazineArticles() async {
     try {
-      final res = await http.get(Uri.parse('$baseUrl/magazine'));
+      final res = await http.get(Uri.parse('$baseUrl/magazine')).timeout(_timeout);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         final List list = data['articles'] ?? [];
@@ -243,7 +245,7 @@ class ApiService {
         Uri.parse('$baseUrl/magazine'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(article.toMap()),
-      );
+      ).timeout(_timeout);
       return res.statusCode == 200 || res.statusCode == 201;
     } catch (e) {
       print('[ApiService] addMagazineArticle error: $e');
@@ -257,7 +259,7 @@ class ApiService {
         Uri.parse('$baseUrl/magazine/${article.id}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(article.toMap()),
-      );
+      ).timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) {
       print('[ApiService] editMagazineArticle error: $e');
@@ -267,7 +269,7 @@ class ApiService {
 
   static Future<bool> deleteMagazineArticle(String id) async {
     try {
-      final res = await http.delete(Uri.parse('$baseUrl/magazine/$id'));
+      final res = await http.delete(Uri.parse('$baseUrl/magazine/$id')).timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) {
       print('[ApiService] deleteMagazineArticle error: $e');
@@ -278,7 +280,7 @@ class ApiService {
   // HOROSCOPE PREDICTIONS
   static Future<HoroscopePredictionModel?> getHoroscopePrediction(String sign) async {
     try {
-      final res = await http.get(Uri.parse('$baseUrl/horoscope/$sign'));
+      final res = await http.get(Uri.parse('$baseUrl/horoscope/$sign')).timeout(_timeout);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data['prediction'] != null) {
@@ -297,7 +299,7 @@ class ApiService {
         Uri.parse('$baseUrl/horoscope'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(prediction.toMap()),
-      );
+      ).timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) {
       print('[ApiService] saveHoroscopePrediction error: $e');
@@ -307,7 +309,7 @@ class ApiService {
 
   static Future<bool> deleteHoroscopePrediction(String sign) async {
     try {
-      final res = await http.delete(Uri.parse('$baseUrl/horoscope/$sign'));
+      final res = await http.delete(Uri.parse('$baseUrl/horoscope/$sign')).timeout(_timeout);
       return res.statusCode == 200;
     } catch (e) {
       print('[ApiService] deleteHoroscopePrediction error: $e');
@@ -320,7 +322,7 @@ class ApiService {
       final uri = userId != null && userId.isNotEmpty
           ? Uri.parse('$baseUrl/wallet/transactions?userId=$userId')
           : Uri.parse('$baseUrl/wallet/transactions');
-      final res = await http.get(uri);
+      final res = await http.get(uri).timeout(_timeout);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         final List list = data['transactions'] ?? [];
@@ -370,7 +372,7 @@ class ApiService {
         Uri.parse('$baseUrl/panchang'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(panchang.toMap()),
-      );
+      ).timeout(_timeout);
     } catch (e) {
       print('[ApiService] addPanchang error: $e');
     }
@@ -387,7 +389,7 @@ class ApiService {
         Uri.parse('$baseUrl/panchang/${panchang.id}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(panchang.toMap()),
-      );
+      ).timeout(_timeout);
     } catch (e) {
       print('[ApiService] editPanchang error: $e');
     }
@@ -397,7 +399,7 @@ class ApiService {
   static Future<bool> deletePanchangEntry(String id) async {
     _localPanchangList.removeWhere((p) => p.id == id);
     try {
-      await http.delete(Uri.parse('$baseUrl/panchang/$id'));
+      await http.delete(Uri.parse('$baseUrl/panchang/$id')).timeout(_timeout);
     } catch (e) {
       print('[ApiService] deletePanchang error: $e');
     }
@@ -429,7 +431,7 @@ class ApiService {
         Uri.parse('$baseUrl/planets'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(pos.toMap()),
-      );
+      ).timeout(_timeout);
     } catch (e) {
       print('[ApiService] addPlanetPosition error: $e');
     }
@@ -446,7 +448,7 @@ class ApiService {
         Uri.parse('$baseUrl/planets/${pos.id}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(pos.toMap()),
-      );
+      ).timeout(_timeout);
     } catch (e) {
       print('[ApiService] editPlanetPosition error: $e');
     }
@@ -456,7 +458,7 @@ class ApiService {
   static Future<bool> deletePlanetPosition(String id) async {
     _localPlanetPositions.removeWhere((p) => p.id == id);
     try {
-      await http.delete(Uri.parse('$baseUrl/planets/$id'));
+      await http.delete(Uri.parse('$baseUrl/planets/$id')).timeout(_timeout);
     } catch (e) {
       print('[ApiService] deletePlanetPosition error: $e');
     }

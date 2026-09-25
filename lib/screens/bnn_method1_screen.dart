@@ -6,6 +6,8 @@ import '../../models/user_model.dart';
 import '../../providers/bnn_method1_chart_provider.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/cosmic_background.dart';
+import '../modules/bnn_method_2/bnn_method_2_models.dart'
+    show BNNMethod2PlanetKaraka, BNNMethod2DiseaseKaraka, BNNMethod2HouseKaraka;
 
 /// Screen for Bhrigu Nandi Nadi (BNN) Method 1
 /// Features:
@@ -146,8 +148,6 @@ class _BnnMethod1ScreenState extends State<BnnMethod1Screen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
-                const SizedBox(height: 14),
-                _buildBirthInputCard(),
                 const SizedBox(height: 16),
 
                 if (_errorMessage != null) _buildErrorCard(),
@@ -157,11 +157,9 @@ class _BnnMethod1ScreenState extends State<BnnMethod1Screen> {
                   const SizedBox(height: 20),
                   _buildPlanetSelectorTabs(),
                   const SizedBox(height: 16),
-                  _buildMethod1ConnectionsList(),
-                  const SizedBox(height: 20),
+                  _buildSelectedPlanetKarakasSection(),
+                  const SizedBox(height: 16),
                   _buildPredictionsSection(),
-                  const SizedBox(height: 20),
-                  if (_result!.dashaResult != null) _buildDashaCard(),
                   const SizedBox(height: 24),
                 ],
               ],
@@ -223,104 +221,6 @@ class _BnnMethod1ScreenState extends State<BnnMethod1Screen> {
     );
   }
 
-  Widget _buildBirthInputCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cardSurface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.4)),
-      ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.edit_calendar_rounded, color: AppColors.lightGold, size: 18),
-              const SizedBox(width: 8),
-              Text(
-                'பிறப்பு விவரங்கள் (Birth Data Input)',
-                style: GoogleFonts.cinzel(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                  color: AppColors.lightGold,
-                ),
-              ),
-            ],
-          ),
-          const Divider(color: AppColors.borderGold, height: 16),
-          Row(
-            children: [
-              Expanded(child: _buildInputField(_dobController, 'பிறந்த தேதி', 'YYYY-MM-DD')),
-              const SizedBox(width: 8),
-              Expanded(child: _buildInputField(_tobController, 'பிறந்த நேரம்', 'HH:MM AM/PM')),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(child: _buildInputField(_placeController, 'பிறந்த இடம்', 'City / Town')),
-              const SizedBox(width: 8),
-              Expanded(child: _buildInputField(_latController, 'அட்சரேகை (Lat)', '13.0827')),
-              const SizedBox(width: 8),
-              Expanded(child: _buildInputField(_lonController, 'தீர்க்கரேகை (Lon)', '80.2707')),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            height: 38,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryGold,
-                foregroundColor: AppColors.backgroundDeep,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              onPressed: _calculateMethod1Horoscope,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: Text(
-                'முறை 1 கணிப்பு செய்க (Calculate Method 1)',
-                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInputField(TextEditingController ctrl, String label, String hint) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.outfit(fontSize: 10, color: AppColors.textSecondary),
-        ),
-        const SizedBox(height: 3),
-        TextField(
-          controller: ctrl,
-          style: GoogleFonts.outfit(color: Colors.white, fontSize: 12),
-          decoration: InputDecoration(
-            isDense: true,
-            hintText: hint,
-            hintStyle: GoogleFonts.outfit(color: Colors.white30, fontSize: 11),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            filled: true,
-            fillColor: AppColors.inputBackground,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white24),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: AppColors.primaryGold),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildErrorCard() {
     return Container(
@@ -446,7 +346,7 @@ class _BnnMethod1ScreenState extends State<BnnMethod1Screen> {
             padding: const EdgeInsets.only(right: 8),
             child: ChoiceChip(
               label: Text(
-                p.planetName,
+                '${p.planetName} (${p.house})',
                 style: GoogleFonts.outfit(
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -471,147 +371,227 @@ class _BnnMethod1ScreenState extends State<BnnMethod1Screen> {
     );
   }
 
-  Widget _buildMethod1ConnectionsList() {
-    final connections = _result!.connectionsByPlanet[_selectedSourcePlanetKey] ?? [];
+  Widget _buildSelectedPlanetKarakasSection() {
     final sourcePlanet = _result!.planetaryPositions.firstWhere(
       (p) => p.planetKey == _selectedSourcePlanetKey,
       orElse: () => _result!.planetaryPositions.first,
     );
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cardSurface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.4)),
+    final planetKarakas = BNNMethod2PlanetKaraka.get(sourcePlanet.planetKey);
+    final diseaseKarakas = BNNMethod2DiseaseKaraka.get(sourcePlanet.planetKey);
+    final houseKarakas = BNNMethod2HouseKaraka.get(sourcePlanet.house);
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+      color: AppColors.cardSurface,
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(
+          color: AppColors.primaryGold.withValues(alpha: 0.6),
+          width: 1.2,
+        ),
       ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Planet Header: Name, House, Exact Degree
+            _buildPlanetHeader(sourcePlanet),
+            const SizedBox(height: 14),
+
+            // ① கிரகத்தின் மிக முக்கியமான 10 காரகங்கள்
+            _buildNumberedSection(
+              title: '① கிரகத்தின் மிக முக்கியமான 10 காரகங்கள்',
+              items: planetKarakas,
+              badgeColor: AppColors.primaryGold,
+            ),
+            const SizedBox(height: 16),
+
+            // ② நோய் / உடல் காரகங்கள்
+            _buildNumberedSection(
+              title: '② நோய் / உடல் காரகங்கள்',
+              items: diseaseKarakas,
+              badgeColor: Colors.tealAccent,
+            ),
+            const SizedBox(height: 16),
+
+            // ③ லக்னத்திலிருந்து {house}ம் பாவத்தின் 10 காரகங்கள்
+            _buildNumberedSection(
+              title: '③ லக்னத்திலிருந்து ${sourcePlanet.house}ம் பாவத்தின் 10 காரகங்கள்',
+              items: houseKarakas,
+              badgeColor: Colors.purpleAccent,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlanetHeader(BnnMethod1Planet planet) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundMid,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppColors.borderGold.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Row(
         children: [
-          Row(
-            children: [
-              const Icon(Icons.hub_rounded, color: AppColors.lightGold, size: 18),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '${sourcePlanet.planetName} - முறை 1 திசைத் தொடர்புகள் (1,5,9 → 3,11 → 7 → 2 → 12)',
-                  style: GoogleFonts.cinzel(
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.primaryGold.withValues(alpha: 0.2),
+              border: Border.all(color: AppColors.primaryGold, width: 1.5),
+            ),
+            child: const Icon(
+              Icons.auto_awesome_rounded,
+              color: AppColors.lightGold,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      planet.planetName,
+                      style: GoogleFonts.cinzel(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.lightGold,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '(${planet.englishName})',
+                      style: GoogleFonts.outfit(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  '${planet.signNameTa} • பாவம்: ${planet.house} • ${planet.nakshatra} (${planet.nakshatraPada})',
+                  style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    color: Colors.white70,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.black45,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.7)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'பாகை',
+                  style: GoogleFonts.outfit(
+                    fontSize: 10,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                Text(
+                  planet.formattedDMS,
+                  style: GoogleFonts.outfit(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppColors.lightGold,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const Divider(color: AppColors.borderGold, height: 16),
-
-          if (connections.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Center(
-                child: Text(
-                  'இந்த கிரகத்திற்கு முறை 1 தொடர்புகள் இல்லை.',
-                  style: GoogleFonts.outfit(color: Colors.white60, fontSize: 12),
-                ),
-              ),
-            )
-          else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: connections.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemBuilder: (ctx, idx) {
-                final conn = connections[idx];
-                return _buildConnectionCard(conn, idx + 1);
-              },
+              ],
             ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildConnectionCard(BnnMethod1Connection conn, int index) {
-    Color badgeColor = Colors.grey;
-    if (conn.relation == BnnMethod1Relation.friend) badgeColor = Colors.greenAccent;
-    if (conn.relation == BnnMethod1Relation.enemy) badgeColor = Colors.redAccent;
-    if (conn.relation == BnnMethod1Relation.neutral) badgeColor = Colors.amberAccent;
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundMid,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                '$index. ${conn.targetPlanet.planetName}',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                  color: AppColors.lightGold,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: badgeColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: badgeColor.withValues(alpha: 0.6)),
-                ),
-                child: Text(
-                  conn.relation.labelTa,
-                  style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, color: badgeColor),
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryGold.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  conn.directionGroup.titleTa,
-                  style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.lightGold),
-                ),
-              ),
-            ],
+  Widget _buildNumberedSection({
+    required String title,
+    required List<String> items,
+    required Color badgeColor,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.outfit(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: AppColors.lightGold,
           ),
-          const SizedBox(height: 6),
-          Text(
-            '${conn.targetPlanet.signNameTa} (${conn.targetPlanet.formattedDMS}) | தொடர்பு பாவம்: ${conn.relativeHouse} | டிகிரி வரிசை: ${conn.degreeOrder}',
-            style: GoogleFonts.outfit(fontSize: 11, color: Colors.white70),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundMid.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.borderGold.withValues(alpha: 0.3),
+            ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'காரகத்துவங்கள் (Karakatwas):',
-            style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textGold),
-          ),
-          const SizedBox(height: 4),
-          Wrap(
-            spacing: 6,
-            runSpacing: 4,
-            children: conn.karakatwas.map((k) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(6),
+          child: Column(
+            children: items.asMap().entries.map((entry) {
+              final idx = entry.key + 1;
+              final text = entry.value;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: badgeColor.withValues(alpha: 0.15),
+                      ),
+                      child: Text(
+                        '$idx',
+                        style: GoogleFonts.outfit(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: badgeColor,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        text,
+                        style: GoogleFonts.outfit(
+                          fontSize: 12.5,
+                          color: Colors.white,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                child: Text(k, style: GoogleFonts.outfit(fontSize: 10, color: Colors.white70)),
               );
             }).toList(),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -711,50 +691,4 @@ class _BnnMethod1ScreenState extends State<BnnMethod1Screen> {
     );
   }
 
-  Widget _buildDashaCard() {
-    final dasha = _result!.dashaResult!;
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cardSurface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.4)),
-      ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.timelapse_rounded, color: AppColors.lightGold, size: 18),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'விம்சோத்தரி தசா இருப்பு (Vimshottari Dasha Balance)',
-                  style: GoogleFonts.cinzel(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.lightGold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const Divider(color: AppColors.borderGold, height: 14),
-          Text(
-            dasha.balanceFormatted,
-            style: GoogleFonts.outfit(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: AppColors.lightGold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'சந்திரனின் அட்ச/தீர்க்கரேகை அடிப்படையில் துல்லியமாக கணக்கிடப்பட்டது.',
-            style: GoogleFonts.outfit(fontSize: 11, color: Colors.white60),
-          ),
-        ],
-      ),
-    );
-  }
 }

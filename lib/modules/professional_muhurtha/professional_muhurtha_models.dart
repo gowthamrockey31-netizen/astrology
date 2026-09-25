@@ -1,25 +1,49 @@
 // ===============================================================
-// PROFESSIONAL MUHURTHA / NALLA NERAM - MODELS
+// PROFESSIONAL SUBHA MUHURTHAM - DATA MODELS
 // ===============================================================
 
-enum MuhurthaMode {
-  general,
-  personal,
-}
-
-enum MuhurthaActivity {
-  general,
+/// Categories of Muhurtham
+enum MuhurthaCategory {
+  generalSubha,
   marriage,
-  business,
-  houseConstruction,
   houseEntry,
-  propertyPurchase,
-  vehiclePurchase,
-  education,
-  travel,
-  agriculture,
-  naming,
-  medical,
+  bhoomiPooja,
+  earPiercing,
+  newBusiness;
+
+  String get tamilTitle {
+    switch (this) {
+      case MuhurthaCategory.generalSubha:
+        return 'பொது சுப காரியம்';
+      case MuhurthaCategory.marriage:
+        return 'திருமணம் (Wedding)';
+      case MuhurthaCategory.houseEntry:
+        return 'கிரகப்பிரவேசம் (House Warming)';
+      case MuhurthaCategory.bhoomiPooja:
+        return 'பூமி பூஜை (Ground Breaking)';
+      case MuhurthaCategory.earPiercing:
+        return 'காதணி விழா (Ear Piercing)';
+      case MuhurthaCategory.newBusiness:
+        return 'தொழில் தொடக்கம் (New Business)';
+    }
+  }
+
+  String get englishTitle {
+    switch (this) {
+      case MuhurthaCategory.generalSubha:
+        return 'General Auspicious';
+      case MuhurthaCategory.marriage:
+        return 'Marriage';
+      case MuhurthaCategory.houseEntry:
+        return 'Gruha Pravesham';
+      case MuhurthaCategory.bhoomiPooja:
+        return 'Bhoomi Pooja';
+      case MuhurthaCategory.earPiercing:
+        return 'Ear Piercing';
+      case MuhurthaCategory.newBusiness:
+        return 'New Business';
+    }
+  }
 }
 
 class GeoLocation {
@@ -37,61 +61,287 @@ class GeoLocation {
 }
 
 class BirthProfile {
+  final String name;
   final DateTime birthDate;
-  final int birthNakshatra;
-  final int birthRasi;
+  final int birthNakshatra; // 0..26
+  final int birthRasi; // 0..11
 
   const BirthProfile({
+    required this.name,
     required this.birthDate,
     required this.birthNakshatra,
     required this.birthRasi,
   });
 }
 
-class MuhurthaWindow {
+/// Panchanga Five Angas evaluation result
+class PanchangaAngasResult {
+  final String tithiName;
+  final int tithiNumber;
+  final String paksha;
+  final bool isTithiPreferred;
+  final String tithiReason;
+
+  final String weekdayName;
+  final int weekdayNumber; // 1=Mon..7=Sun
+  final bool isVaraPreferred;
+  final String varaReason;
+
+  final String nakshatraName;
+  final int nakshatraIndex; // 0..26
+  final bool isNakshatraSuitable;
+  final String nakshatraReason;
+
+  final String yogaName;
+  final String amirthathiYoga;
+  final bool isYogaAuspicious;
+  final String yogaReason;
+
+  final String karanaName;
+  final bool isKaranaAuspicious;
+  final String karanaReason;
+
+  const PanchangaAngasResult({
+    required this.tithiName,
+    required this.tithiNumber,
+    required this.paksha,
+    required this.isTithiPreferred,
+    required this.tithiReason,
+    required this.weekdayName,
+    required this.weekdayNumber,
+    required this.isVaraPreferred,
+    required this.varaReason,
+    required this.nakshatraName,
+    required this.nakshatraIndex,
+    required this.isNakshatraSuitable,
+    required this.nakshatraReason,
+    required this.yogaName,
+    required this.amirthathiYoga,
+    required this.isYogaAuspicious,
+    required this.yogaReason,
+    required this.karanaName,
+    required this.isKaranaAuspicious,
+    required this.karanaReason,
+  });
+}
+
+/// Tara Bala evaluation result (1..9 cyclical)
+class TaraBalaResult {
+  final int taraNumber; // 1..9
+  final String taraName;
+  final bool isAccepted;
+  final String status;
+  final String reason;
+
+  const TaraBalaResult({
+    required this.taraNumber,
+    required this.taraName,
+    required this.isAccepted,
+    required this.status,
+    required this.reason,
+  });
+}
+
+/// Chandra Bala evaluation result
+class ChandraBalaResult {
+  final String birthRasi;
+  final String moonRasi;
+  final int relativeHouse; // 1..12
+  final bool isPreferred;
+  final bool isChandrashtama;
+  final String status;
+  final String reason;
+
+  const ChandraBalaResult({
+    required this.birthRasi,
+    required this.moonRasi,
+    required this.relativeHouse,
+    required this.isPreferred,
+    required this.isChandrashtama,
+    required this.status,
+    required this.reason,
+  });
+}
+
+/// Guru Bala evaluation result (for Marriage)
+class GuruBalaResult {
+  final String birthRasi;
+  final String jupiterRasi;
+  final int relativeHouse; // 1..12
+  final bool isAuspicious;
+  final String status;
+  final String reason;
+
+  const GuruBalaResult({
+    required this.birthRasi,
+    required this.jupiterRasi,
+    required this.relativeHouse,
+    required this.isAuspicious,
+    required this.status,
+    required this.reason,
+  });
+}
+
+/// Surya Bala evaluation result
+class SuryaBalaResult {
+  final String birthRasi;
+  final String sunRasi;
+  final int relativeHouse; // 1..12
+  final bool isAuspicious;
+  final String status;
+  final String reason;
+
+  const SuryaBalaResult({
+    required this.birthRasi,
+    required this.sunRasi,
+    required this.relativeHouse,
+    required this.isAuspicious,
+    required this.status,
+    required this.reason,
+  });
+}
+
+/// Lagna Shuddhi evaluation for a specific candidate time
+class LagnaShuddhiResult {
+  final String lagnaRasi;
+  final String lagnaDegreeStr;
+  final bool isAshtamaLagna;
+  final bool isClean;
+  final List<String> maleficPlanetsIn7812;
+  final String status;
+  final String reason;
+
+  const LagnaShuddhiResult({
+    required this.lagnaRasi,
+    required this.lagnaDegreeStr,
+    required this.isAshtamaLagna,
+    required this.isClean,
+    required this.maleficPlanetsIn7812,
+    required this.status,
+    required this.reason,
+  });
+}
+
+/// Panchaka Dosha evaluation: (Day + Tithi + Nakshatra + Lagna) % 9
+class PanchakaResult {
+  final int dayVal;
+  final int tithiVal;
+  final int nakshatraVal;
+  final int lagnaVal;
+  final int total;
+  final int remainder;
+  final String typeName;
+  final bool isGood;
+  final String reason;
+
+  const PanchakaResult({
+    required this.dayVal,
+    required this.tithiVal,
+    required this.nakshatraVal,
+    required this.lagnaVal,
+    required this.total,
+    required this.remainder,
+    required this.typeName,
+    required this.isGood,
+    required this.reason,
+  });
+}
+
+/// Inauspicious time window (Rahu Kalam, Yamagandam, Gulikai, Visha Kadigai, Sandhya)
+class InauspiciousPeriod {
+  final String name;
   final DateTime start;
   final DateTime end;
-  final double score;
-  final String category;
-  final List<String> reasons;
+  final String timingFormatted;
+  final String description;
 
-  const MuhurthaWindow({
+  const InauspiciousPeriod({
+    required this.name,
     required this.start,
     required this.end,
-    required this.score,
-    required this.category,
+    required this.timingFormatted,
+    required this.description,
+  });
+}
+
+/// Continuous Auspicious Muhurtham Window
+class SubhaTimeWindow {
+  final DateTime start;
+  final DateTime end;
+  final String timingFormatted;
+  final String durationFormatted;
+  final String lagnaName;
+  final String panchakaName;
+  final double suitabilityScore; // 0..100
+  final List<String> reasons;
+
+  const SubhaTimeWindow({
+    required this.start,
+    required this.end,
+    required this.timingFormatted,
+    required this.durationFormatted,
+    required this.lagnaName,
+    required this.panchakaName,
+    required this.suitabilityScore,
     required this.reasons,
   });
 }
 
+/// Complete Muhurtham Calculation Result for a selected Date & Location
 class MuhurthaResult {
   final DateTime date;
   final GeoLocation location;
+  final MuhurthaCategory category;
+  final BirthProfile? birthProfile;
+
+  final String tamilMonth;
+  final int tamilDay;
+  final String tamilYearName;
+  final bool isMonthPreferred;
+  final String monthRestrictionReason;
+  final List<String> monthSunyamRasis;
+  final bool isKathiriAgniActive;
+  final String kathiriReason;
 
   final DateTime sunrise;
   final DateTime sunset;
+  final DateTime solarNoon;
 
-  final MuhurthaWindow rahuKalam;
-  final MuhurthaWindow yamagandam;
-  final MuhurthaWindow gulikai;
+  final PanchangaAngasResult angas;
+  final TaraBalaResult? taraBala;
+  final ChandraBalaResult? chandraBala;
+  final GuruBalaResult? guruBala;
+  final SuryaBalaResult? suryaBala;
 
-  final List<MuhurthaWindow> bestWindows;
-  final List<MuhurthaWindow> avoidWindows;
-
-  final double highestScore;
-  final String finalRecommendation;
+  final SubhaTimeWindow? abhijitMuhurtham;
+  final List<InauspiciousPeriod> inauspiciousPeriods;
+  final List<SubhaTimeWindow> validWindows;
+  final String summaryVerdict;
 
   const MuhurthaResult({
     required this.date,
     required this.location,
+    required this.category,
+    this.birthProfile,
+    required this.tamilMonth,
+    required this.tamilDay,
+    required this.tamilYearName,
+    required this.isMonthPreferred,
+    required this.monthRestrictionReason,
+    required this.monthSunyamRasis,
+    required this.isKathiriAgniActive,
+    required this.kathiriReason,
     required this.sunrise,
     required this.sunset,
-    required this.rahuKalam,
-    required this.yamagandam,
-    required this.gulikai,
-    required this.bestWindows,
-    required this.avoidWindows,
-    required this.highestScore,
-    required this.finalRecommendation,
+    required this.solarNoon,
+    required this.angas,
+    this.taraBala,
+    this.chandraBala,
+    this.guruBala,
+    this.suryaBala,
+    this.abhijitMuhurtham,
+    required this.inauspiciousPeriods,
+    required this.validWindows,
+    required this.summaryVerdict,
   });
 }

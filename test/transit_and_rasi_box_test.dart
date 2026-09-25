@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:astrocall/services/astrology_calculator.dart';
 import 'package:astrocall/widgets/south_indian_jathagam_widget.dart';
+import 'package:astrocall/widgets/south_indian_rasi_chart.dart';
 import 'package:astrocall/models/user_model.dart';
 
 void main() {
@@ -74,8 +75,14 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify the widget rendered
-      expect(find.text('ராசி (Rasi Chart D1)'), findsOneWidget);
+      expect(find.text('ராசி (RASI CHART D1)'), findsOneWidget);
       expect(find.text('Outer Orbit: Gocharam'), findsOneWidget);
+
+      // Verify Outer Orbit legend is rendered
+      expect(find.text('வெளி சுற்று: கோட்சாரம் (Transit)'), findsOneWidget);
+
+      // Verify that transit degree indicators (with ° symbol) are displayed in outer orbit
+      expect(find.textContaining('°'), findsWidgets);
 
       // Tap on Simmam Rasi box (rasiIdx = 4)
       final simmamBoxFinder = find.byKey(const Key('rasi_box_4'));
@@ -87,5 +94,40 @@ void main() {
       // The details card or modal with close button should appear
       expect(find.byIcon(Icons.close), findsWidgets);
     });
+
+    testWidgets('SouthIndianRasiChart with transits displays outer orbit and transit degrees', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final transits = AstrologyCalculator.calculateTransits();
+      final planets = <String, PlanetDetail>{
+        'Sun': PlanetDetail.fromSiderealLongitude(
+          name: 'Sun',
+          tamilName: 'சூரியன்',
+          symbol: 'சூ',
+          longitude: 120.5,
+        ),
+      };
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SouthIndianRasiChart(
+              title: 'ராசி (RASI CHART)',
+              planets: planets,
+              transits: transits,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Outer Orbit: Gocharam'), findsOneWidget);
+      // Transit planets with degrees should be rendered in the outer orbit
+      expect(find.textContaining('°'), findsWidgets);
+    });
   });
 }
+

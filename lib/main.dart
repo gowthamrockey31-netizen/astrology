@@ -11,6 +11,7 @@ import 'screens/astrologer_module/astrologer_dashboard_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/admin/admin_terms_cms_screen.dart';
 import 'screens/admin/admin_panchang_cms_screen.dart';
+import 'screens/admin/admin_suba_muhurtham_cms_screen.dart';
 import 'screens/admin/admin_planet_positions_cms_screen.dart';
 import 'screens/magazine/magazine_feed_screen.dart';
 import 'screens/horoscope/horoscope_screen.dart';
@@ -43,10 +44,13 @@ import 'screens/mundane_astrology/mundane_astrology_screen.dart';
 import 'kp_method_model_1/kp_method_model_1.dart';
 import 'kp_method_2/kp_method_2.dart';
 import 'kp_method_model_3/kp_method_model_3.dart' show KPMethodModel3Page;
+import 'kp_method_4/kp_method_4.dart';
 import 'modules/bnn_method_2/bnn_method_2.dart';
 import 'modules/jamakol_arudam_model_2/jamakol_arudam_model_2.dart';
 import 'modules/professional_muhurtha/professional_muhurtha.dart';
 import 'modules/ayana_kala/ayana_kala_module.dart';
+import 'modules/dhanishta_panchami/dhanishta_panchami.dart';
+import 'modules/nakshatra_prasannam/nakshatra_prasannam_screen.dart';
 import 'jamakkol_prasannam_module.dart';
 
 void main() {
@@ -188,6 +192,11 @@ class AstroDashaCareApp extends StatelessWidget {
               requiredRole: 'Admin',
               child: const AdminPanchangCmsScreen(),
             ),
+        '/admin_suba_muhurtham': (context) => _guardedRoute(
+              context: context,
+              requiredRole: 'Admin',
+              child: const AdminSubaMuhurthamCmsScreen(),
+            ),
         '/admin_planet_positions': (context) => _guardedRoute(
               context: context,
               requiredRole: 'Admin',
@@ -228,6 +237,7 @@ class AstroDashaCareApp extends StatelessWidget {
         '/jamakkol_prasannam': (context) => const JamakkolPrasannamModule(),
         '/jamakkol_prasagam': (context) => const JamakkolPrasannamModule(),
         '/jamakol_prasagam': (context) => const JamakkolPrasannamModule(),
+        '/nakshatra_prasannam': (context) => const NakshatraPrasannaScreen(),
         '/kp_astrology': (context) => const KpAstrologyScreen(),
         '/kp_method_model_1': (context) => const KPMethodModel1Page(),
         '/kp-method-model-1': (context) => const KPMethodModel1Page(),
@@ -235,6 +245,8 @@ class AstroDashaCareApp extends StatelessWidget {
         '/kp-method-2': (context) => const KPMethod2Page(),
         '/kp_method_model_3': (context) => const KPMethodModel3Page(),
         '/kp-method-model-3': (context) => const KPMethodModel3Page(),
+        '/kp_method_4': (context) => const KPMethod4Page(),
+        '/kp-method-4': (context) => const KPMethod4Page(),
         '/kp_horary': (context) => const KpHoraryScreen(),
         '/daily_planet_positions': (context) => const DailyPlanetPositionsScreen(),
         '/daily_calendar': (context) => const DailyCalendarScreen(),
@@ -249,6 +261,8 @@ class AstroDashaCareApp extends StatelessWidget {
         '/muhurtha': (context) => const ProfessionalMuhurthaPage(),
         '/ayana_kala': (context) => const AyanaKalaModule(),
         '/ayana': (context) => const AyanaKalaModule(),
+        '/dhanishta_panchami': (context) => const DhanishtaPanchamiTithiAdaippuModule(),
+        '/dhanishta': (context) => const DhanishtaPanchamiTithiAdaippuModule(),
         '/mundane_astrology': (context) => _guardedRoute(
               context: context,
               requiredRole: 'Admin',

@@ -113,14 +113,30 @@ void main() {
     });
 
     test('Traditional Panchang Nakshatra duration conversion (Notebook example)', () {
+      // Step-by-step mathematical validation from reference document:
+      // Hours * 5 / 2 -> 25 * 5 / 2 = 125 / 2 = 62.5
+      const int hours = 25;
+      const double convertedHours = hours * 5 / 2;
+      expect(convertedHours, 62.5);
+
+      // Minutes * 5 / 2 -> 37 * 5 / 2 = 185 / 2 = 92.5
+      const int minutes = 37;
+      const double convertedMinutes = minutes * 5 / 2;
+      expect(convertedMinutes, 92.5);
+
       // 25 hours 37 minutes -> 64 nazhigai 03 vinadi (3843 vinadi)
       final (nazhigai, vinadi, totalVinadi) = AadhiAnthaNazhigaiCalculator.convertDurationToNazhigai(
-        hours: 25,
-        minutes: 37,
+        hours: hours,
+        minutes: minutes,
       );
       expect(nazhigai, 64);
       expect(vinadi, 3);
+      // Smallest working unit: X * 60 + Y -> 64 * 60 + 03 = 3843
       expect(totalVinadi, 3843);
+
+      // One-Pada duration: 3843 / 4 = 960.75
+      final padaDuration = totalVinadi / 4.0;
+      expect(padaDuration, 960.75);
 
       // Thiruvathirai 2nd pada calculation:
       // Elapsed 26 nazhigai 28 vinadi = 1588 vinadi
@@ -130,15 +146,66 @@ void main() {
         durationMinutes: 37,
         elapsedNazhigai: 26,
         elapsedVinadi: 28,
+        nakshatraStartTime: DateTime(2026, 1, 1, 22, 49),
+        nakshatraEndTime: DateTime(2026, 1, 3, 0, 26),
       );
       expect(res.totalVinadi, 3843);
+      expect(res.totalWorkingUnits, 3843);
       expect(res.padaVinadi, 3843 / 4.0); // 960.75
+      expect(res.onePadaDuration, 960.75);
+      expect(res.padaDurations.length, 4);
+      expect(res.padaDurations, [960.75, 960.75, 960.75, 960.75]);
+      expect(res.nazhigai, 64);
+      expect(res.vinadi, 3);
+      expect(res.originalDurationFormatted, '25 மணி 37 நிமிடம்');
+      expect(res.convertedDurationFormatted, '64 நாழிகை 3 வினாடி');
       expect(res.aadhiVinadi, 1588);
       expect(res.andhaVinadi, 2255);
       expect(res.pada, 2); // 2nd pada (1588 > 960.75 and <= 1921.5)
       expect(res.paramaNazhigaiFormatted, '64 நாழிகை 3 வினாடி');
       expect(res.aadhiNazhigaiFormatted, '26 நாழிகை 28 வினாடி');
       expect(res.andhaNazhigaiFormatted, '37 நாழிகை 35 வினாடி');
+    });
+
+    test('Midnight crossing duration handling (Start: 10:49 PM, End: 12:26 AM next-next day)', () {
+      final start = DateTime(2026, 6, 1, 22, 49); // 10:49 PM
+      final end = DateTime(2026, 6, 3, 0, 26);   // 12:26 AM next-next day (25h 37m)
+
+      final res = AadhiAnthaNazhigaiCalculator.calculate(
+        moonLongitude: 67.5,
+        nakshatraNameTa: 'திருவாதிரை',
+        nakshatraStartTime: start,
+        nakshatraEndTime: end,
+      );
+
+      expect(res.originalDuration, const Duration(hours: 25, minutes: 37));
+      expect(res.nazhigai, 64);
+      expect(res.vinadi, 3);
+      expect(res.totalWorkingUnits, 3843);
+      expect(res.onePadaDuration, 960.75);
+      expect(res.paramaNazhigaiFormatted, '64 நாழிகை 3 வினாடி');
+    });
+
+    test('Dynamic Nakshatra timing and metrics calculation from birthDateTime', () {
+      final birthDt = DateTime(1995, 8, 15, 8, 30);
+      final res = AadhiAnthaNazhigaiCalculator.calculate(
+        moonLongitude: 353.86,
+        nakshatraNameTa: 'ரேவதி',
+        birthDateTime: birthDt,
+        utcOffsetHours: 5.5,
+      );
+
+      expect(res.nakshatraStartTime, isNotNull);
+      expect(res.nakshatraEndTime, isNotNull);
+      expect(res.originalDuration, isNotNull);
+      expect(res.originalDuration!.inHours, greaterThanOrEqualTo(20));
+      expect(res.originalDuration!.inHours, lessThanOrEqualTo(28));
+      expect(res.nazhigai, greaterThan(50));
+      expect(res.totalWorkingUnits, equals(res.nazhigai * 60 + res.vinadi));
+      expect(res.onePadaDuration, equals(res.totalWorkingUnits / 4.0));
+      expect(res.pada, 3); // Revati 3rd pada at 353.86°
+      expect(res.progressPercent, greaterThan(0.0));
+      expect(res.progressPercent, lessThan(100.0));
     });
 
     test('Dina Suddhi purity score calculation', () {

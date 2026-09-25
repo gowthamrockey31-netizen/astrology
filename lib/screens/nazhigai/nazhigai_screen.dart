@@ -4,12 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/nazhigai_result.dart';
-import '../../services/astrology_calculator.dart';
 import '../../services/auth_service.dart';
 import '../../services/nazhigai_calculator.dart';
 import '../../widgets/astro_card.dart';
 import '../../widgets/cosmic_background.dart';
-import '../../widgets/golden_button.dart';
 
 class NazhigaiScreen extends StatefulWidget {
   const NazhigaiScreen({super.key});
@@ -226,9 +224,12 @@ class _NazhigaiScreenState extends State<NazhigaiScreen> {
                           padding: const EdgeInsets.all(20),
                           child: Column(
                             children: [
-                              Text(
-                                'உதயாதினாழிகை (Udayadhi Nazhigai)',
-                                style: GoogleFonts.outfit(fontSize: 12, color: AppColors.textSecondary),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'உதயாதினாழிகை (Udayadhi Nazhigai)',
+                                  style: GoogleFonts.outfit(fontSize: 12, color: AppColors.textSecondary),
+                                ),
                               ),
                               const SizedBox(height: 10),
                               Text(
