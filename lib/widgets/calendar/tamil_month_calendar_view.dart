@@ -10,11 +10,13 @@ import 'tamil_day_detail_sheet.dart';
 class TamilMonthCalendarView extends StatelessWidget {
   final TamilCalendarController controller;
   final VoidCallback? onSwitchToDayView;
+  final double? customAspectRatio;
 
   const TamilMonthCalendarView({
     super.key,
     required this.controller,
     this.onSwitchToDayView,
+    this.customAspectRatio,
   });
 
   static const List<String> weekdayHeadersTa = [
@@ -50,6 +52,25 @@ class TamilMonthCalendarView extends StatelessWidget {
               '${DateFormat('d MMMM').format(firstDate)} – ${DateFormat('d MMMM yyyy').format(lastDate)}';
         }
 
+        // Dynamically compute childAspectRatio based on available screen space
+        final mediaQuery = MediaQuery.of(context);
+        final screenWidth = mediaQuery.size.width;
+        final screenHeight = mediaQuery.size.height;
+        final safeHeight = screenHeight - mediaQuery.padding.top - mediaQuery.padding.bottom;
+
+        final int rowCount = (gridDays.length / 7).ceil().clamp(1, 6);
+        const double nonGridHeight = 215.0; // Header, month nav card, weekday row, legend, margins
+        final double availableGridHeight = safeHeight - nonGridHeight;
+        final double gridSpacingHeight = (rowCount - 1) * 4.0;
+        final double targetCellHeight = availableGridHeight > 0
+            ? (availableGridHeight - gridSpacingHeight) / rowCount
+            : 60.0;
+        final double cellWidth = (screenWidth - 32.0 - 24.0) / 7.0; // 32 screen h-padding, 24 cross-axis spacing
+        final double dynamicAspectRatio = (targetCellHeight > 0 && cellWidth > 0)
+            ? (cellWidth / targetCellHeight)
+            : 0.78;
+        final double effectiveAspectRatio = customAspectRatio ?? dynamicAspectRatio.clamp(0.48, 0.78);
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -61,7 +82,7 @@ class TamilMonthCalendarView extends StatelessWidget {
               dateRangeFormatted: dateRangeFormatted,
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
 
             // Weekday Header Row (ஞா, தி, செ, பு, வி, வெ, ச)
             _buildWeekdayHeaders(),
@@ -73,9 +94,9 @@ class TamilMonthCalendarView extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: gridDays.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 7,
-                childAspectRatio: 0.78,
+                childAspectRatio: effectiveAspectRatio,
                 crossAxisSpacing: 4,
                 mainAxisSpacing: 4,
               ),
@@ -114,7 +135,7 @@ class TamilMonthCalendarView extends StatelessWidget {
               },
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // Quick Legend / Guide (Scrollable horizontally to prevent overflow)
             _buildCalendarLegend(),

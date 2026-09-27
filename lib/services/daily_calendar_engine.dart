@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import '../models/daily_calendar_models.dart';
 import 'astrology_calculator.dart';
+import 'gowri_panchangam_engine.dart';
 import 'swiss_ephemeris_calculator.dart';
 import 'tithi_calculator.dart';
 
@@ -22,6 +23,10 @@ class DailyCalendarEngine {
     7: {'direction': 'மேற்கு (West)', 'pariharam': 'வெல்லம் (Jaggery)'},
   };
 
+  /// Note explaining sunrise-based approximation
+  static const String nallaNeramNoteTa =
+      'குறிப்பு: மேற்கண்ட நேரம் தோராயமானது. அதனால் அன்றைய தின சூரிய உதயத்திற்கு ஏற்ப மதிப்பீடு செய்து நல்ல நேரம் காண்க...';
+
   /// Morning & Evening Nalla Neram windows by weekday (1=Mon ... 7=Sun)
   static const Map<int, Map<String, String>> nallaNeramByWeekday = {
     1: {'morning': 'காலை 06:30 AM - 07:30 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'},
@@ -30,38 +35,19 @@ class DailyCalendarEngine {
     4: {'morning': 'காலை 09:30 AM - 10:30 AM', 'evening': 'மாலை 06:30 PM - 07:30 PM'},
     5: {'morning': 'காலை 09:30 AM - 10:30 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'},
     6: {'morning': 'காலை 07:30 AM - 08:30 AM', 'evening': 'மாலை 05:00 PM - 06:00 PM'},
-    7: {'morning': 'காலை 07:30 AM - 08:30 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'},
+    7: {'morning': 'காலை 07:00 AM - 09:00 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'},
   };
 
-  /// Gowri order for Day by weekday (1=Mon ... 7=Sun)
-  /// Authentic sequence: உத்தி -> அமிர்தம் -> ரோகம் -> லாபம் -> தனம் -> விஷம் -> சோரம் -> சுகம்
-  static const Map<int, List<String>> gowriDayOrder = {
-    1: ['அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சோரம்', 'சுகம்', 'உத்தி'],
-    2: ['ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சோரம்', 'சுகம்', 'உத்தி', 'அமிர்தம்'],
-    3: ['லாபம்', 'தனம்', 'விஷம்', 'சோரம்', 'சுகம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்'],
-    4: ['தனம்', 'விஷம்', 'சோரம்', 'சுகம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்'],
-    5: ['விஷம்', 'சோரம்', 'சுகம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்'],
-    6: ['சோரம்', 'சுகம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்'],
-    7: ['உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சோரம்', 'சுகம்'],
+  /// Authoritative Gowri order for Day by weekday (1=Mon ... 7=Sun) from GowriPanchangamEngine
+  static Map<int, List<String>> get gowriDayOrder => {
+    for (int d = 1; d <= 7; d++)
+      d: (GowriPanchangamEngine.dayGowri[d % 7]!).map((t) => t.tamilName).toList(),
   };
 
-  /// Gowri order for Night by weekday (1=Mon ... 7=Sun)
-  /// Authentic sequence from Tamil Panchangam (Page 151):
-  /// திங்கள்: சோரம், உத்தி, விஷம், ரோகம், தனம், சுகம், லாபம், அமிர்தம்
-  /// செவ்வாய்: சுகம், லாபம், அமிர்தம், விஷம், ரோகம், சோரம், உத்தி, தனம்
-  /// புதன்: விஷம், ரோகம், சோரம், உத்தி, தனம், சுகம், லாபம், அமிர்தம்
-  /// வியாழன்: லாபம், அமிர்தம், விஷம், ரோகம், சோரம், உத்தி, தனம், சுகம்
-  /// வெள்ளி: ரோகம், சோரம், உத்தி, தனம், சுகம், லாபம், அமிர்தம், விஷம்
-  /// சனி: அமிர்தம், விஷம், ரோகம், சோரம், உத்தி, தனம், சுகம், லாபம்
-  /// ஞாயிறு: தனம், சுகம், லாபம், அமிர்தம், விஷம், ரோகம், சோரம், உத்தி
-  static const Map<int, List<String>> gowriNightOrder = {
-    1: ['சோரம்', 'உத்தி', 'விஷம்', 'ரோகம்', 'தனம்', 'சுகம்', 'லாபம்', 'அமிர்தம்'],
-    2: ['சுகம்', 'லாபம்', 'அமிர்தம்', 'விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி', 'தனம்'],
-    3: ['விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி', 'தனம்', 'சுகம்', 'லாபம்', 'அமிர்தம்'],
-    4: ['லாபம்', 'அமிர்தம்', 'விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி', 'தனம்', 'சுகம்'],
-    5: ['ரோகம்', 'சோரம்', 'உத்தி', 'தனம்', 'சுகம்', 'லாபம்', 'அமிர்தம்', 'விஷம்'],
-    6: ['அமிர்தம்', 'விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி', 'தனம்', 'சுகம்', 'லாபம்'],
-    7: ['தனம்', 'சுகம்', 'லாபம்', 'அமிர்தம்', 'விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி'],
+  /// Authoritative Gowri order for Night by weekday (1=Mon ... 7=Sun) from GowriPanchangamEngine
+  static Map<int, List<String>> get gowriNightOrder => {
+    for (int d = 1; d <= 7; d++)
+      d: (GowriPanchangamEngine.nightGowri[d % 7]!).map((t) => t.tamilName).toList(),
   };
 
   /// Calculate all Daily Calendar details for a given date and location
@@ -144,10 +130,25 @@ class DailyCalendarEngine {
     }
 
     // 9. Good Times & Gowri Periods
-    final nallaNeram = nallaNeramByWeekday[weekdayIdx] ?? {'morning': '07:30 AM - 08:30 AM', 'evening': '04:30 PM - 05:30 PM'};
-    final dayGowri = _calculateGowriPeriods(sunrise, sunset, gowriDayOrder[weekdayIdx]!);
-    final nextDaySunrise = sunrise.add(const Duration(days: 1));
-    final nightGowri = _calculateGowriPeriods(sunset, nextDaySunrise, gowriNightOrder[weekdayIdx]!);
+    final nallaNeram = nallaNeramByWeekday[weekdayIdx] ?? {'morning': 'காலை 07:00 AM - 09:00 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'};
+    final nextDaySunTimes = AstrologyCalculator.calculateSunriseSunset(
+      targetDate.add(const Duration(days: 1)),
+      latitude,
+      longitude,
+      utcOffsetHours,
+    );
+    final nextDaySunrise = nextDaySunTimes['sunrise'] ?? sunrise.add(const Duration(days: 1));
+    final gowriWeekdayIdx = weekdayIdx % 7; // Sunday=0, Monday=1 ... Saturday=6
+    final dayGowri = GowriPanchangamEngine.calculateDayGowriPeriods(
+      sunrise: sunrise,
+      sunset: sunset,
+      weekdayIndex: gowriWeekdayIdx,
+    );
+    final nightGowri = GowriPanchangamEngine.calculateNightGowriPeriods(
+      sunset: sunset,
+      nextSunrise: nextDaySunrise,
+      weekdayIndex: gowriWeekdayIdx,
+    );
 
     // 10. Dynamic Daytime Inauspicious & Muhurtha Windows
     final dayMinutes = sunset.difference(sunrise).inMinutes;
@@ -364,6 +365,7 @@ class DailyCalendarEngine {
       sunsetTime: sunset,
       morningNallaNeram: nallaNeram['morning']!,
       eveningNallaNeram: nallaNeram['evening']!,
+      nallaNeramNote: nallaNeramNoteTa,
       dayGowriPeriods: dayGowri,
       nightGowriPeriods: nightGowri,
       tithiNameTa: tithiName,

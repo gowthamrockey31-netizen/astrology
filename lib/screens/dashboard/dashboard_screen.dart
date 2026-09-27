@@ -276,9 +276,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       {'title': 'KP Method', 'sub': 'Model 3', 'icon': Icons.hub_rounded, 'route': '/kp_method_model_3', 'color': Colors.blueGrey.shade900},
       {'title': 'KP Method 4', 'sub': 'நட்சத்திர உப தொடர்புகள் & பாவ கணிதம்', 'icon': Icons.hub_outlined, 'route': '/kp_method_4', 'color': Colors.deepOrange.shade900},
       {'title': 'ஜாதக / பஞ்சாங்க குறிப்புகள்', 'sub': 'பஞ்சாங்கம், தினசுத்தி, அஷ்டவர்க்கம்', 'icon': Icons.description_rounded, 'route': '/jaathaga_kurippugal', 'color': Colors.indigo.shade800},
-      {'title': 'ஜாமகோள் ஆருடம்', 'sub': 'Jamakol Arudam', 'icon': Icons.compass_calibration_rounded, 'route': '/jamakol_arudam', 'color': Colors.deepPurple.shade800},
-      {'title': 'ஜாமகோள் ஆருடம்', 'sub': 'Model 1', 'icon': Icons.auto_awesome, 'route': '/jamakol_arudam_model1', 'color': Colors.deepPurple.shade700},
-      {'title': 'ஜாமகோள் ஆருடம்', 'sub': 'Model 2', 'icon': Icons.stars_rounded, 'route': '/jamakol_arudam_model2', 'color': Colors.deepPurple.shade900},
       {'title': 'நட்சத்திர பிரசன்னம்', 'sub': 'Nakshatra Prasannam (DRM/HRM)', 'icon': Icons.auto_awesome_rounded, 'route': '/nakshatra_prasannam', 'color': Colors.deepPurple.shade600},
       {'title': 'KP Astrology', 'sub': 'Sub Lord Analysis', 'icon': Icons.hub_rounded, 'route': '/kp_astrology', 'color': Colors.amber.shade900},
       {'title': 'KP Horary / பிரசன்னம்', 'sub': '1-249 Horary Kundali', 'icon': Icons.help_center_rounded, 'route': '/kp_horary', 'color': Colors.blue.shade900},
@@ -694,22 +691,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           const SizedBox(height: 24),
 
-          // Astrology Profile Details Card
-          AstroCard(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildAstroDetailItem("Sun Sign", "Aries ♈"),
-                Container(width: 1, height: 35, color: AppColors.borderGold.withOpacity(0.4)),
-                _buildAstroDetailItem("Moon Sign", "Taurus ♉"),
-                Container(width: 1, height: 35, color: AppColors.borderGold.withOpacity(0.4)),
-                _buildAstroDetailItem("Ascendant", "Leo ♌"),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 20),
 
           // Profile Menu Items
           _buildProfileMenuItem(Icons.history_rounded, "My Consultations & History"),
@@ -740,15 +721,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildAstroDetailItem(String label, String value) {
-    return Column(
-      children: [
-        Text(label, style: GoogleFonts.poppins(fontSize: 11, color: AppColors.textSecondary)),
-        const SizedBox(height: 4),
-        Text(value, style: GoogleFonts.cinzel(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.lightGold)),
-      ],
-    );
-  }
 
   Widget _buildProfileMenuItem(IconData icon, String title) {
     return Container(

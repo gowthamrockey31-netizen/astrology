@@ -6,12 +6,18 @@ class GowriPeriod {
   final String timeRange;
   final bool isGood;
   final String natureTa;
+  final DateTime? startTime;
+  final DateTime? endTime;
+  final bool isCurrent;
 
   const GowriPeriod({
     required this.nameTa,
     required this.timeRange,
     required this.isGood,
     required this.natureTa,
+    this.startTime,
+    this.endTime,
+    this.isCurrent = false,
   });
 }
 
@@ -110,6 +116,7 @@ class DailyCalendarData {
   // Good Time periods
   final String morningNallaNeram;
   final String eveningNallaNeram;
+  final String nallaNeramNote;
   final List<GowriPeriod> dayGowriPeriods;
   final List<GowriPeriod> nightGowriPeriods;
 
@@ -181,6 +188,7 @@ class DailyCalendarData {
     required this.sunsetTime,
     required this.morningNallaNeram,
     required this.eveningNallaNeram,
+    this.nallaNeramNote = 'குறிப்பு: மேற்கண்ட நேரம் தோராயமானது. அதனால் அன்றைய தின சூரிய உதயத்திற்கு ஏற்ப மதிப்பீடு செய்து நல்ல நேரம் காண்க...',
     required this.dayGowriPeriods,
     required this.nightGowriPeriods,
     required this.tithiNameTa,

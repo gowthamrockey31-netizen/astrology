@@ -203,39 +203,51 @@ void main() {
       final sunday = DateTime(2026, 9, 6); // Sunday
       final res = DailyCalendarEngine.calculate(targetDate: sunday);
 
+      // Sunday Morning Nalla Neram must be 07:00 AM - 09:00 AM, NOT 07:00 AM - 10:00 AM
+      expect(res.morningNallaNeram, 'காலை 07:00 AM - 09:00 AM');
+      expect(res.morningNallaNeram.contains('10:00'), false);
+      expect(res.morningNallaNeram.contains('07:00 AM - 09:00 AM'), true);
+
       // Sunday Evening Nalla Neram must be 04:30 PM - 05:30 PM (in Sukham), NOT 03:30 - 04:30 (in Choram)
       expect(res.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
 
-      // Sunday Day Gowri progression: உத்தி, அமிர்தம், ரோகம், லாபம், தனம், விஷம், சோரம், சுகம்
+      // Nalla Neram sunrise-based approximation note
+      expect(res.nallaNeramNote, contains('குறிப்பு: மேற்கண்ட நேரம் தோராயமானது'));
+
+      // Sunday Day Gowri progression: உத்தி, அமிர்தம், ரோகம், லாபம், தனம், சுகம், சோரம், விஷம்
       final dayGowriNames = res.dayGowriPeriods.map((p) => p.nameTa).toList();
-      expect(dayGowriNames, ['உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்', 'சோரம்', 'சுகம்']);
+      expect(dayGowriNames, ['உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'சுகம்', 'சோரம்', 'விஷம்']);
 
       // 1st period must be உத்தி (சுபம்)
       expect(res.dayGowriPeriods[0].nameTa, 'உத்தி');
       expect(res.dayGowriPeriods[0].isGood, true);
 
-      // 7th period (3:00 - 4:30 PM) must be சோரம் (அசுபம்)
+      // 6th period must be சுகம் (சுபம்)
+      expect(res.dayGowriPeriods[5].nameTa, 'சுகம்');
+      expect(res.dayGowriPeriods[5].isGood, true);
+
+      // 7th period must be சோரம் (அசுபம்)
       expect(res.dayGowriPeriods[6].nameTa, 'சோரம்');
       expect(res.dayGowriPeriods[6].isGood, false);
 
-      // 8th period (4:30 - 6:00 PM) must be சுகம் (சுபம்)
-      expect(res.dayGowriPeriods[7].nameTa, 'சுகம்');
-      expect(res.dayGowriPeriods[7].isGood, true);
+      // 8th period must be விஷம் (அசுபம்)
+      expect(res.dayGowriPeriods[7].nameTa, 'விஷம்');
+      expect(res.dayGowriPeriods[7].isGood, false);
 
-      // Sunday Night Gowri progression matching Page 151: தனம், சுகம், லாபம், அமிர்தம், விஷம், ரோகம், சோரம், உத்தி
+      // Sunday Night Gowri progression matching Page 151: தனம், சுகம், சோரம், விஷம், உத்தி, அமிர்தம், ரோகம், லாபம்
       final nightGowriNames = res.nightGowriPeriods.map((p) => p.nameTa).toList();
-      expect(nightGowriNames, ['தனம்', 'சுகம்', 'லாபம்', 'அமிர்தம்', 'விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி']);
+      expect(nightGowriNames, ['தனம்', 'சுகம்', 'சோரம்', 'விஷம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்']);
       expect(res.nightGowriPeriods[0].isGood, true); // தனம்
-      expect(res.nightGowriPeriods[4].isGood, false); // விஷம்
-      expect(res.nightGowriPeriods[7].isGood, true); // உத்தி
+      expect(res.nightGowriPeriods[3].isGood, false); // விஷம்
+      expect(res.nightGowriPeriods[7].isGood, true); // லாபம்
 
       // Saturday (Sep 12, 2026) Gowri verification matching Page 151
       final saturday = DateTime(2026, 9, 12);
       final satRes = DailyCalendarEngine.calculate(targetDate: saturday);
       expect(satRes.dayGowriPeriods.map((p) => p.nameTa).toList(),
-          ['சோரம்', 'சுகம்', 'உத்தி', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'விஷம்']);
+          ['சோரம்', 'உத்தி', 'விஷம்', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'சுகம்', 'உத்தி']);
       expect(satRes.nightGowriPeriods.map((p) => p.nameTa).toList(),
-          ['அமிர்தம்', 'விஷம்', 'ரோகம்', 'சோரம்', 'உத்தி', 'தனம்', 'சுகம்', 'லாபம்']);
+          ['லாபம்', 'தனம்', 'சுகம்', 'விஷம்', 'உத்தி', 'சோரம்', 'அமிர்தம்', 'ரோகம்']);
     });
 
     test('TEST 11: Authentic 27-count Nendhiram & Jeevan verification', () {
@@ -281,6 +293,58 @@ void main() {
       for (int i = 0; i < 12; i++) {
         expect(res.transitLagnas[i].rasiIndex, (sunRasiIdx + i) % 12);
       }
+    });
+
+    test('TEST 13: Complete 7-Day Date-Wise Nalla Neram Verification', () {
+      // 1. Sunday (Sep 6, 2026)
+      final sun1 = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 6));
+      expect(sun1.weekdayTa, 'ஞாயிறு');
+      expect(sun1.morningNallaNeram, 'காலை 07:00 AM - 09:00 AM');
+      expect(sun1.morningNallaNeram.contains('10:00'), false);
+      expect(sun1.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
+      expect(sun1.nallaNeramNote, contains('குறிப்பு: மேற்கண்ட நேரம் தோராயமானது'));
+
+      // 2. Monday (Sep 7, 2026)
+      final mon = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 7));
+      expect(mon.weekdayTa, 'திங்கள்');
+      expect(mon.morningNallaNeram, 'காலை 06:30 AM - 07:30 AM');
+      expect(mon.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
+
+      // 3. Tuesday (Sep 8, 2026)
+      final tue = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 8));
+      expect(tue.weekdayTa, 'செவ்வாய்');
+      expect(tue.morningNallaNeram, 'காலை 07:30 AM - 08:30 AM');
+      expect(tue.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
+
+      // 4. Wednesday (Sep 9, 2026)
+      final wed = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 9));
+      expect(wed.weekdayTa, 'புதன்');
+      expect(wed.morningNallaNeram, 'காலை 09:30 AM - 10:30 AM');
+      expect(wed.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
+
+      // 5. Thursday (Sep 10, 2026)
+      final thu = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 10));
+      expect(thu.weekdayTa, 'வியாழன்');
+      expect(thu.morningNallaNeram, 'காலை 09:30 AM - 10:30 AM');
+      expect(thu.eveningNallaNeram, 'மாலை 06:30 PM - 07:30 PM');
+
+      // 6. Friday (Sep 11, 2026)
+      final fri = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 11));
+      expect(fri.weekdayTa, 'வெள்ளி');
+      expect(fri.morningNallaNeram, 'காலை 09:30 AM - 10:30 AM');
+      expect(fri.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
+
+      // 7. Saturday (Sep 12, 2026)
+      final sat = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 12));
+      expect(sat.weekdayTa, 'சனி');
+      expect(sat.morningNallaNeram, 'காலை 07:30 AM - 08:30 AM');
+      expect(sat.eveningNallaNeram, 'மாலை 05:00 PM - 06:00 PM');
+
+      // Another Sunday (Sep 13, 2026) to test multiple dates
+      final sun2 = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 13));
+      expect(sun2.weekdayTa, 'ஞாயிறு');
+      expect(sun2.morningNallaNeram, 'காலை 07:00 AM - 09:00 AM');
+      expect(sun2.morningNallaNeram.contains('10:00'), false);
     });
   });
 }

@@ -153,24 +153,6 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/jamakkol_prasannam'),
                   ),
                   _buildDrawerItem(
-                    icon: Icons.compass_calibration_rounded,
-                    title: 'ஜாமகோள் ஆருடம் (Jamakol Arudam)',
-                    subtitle: 'உதயம், ஆருடம், கவிப்பு பிரசன்ன ஆய்வு',
-                    onTap: () => onSelectRoute('/jamakol_arudam'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.auto_awesome,
-                    title: 'ஜாமகோள் ஆருடம்',
-                    subtitle: 'Model 1',
-                    onTap: () => onSelectRoute('/jamakol_arudam_model1'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.stars_rounded,
-                    title: 'ஜாமகோள் ஆருடம்',
-                    subtitle: 'Model 2',
-                    onTap: () => onSelectRoute('/jamakol_arudam_model2'),
-                  ),
-                  _buildDrawerItem(
                     icon: Icons.auto_awesome_rounded,
                     title: 'நட்சத்திர பிரசன்னம் (Nakshatra Prasannam)',
                     subtitle: 'DRM, HRM, NPL, ஜீவா - சரீரா பிரசன்ன கணிதம்',
@@ -235,6 +217,12 @@ class CosmicDrawer extends StatelessWidget {
                     title: 'தினசரி நாள்காட்டி (Daily Calendar)',
                     subtitle: 'பஞ்சாங்கம், கௌரி நேரம், கோச்சார சக்கரம் & நிகழ்வுகள்',
                     onTap: () => onSelectRoute('/daily_calendar'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.auto_awesome_rounded,
+                    title: 'இன்றைய ராசிபலன் (Daily Rasi Palan)',
+                    subtitle: '12 ராசிகளுக்கான தினசரி கோட்சார பலன்கள் & பரிகாரங்கள்',
+                    onTap: () => onSelectRoute('/daily_rasi_palan'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.calendar_view_month_rounded,

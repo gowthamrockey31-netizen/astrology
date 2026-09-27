@@ -7,8 +7,11 @@ import '../../models/daily_calendar_models.dart';
 import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
 import '../../services/daily_calendar_engine.dart';
+import '../../services/gowri_panchangam_engine.dart';
 import '../../widgets/cosmic_background.dart';
 import '../../widgets/south_indian_rasi_chart.dart';
+import '../../widgets/weekly_gowri_modal.dart';
+import '../../daily_rasi_palan/screens/daily_rasi_palan_screen.dart';
 
 /// Module Screen: தினசரி நாள்காட்டி (Daily Calendar & Panchangam)
 class DailyCalendarScreen extends StatefulWidget {
@@ -360,6 +363,82 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
 
                 const SizedBox(height: 14),
 
+                // Dedicated Navigation Card: இன்றைய ராசிபலன் (Daily Rasi Palan)
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => DailyRasiPalanScreen(initialDate: _selectedDate),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFF1A237E).withValues(alpha: 0.65),
+                          const Color(0xFF0D47A1).withValues(alpha: 0.45),
+                          AppColors.cardSurface,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFF42A5F5).withValues(alpha: 0.75), width: 1.2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF1976D2).withValues(alpha: 0.22),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1565C0).withValues(alpha: 0.35),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFF42A5F5), width: 1),
+                          ),
+                          child: const Icon(Icons.auto_awesome_rounded, color: Color(0xFF80D8FF), size: 24),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'இன்றைய ராசிபலன்',
+                                style: GoogleFonts.cinzel(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.lightGold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '12 ராசிகளுக்கான கோட்சார தினசரி பலன்கள் (Daily Rasi Palan)',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 11,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.lightGold, size: 16),
+                      ],
+                    ),
+                  ),
+                ).animate().fade(duration: 350.ms),
+
+                const SizedBox(height: 14),
+
                 // SECTION 1: Date Information Card
                 _buildCardContainer(
                   title: 'தேதி மற்றும் நாள்குறிப்பு விவரங்கள்',
@@ -386,6 +465,7 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
                   icon: Icons.access_time_filled_rounded,
                   accentColor: Colors.amberAccent,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildTimingTile(
                         icon: Icons.wb_sunny_rounded,
@@ -400,34 +480,221 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
                         timing: _calendarData.eveningNallaNeram,
                         badgeColor: Colors.greenAccent,
                       ),
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundMid,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.amberAccent.withValues(alpha: 0.2)),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.info_outline_rounded, size: 14, color: Colors.amberAccent),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _calendarData.nallaNeramNote,
+                                style: GoogleFonts.outfit(
+                                  fontSize: 10.5,
+                                  color: AppColors.textSecondary,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
 
                 // SECTION 3: கௌரி நல்ல நேரம் (Day & Night Gowri Periods)
                 _buildCardContainer(
                   title: 'கௌரி நல்ல நேரம் (Gowri Panchangam)',
                   icon: Icons.auto_awesome_rounded,
                   accentColor: Colors.cyanAccent,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'பகல் கௌரி காலங்கள் (Day Periods):',
-                        style: GoogleFonts.cinzel(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                  trailing: InkWell(
+                    onTap: () {
+                      WeeklyGowriModal.show(
+                        context,
+                        selectedWeekdayIndex: _selectedDate.weekday % 7,
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(6),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.cyanAccent.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.4)),
                       ),
-                      const SizedBox(height: 8),
-                      _buildGowriGrid(_calendarData.dayGowriPeriods),
-                      const SizedBox(height: 14),
-                      Text(
-                        'இரவு கௌரி காலங்கள் (Night Periods):',
-                        style: GoogleFonts.cinzel(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.table_chart_outlined, color: Colors.cyanAccent, size: 12),
+                          const SizedBox(width: 4),
+                          Text(
+                            'வார அட்டவணை',
+                            style: GoogleFonts.outfit(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.cyanAccent,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      _buildGowriGrid(_calendarData.nightGowriPeriods),
-                    ],
+                    ),
+                  ),
+                  child: Builder(
+                    builder: (context) {
+                      final now = DateTime.now();
+                      final isViewingToday = _selectedDate.year == now.year &&
+                          _selectedDate.month == now.month &&
+                          _selectedDate.day == now.day;
+                      final queryTime = isViewingToday
+                          ? now
+                          : DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, now.hour, now.minute, now.second);
+                      final currentGowri = GowriPanchangamEngine.getCurrentGowriPeriod(
+                        dayPeriods: _calendarData.dayGowriPeriods,
+                        nightPeriods: _calendarData.nightGowriPeriods,
+                        currentTime: queryTime,
+                        weekdayIndex: _selectedDate.weekday % 7,
+                      );
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (currentGowri != null) ...[
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: currentGowri.isGood
+                                      ? [const Color(0xFF0F3822), const Color(0xFF0A2315)]
+                                      : [const Color(0xFF381215), const Color(0xFF230A0C)],
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: currentGowri.isGood
+                                      ? Colors.greenAccent.withValues(alpha: 0.6)
+                                      : Colors.redAccent.withValues(alpha: 0.6),
+                                  width: 1.2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (currentGowri.isGood ? Colors.greenAccent : Colors.redAccent).withValues(alpha: 0.15),
+                                    blurRadius: 8,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: (currentGowri.isGood ? Colors.greenAccent : Colors.redAccent).withValues(alpha: 0.15),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      currentGowri.isGood ? Icons.check_circle_rounded : Icons.warning_amber_rounded,
+                                      color: currentGowri.isGood ? Colors.greenAccent : Colors.redAccent,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              isViewingToday
+                                                  ? 'தற்போதைய கௌரி நேரம் (${currentGowri.dayNightTa}):'
+                                                  : 'கௌரி நேரம் (${currentGowri.dayNightTa}):',
+                                              style: GoogleFonts.outfit(
+                                                fontSize: 10.5,
+                                                color: Colors.white70,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            const Spacer(),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: (currentGowri.isGood ? Colors.green : Colors.red).withValues(alpha: 0.25),
+                                                borderRadius: BorderRadius.circular(4),
+                                                border: Border.all(
+                                                  color: currentGowri.isGood ? Colors.greenAccent : Colors.redAccent,
+                                                  width: 0.6,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                currentGowri.isGood ? 'சுபம்' : 'அசுபம்',
+                                                style: GoogleFonts.outfit(
+                                                  fontSize: 9.5,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: currentGowri.isGood ? Colors.greenAccent : Colors.redAccent,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              currentGowri.nameTa,
+                                              style: GoogleFonts.cinzel(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: currentGowri.isGood ? const Color(0xFF69F0AE) : const Color(0xFFFF8A80),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                '•  ${currentGowri.timeRange}',
+                                                style: GoogleFonts.outfit(
+                                                  fontSize: 11.5,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          Text(
+                            'பகல் கௌரி காலங்கள் (Day Periods):',
+                            style: GoogleFonts.cinzel(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildGowriGrid(_calendarData.dayGowriPeriods),
+                          const SizedBox(height: 14),
+                          Text(
+                            'இரவு கௌரி காலங்கள் (Night Periods):',
+                            style: GoogleFonts.cinzel(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildGowriGrid(_calendarData.nightGowriPeriods),
+                        ],
+                      );
+                    },
                   ),
                 ),
 
@@ -798,6 +1065,7 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
     required IconData icon,
     required Color accentColor,
     required Widget child,
+    Widget? trailing,
   }) {
     return Container(
       width: double.infinity,
@@ -825,6 +1093,7 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
                     ),
                   ),
                 ),
+                if (trailing != null) trailing,
               ],
             ),
             const Divider(color: AppColors.borderGold, height: 16),
@@ -901,15 +1170,30 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
       spacing: 6,
       runSpacing: 6,
       children: periods.map((p) {
+        final isCur = p.isCurrent;
         return Container(
           width: (MediaQuery.of(context).size.width - 70) / 2,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           decoration: BoxDecoration(
-            color: p.isGood ? Colors.green.withValues(alpha: 0.12) : Colors.red.withValues(alpha: 0.1),
+            color: isCur
+                ? (p.isGood ? Colors.green.withValues(alpha: 0.28) : Colors.red.withValues(alpha: 0.24))
+                : (p.isGood ? Colors.green.withValues(alpha: 0.12) : Colors.red.withValues(alpha: 0.1)),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: p.isGood ? Colors.greenAccent.withValues(alpha: 0.5) : Colors.redAccent.withValues(alpha: 0.4),
+              color: isCur
+                  ? (p.isGood ? const Color(0xFF00E676) : const Color(0xFFFF1744))
+                  : (p.isGood ? Colors.greenAccent.withValues(alpha: 0.5) : Colors.redAccent.withValues(alpha: 0.4)),
+              width: isCur ? 1.6 : 1.0,
             ),
+            boxShadow: isCur
+                ? [
+                    BoxShadow(
+                      color: (p.isGood ? Colors.greenAccent : Colors.redAccent).withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : null,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -924,6 +1208,20 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
                       color: p.isGood ? Colors.greenAccent : Colors.redAccent,
                     ),
                   ),
+                  if (isCur) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: (p.isGood ? Colors.greenAccent : Colors.redAccent).withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        'தற்போது',
+                        style: GoogleFonts.outfit(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ),
+                  ],
                   const Spacer(),
                   Text(
                     p.isGood ? 'சுபம்' : 'அசுபம்',
@@ -934,7 +1232,11 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
               const SizedBox(height: 2),
               Text(
                 p.timeRange,
-                style: GoogleFonts.outfit(fontSize: 10, color: Colors.white70),
+                style: GoogleFonts.outfit(
+                  fontSize: 10,
+                  color: isCur ? Colors.white : Colors.white70,
+                  fontWeight: isCur ? FontWeight.w600 : FontWeight.normal,
+                ),
               ),
             ],
           ),

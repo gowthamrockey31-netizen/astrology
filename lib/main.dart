@@ -35,6 +35,7 @@ import 'screens/kp_astrology/kp_astrology_screen.dart';
 import 'screens/kp_horary/kp_horary_screen.dart';
 import 'screens/daily_planet_positions/daily_planet_positions_screen.dart';
 import 'screens/daily_calendar/daily_calendar_screen.dart';
+import 'daily_rasi_palan/screens/daily_rasi_palan_screen.dart';
 import 'screens/tamil_month_calendar/tamil_month_calendar_screen.dart';
 import 'screens/bhrigu_nandi_nadi/bhrigu_nandi_nadi_screen.dart';
 import 'screens/bnn_method1_screen.dart';
@@ -51,7 +52,7 @@ import 'modules/professional_muhurtha/professional_muhurtha.dart';
 import 'modules/ayana_kala/ayana_kala_module.dart';
 import 'modules/dhanishta_panchami/dhanishta_panchami.dart';
 import 'modules/nakshatra_prasannam/nakshatra_prasannam_screen.dart';
-import 'jamakkol_prasannam_module.dart';
+import 'jamakkol_prasannam/screens/jamakkol_home_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -234,9 +235,9 @@ class AstroDashaCareApp extends StatelessWidget {
         '/jamakol_arudam_model1': (context) => const JamakolArudamModel1Screen(),
         '/jamakol_arudam_model2': (context) => const JamakkolPrasannamPage(),
         '/jamakol-arudam-model-2': (context) => const JamakkolPrasannamPage(),
-        '/jamakkol_prasannam': (context) => const JamakkolPrasannamModule(),
-        '/jamakkol_prasagam': (context) => const JamakkolPrasannamModule(),
-        '/jamakol_prasagam': (context) => const JamakkolPrasannamModule(),
+        '/jamakkol_prasannam': (context) => const JamakkolHomeScreen(),
+        '/jamakkol_prasagam': (context) => const JamakkolHomeScreen(),
+        '/jamakol_prasagam': (context) => const JamakkolHomeScreen(),
         '/nakshatra_prasannam': (context) => const NakshatraPrasannaScreen(),
         '/kp_astrology': (context) => const KpAstrologyScreen(),
         '/kp_method_model_1': (context) => const KPMethodModel1Page(),
@@ -250,6 +251,7 @@ class AstroDashaCareApp extends StatelessWidget {
         '/kp_horary': (context) => const KpHoraryScreen(),
         '/daily_planet_positions': (context) => const DailyPlanetPositionsScreen(),
         '/daily_calendar': (context) => const DailyCalendarScreen(),
+        '/daily_rasi_palan': (context) => const DailyRasiPalanScreen(),
         '/tamil_month_calendar': (context) => const TamilMonthCalendarScreen(),
         '/bhrigu_nandi_nadi': (context) => const BhriguNandiNadiScreen(),
         '/bnn_method1': (context) => const BnnMethod1Screen(),

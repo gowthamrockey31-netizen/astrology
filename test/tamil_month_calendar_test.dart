@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:astrocall/controllers/tamil_calendar_controller.dart';
 import 'package:astrocall/models/tamil_calendar_models.dart';
 import 'package:astrocall/services/panchanga_provider.dart';
 import 'package:astrocall/services/astrology_calculator.dart';
+import 'package:astrocall/widgets/calendar/tamil_month_calendar_view.dart';
 
 void main() {
   group('Tamil Monthly Calendar Start Position & Day 1 Alignment Tests', () {
@@ -210,6 +212,48 @@ void main() {
       expect(jan15!.tamilMonth, equals('தை'));
       expect(jan15.tamilDay, equals(1));
       expect(jan15.weekdayTa, equals('வியாழன்'));
+    });
+
+    testWidgets('6. Responsive Layout: Calendar adapts dynamically to various screen heights without overflow', (tester) async {
+      final controller = TamilCalendarController(
+        initialLocation: location,
+        initialDate: DateTime(2026, 9, 20), // Purattasi
+      );
+
+      // Test across multiple device screen dimensions
+      final testSizes = [
+        const Size(360, 640),  // Compact Android
+        const Size(392, 872),  // Modern Tall Android (as in screenshot)
+        const Size(412, 915),  // Large Android flagship
+        const Size(800, 1280), // Tablet
+        const Size(844, 390),  // Landscape
+      ];
+
+      for (final size in testSizes) {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1.0;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  child: TamilMonthCalendarView(controller: controller),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(TamilMonthCalendarView), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      }
+
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
     });
   });
 }

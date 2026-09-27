@@ -68,7 +68,7 @@ class _TamilMonthCalendarScreenState extends State<TamilMonthCalendarScreen> {
         child: SafeArea(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -121,7 +121,7 @@ class _TamilMonthCalendarScreenState extends State<TamilMonthCalendarScreen> {
                   ],
                 ).animate().fade(duration: 350.ms),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 8),
 
                 // Dedicated Monthly Calendar Grid View
                 TamilMonthCalendarView(
@@ -131,7 +131,7 @@ class _TamilMonthCalendarScreenState extends State<TamilMonthCalendarScreen> {
                   },
                 ).animate().fade(delay: 150.ms),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
               ],
             ),
           ),
