@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
+import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
+import '../../services/geocoding_service.dart';
 import '../../widgets/cosmic_background.dart';
 import '../engine/kp4_engine.dart';
 import '../models/kp4_models.dart';
@@ -113,134 +115,498 @@ class _KPMethod4PageState extends State<KPMethod4Page> {
   }
 
   void _showEditProfileDialog() {
-    final dateCtrl = TextEditingController(
-      text: DateFormat('dd-MM-yyyy').format(_birthData.dateTime),
+    final currentUser = AuthService.currentUser;
+    final nameCtrl = TextEditingController(text: currentUser?.name ?? 'Divine Seeker');
+    DateTime selectedDob = _birthData.dateTime;
+    TimeOfDay selectedTob = TimeOfDay(hour: _birthData.dateTime.hour, minute: _birthData.dateTime.minute);
+    try {
+      final rawTob = _birthData.time.trim();
+      final isPm = rawTob.toLowerCase().contains('pm');
+      final isAm = rawTob.toLowerCase().contains('am');
+      final digits = RegExp(r'(\d+):(\d+)').firstMatch(rawTob);
+      if (digits != null) {
+        int h = int.parse(digits.group(1)!);
+        int m = int.parse(digits.group(2)!);
+        if (isPm && h < 12) h += 12;
+        if (isAm && h == 12) h = 0;
+        selectedTob = TimeOfDay(hour: h, minute: m);
+      }
+    } catch (_) {}
+
+    final tobCtrl = TextEditingController(
+      text: _birthData.time.isNotEmpty ? _birthData.time : selectedTob.format(context),
     );
-    final timeCtrl = TextEditingController(text: _birthData.time);
-    final placeCtrl = TextEditingController(text: _birthData.place);
+    final pobCtrl = TextEditingController(text: _birthData.place);
     final latCtrl = TextEditingController(text: _birthData.latitude.toString());
     final lonCtrl = TextEditingController(text: _birthData.longitude.toString());
     final tzCtrl = TextEditingController(text: _birthData.timezone.toString());
 
-    showDialog(
+    String selectedGender = (currentUser?.gender.isNotEmpty ?? false) ? currentUser!.gender : 'Male';
+    if (selectedGender != 'Male' && selectedGender != 'Female' && selectedGender != 'Other') {
+      selectedGender = 'Other';
+    }
+
+    List<GeocodingLocation> suggestions = [];
+    bool showSuggestions = false;
+
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.backgroundMid,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.primaryGold, width: 1.2),
-        ),
-        title: Row(
-          children: [
-            const Icon(Icons.edit_calendar_rounded, color: AppColors.primaryGold),
-            const SizedBox(width: 8),
-            Text(
-              'சுயவிவரம் திருத்து (Edit Profile)',
-              style: GoogleFonts.cinzel(
-                color: AppColors.lightGold,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDialogField('பிறந்த தேதி (DD-MM-YYYY)', dateCtrl),
-              _buildDialogField('பிறந்த நேரம் (HH:MM AM/PM)', timeCtrl),
-              _buildDialogField('பிறந்த இடம் (City/Place)', placeCtrl),
-              _buildDialogField('அட்சரேகை (Latitude)', latCtrl, isNumeric: true),
-              _buildDialogField('தீர்க்கரேகை (Longitude)', lonCtrl, isNumeric: true),
-              _buildDialogField('Timezone (Hours)', tzCtrl, isNumeric: true),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('ரத்து செய் (Cancel)', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryGold,
-              foregroundColor: Colors.black,
-            ),
-            onPressed: () {
-              try {
-                final dateParts = dateCtrl.text.split('-');
-                final d = int.parse(dateParts[0]);
-                final m = int.parse(dateParts[1]);
-                final y = int.parse(dateParts[2]);
-
-                int hour = 12;
-                int min = 0;
-                final t = timeCtrl.text.trim().toUpperCase();
-                if (t.contains(':')) {
-                  final isPm = t.contains('PM');
-                  final isAm = t.contains('AM');
-                  final cleanT = t.replaceAll('AM', '').replaceAll('PM', '').trim();
-                  final tp = cleanT.split(':');
-                  hour = int.tryParse(tp[0]) ?? 12;
-                  min = int.tryParse(tp.length > 1 ? tp[1] : '0') ?? 0;
-                  if (isPm && hour < 12) hour += 12;
-                  if (isAm && hour == 12) hour = 0;
-                }
-
-                final newDt = DateTime(y, m, d, hour, min);
-                final newLat = double.tryParse(latCtrl.text) ?? _birthData.latitude;
-                final newLon = double.tryParse(lonCtrl.text) ?? _birthData.longitude;
-                final newTz = double.tryParse(tzCtrl.text) ?? _birthData.timezone;
-
-                setState(() {
-                  _birthData = Kp4BirthData(
-                    dateTime: newDt,
-                    time: timeCtrl.text,
-                    place: placeCtrl.text,
-                    latitude: newLat,
-                    longitude: newLon,
-                    timezone: newTz,
-                  );
-                  _originalBirthData = _birthData;
-                });
-                Navigator.pop(ctx);
-                _calculateChart();
-              } catch (err) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('தவறான உள்ளீடு: $err')),
-                );
-              }
-            },
-            child: const Text('கணக்கிடு (Recalculate)'),
-          ),
-        ],
+      isScrollControlled: true,
+      backgroundColor: AppColors.backgroundDeep,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        side: BorderSide(color: AppColors.primaryGold, width: 1.5),
       ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (modalCtx, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(modalCtx).viewInsets.bottom + 20,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Row(
+                      children: [
+                        const Icon(Icons.edit_calendar_rounded, color: AppColors.lightGold, size: 24),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'சுயவிவரம் திருத்து (Edit Profile)',
+                            style: GoogleFonts.cinzel(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.lightGold,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary),
+                          onPressed: () => Navigator.of(ctx).pop(),
+                        ),
+                      ],
+                    ),
+                    const Divider(color: AppColors.borderGold, height: 20),
+                    const SizedBox(height: 8),
+
+                    // Name
+                    _buildTextField(nameCtrl, 'பெயர் (Name)', Icons.person_rounded),
+                    const SizedBox(height: 12),
+
+                    // DOB (DD / MM / YYYY) & TOB
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: selectedDob,
+                                firstDate: DateTime(1940),
+                                lastDate: DateTime.now(),
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: ThemeData.dark().copyWith(
+                                      colorScheme: const ColorScheme.dark(
+                                        primary: AppColors.primaryGold,
+                                        onPrimary: AppColors.backgroundDeep,
+                                        surface: AppColors.backgroundMid,
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
+                              if (picked != null) {
+                                setModalState(() => selectedDob = picked);
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.cardSurface,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.5)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'பிறந்த தேதி (Date / Month / Year)',
+                                    style: GoogleFonts.outfit(fontSize: 10, color: AppColors.textSecondary),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.lightGold),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        DateFormat('dd / MM / yyyy').format(selectedDob),
+                                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () async {
+                              final picked = await showTimePicker(
+                                context: context,
+                                initialTime: selectedTob,
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: ThemeData.dark().copyWith(
+                                      colorScheme: const ColorScheme.dark(
+                                        primary: AppColors.primaryGold,
+                                        onPrimary: AppColors.backgroundDeep,
+                                        surface: AppColors.backgroundMid,
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
+                              if (picked != null) {
+                                setModalState(() {
+                                  selectedTob = picked;
+                                  tobCtrl.text = selectedTob.format(context);
+                                });
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.cardSurface,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.borderGold.withValues(alpha: 0.5)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'பிறந்த நேரம் (Time of Birth)',
+                                    style: GoogleFonts.outfit(fontSize: 10, color: AppColors.textSecondary),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.access_time_rounded, size: 14, color: AppColors.lightGold),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        selectedTob.format(context),
+                                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Place of birth with live suggestions & auto Lat/Lon
+                    TextField(
+                      controller: pobCtrl,
+                      style: GoogleFonts.outfit(color: Colors.white, fontSize: 13),
+                      onTap: () {
+                        final results = GeocodingService.searchCities(pobCtrl.text);
+                        setModalState(() {
+                          suggestions = results;
+                          showSuggestions = results.isNotEmpty;
+                        });
+                      },
+                      onChanged: (val) async {
+                        final clean = val.trim();
+                        if (clean.isNotEmpty) {
+                          final results = await GeocodingService.searchPlaces(clean);
+                          setModalState(() {
+                            suggestions = results;
+                            showSuggestions = results.isNotEmpty;
+                          });
+                        } else {
+                          final results = GeocodingService.searchCities('');
+                          setModalState(() {
+                            suggestions = results;
+                            showSuggestions = results.isNotEmpty;
+                          });
+                        }
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'பிறந்த ஊர் (Place of Birth)',
+                        hintText: 'Search Indian cities e.g. Dindigul, Chennai, Mumbai',
+                        labelStyle: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
+                        prefixIcon: const Icon(Icons.location_on_rounded, color: AppColors.lightGold, size: 18),
+                        suffixIcon: pobCtrl.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded, color: AppColors.textSecondary, size: 18),
+                                onPressed: () {
+                                  pobCtrl.clear();
+                                  final results = GeocodingService.searchCities('');
+                                  setModalState(() {
+                                    suggestions = results;
+                                    showSuggestions = true;
+                                  });
+                                },
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primaryGold, size: 22),
+                                onPressed: () {
+                                  final results = GeocodingService.searchCities(pobCtrl.text);
+                                  setModalState(() {
+                                    suggestions = results;
+                                    showSuggestions = !showSuggestions;
+                                  });
+                                },
+                              ),
+                        filled: true,
+                        fillColor: AppColors.cardSurface,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppColors.borderGold, width: 0.8),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: AppColors.borderGold.withValues(alpha: 0.5)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppColors.primaryGold, width: 1.2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      ),
+                    ),
+
+                    // Suggestions dropdown
+                    if (showSuggestions && suggestions.isNotEmpty)
+                      Container(
+                        margin: const EdgeInsets.only(top: 4, bottom: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundMid,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.primaryGold.withValues(alpha: 0.6)),
+                        ),
+                        constraints: const BoxConstraints(maxHeight: 160),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: suggestions.length,
+                            separatorBuilder: (context, index) => const Divider(color: Colors.white10, height: 1),
+                            itemBuilder: (context, idx) {
+                              final loc = suggestions[idx];
+                              return ListTile(
+                                dense: true,
+                                leading: const Icon(Icons.place, color: AppColors.lightGold, size: 16),
+                                title: Text(
+                                  loc.displayName,
+                                  style: GoogleFonts.outfit(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(
+                                  'Lat: ${loc.latitude.toStringAsFixed(4)}, Lon: ${loc.longitude.toStringAsFixed(4)}',
+                                  style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 10),
+                                ),
+                                onTap: () {
+                                  setModalState(() {
+                                    pobCtrl.text = loc.cityName;
+                                    latCtrl.text = loc.latitude.toString();
+                                    lonCtrl.text = loc.longitude.toString();
+                                    showSuggestions = false;
+                                  });
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+                    const SizedBox(height: 12),
+
+                    // Latitude, Longitude & Timezone (Editable)
+                    Row(
+                      children: [
+                        Expanded(child: _buildTextField(latCtrl, 'அட்சரேகை (Latitude)', Icons.my_location_rounded, isNumeric: true)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildTextField(lonCtrl, 'தீர்க்கரேகை (Longitude)', Icons.explore_rounded, isNumeric: true)),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 95,
+                          child: _buildTextField(tzCtrl, 'Timezone', Icons.schedule_rounded, isNumeric: true),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Standard Gender Selector: Male / Female / Other
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        Text('பாலினம்: ', style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold)),
+                        ...['Male', 'Female', 'Other'].map((g) {
+                          final isSel = selectedGender == g;
+                          return ChoiceChip(
+                            label: Text(g, style: GoogleFonts.outfit(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal)),
+                            selected: isSel,
+                            selectedColor: AppColors.primaryGold.withValues(alpha: 0.35),
+                            onSelected: (val) => setModalState(() => selectedGender = g),
+                          );
+                        }),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Save Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryGold,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                        onPressed: () {
+                          final lat = double.tryParse(latCtrl.text.trim());
+                          final lon = double.tryParse(lonCtrl.text.trim());
+                          final tz = double.tryParse(tzCtrl.text.trim()) ?? _birthData.timezone;
+                          if (lat == null || lon == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Location not found. Please select a valid place.', style: GoogleFonts.outfit(color: Colors.white)),
+                                backgroundColor: Colors.redAccent,
+                              ),
+                            );
+                            return;
+                          }
+
+                          final isoDob = DateFormat('yyyy-MM-dd').format(selectedDob);
+                          final newTimeStr = tobCtrl.text.trim().isNotEmpty ? tobCtrl.text.trim() : selectedTob.format(context);
+                          final newPlaceStr = pobCtrl.text.trim().isNotEmpty ? pobCtrl.text.trim() : 'Chennai';
+
+                          final newDateTime = DateTime(
+                            selectedDob.year,
+                            selectedDob.month,
+                            selectedDob.day,
+                            selectedTob.hour,
+                            selectedTob.minute,
+                          );
+
+                          final updatedUser = (currentUser ?? UserModel(
+                            id: 'user_default',
+                            name: nameCtrl.text.trim(),
+                            mobile: '',
+                            gender: selectedGender,
+                            dob: isoDob,
+                            timeOfBirth: newTimeStr,
+                            placeOfBirth: newPlaceStr,
+                            city: newPlaceStr,
+                            state: 'Tamil Nadu',
+                            country: 'India',
+                            zodiac: '',
+                            nakshatra: '',
+                            lagna: '',
+                            walletBalance: 0.0,
+                            profilePhoto: '',
+                            latitude: lat,
+                            longitude: lon,
+                            timezone: tz,
+                          )).copyWith(
+                            name: nameCtrl.text.trim(),
+                            dob: isoDob,
+                            timeOfBirth: newTimeStr,
+                            placeOfBirth: newPlaceStr,
+                            gender: selectedGender,
+                            latitude: lat,
+                            longitude: lon,
+                            timezone: tz,
+                          );
+
+                          AuthService.updateCurrentUser(updatedUser);
+
+                          setState(() {
+                            _birthData = Kp4BirthData(
+                              dateTime: newDateTime,
+                              time: newTimeStr,
+                              place: newPlaceStr,
+                              latitude: lat,
+                              longitude: lon,
+                              timezone: tz,
+                            );
+                            _originalBirthData = _birthData;
+                          });
+
+                          Navigator.of(ctx).pop();
+                          _calculateChart();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'பிறப்பு விவரங்கள் புதுப்பிக்கப்பட்டன. ஜாதகம் மறு கணக்கீடு செய்யப்பட்டது!',
+                                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.black),
+                              ),
+                              backgroundColor: AppColors.primaryGold,
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'சேமி & மறு கணக்கீடு செய் (Update Chart)',
+                          style: GoogleFonts.outfit(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
-  Widget _buildDialogField(String label, TextEditingController ctrl, {bool isNumeric = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
-      child: TextField(
-        controller: ctrl,
-        keyboardType: isNumeric ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: AppColors.lightGold, fontSize: 13),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.borderGold.withValues(alpha: 0.5)),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: AppColors.primaryGold),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          filled: true,
-          fillColor: AppColors.backgroundDeep,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  Widget _buildTextField(TextEditingController ctrl, String label, IconData icon, {bool isNumeric = false}) {
+    return TextField(
+      controller: ctrl,
+      keyboardType: isNumeric ? const TextInputType.numberWithOptions(decimal: true, signed: true) : TextInputType.text,
+      style: GoogleFonts.outfit(color: Colors.white, fontSize: 13),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
+        prefixIcon: Icon(icon, color: AppColors.lightGold, size: 18),
+        filled: true,
+        fillColor: AppColors.cardSurface,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.borderGold, width: 0.8),
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.borderGold.withValues(alpha: 0.5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.primaryGold, width: 1.2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       ),
     );
   }

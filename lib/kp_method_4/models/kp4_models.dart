@@ -113,12 +113,14 @@ class BhavaContact {
       other is BhavaContact &&
           runtimeType == other.runtimeType &&
           bhava == other.bhava &&
-          planet.toLowerCase() == other.planet.toLowerCase() &&
+          KpPlanetUtils.isSamePlanet(planet, other.planet) &&
           sourceLevel == other.sourceLevel;
 
   @override
   int get hashCode =>
-      bhava.hashCode ^ planet.toLowerCase().hashCode ^ sourceLevel.hashCode;
+      bhava.hashCode ^
+      KpPlanetUtils.normalize(planet).toLowerCase().hashCode ^
+      sourceLevel.hashCode;
 }
 
 /// Planetary position encapsulation for KP Method 4
@@ -436,7 +438,9 @@ class KpResult {
 
   PlanetPosition getPlanet(String name) {
     return planetPositions.firstWhere(
-      (p) => p.planet.toLowerCase() == name.toLowerCase(),
+      (p) =>
+          KpPlanetUtils.isSamePlanet(p.planet, name) ||
+          KpPlanetUtils.isSamePlanet(p.planetTa, name),
       orElse: () => planetPositions.first,
     );
   }
@@ -450,7 +454,9 @@ class KpResult {
 
   PlanetRelation getPlanetRelation(String name) {
     return planetRelations.firstWhere(
-      (r) => r.planet.toLowerCase() == name.toLowerCase(),
+      (r) =>
+          KpPlanetUtils.isSamePlanet(r.planet, name) ||
+          KpPlanetUtils.isSamePlanet(r.planetTa, name),
       orElse: () => planetRelations.first,
     );
   }
@@ -458,7 +464,7 @@ class KpResult {
   List<BhavaContact> getContactsForPlanet(String name) {
     return planetBhavaContacts.entries
         .firstWhere(
-          (e) => e.key.toLowerCase() == name.toLowerCase(),
+          (e) => KpPlanetUtils.isSamePlanet(e.key, name),
           orElse: () => MapEntry(name, <BhavaContact>[]),
         )
         .value;
@@ -467,9 +473,133 @@ class KpResult {
   List<KpHouseNumber> getHousesForPlanet(String name) {
     return planetToBhavas.entries
         .firstWhere(
-          (e) => e.key.toLowerCase() == name.toLowerCase(),
+          (e) => KpPlanetUtils.isSamePlanet(e.key, name),
           orElse: () => MapEntry(name, <KpHouseNumber>[]),
         )
         .value;
+  }
+}
+
+/// Utility class for normalizing and comparing planet names across
+/// English, Tamil, bilingual with parentheses, transliterations, and abbreviations.
+class KpPlanetUtils {
+  static const Map<String, String> _aliasToCanonical = {
+    // Sun
+    'sun': 'Sun',
+    'surya': 'Sun',
+    'suryan': 'Sun',
+    'சூரியன்': 'Sun',
+    'சூரி': 'Sun',
+
+    // Moon
+    'moon': 'Moon',
+    'chandra': 'Moon',
+    'chandran': 'Moon',
+    'சந்திரன்': 'Moon',
+    'சந்': 'Moon',
+
+    // Mars
+    'mars': 'Mars',
+    'mangal': 'Mars',
+    'kuja': 'Mars',
+    'sevvai': 'Mars',
+    'chevvai': 'Mars',
+    'chevvaai': 'Mars',
+    'செவ்வாய்': 'Mars',
+    'செவ்': 'Mars',
+
+    // Mercury
+    'mercury': 'Mercury',
+    'budha': 'Mercury',
+    'budhan': 'Mercury',
+    'புதன்': 'Mercury',
+    'புத': 'Mercury',
+
+    // Jupiter
+    'jupiter': 'Jupiter',
+    'guru': 'Jupiter',
+    'brihaspati': 'Jupiter',
+    'குரு': 'Jupiter',
+
+    // Venus
+    'venus': 'Venus',
+    'sukra': 'Venus',
+    'sukran': 'Venus',
+    'shukra': 'Venus',
+    'சுக்கிரன்': 'Venus',
+    'சுக்': 'Venus',
+
+    // Saturn
+    'saturn': 'Saturn',
+    'sani': 'Saturn',
+    'shani': 'Saturn',
+    'சனி': 'Saturn',
+
+    // Rahu
+    'rahu': 'Rahu',
+    'raahu': 'Rahu',
+    'ராகு': 'Rahu',
+
+    // Ketu
+    'ketu': 'Ketu',
+    'kethu': 'Ketu',
+    'கேது': 'Ketu',
+  };
+
+  /// Normalizes any planet representation (English, Tamil, bilingual with parentheses, transliterated)
+  /// to its canonical English name (e.g. 'Mars', 'Sun', etc.)
+  static String normalize(String? raw) {
+    if (raw == null) return '';
+    var s = raw.trim();
+    if (s.isEmpty) return '';
+
+    // Direct lookup in lowercase
+    final direct = _aliasToCanonical[s.toLowerCase()];
+    if (direct != null) return direct;
+
+    // Check if it contains parentheses, e.g. "செவ்வாய் (Mars)" or "Mars (செவ்வாய்)"
+    final parenMatch = RegExp(r'\((.*?)\)').firstMatch(s);
+    if (parenMatch != null) {
+      final inside = parenMatch.group(1)?.trim();
+      if (inside != null && inside.isNotEmpty) {
+        final insideNorm = normalize(inside);
+        if (insideNorm.isNotEmpty && _aliasToCanonical.values.contains(insideNorm)) {
+          return insideNorm;
+        }
+      }
+      final outside = s.replaceAll(RegExp(r'\(.*?\)'), '').trim();
+      if (outside.isNotEmpty) {
+        final outsideNorm = normalize(outside);
+        if (outsideNorm.isNotEmpty && _aliasToCanonical.values.contains(outsideNorm)) {
+          return outsideNorm;
+        }
+      }
+    }
+
+    // Check for substrings of known Tamil / English names
+    final lower = s.toLowerCase();
+    for (final entry in _aliasToCanonical.entries) {
+      if (lower.contains(entry.key.toLowerCase())) {
+        return entry.value;
+      }
+    }
+
+    return s;
+  }
+
+  /// Returns true if two planet representations refer to the same planet
+  static bool isSamePlanet(String? a, String? b) {
+    if (a == null || b == null) return false;
+    final trimA = a.trim();
+    final trimB = b.trim();
+    if (trimA.isEmpty || trimB.isEmpty) return false;
+    if (trimA.toLowerCase() == trimB.toLowerCase()) return true;
+
+    final normA = normalize(trimA);
+    final normB = normalize(trimB);
+    if (normA.isNotEmpty && normB.isNotEmpty) {
+      return normA.toLowerCase() == normB.toLowerCase();
+    }
+    return false;
   }
 }

@@ -184,24 +184,6 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/kp_horary'),
                   ),
                   _buildDrawerItem(
-                    icon: Icons.auto_awesome,
-                    title: '🔮 KP Method Model 1',
-                    subtitle: 'KP Astrology Calculation & Analysis',
-                    onTap: () => onSelectRoute('/kp_method_model_1'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.stars_rounded,
-                    title: '⭐ KP Method 2',
-                    subtitle: 'கே.பி முறை 2 - பிளாசிடஸ் & அட்வான்டேஜ்',
-                    onTap: () => onSelectRoute('/kp_method_2'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.hub_rounded,
-                    title: '🪐 KP Method (Model 3)',
-                    subtitle: 'கே.பி முறை 3 - முழுமையான கணிதம் & நேரத் திருத்தம்',
-                    onTap: () => onSelectRoute('/kp_method_model_3'),
-                  ),
-                  _buildDrawerItem(
                     icon: Icons.hub_outlined,
                     title: '🌌 KP Method 4',
                     subtitle: 'கே.பி முறை 4 - நட்சத்திர/உப தொடர்பு & பாவ கிரக தொடர்பு',

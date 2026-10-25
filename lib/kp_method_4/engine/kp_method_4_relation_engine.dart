@@ -30,7 +30,9 @@ class KpMethod4RelationEngine {
   }) {
     // Priority 1: Sub Lord relationship
     final subLordCusps = cusps
-        .where((c) => _isSamePlanet(c.subLord, targetPlanet))
+        .where((c) =>
+            _isSamePlanet(c.subLord, targetPlanet) ||
+            _isSamePlanet(c.subLordTa, targetPlanet))
         .toList();
     if (subLordCusps.isNotEmpty) {
       final contacts = subLordCusps
@@ -57,7 +59,9 @@ class KpMethod4RelationEngine {
 
     // Priority 2: Sub-Sub Lord relationship
     final subSubLordCusps = cusps
-        .where((c) => _isSamePlanet(c.subSubLord, targetPlanet))
+        .where((c) =>
+            _isSamePlanet(c.subSubLord, targetPlanet) ||
+            _isSamePlanet(c.subSubLordTa, targetPlanet))
         .toList();
     if (subSubLordCusps.isNotEmpty) {
       final contacts = subSubLordCusps
@@ -84,7 +88,9 @@ class KpMethod4RelationEngine {
 
     // Priority 3: Star Lord relationship
     final starLordCusps = cusps
-        .where((c) => _isSamePlanet(c.starLord, targetPlanet))
+        .where((c) =>
+            _isSamePlanet(c.starLord, targetPlanet) ||
+            _isSamePlanet(c.starLordTa, targetPlanet))
         .toList();
     if (starLordCusps.isNotEmpty) {
       final contacts = starLordCusps
@@ -122,21 +128,21 @@ class KpMethod4RelationEngine {
     required CuspPosition cusp,
     required String planet,
   }) {
-    if (_isSamePlanet(cusp.subLord, planet)) {
+    if (_isSamePlanet(cusp.subLord, planet) || _isSamePlanet(cusp.subLordTa, planet)) {
       return BhavaContact(
         bhava: cusp.cuspNumber,
         planet: planet,
         sourceLevel: KpSourceLevel.SUB_LORD,
       );
     }
-    if (_isSamePlanet(cusp.subSubLord, planet)) {
+    if (_isSamePlanet(cusp.subSubLord, planet) || _isSamePlanet(cusp.subSubLordTa, planet)) {
       return BhavaContact(
         bhava: cusp.cuspNumber,
         planet: planet,
         sourceLevel: KpSourceLevel.SUB_SUB_LORD,
       );
     }
-    if (_isSamePlanet(cusp.starLord, planet)) {
+    if (_isSamePlanet(cusp.starLord, planet) || _isSamePlanet(cusp.starLordTa, planet)) {
       return BhavaContact(
         bhava: cusp.cuspNumber,
         planet: planet,
@@ -245,8 +251,11 @@ class KpMethod4RelationEngine {
       // appears in any of the Star Lord, Sub Lord, or Sub-Sub Lord columns.
       final bool appearsInPart2Columns = planets.any((p) =>
           _isSamePlanet(p.starLord, planet.planet) ||
+          _isSamePlanet(p.starLordTa, planet.planet) ||
           _isSamePlanet(p.subLord, planet.planet) ||
-          _isSamePlanet(p.subSubLord, planet.planet));
+          _isSamePlanet(p.subLordTa, planet.planet) ||
+          _isSamePlanet(p.subSubLord, planet.planet) ||
+          _isSamePlanet(p.subSubLordTa, planet.planet));
 
       // Apply the fallback only when:
       // - The planet has no actual KP house connections after all three levels have been evaluated.
@@ -316,8 +325,11 @@ class KpMethod4RelationEngine {
       // appears in any of the Star Lord, Sub Lord, or Sub-Sub Lord columns.
       final bool appearsInPart2Columns = planets.any((p) =>
           _isSamePlanet(p.starLord, planet.planet) ||
+          _isSamePlanet(p.starLordTa, planet.planet) ||
           _isSamePlanet(p.subLord, planet.planet) ||
-          _isSamePlanet(p.subSubLord, planet.planet));
+          _isSamePlanet(p.subLordTa, planet.planet) ||
+          _isSamePlanet(p.subSubLord, planet.planet) ||
+          _isSamePlanet(p.subSubLordTa, planet.planet));
 
       // Apply the fallback only when:
       // - The planet has no actual KP house connections after all three levels have been evaluated.
@@ -533,7 +545,7 @@ class KpMethod4RelationEngine {
   static PlanetRelation? _findRelation(List<PlanetRelation> relations, String planet) {
     try {
       return relations.firstWhere(
-        (r) => _isSamePlanet(r.planet, planet),
+        (r) => _isSamePlanet(r.planet, planet) || _isSamePlanet(r.planetTa, planet),
       );
     } catch (_) {
       return null;
@@ -541,6 +553,6 @@ class KpMethod4RelationEngine {
   }
 
   static bool _isSamePlanet(String a, String b) {
-    return a.trim().toLowerCase() == b.trim().toLowerCase();
+    return KpPlanetUtils.isSamePlanet(a, b);
   }
 }

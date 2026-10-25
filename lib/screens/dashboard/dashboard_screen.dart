@@ -18,7 +18,6 @@ import 'package:astrocall/services/auth_service.dart';
 import 'package:astrocall/services/firestore_service.dart';
 import 'package:astrocall/screens/login/login_screen.dart';
 import 'package:astrocall/screens/magazine/magazine_feed_screen.dart';
-import 'package:astrocall/kp_method_model_1/kp_method_model_1.dart';
 import 'package:astrocall/widgets/jamakkol_dashboard_card.dart';
 import 'package:astrocall/services/profile_service.dart';
 import 'package:astrocall/widgets/profile/family_profiles_sheet.dart';
@@ -249,10 +248,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           JamakkolDashboardCard(
             onTap: () => Navigator.of(context).pushNamed('/jamakkol_prasannam'),
           ).animate().fade(delay: 100.ms).slideY(begin: 0.08, end: 0),
-          const SizedBox(height: 18),
-          KPDashboardCard(
-            onTap: () => Navigator.of(context).pushNamed('/kp_method_model_1'),
-          ).animate().fade(delay: 120.ms).slideY(begin: 0.08, end: 0),
           const SizedBox(height: 20),
           _buildModuleSwitchSection().animate().fade(delay: 150.ms),
           const SizedBox(height: 24),
@@ -476,9 +471,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ],
       {'title': 'குடும்ப ஜாதகங்கள்', 'sub': 'Max 5 Offline Family Profiles', 'icon': Icons.people_alt_rounded, 'route': '/family_profiles', 'color': Colors.teal.shade800},
       {'title': 'ஜாமக்கோள் பிரசன்னம்', 'sub': 'Jamakkol Prasannam Module', 'icon': Icons.explore_rounded, 'route': '/jamakkol_prasannam', 'color': Colors.amber.shade900},
-      {'title': 'KP Method Model 1', 'sub': 'KP Astrology Calculation & Analysis', 'icon': Icons.auto_awesome, 'route': '/kp_method_model_1', 'color': Colors.purple.shade900},
-      {'title': 'KP Method 2', 'sub': 'கே.பி முறை 2 - அட்வான்டேஜ் விதிமுறை', 'icon': Icons.stars_rounded, 'route': '/kp_method_2', 'color': Colors.deepPurple.shade900},
-      {'title': 'KP Method', 'sub': 'Model 3', 'icon': Icons.hub_rounded, 'route': '/kp_method_model_3', 'color': Colors.blueGrey.shade900},
       {'title': 'KP Method 4', 'sub': 'நட்சத்திர உப தொடர்புகள் & பாவ கணிதம்', 'icon': Icons.hub_outlined, 'route': '/kp_method_4', 'color': Colors.deepOrange.shade900},
       {'title': 'ஜாதக / பஞ்சாங்க குறிப்புகள்', 'sub': 'பஞ்சாங்கம், தினசுத்தி, அஷ்டவர்க்கம்', 'icon': Icons.description_rounded, 'route': '/jaathaga_kurippugal', 'color': Colors.indigo.shade800},
       {'title': 'நட்சத்திர பிரசன்னம்', 'sub': 'Nakshatra Prasannam (DRM/HRM)', 'icon': Icons.auto_awesome_rounded, 'route': '/nakshatra_prasannam', 'color': Colors.deepPurple.shade600},
