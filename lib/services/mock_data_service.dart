@@ -47,6 +47,24 @@ class MockDataService {
         glowColor: const Color(0xFFFF5252),
         gradientColors: [const Color(0xFF3E0015), const Color(0xFF0B1220)],
       ),
+      ServiceItem(
+        id: 'quick_consultation',
+        title: "Quick Consultation",
+        tamilTitle: "4-ஸ்லாட் விரைவு ஆலோசனை",
+        subtitle: "4-Slot View & Family Profiles",
+        icon: Icons.dashboard_customize_rounded,
+        glowColor: const Color(0xFFFFD700),
+        gradientColors: [const Color(0xFF2E1C00), const Color(0xFF0B1220)],
+      ),
+      ServiceItem(
+        id: 'family_profiles',
+        title: "Family Profiles",
+        tamilTitle: "குடும்ப ஜாதகங்கள்",
+        subtitle: "Max 5 Offline Profiles & Switching",
+        icon: Icons.people_alt_rounded,
+        glowColor: const Color(0xFF4CAF50),
+        gradientColors: [const Color(0xFF002E11), const Color(0xFF0B1220)],
+      ),
     ];
   }
 

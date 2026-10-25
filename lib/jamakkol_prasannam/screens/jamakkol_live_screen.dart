@@ -40,7 +40,6 @@ class _JamakkolLiveScreenState extends State<JamakkolLiveScreen> with WidgetsBin
 
   late JamakkolChartState _chartState;
   Timer? _liveTimer;
-  int _lastCalculatedMinute = -1;
 
   // Preset location list
   static const List<JamakkolLocation> presetLocations = [
@@ -100,23 +99,16 @@ class _JamakkolLiveScreenState extends State<JamakkolLiveScreen> with WidgetsBin
 
       // Update state: tick time every second; recalculate chart every minute or when second % 10 == 0
       if (mounted) {
-        if (now.minute != _lastCalculatedMinute || now.second % 10 == 0) {
-          setState(() {
-            _currentDateTime = now;
-            _recalculateChart();
-          });
-        } else {
-          setState(() {
-            _currentDateTime = now;
-          });
-        }
+        setState(() {
+          _currentDateTime = now;
+          _recalculateChart();
+        });
       }
     });
   }
 
   void _recalculateChart() {
     try {
-      _lastCalculatedMinute = _currentDateTime.minute;
       _chartState = JamakkolEngine.calculateChart(
         queryDateTime: _currentDateTime,
         location: _selectedLocation,
@@ -193,6 +185,7 @@ class _JamakkolLiveScreenState extends State<JamakkolLiveScreen> with WidgetsBin
             pickedDate.day,
             pickedTime.hour,
             pickedTime.minute,
+            0,
           );
           _recalculateChart();
         });
@@ -499,7 +492,7 @@ class _JamakkolLiveScreenState extends State<JamakkolLiveScreen> with WidgetsBin
               style: const TextStyle(color: Color(0xFFFFD700), fontWeight: FontWeight.bold, fontSize: 16),
             ),
             Text(
-              '${_selectedLocation.name} • ${_formatHeaderTime(_currentDateTime)}',
+              '${_selectedLocation.name} • ${_chartState.tamilMonth.isNotEmpty ? "${_chartState.tamilMonth} • " : ""}${_formatHeaderTime(_currentDateTime)}',
               style: const TextStyle(color: Colors.white70, fontSize: 11),
             ),
           ],
@@ -544,60 +537,67 @@ class _JamakkolLiveScreenState extends State<JamakkolLiveScreen> with WidgetsBin
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          setState(() {
-            _currentDateTime = DateTime.now();
-            _recalculateChart();
-          });
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Top Action Bar: Location, Date/Time picker, LIVE NOW button
-              _buildTopControls(),
-              const SizedBox(height: 12),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+              _currentDateTime = DateTime.now();
+              _recalculateChart();
+            });
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(
+              12,
+              12,
+              12,
+              MediaQuery.of(context).padding.bottom + 36,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Top Action Bar: Location, Date/Time picker, LIVE NOW button
+                _buildTopControls(),
+                const SizedBox(height: 12),
 
-              // 1. Current Jamam Status Card
-              JamamStatusCardWidget(state: _chartState, isTamil: _isTamil),
-              const SizedBox(height: 12),
+                // 1. Current Jamam Status Card
+                JamamStatusCardWidget(state: _chartState, isTamil: _isTamil),
+                const SizedBox(height: 12),
 
-              // 2. Three Core Pillars (Udayam, Arudam, Kavippu)
-              UdayamArudamKavippuCardWidget(state: _chartState, isTamil: _isTamil),
-              const SizedBox(height: 12),
+                // 2. Three Core Pillars (Udayam, Arudam, Kavippu)
+                UdayamArudamKavippuCardWidget(state: _chartState, isTamil: _isTamil),
+                const SizedBox(height: 12),
 
-              // 3. Interactive South Indian Jamakkol Chart
-              RepaintBoundary(
-                key: _chartRepaintKey,
-                child: JamakkolChartWidget(
+                // 3. Interactive South Indian Jamakkol Chart
+                RepaintBoundary(
+                  key: _chartRepaintKey,
+                  child: JamakkolChartWidget(
+                    state: _chartState,
+                    isTamil: _isTamil,
+                    onRasiTap: _showRasiDetailSheet,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // 4. Planetary Positions Table (Transit, Jamam, Special Points)
+                PlanetPositionTableWidget(state: _chartState, isTamil: _isTamil),
+                const SizedBox(height: 12),
+
+                // 5. Result Sections: Question input, Verdict, Combinations, Aspects, Next 1 Hour, Remedies
+                JamakkolResultSectionsWidget(
                   state: _chartState,
                   isTamil: _isTamil,
-                  onRasiTap: _showRasiDetailSheet,
+                  onQuestionChanged: (q, cat) {
+                    setState(() {
+                      _question = q;
+                      _questionCategory = cat;
+                      _recalculateChart();
+                    });
+                  },
                 ),
-              ),
-              const SizedBox(height: 12),
-
-              // 4. Planetary Positions Table (Transit, Jamam, Special Points)
-              PlanetPositionTableWidget(state: _chartState, isTamil: _isTamil),
-              const SizedBox(height: 12),
-
-              // 5. Result Sections: Question input, Verdict, Combinations, Aspects, Next 1 Hour, Remedies
-              JamakkolResultSectionsWidget(
-                state: _chartState,
-                isTamil: _isTamil,
-                onQuestionChanged: (q, cat) {
-                  setState(() {
-                    _question = q;
-                    _questionCategory = cat;
-                    _recalculateChart();
-                  });
-                },
-              ),
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -606,7 +606,7 @@ class _JamakkolLiveScreenState extends State<JamakkolLiveScreen> with WidgetsBin
 
   Widget _buildTopControls() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
       decoration: BoxDecoration(
         color: const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(10),
@@ -621,12 +621,12 @@ class _JamakkolLiveScreenState extends State<JamakkolLiveScreen> with WidgetsBin
               borderRadius: BorderRadius.circular(6),
               child: Row(
                 children: [
-                  const Icon(Icons.location_on_rounded, color: Color(0xFFFFD700), size: 18),
-                  const SizedBox(width: 6),
+                  const Icon(Icons.location_on_rounded, color: Color(0xFFFFD700), size: 16),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       _selectedLocation.name,
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                      style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -634,14 +634,14 @@ class _JamakkolLiveScreenState extends State<JamakkolLiveScreen> with WidgetsBin
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
 
           // Date / Time Button
           InkWell(
             onTap: _selectManualDate,
             borderRadius: BorderRadius.circular(6),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
               decoration: BoxDecoration(
                 color: const Color(0xFF1E293B),
                 borderRadius: BorderRadius.circular(6),
@@ -650,31 +650,31 @@ class _JamakkolLiveScreenState extends State<JamakkolLiveScreen> with WidgetsBin
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.calendar_today_rounded, color: Colors.white70, size: 14),
-                  const SizedBox(width: 4),
+                  const Icon(Icons.calendar_today_rounded, color: Colors.white70, size: 12),
+                  const SizedBox(width: 3),
                   Text(
                     _formatShortDateTime(_currentDateTime),
-                    style: const TextStyle(color: Colors.white, fontSize: 11),
+                    style: const TextStyle(color: Colors.white, fontSize: 10.5),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
 
           // LIVE NOW Toggle Button
           InkWell(
             onTap: () => _toggleLiveMode(!_isLive),
             borderRadius: BorderRadius.circular(6),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               decoration: BoxDecoration(
                 color: _isLive ? const Color(0xFF10B981) : const Color(0xFF334155),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 _isLive ? 'LIVE' : 'SET LIVE',
-                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900),
+                style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.w900),
               ),
             ),
           ),

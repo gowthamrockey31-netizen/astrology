@@ -13,27 +13,82 @@ class UdayamCalculator {
     return n;
   }
 
-  /// Calculates Udayam (உதயம்) for a given query time, location, and sunrise
+  /// Calculates Udayam Rasi Index using authentic Jamakkol day/night proportional movement:
+  /// - Daytime: 360° completed between sunrise and sunset
+  /// - Nighttime: 360° completed between sunset and next sunrise
+  static int calculateUdayamRasiIndex({
+    double? sunLongitude,
+    int? sunRasi,
+    required DateTime consultationTime,
+    required DateTime sunriseTime,
+    DateTime? sunsetTime,
+  }) {
+    final sunset = sunsetTime ?? sunriseTime.add(const Duration(hours: 12));
+    final bool isDay = !consultationTime.isBefore(sunriseTime) && consultationTime.isBefore(sunset);
+
+    double elapsedMinutes;
+    if (isDay) {
+      elapsedMinutes = consultationTime.difference(sunriseTime).inSeconds / 60.0;
+    } else {
+      if (consultationTime.isBefore(sunriseTime)) {
+        final yesterdaySunset = sunset.subtract(const Duration(days: 1));
+        elapsedMinutes = consultationTime.difference(yesterdaySunset).inSeconds / 60.0;
+      } else {
+        elapsedMinutes = consultationTime.difference(sunset).inSeconds / 60.0;
+      }
+    }
+
+    elapsedMinutes = elapsedMinutes.clamp(0.0, 720.0);
+
+    final double baseLon = sunLongitude ?? ((sunRasi ?? 0) * 30.0);
+    final double udayamLon = normalize(baseLon + (elapsedMinutes * 0.5));
+    return (udayamLon / 30.0).floor() % 12;
+  }
+
+  /// Calculates Udayam (உதயம்) for a given query time, location, sunrise, and sunset
   static JamakkolSpecialPoint calculateUdayam({
     required DateTime queryDateTime,
     required JamakkolLocation location,
     required DateTime effectiveSunrise,
+    DateTime? effectiveSunset,
     required double sunLongitude,
   }) {
-    // 1. In traditional South Indian Jamakkol Prasannam:
-    // At sunrise, Udayam aligns with the Sun's position/sign.
-    // As time advances from Sunrise, Udayam rotates through the zodiac:
-    // Classical rate: 30° per hour (0.5° per minute = 1 Rasi per Jamam duration / hour)
-    final double curMinutes = queryDateTime.hour * 60.0 + queryDateTime.minute + (queryDateTime.second / 60.0);
-    final double sunriseMinutes = effectiveSunrise.hour * 60.0 + effectiveSunrise.minute + (effectiveSunrise.second / 60.0);
-    double elapsedFromSunrise = curMinutes - sunriseMinutes;
-    if (elapsedFromSunrise < 0) elapsedFromSunrise += 1440.0;
+    final sunset = effectiveSunset ?? effectiveSunrise.add(const Duration(hours: 12));
+    final bool isDay = !queryDateTime.isBefore(effectiveSunrise) && queryDateTime.isBefore(sunset);
 
-    final int sunRasiIndex = (normalize(sunLongitude) / 30.0).floor() % 12;
-    final double sunSignBaseLon = sunRasiIndex * 30.0;
+    double elapsedMinutes;
+    DateTime anchorTime;
 
-    // Classical Jamakkol Udayam traverses forward from Sun's sign base
-    final double udayamLon = normalize(sunSignBaseLon + (elapsedFromSunrise * 0.5));
+    if (isDay) {
+      elapsedMinutes = queryDateTime.difference(effectiveSunrise).inSeconds / 60.0;
+      anchorTime = effectiveSunrise;
+    } else {
+      if (queryDateTime.isBefore(effectiveSunrise)) {
+        final yesterdaySunset = sunset.subtract(const Duration(days: 1));
+        elapsedMinutes = queryDateTime.difference(yesterdaySunset).inSeconds / 60.0;
+        anchorTime = yesterdaySunset;
+      } else {
+        elapsedMinutes = queryDateTime.difference(sunset).inSeconds / 60.0;
+        anchorTime = sunset;
+      }
+    }
+
+    elapsedMinutes = elapsedMinutes.clamp(0.0, 720.0);
+
+    // Calculate exact Sun longitude at anchor (sunrise/sunset)
+    double sunAnchorLon = sunLongitude;
+    try {
+      final jd = SwissEphemerisCalculator.getJulianDay(anchorTime, utcOffsetHours: location.timezone);
+      final ayanamsa = SwissEphemerisCalculator.calculateLahiriAyanamsa(jd);
+      final positions = SwissEphemerisCalculator.calculatePlanetaryPositions(jd: jd, ayanamsa: ayanamsa);
+      sunAnchorLon = positions['Sun']!.longitude;
+    } catch (_) {
+      sunAnchorLon = sunLongitude;
+    }
+
+    // In Jamakkol Prasannam, Udayam moves uniformly at 0.5° per minute (30° / 60 min, exactly 1 sign per hour)
+    const double speed = 0.5;
+    final double udayamLon = normalize(sunAnchorLon + (elapsedMinutes * speed));
     final int rasiIdx = (udayamLon / 30.0).floor() % 12;
     final double degInRasi = udayamLon % 30.0;
 

@@ -47,15 +47,22 @@ import 'kp_method_2/kp_method_2.dart';
 import 'kp_method_model_3/kp_method_model_3.dart' show KPMethodModel3Page;
 import 'kp_method_4/kp_method_4.dart';
 import 'modules/bnn_method_2/bnn_method_2.dart';
-import 'modules/jamakol_arudam_model_2/jamakol_arudam_model_2.dart';
 import 'modules/professional_muhurtha/professional_muhurtha.dart';
 import 'modules/ayana_kala/ayana_kala_module.dart';
 import 'modules/dhanishta_panchami/dhanishta_panchami.dart';
 import 'modules/nakshatra_prasannam/nakshatra_prasannam_screen.dart';
 import 'jamakkol_prasannam/screens/jamakkol_home_screen.dart';
+import 'services/profile_service.dart';
+import 'screens/consultation/quick_consultation_screen.dart';
+import 'screens/profile/family_profiles_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await ProfileService().initialize();
+  } catch (e) {
+    debugPrint('ProfileService initialization error: $e');
+  }
 
   // Cosmic System UI Overlay
   SystemChrome.setSystemUIOverlayStyle(
@@ -134,7 +141,7 @@ class AstroDashaCareApp extends StatelessWidget {
                 const Text(
                   'This section is restricted to certified Astrologers.\nPlease log in with an Astrologer account.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 14, color: Colors.white70),
+                  style: TextStyle(fontSize: 14, color: Colors.white70),
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
@@ -233,8 +240,6 @@ class AstroDashaCareApp extends StatelessWidget {
         '/longevity': (context) => const LongevityScreen(),
         '/jamakol_arudam': (context) => const JamakolArudamScreen(),
         '/jamakol_arudam_model1': (context) => const JamakolArudamModel1Screen(),
-        '/jamakol_arudam_model2': (context) => const JamakkolPrasannamPage(),
-        '/jamakol-arudam-model-2': (context) => const JamakkolPrasannamPage(),
         '/jamakkol_prasannam': (context) => const JamakkolHomeScreen(),
         '/jamakkol_prasagam': (context) => const JamakkolHomeScreen(),
         '/jamakol_prasagam': (context) => const JamakkolHomeScreen(),
@@ -270,6 +275,10 @@ class AstroDashaCareApp extends StatelessWidget {
               requiredRole: 'Admin',
               child: const MundaneAstrologyScreen(),
             ),
+        '/quick_consultation': (context) => const QuickConsultationScreen(),
+        '/quick-consultation': (context) => const QuickConsultationScreen(),
+        '/family_profiles': (context) => const FamilyProfilesScreen(),
+        '/family-profiles': (context) => const FamilyProfilesScreen(),
       },
     );
   }

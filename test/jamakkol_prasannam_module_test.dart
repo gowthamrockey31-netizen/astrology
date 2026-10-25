@@ -89,7 +89,7 @@ void main() {
       expect(udayam1.nakshatraIndex, inInclusiveRange(0, 26));
       expect(udayam1.pada, inInclusiveRange(1, 4));
 
-      // After 6 hours (360 mins * 0.5° = 180°), Udayam should advance ~180°
+      // After 6 hours (360 mins * 0.5° = 180° = 6 signs), Udayam should advance ~180°
       final diff = (udayam2.absoluteLongitude - udayam1.absoluteLongitude + 360.0) % 360.0;
       expect(diff, closeTo(180.0, 1.0));
     });
@@ -315,6 +315,182 @@ void main() {
         expect(chart.jamakkolPlanets.length, equals(8));
         expect(chart.transitPlanets.isNotEmpty, isTrue);
       }
+    });
+  });
+
+  group('Jamakkol Prasannam - Specification Calculations', () {
+    test('1. Udayam: Dynamic continuous movement 0.5° per minute (30° per 60 min)', () {
+      final sunrise = DateTime(2026, 10, 2, 5, 57, 43);
+      final consultation = DateTime(2026, 10, 2, 9, 30, 29); // ~212.77 mins
+      const sunLongitude = 164.7544; // Kanni 14° 45'
+
+      final udayamRasi = UdayamCalculator.calculateUdayamRasiIndex(
+        sunLongitude: sunLongitude,
+        consultationTime: consultation,
+        sunriseTime: sunrise,
+      );
+
+      // Sun at 164.75° + (212.77 * 0.5° = 106.38°) = 271.13° -> Makaram (9) ~1°08'
+      expect(udayamRasi, equals(9)); // Makaram
+
+      final udayamPoint = UdayamCalculator.calculateUdayam(
+        queryDateTime: consultation,
+        location: JamakkolLocation.defaultChennai,
+        effectiveSunrise: sunrise,
+        sunLongitude: sunLongitude,
+      );
+      expect(udayamPoint.rasiIndex, equals(9));
+      expect(udayamPoint.degreeInRasi, closeTo(1.13, 0.5));
+    });
+
+    test('2. Arudam: 5-minute system preserves continuous degree precision', () {
+      final query = DateTime(2026, 10, 2, 9, 30, 25); // 30 mins 25 secs
+      final arudam = ArudamCalculator.calculateArudam(
+        queryDateTime: query,
+        udayamRasiIndex: 9,
+      );
+
+      // (30 + 25/60) * 6.0° = 182.5° -> Thulam (6) 2° 30'
+      expect(arudam.rasiIndex, equals(6)); // Thulam
+      expect(arudam.degreeInRasi, closeTo(2.5, 0.1)); // ~2° 30'
+    });
+
+    test('3. Kavippu: Dynamic (KavippuBase - ArudamLongitude) mod 360', () {
+      const double arudamLon = 182.5; // Thulam 2° 30'
+      const double sunLon = 164.75; // Kanni
+
+      final kavippu = KavippuCalculator.calculateKavippu(
+        udayamRasiIndex: 9,
+        arudamLongitude: arudamLon,
+        sunLongitude: sunLon,
+        weekdayNumber: 5, // Friday
+        jamamPeriodIndex: 3, // Jamam #3
+        isDay: true,
+      );
+
+      // KavippuBase = 330.0°, Arudam = 182.5° -> Kavippu = 147.5° = Simmam (4) 27° 30'
+      expect(kavippu.rasiIndex, equals(4)); // Simmam
+      expect(kavippu.degreeInRasi, closeTo(27.5, 0.5)); // ~27° 30'
+    });
+
+    test('4. Rahu Kalam (Ra.Ka) Rasi point dynamically matches Sun degree', () {
+      // Friday Day -> Thulam (6)
+      final rasi = JamakkolPlanetCalculator.calculateRahuKalamRasi(5, isDay: true);
+      expect(rasi, equals(6)); // Thulam
+    });
+
+    test('5. Emakandam Rasi point dynamically matches Sun degree', () {
+      // Friday Day -> Mithunam (2)
+      final rasi = JamakkolPlanetCalculator.calculateEmakandamRasi(5, isDay: true);
+      expect(rasi, equals(2)); // Mithunam
+    });
+
+    test('6. Mridyu Rasi point dynamically calculated from Sun degree and canonical offset', () {
+      const sunDeg = 14.75; // 14° 45'
+      // Friday Day: Dhanusu (8) + SunDeg (14.75) + 18.0° = 272.75° -> Makaram (9) 2° 45'
+      final rasi = JamakkolPlanetCalculator.calculateMridyuRasi(weekdayNumber: 5, sunDegInRasi: sunDeg, isDay: true);
+      final lon = JamakkolPlanetCalculator.calculateMridyuLongitude(weekdayNumber: 5, sunDegInRasi: sunDeg, isDay: true);
+      expect(rasi, equals(9)); // Makaram
+      expect(lon % 30.0, closeTo(2.75, 0.1)); // ~2° 45'
+    });
+
+    test('7. Outer planets rotate counter-clockwise from 06:00:00 reference time', () {
+      final query = DateTime(2026, 10, 2, 9, 30, 29);
+      final schedule = JamamCalculator.calculateSchedule(
+        queryDateTime: query,
+        location: JamakkolLocation.defaultChennai,
+      );
+
+      final planets = JamakkolPlanetCalculator.calculateJamakkolPlanets(
+        queryDateTime: query,
+        schedule: schedule,
+      );
+
+      final venus = planets.firstWhere((p) => p.key == 'Venus');
+      final saturn = planets.firstWhere((p) => p.key == 'Saturn');
+      final moon = planets.firstWhere((p) => p.key == 'Moon');
+
+      // Expected ~09:30:29: Venus ~254° 47' (Dhanusu), Saturn ~209° 47' (Thulam), Moon ~164° 47' (Kanni)
+      expect(venus.absoluteLongitude, closeTo(254.76, 1.0));
+      expect(saturn.absoluteLongitude, closeTo(209.76, 1.0));
+      expect(moon.absoluteLongitude, closeTo(164.76, 1.0));
+    });
+
+    test('8. Full validation scenario: Friday Oct 02, 2026 09:30 AM Chennai', () {
+      final query = DateTime(2026, 10, 2, 9, 30, 29);
+      final chart = JamakkolEngine.calculateChart(
+        queryDateTime: query,
+        location: JamakkolLocation.defaultChennai,
+      );
+
+      // Core points
+      expect(chart.udayam.rasiIndex, equals(9)); // Makaram
+      expect(chart.arudam.rasiIndex, equals(6)); // Thulam
+      expect(chart.kavippu.rasiIndex, equals(4)); // Simmam
+
+      // Upagrahas
+      expect(chart.rahuKalamRasi, equals(6)); // Thulam
+      expect(chart.emakandamRasi, equals(2)); // Mithunam
+      expect(chart.mridyuRasi, equals(9)); // Makaram
+    });
+
+    test('9. Outer-ring planets NEVER fall into Fixed signs (Rishabam, Simham, Viruchigam, Kumbam)', () {
+      const fixedSigns = [1, 4, 7, 10]; // Rishabam, Simham, Viruchigam, Kumbam
+
+      // Test across multiple hours of day and night
+      for (int hour = 6; hour <= 23; hour++) {
+        for (int min in [0, 15, 30, 45]) {
+          final query = DateTime(2026, 10, 2, hour, min);
+          final schedule = JamamCalculator.calculateSchedule(
+            queryDateTime: query,
+            location: JamakkolLocation.defaultChennai,
+          );
+          final planets = JamakkolPlanetCalculator.calculateJamakkolPlanets(
+            queryDateTime: query,
+            schedule: schedule,
+          );
+
+          expect(planets.length, equals(8));
+          for (final p in planets) {
+            // Must never be placed into a fixed sign
+            expect(fixedSigns.contains(p.rasiIndex), isFalse,
+                reason: '${p.nameEn} at $hour:$min landed in fixed sign ${p.rasiIndex}');
+            // Must have valid degree in Rasi
+            expect(p.degreeInRasi, inInclusiveRange(0.0, 30.0));
+          }
+        }
+      }
+    });
+
+    test('10. Outer-ring planets properly map fixed signs to Ubhaya signs retaining degree', () {
+      final query = DateTime(2026, 10, 2, 8, 0); // An hour where raw positions hit fixed signs
+      final schedule = JamamCalculator.calculateSchedule(
+        queryDateTime: query,
+        location: JamakkolLocation.defaultChennai,
+      );
+      final planets = JamakkolPlanetCalculator.calculateJamakkolPlanets(
+        queryDateTime: query,
+        schedule: schedule,
+      );
+
+      for (final p in planets) {
+        expect([0, 2, 3, 5, 6, 8, 9, 11].contains(p.rasiIndex), isTrue);
+        expect([1, 4, 7, 10].contains(p.rasiIndex), isFalse);
+        expect(p.borderSide, inInclusiveRange(0, 3));
+      }
+    });
+
+    test('11. Kavippu dynamically moves backwards as Arudam advances forward', () {
+      // At query 1 (minute 30) vs query 2 (minute 35): Arudam advances 30°, Kavippu regresses 30°
+      final t1 = DateTime(2026, 10, 2, 9, 30, 0);
+      final t2 = DateTime(2026, 10, 2, 9, 35, 0);
+
+      final c1 = JamakkolEngine.calculateChart(queryDateTime: t1, location: JamakkolLocation.defaultChennai);
+      final c2 = JamakkolEngine.calculateChart(queryDateTime: t2, location: JamakkolLocation.defaultChennai);
+
+      // Kavippu longitude differences:
+      final kavDiff = (c1.kavippu.absoluteLongitude - c2.kavippu.absoluteLongitude + 360.0) % 360.0;
+      expect(kavDiff, closeTo(30.0, 0.5)); // regressed by ~30°
     });
   });
 }

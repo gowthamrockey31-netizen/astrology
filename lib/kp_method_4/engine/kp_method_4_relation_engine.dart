@@ -3,15 +3,342 @@ import '../models/kp4_models.dart';
 /// Centralized Relationship Engine for KP Method 4
 /// Evaluates:
 /// 1. Planet Relations (Graha Thodarbhu):
-///    - Step 1: Star Lord -> Bhavas where Star Lord appears as cusp Sub Lord
-///    - Step 2: Sub Lord -> Bhavas where Sub Lord appears as cusp Sub Lord
-///    - Step 3: Sub-Sub Fallback -> if match is absent, check cusp Sub-Sub Lord with '$'
-/// 2. Bhava Relations (Bhava Graha Thodarbhu):
+///    - Priority 1: Check Sub Lord relationship
+///    - Priority 2: If none, check Sub-Sub Lord relationship (marked with '$')
+///    - Priority 3: If none, check Star Lord relationship (marked with '*')
+/// 2. Planet-to-Bhava Contact Mapping:
+///    - Dynamically maps each of the 9 planets to the Bhavas it contacts/represents
+///    - Strictly retains sourceLevel (SUB_LORD, SUB_SUB_LORD, STAR_LORD)
+/// 3. Bhava Relations (Bhava Graha Thodarbhu):
 ///    - Bhava Sub Lord relations
 ///    - Star Lord of Bhava Sub Lord relations
-/// 3. Dasha Relations:
+/// 4. Dasha Relations:
 ///    - Dasha / Bhukti / Antara / Sookshma relations derived directly from Planet Relations
 class KpMethod4RelationEngine {
+  /// Resolves the contacts for a target planet across all 12 Bhavas
+  /// according to the strict KP Lord hierarchy:
+  /// Priority 1: Check Sub Lord relationship
+  /// Priority 2: If none, check Sub-Sub Lord relationship
+  /// Priority 3: If none, check Star Lord relationship
+  static ({
+    List<BhavaContact> contacts,
+    List<KpHouseNumber> houses,
+    KpSourceLevel? sourceLevel,
+  }) resolvePlanetContacts({
+    required String targetPlanet,
+    required List<CuspPosition> cusps,
+  }) {
+    // Priority 1: Sub Lord relationship
+    final subLordCusps = cusps
+        .where((c) => _isSamePlanet(c.subLord, targetPlanet))
+        .toList();
+    if (subLordCusps.isNotEmpty) {
+      final contacts = subLordCusps
+          .map((c) => BhavaContact(
+                bhava: c.cuspNumber,
+                planet: targetPlanet,
+                sourceLevel: KpSourceLevel.SUB_LORD,
+              ))
+          .toList();
+      final houses = subLordCusps
+          .map((c) => KpHouseNumber(
+                c.cuspNumber,
+                isSubSubFallback: false,
+                isStarLordFallback: false,
+                sourceLevel: KpSourceLevel.SUB_LORD,
+              ))
+          .toList();
+      return (
+        contacts: contacts,
+        houses: houses,
+        sourceLevel: KpSourceLevel.SUB_LORD,
+      );
+    }
+
+    // Priority 2: Sub-Sub Lord relationship
+    final subSubLordCusps = cusps
+        .where((c) => _isSamePlanet(c.subSubLord, targetPlanet))
+        .toList();
+    if (subSubLordCusps.isNotEmpty) {
+      final contacts = subSubLordCusps
+          .map((c) => BhavaContact(
+                bhava: c.cuspNumber,
+                planet: targetPlanet,
+                sourceLevel: KpSourceLevel.SUB_SUB_LORD,
+              ))
+          .toList();
+      final houses = subSubLordCusps
+          .map((c) => KpHouseNumber(
+                c.cuspNumber,
+                isSubSubFallback: true,
+                isStarLordFallback: false,
+                sourceLevel: KpSourceLevel.SUB_SUB_LORD,
+              ))
+          .toList();
+      return (
+        contacts: contacts,
+        houses: houses,
+        sourceLevel: KpSourceLevel.SUB_SUB_LORD,
+      );
+    }
+
+    // Priority 3: Star Lord relationship
+    final starLordCusps = cusps
+        .where((c) => _isSamePlanet(c.starLord, targetPlanet))
+        .toList();
+    if (starLordCusps.isNotEmpty) {
+      final contacts = starLordCusps
+          .map((c) => BhavaContact(
+                bhava: c.cuspNumber,
+                planet: targetPlanet,
+                sourceLevel: KpSourceLevel.STAR_LORD,
+              ))
+          .toList();
+      final houses = starLordCusps
+          .map((c) => KpHouseNumber(
+                c.cuspNumber,
+                isSubSubFallback: false,
+                isStarLordFallback: true,
+                sourceLevel: KpSourceLevel.STAR_LORD,
+              ))
+          .toList();
+      return (
+        contacts: contacts,
+        houses: houses,
+        sourceLevel: KpSourceLevel.STAR_LORD,
+      );
+    }
+
+    return (
+      contacts: <BhavaContact>[],
+      houses: <KpHouseNumber>[],
+      sourceLevel: null,
+    );
+  }
+
+  /// Resolves the contact for a single Bhava and planet according to hierarchy:
+  /// Priority 1: Sub Lord -> Priority 2: Sub-Sub Lord -> Priority 3: Star Lord
+  static BhavaContact? resolveBhavaPlanetContact({
+    required CuspPosition cusp,
+    required String planet,
+  }) {
+    if (_isSamePlanet(cusp.subLord, planet)) {
+      return BhavaContact(
+        bhava: cusp.cuspNumber,
+        planet: planet,
+        sourceLevel: KpSourceLevel.SUB_LORD,
+      );
+    }
+    if (_isSamePlanet(cusp.subSubLord, planet)) {
+      return BhavaContact(
+        bhava: cusp.cuspNumber,
+        planet: planet,
+        sourceLevel: KpSourceLevel.SUB_SUB_LORD,
+      );
+    }
+    if (_isSamePlanet(cusp.starLord, planet)) {
+      return BhavaContact(
+        bhava: cusp.cuspNumber,
+        planet: planet,
+        sourceLevel: KpSourceLevel.STAR_LORD,
+      );
+    }
+    return null;
+  }
+
+  /// Determines which house (1..12) a planet occupies based on KP house cusps (Placidus).
+  /// Reuses the existing KP house-cusp boundary logic.
+  /// Returns null if cusps or planet longitude is missing or invalid.
+  static int? determineOccupiedHouse({
+    required double planetLongitude,
+    required List<CuspPosition> cusps,
+  }) {
+    if (cusps.length < 12) return null;
+    if (planetLongitude.isNaN || planetLongitude.isInfinite) return null;
+
+    final sortedCusps = List<CuspPosition>.from(cusps)
+      ..sort((a, b) => a.cuspNumber.compareTo(b.cuspNumber));
+
+    // Ensure all 12 cusps 1..12 are present with valid numeric coordinates
+    for (int i = 0; i < 12; i++) {
+      if (sortedCusps[i].cuspNumber != i + 1) return null;
+      if (sortedCusps[i].longitude.isNaN || sortedCusps[i].longitude.isInfinite) {
+        return null;
+      }
+    }
+
+    final normLong = (planetLongitude % 360.0 + 360.0) % 360.0;
+
+    for (int i = 0; i < 12; i++) {
+      final cur = (sortedCusps[i].longitude % 360.0 + 360.0) % 360.0;
+      final next = (sortedCusps[(i + 1) % 12].longitude % 360.0 + 360.0) % 360.0;
+
+      if (next > cur) {
+        if (normLong >= cur && normLong < next) {
+          return sortedCusps[i].cuspNumber;
+        }
+      } else if (cur > next) {
+        // Straddles 0° Aries
+        if (normLong >= cur || normLong < next) {
+          return sortedCusps[i].cuspNumber;
+        }
+      } else {
+        if (normLong == cur) {
+          return sortedCusps[i].cuspNumber;
+        }
+      }
+    }
+
+    return sortedCusps.first.cuspNumber;
+  }
+
+  /// Calculates the fallback house number by counting the planet's occupied zodiac sign
+  /// from the Lagna (Ascendant) sign, treating the Lagna sign as the 1st house and
+  /// counting zodiac signs in order.
+  static int calculateFallbackHouseFromLagna({
+    required int planetSignIndex,
+    required int ascendantSignIndex,
+  }) {
+    return ((planetSignIndex - ascendantSignIndex) % 12 + 12) % 12 + 1;
+  }
+
+  /// Calculate Planet-to-Bhava contact mapping for all 9 planets
+  /// Planet -> [BhavaContact] with retained sourceLevel
+  static Map<String, List<BhavaContact>> calculatePlanetToBhavaContacts({
+    required List<PlanetPosition> planets,
+    required List<CuspPosition> cusps,
+    double? ascendantDegree,
+  }) {
+    final Map<String, List<BhavaContact>> mapping = {};
+
+    // Determine Ascendant (Lagna) sign index (0..11)
+    int? ascSignIndex;
+    if (ascendantDegree != null && !ascendantDegree.isNaN) {
+      ascSignIndex = (ascendantDegree / 30.0).floor().clamp(0, 11);
+    } else if (cusps.isNotEmpty) {
+      final cusp1 = cusps.firstWhere(
+        (c) => c.cuspNumber == 1,
+        orElse: () => cusps.first,
+      );
+      ascSignIndex = cusp1.signIndex;
+    }
+
+    for (final planet in planets) {
+      final resolved = resolvePlanetContacts(
+        targetPlanet: planet.planet,
+        cusps: cusps,
+      );
+
+      // 1. Preserve existing valid house connections exactly
+      if (resolved.contacts.isNotEmpty) {
+        mapping[planet.planet] = resolved.contacts;
+        continue;
+      }
+
+      // If planet coordinates are invalid or cusps/Lagna are missing, no connections
+      if (planet.longitude.isNaN || cusps.isEmpty || ascSignIndex == null) {
+        mapping[planet.planet] = const [];
+        continue;
+      }
+
+      // 2. Check Part 2 — Planetary Positions — to determine whether the planet
+      // appears in any of the Star Lord, Sub Lord, or Sub-Sub Lord columns.
+      final bool appearsInPart2Columns = planets.any((p) =>
+          _isSamePlanet(p.starLord, planet.planet) ||
+          _isSamePlanet(p.subLord, planet.planet) ||
+          _isSamePlanet(p.subSubLord, planet.planet));
+
+      // Apply the fallback only when:
+      // - The planet has no actual KP house connections after all three levels have been evaluated.
+      // - The planet does not appear in any of the three specified columns in Part 2.
+      if (appearsInPart2Columns) {
+        mapping[planet.planet] = const [];
+        continue;
+      }
+
+      // Fallback House Calculation:
+      // Count occupied zodiac sign from Lagna, treating Lagna sign as 1st house
+      final int fallbackHouse = calculateFallbackHouseFromLagna(
+        planetSignIndex: planet.signIndex,
+        ascendantSignIndex: ascSignIndex,
+      );
+
+      mapping[planet.planet] = [
+        BhavaContact(
+          bhava: fallbackHouse,
+          planet: planet.planet,
+          sourceLevel: KpSourceLevel.SUB_LORD,
+        ),
+      ];
+    }
+    return mapping;
+  }
+
+  /// Calculate Planet-to-Bhava numbers mapping (Planet -> [Bhava numbers])
+  static Map<String, List<KpHouseNumber>> calculatePlanetToBhavaHouses({
+    required List<PlanetPosition> planets,
+    required List<CuspPosition> cusps,
+    double? ascendantDegree,
+  }) {
+    final Map<String, List<KpHouseNumber>> mapping = {};
+
+    // Determine Ascendant (Lagna) sign index (0..11)
+    int? ascSignIndex;
+    if (ascendantDegree != null && !ascendantDegree.isNaN) {
+      ascSignIndex = (ascendantDegree / 30.0).floor().clamp(0, 11);
+    } else if (cusps.isNotEmpty) {
+      final cusp1 = cusps.firstWhere(
+        (c) => c.cuspNumber == 1,
+        orElse: () => cusps.first,
+      );
+      ascSignIndex = cusp1.signIndex;
+    }
+
+    for (final planet in planets) {
+      final resolved = resolvePlanetContacts(
+        targetPlanet: planet.planet,
+        cusps: cusps,
+      );
+
+      // 1. Preserve existing valid house connections exactly
+      if (resolved.houses.isNotEmpty) {
+        mapping[planet.planet] = resolved.houses;
+        continue;
+      }
+
+      // If planet coordinates are invalid or cusps/Lagna are missing, no connections
+      if (planet.longitude.isNaN || cusps.isEmpty || ascSignIndex == null) {
+        mapping[planet.planet] = const [];
+        continue;
+      }
+
+      // 2. Check Part 2 — Planetary Positions — to determine whether the planet
+      // appears in any of the Star Lord, Sub Lord, or Sub-Sub Lord columns.
+      final bool appearsInPart2Columns = planets.any((p) =>
+          _isSamePlanet(p.starLord, planet.planet) ||
+          _isSamePlanet(p.subLord, planet.planet) ||
+          _isSamePlanet(p.subSubLord, planet.planet));
+
+      // Apply the fallback only when:
+      // - The planet has no actual KP house connections after all three levels have been evaluated.
+      // - The planet does not appear in any of the three specified columns in Part 2.
+      if (appearsInPart2Columns) {
+        mapping[planet.planet] = const [];
+        continue;
+      }
+
+      // Fallback House Calculation:
+      // Count occupied zodiac sign from Lagna, treating Lagna sign as 1st house
+      final int fallbackHouse = calculateFallbackHouseFromLagna(
+        planetSignIndex: planet.signIndex,
+        ascendantSignIndex: ascSignIndex,
+      );
+
+      mapping[planet.planet] = [KpHouseNumber(fallbackHouse)];
+    }
+    return mapping;
+  }
+
   /// Calculate Graha Thodarbhu (Planet Relations) for all 9 planets
   static List<PlanetRelation> calculatePlanetRelations({
     required List<PlanetPosition> planets,
@@ -20,19 +347,29 @@ class KpMethod4RelationEngine {
     final List<PlanetRelation> relations = [];
 
     for (final planet in planets) {
-      // Step 1: Check Star Lord
-      final starLordMatches = _findCuspSubLordHouses(cusps, planet.starLord);
-      final bool isStarFallback = starLordMatches.isEmpty;
-      final List<KpHouseNumber> starHouses = isStarFallback
-          ? _findCuspSubSubLordHouses(cusps, planet.starLord)
-          : starLordMatches;
+      // Step 1: Check Star Lord using corrected 3-priority hierarchy
+      final starRes = resolvePlanetContacts(
+        targetPlanet: planet.starLord,
+        cusps: cusps,
+      );
+      final bool isStarFallback = starRes.sourceLevel != null &&
+          starRes.sourceLevel != KpSourceLevel.SUB_LORD;
+      final List<KpHouseNumber> starHouses = starRes.houses;
 
-      // Step 2: Check Sub Lord
-      final subLordMatches = _findCuspSubLordHouses(cusps, planet.subLord);
-      final bool isSubFallback = subLordMatches.isEmpty;
-      final List<KpHouseNumber> subHouses = isSubFallback
-          ? _findCuspSubSubLordHouses(cusps, planet.subLord)
-          : subLordMatches;
+      // Step 2: Check Sub Lord using corrected 3-priority hierarchy
+      final subRes = resolvePlanetContacts(
+        targetPlanet: planet.subLord,
+        cusps: cusps,
+      );
+      final bool isSubFallback = subRes.sourceLevel != null &&
+          subRes.sourceLevel != KpSourceLevel.SUB_LORD;
+      final List<KpHouseNumber> subHouses = subRes.houses;
+
+      // Step 3: Direct Planet's contacts using corrected 3-priority hierarchy
+      final directRes = resolvePlanetContacts(
+        targetPlanet: planet.planet,
+        cusps: cusps,
+      );
 
       // Combined unique houses
       final combined = _mergeAndSortHouses(starHouses, subHouses);
@@ -45,13 +382,18 @@ class KpMethod4RelationEngine {
           starLordTa: planet.starLordTa,
           starLordHouses: starHouses,
           isStarLordFallback: isStarFallback,
+          starLordSourceLevel: starRes.sourceLevel ?? KpSourceLevel.SUB_LORD,
           subLord: planet.subLord,
           subLordTa: planet.subLordTa,
           subLordHouses: subHouses,
           isSubLordFallback: isSubFallback,
+          subLordSourceLevel: subRes.sourceLevel ?? KpSourceLevel.SUB_LORD,
           subSubLord: planet.subSubLord,
           subSubLordTa: planet.subSubLordTa,
           combinedHouses: combined,
+          planetHouses: directRes.houses,
+          planetContacts: directRes.contacts,
+          planetSourceLevel: directRes.sourceLevel,
         ),
       );
     }
@@ -59,36 +401,7 @@ class KpMethod4RelationEngine {
     return relations;
   }
 
-  /// Step 1 & 2: Find Bhavas where the target planet appears as Sub Lord
-  static List<KpHouseNumber> _findCuspSubLordHouses(
-    List<CuspPosition> cusps,
-    String targetPlanet,
-  ) {
-    final result = <KpHouseNumber>[];
-    for (final c in cusps) {
-      if (_isSamePlanet(c.subLord, targetPlanet)) {
-        result.add(KpHouseNumber(c.cuspNumber, isSubSubFallback: false));
-      }
-    }
-    return result;
-  }
-
-  /// Step 3: Fallback - Find Bhavas where the target planet appears as Sub-Sub Lord
-  /// Marked with isSubSubFallback = true ('$')
-  static List<KpHouseNumber> _findCuspSubSubLordHouses(
-    List<CuspPosition> cusps,
-    String targetPlanet,
-  ) {
-    final result = <KpHouseNumber>[];
-    for (final c in cusps) {
-      if (_isSamePlanet(c.subSubLord, targetPlanet)) {
-        result.add(KpHouseNumber(c.cuspNumber, isSubSubFallback: true));
-      }
-    }
-    return result;
-  }
-
-  /// Merge and sort unique house numbers (prefer non-fallback if duplicate)
+  /// Merge and sort unique house numbers (prefer higher priority sourceLevel if duplicate)
   static List<KpHouseNumber> _mergeAndSortHouses(
     List<KpHouseNumber> list1,
     List<KpHouseNumber> list2,
@@ -98,8 +411,9 @@ class KpMethod4RelationEngine {
       if (!map.containsKey(h.house)) {
         map[h.house] = h;
       } else {
-        // If already exists but current is non-fallback, upgrade to non-fallback
-        if (!h.isSubSubFallback && map[h.house]!.isSubSubFallback) {
+        // Prefer SUB_LORD (0) over SUB_SUB_LORD (1) over STAR_LORD (2)
+        final existing = map[h.house]!;
+        if (h.sourceLevel.index < existing.sourceLevel.index) {
           map[h.house] = h;
         }
       }
@@ -108,8 +422,12 @@ class KpMethod4RelationEngine {
     return sortedKeys.map((k) => map[k]!).toList();
   }
 
-  /// Calculate Bhava Graha Thodarbhu (House Relations) for 12 Bhavas
-  /// Derived strictly from the centralized planet relations
+  /// Calculate Bhava Graha Thodarbhu (Bhava Planetary Connections) for 12 Bhavas
+  /// Populated directly from the existing Planetary Connections (Planet Relations) data source.
+  /// Step 1: Read the Bhava Sub Lord from Bhava Positions
+  /// Step 2: Find that planet in Planetary Connections
+  /// Step 3: Read that planet's existing Planetary Connections data (Connected Bhavas, Star Lord, Sub Lord)
+  /// Step 4: Associate and display under the corresponding Bhava
   static List<HouseRelation> calculateHouseRelations({
     required List<CuspPosition> cusps,
     required List<PlanetPosition> planets,
@@ -118,33 +436,40 @@ class KpMethod4RelationEngine {
     final List<HouseRelation> houseRelations = [];
 
     for (final cusp in cusps) {
-      // 1. Get Bhava's Sub Lord
+      // Step 1: Read the Bhava Sub Lord
       final subLordName = cusp.subLord;
-      final subLordRelation = _findRelation(planetRelations, subLordName);
-      final cuspSubLordRelations = subLordRelation?.combinedHouses ?? [];
 
-      // 2. Get the Star Lord of the Bhava's Sub Lord
-      final subLordPos = _findPlanetPosition(planets, subLordName);
-      final subLordStarLordName = subLordPos?.starLord ?? '';
-      final subLordStarLordRelation = _findRelation(planetRelations, subLordStarLordName);
-      final cuspSubLordStarLordRelations = subLordStarLordRelation?.combinedHouses ?? [];
+      // Step 2 & 3: Find that planet in Planetary Connections and read its existing data
+      final planetRel = _findRelation(planetRelations, subLordName);
 
-      // Combined unique
-      final combined = _mergeAndSortHouses(
-        cuspSubLordRelations,
-        cuspSubLordStarLordRelations,
-      );
+      final connectedHouses = planetRel?.combinedHouses ?? [];
+      final starLordName = planetRel?.starLord ?? '';
+      final starLordTa = planetRel?.starLordTa ?? '';
+      final starLordHouses = planetRel?.starLordHouses ?? [];
+      final isStarFallback = planetRel?.isStarLordFallback ?? false;
 
+      final subLordPlanetName = planetRel?.subLord ?? '';
+      final subLordPlanetTa = planetRel?.subLordTa ?? '';
+      final subLordHouses = planetRel?.subLordHouses ?? [];
+      final isSubFallback = planetRel?.isSubLordFallback ?? false;
+
+      // Step 4: Associate the existing Planetary Connections data with the Bhava
       houseRelations.add(
         HouseRelation(
           houseNumber: cusp.cuspNumber,
           cuspSubLord: subLordName,
           cuspSubLordTa: cusp.subLordTa,
-          cuspSubLordRelations: cuspSubLordRelations,
-          cuspSubLordStarLord: subLordStarLordName,
-          cuspSubLordStarLordTa: subLordPos?.starLordTa ?? '',
-          cuspSubLordStarLordRelations: cuspSubLordStarLordRelations,
-          combinedHouses: combined,
+          cuspSubLordRelations: connectedHouses,
+          cuspSubLordStarLord: starLordName,
+          cuspSubLordStarLordTa: starLordTa,
+          cuspSubLordStarLordRelations: starLordHouses,
+          cuspSubLordSubLord: subLordPlanetName,
+          cuspSubLordSubLordTa: subLordPlanetTa,
+          cuspSubLordSubLordRelations: subLordHouses,
+          combinedHouses: connectedHouses,
+          planetRelation: planetRel,
+          isStarLordFallback: isStarFallback,
+          isSubLordFallback: isSubFallback,
         ),
       );
     }
@@ -209,16 +534,6 @@ class KpMethod4RelationEngine {
     try {
       return relations.firstWhere(
         (r) => _isSamePlanet(r.planet, planet),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  static PlanetPosition? _findPlanetPosition(List<PlanetPosition> planets, String planet) {
-    try {
-      return planets.firstWhere(
-        (p) => _isSamePlanet(p.planet, planet),
       );
     } catch (_) {
       return null;

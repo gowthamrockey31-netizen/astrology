@@ -46,6 +46,7 @@ class JamakkolEngine {
       queryDateTime: queryDateTime,
       location: location,
       effectiveSunrise: jamamSchedule.sunrise,
+      effectiveSunset: jamamSchedule.sunset,
       sunLongitude: sunLongitude,
     );
 
@@ -59,12 +60,15 @@ class JamakkolEngine {
 
     // 5. Kavippu (கவிப்பு)
     final kavippu = KavippuCalculator.calculateKavippu(
+      queryDateTime: queryDateTime,
+      udayamRasiIndex: udayam.rasiIndex,
+      arudamRasiIndex: arudam.rasiIndex,
+      udayamDegreeInRasi: udayam.degreeInRasi,
+      arudamLongitude: arudam.absoluteLongitude,
       sunLongitude: sunLongitude,
       weekdayNumber: jamamSchedule.weekdayNumber,
       jamamPeriodIndex: currentJamam.periodIndex,
       isDay: currentJamam.isDay,
-      arudamLongitude: arudam.absoluteLongitude,
-      udayamRasiIndex: udayam.rasiIndex,
     );
 
     // 6. Upagrahas (Yamakandam, Rahu Kaalam, Mandi, Mrityu, Lagna)

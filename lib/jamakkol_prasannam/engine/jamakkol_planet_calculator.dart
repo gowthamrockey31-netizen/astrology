@@ -58,16 +58,12 @@ class JamakkolPlanetCalculator {
     final curMinutes = queryDateTime.hour * 60.0 + queryDateTime.minute + (queryDateTime.second / 60.0);
     final isDay = schedule.currentJamam.isDay;
 
-    // Elapsed minutes from period start (Day: from sunrise or 06:00; Night: from sunset or 18:00)
-    final double periodBaseMinutes = isDay
-        ? (schedule.sunrise.hour * 60.0 + schedule.sunrise.minute + (schedule.sunrise.second / 60.0))
-        : (schedule.sunset.hour * 60.0 + schedule.sunset.minute + (schedule.sunset.second / 60.0));
+    // Reference time: 06:00:00 AM for Day (360 min) and 18:00:00 PM for Night (1080 min)
+    // Movement: 0.5° per minute continuous counter-clockwise
+    final double elapsedFromPeriodStart = isDay
+        ? (curMinutes - 360.0).clamp(0.0, 720.0)
+        : (curMinutes >= 1080.0 ? curMinutes - 1080.0 : curMinutes + 360.0).clamp(0.0, 720.0);
 
-    double elapsedFromPeriodStart = curMinutes - periodBaseMinutes;
-    if (elapsedFromPeriodStart < 0) elapsedFromPeriodStart += 1440.0;
-    if (elapsedFromPeriodStart > 720.0) elapsedFromPeriodStart = elapsedFromPeriodStart % 720.0;
-
-    // Outer planets rotate counter-clockwise at 0.5 degrees per minute
     final double currentDayLordLon = normalize(360.0 - (elapsedFromPeriodStart * 0.5));
     final int dayLordCycleIdx = JamamCalculator.getWeekdayLordIndex(schedule.weekdayNumber);
 
@@ -77,15 +73,42 @@ class JamakkolPlanetCalculator {
     for (int i = 0; i < 8; i++) {
       final pInfo = JamamCalculator.planetCycle[i];
       final double pLon = normalize(currentDayLordLon + ((dayLordCycleIdx - i) * 45.0));
-      final int rIdx = (pLon / 30.0).floor() % 12;
+      final int rawRIdx = (pLon / 30.0).floor() % 12;
       final double degInRasi = pLon % 30.0;
 
-      final totalMinutes = pLon * 60.0;
+      // Classical Jamakkol outer-ring planet path:
+      // Outer planets must not enter Fixed signs (ரிஷபம், சிம்மம், விருச்சிகம், கும்பம்).
+      // They are placed into the corresponding Ubhaya (dual) signs with degree retained:
+      // Rishabam (1) -> Mithunam (2)
+      // Simham (4) -> Kanni (5)
+      // Viruchigam (7) -> Dhanusu (8)
+      // Kumbam (10) -> Meenam (11)
+      int displayRasiIdx = rawRIdx;
+      switch (rawRIdx) {
+        case 1:
+          displayRasiIdx = 2; // Rishabam -> Mithunam
+          break;
+        case 4:
+          displayRasiIdx = 5; // Simham -> Kanni
+          break;
+        case 7:
+          displayRasiIdx = 8; // Viruchigam -> Dhanusu
+          break;
+        case 10:
+          displayRasiIdx = 11; // Kumbam -> Meenam
+          break;
+        default:
+          displayRasiIdx = rawRIdx;
+          break;
+      }
+
+      final double mappedLon = normalize(displayRasiIdx * 30.0 + degInRasi);
+      final totalMinutes = mappedLon * 60.0;
       final padaIndex = (totalMinutes / 200.0).floor().clamp(0, 107);
       final nakIdx = (padaIndex ~/ 4).clamp(0, 26);
       final pada = (padaIndex % 4) + 1;
 
-      final borderInfo = getRasiBorderInfo(rIdx);
+      final borderInfo = getRasiBorderInfo(displayRasiIdx);
       final formattedDms = AstrologyCalculator.formatRasiDegree(degInRasi);
 
       result.add(JamakkolPlanet(
@@ -95,9 +118,9 @@ class JamakkolPlanetCalculator {
         shortTa: pInfo.shortTa,
         shortEn: pInfo.en.substring(0, math.min(3, pInfo.en.length)),
         absoluteLongitude: pLon,
-        rasiIndex: rIdx,
-        rasiNameTa: AstrologyCalculator.rasiNamesTa[rIdx],
-        rasiNameEn: AstrologyCalculator.rasiNamesEn[rIdx],
+        rasiIndex: displayRasiIdx,
+        rasiNameTa: AstrologyCalculator.rasiNamesTa[displayRasiIdx],
+        rasiNameEn: AstrologyCalculator.rasiNamesEn[displayRasiIdx],
         degreeInRasi: degInRasi,
         formattedDms: formattedDms,
         nakshatraTa: AstrologyCalculator.nakshatrasTa[nakIdx],
@@ -245,76 +268,151 @@ class JamakkolPlanetCalculator {
     return (dignity: PlanetaryDignity.neutral, labelTa: 'சமம்', labelEn: 'Neutral');
   }
 
-  /// Calculates Upagrahas: Yamakandam, Rahu Kaalam, Mandi, Mrityu, and Lagna
+  /// Calculates Jamakkol Rahu Kalam (Ra.Ka) Rasi point:
+  /// Fixed by weekday for both Day and Night:
+  /// Sunday(7)=Mesham (0), Monday(1)=Makaram (9), Tuesday(2)=Mithunam (2),
+  /// Wednesday(3)=Kanni (5), Thursday(4)=Kadagam (3), Friday(5)=Thulam (6), Saturday(6)=Dhanusu (8)
+  static int calculateRahuKalamRasi(int weekdayNumber, {bool isDay = true}) {
+    switch (weekdayNumber) {
+      case 7: return 0; // Sunday -> Mesham (0)
+      case 1: return 9; // Monday -> Makaram (9)
+      case 2: return 2; // Tuesday -> Mithunam (2)
+      case 3: return 5; // Wednesday -> Kanni (5)
+      case 4: return 3; // Thursday -> Kadagam (3)
+      case 5: return 6; // Friday -> Thulam (6)
+      case 6: return 8; // Saturday -> Dhanusu (8)
+      default: return 0;
+    }
+  }
+
+  /// Calculates Jamakkol Emakandam Rasi point:
+  /// Fixed by weekday for both Day and Night:
+  /// Sunday(7)=Kanni (5), Monday(1)=Thulam (6), Tuesday(2)=Dhanusu (8),
+  /// Wednesday(3)=Makaram (9), Thursday(4)=Meenam (11), Friday(5)=Mithunam (2), Saturday(6)=Kadagam (3)
+  static int calculateEmakandamRasi(int weekdayNumber, {bool isDay = true}) {
+    switch (weekdayNumber) {
+      case 7: return 5; // Sunday -> Kanni (5)
+      case 1: return 6; // Monday -> Thulam (6)
+      case 2: return 8; // Tuesday -> Dhanusu (8)
+      case 3: return 9; // Wednesday -> Makaram (9)
+      case 4: return 11; // Thursday -> Meenam (11)
+      case 5: return 2; // Friday -> Mithunam (2)
+      case 6: return 3; // Saturday -> Kadagam (3)
+      default: return 5;
+    }
+  }
+
+  /// Calculates Jamakkol Mandi Longitude dynamically:
+  /// Day base: Sun=336°, Mon=282°, Tue=288°, Wed=234°, Thu=210°, Fri=186°, Sat=162°
+  /// Night base: Sun=60°, Mon=6°, Tue=342°, Wed=126°, Thu=102°, Fri=78°, Sat=84°
+  static double calculateMandiLongitude({
+    required int weekdayNumber,
+    required double sunDegInRasi,
+    required bool isDay,
+  }) {
+    const mandiDayBases = {7: 336.0, 1: 282.0, 2: 288.0, 3: 234.0, 4: 210.0, 5: 186.0, 6: 162.0};
+    const mandiNightBases = {7: 60.0, 1: 6.0, 2: 342.0, 3: 126.0, 4: 102.0, 5: 78.0, 6: 84.0};
+
+    final double base = isDay ? (mandiDayBases[weekdayNumber] ?? 336.0) : (mandiNightBases[weekdayNumber] ?? 60.0);
+    return normalize(base + sunDegInRasi);
+  }
+
+  /// Calculates Jamakkol Mandi Rasi point
+  static int calculateMandiRasi({
+    required int weekdayNumber,
+    required double sunDegInRasi,
+    required bool isDay,
+  }) {
+    final lon = calculateMandiLongitude(weekdayNumber: weekdayNumber, sunDegInRasi: sunDegInRasi, isDay: isDay);
+    return (lon / 30.0).floor() % 12;
+  }
+
+  /// Calculates Jamakkol Mridyu Longitude dynamically from Sun degree in Rasi:
+  /// Day base: Sun=240°, Mon=186°, Tue=192°, Wed=306°, Thu=282°, Fri=258°, Sat=234°
+  /// Night base: Sun=132°, Mon=78°, Tue=54°, Wed=30°, Thu=6°, Fri=342°, Sat=156°
+  static double calculateMridyuLongitude({
+    required int weekdayNumber,
+    required double sunDegInRasi,
+    required bool isDay,
+  }) {
+    const mrityuDayBases = {7: 240.0, 1: 186.0, 2: 192.0, 3: 306.0, 4: 282.0, 5: 258.0, 6: 234.0};
+    const mrityuNightBases = {7: 132.0, 1: 78.0, 2: 54.0, 3: 30.0, 4: 6.0, 5: 342.0, 6: 156.0};
+
+    final double base = isDay ? (mrityuDayBases[weekdayNumber] ?? 240.0) : (mrityuNightBases[weekdayNumber] ?? 132.0);
+    return normalize(base + sunDegInRasi);
+  }
+
+  /// Calculates Jamakkol Mridyu Rasi point
+  static int calculateMridyuRasi({
+    required int weekdayNumber,
+    required double sunDegInRasi,
+    required bool isDay,
+  }) {
+    final lon = calculateMridyuLongitude(weekdayNumber: weekdayNumber, sunDegInRasi: sunDegInRasi, isDay: isDay);
+    return (lon / 30.0).floor() % 12;
+  }
+
+  /// Calculates Upagrahas: Yamakandam (Emakandam), Rahu Kaalam (Ra.Ka), Mandi, Mrityu (Mridyu), and Lagna
   static List<JamakkolSpecialPoint> calculateUpagrahas({
     required DateTime queryDateTime,
     required JamakkolLocation location,
     required JamamDaySchedule schedule,
     required double sunLongitude,
     required int udayamRasiIndex,
+    bool useSecondaryMridyu = false,
   }) {
     final int dtWeekday = schedule.weekdayNumber; // 1=Mon .. 7=Sun
     final bool isDay = schedule.currentJamam.isDay;
 
     final double sunDegInRasi = normalize(sunLongitude) % 30.0;
 
-    // Traditional sign assignments
-    const yamaDaySigns = {7: 5, 1: 2, 2: 0, 3: 10, 4: 8, 5: 6, 6: 3};
-    const yamaNightSigns = {7: 3, 1: 6, 2: 8, 3: 10, 4: 0, 5: 2, 6: 3};
+    // Mandi calculation
+    final double mandiLon = calculateMandiLongitude(
+      weekdayNumber: dtWeekday,
+      sunDegInRasi: sunDegInRasi,
+      isDay: isDay,
+    );
 
-    const rahuDaySigns = {7: 0, 1: 1, 2: 6, 3: 4, 4: 5, 5: 3, 6: 8};
-    const rahuNightSigns = {7: 3, 1: 5, 2: 4, 3: 6, 4: 1, 5: 7, 6: 8};
+    // 1. Jamakkol Rahu Kalam Rasi Point (Ra.Ka)
+    final int rahuKaalamRasi = calculateRahuKalamRasi(dtWeekday, isDay: isDay);
+    final double rahuKaalamLon = normalize(rahuKaalamRasi * 30.0 + sunDegInRasi);
 
-    const mrityuDaySigns = {7: 7, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7};
-    const mrityuNightSigns = {7: 7, 1: 6, 2: 5, 3: 4, 4: 3, 5: 2, 6: 4};
+    // 2. Jamakkol Emakandam Rasi Point (Emakandam)
+    final int emakandamRasi = calculateEmakandamRasi(dtWeekday, isDay: isDay);
+    final double yamaLon = normalize(emakandamRasi * 30.0 + sunDegInRasi);
 
-    const mrityuDayOffsets = {7: 0.0, 1: 22.0, 2: 18.0, 3: 14.0, 4: 10.0, 5: 6.0, 6: 24.0};
-    const mrityuNightOffsets = {7: 26.0, 1: 22.0, 2: 18.0, 3: 14.0, 4: 10.0, 5: 6.0, 6: 6.0};
-
-    const mandiDaySigns = {7: 10, 1: 4, 2: 2, 3: 0, 4: 10, 5: 6, 6: 5};
-    const mandiNightSigns = {7: 5, 1: 6, 2: 10, 3: 0, 4: 2, 5: 4, 6: 1};
-
-    const mandiDayOffsets = {7: 6.0, 1: 22.0, 2: 18.0, 3: 14.0, 4: 10.0, 5: 6.0, 6: 12.0};
-    const mandiNightOffsets = {7: 26.0, 1: 22.0, 2: 18.0, 3: 14.0, 4: 10.0, 5: 6.0, 6: 24.0};
-
-    final int yamaRasi = isDay ? (yamaDaySigns[dtWeekday] ?? 3) : (yamaNightSigns[dtWeekday] ?? 3);
-    final int rahuKaalamRasi = isDay ? (rahuDaySigns[dtWeekday] ?? 8) : (rahuNightSigns[dtWeekday] ?? 8);
-    final int mrityuRasi = isDay ? (mrityuDaySigns[dtWeekday] ?? 7) : (mrityuNightSigns[dtWeekday] ?? 4);
-    final double mrityuOffset = isDay ? (mrityuDayOffsets[dtWeekday] ?? 18.0) : (mrityuNightOffsets[dtWeekday] ?? 6.0);
-    final int mandiRasi = isDay ? (mandiDaySigns[dtWeekday] ?? 5) : (mandiNightSigns[dtWeekday] ?? 1);
-    final double mandiOffset = isDay ? (mandiDayOffsets[dtWeekday] ?? 12.0) : (mandiNightOffsets[dtWeekday] ?? 24.0);
-
-    final double mrityuDeg = (sunDegInRasi + mrityuOffset) % 30.0;
-    final double mandiDeg = (sunDegInRasi + mandiOffset) % 30.0;
+    // 3. Jamakkol Mridyu Rasi Point (Mridyu)
+    final double mrityuLon = calculateMridyuLongitude(
+      weekdayNumber: dtWeekday,
+      sunDegInRasi: sunDegInRasi,
+      isDay: isDay,
+    );
 
     final List<JamakkolSpecialPoint> upagrahas = [];
 
-    // 1. Yamakandam
-    final double yamaLon = yamaRasi * 30.0 + sunDegInRasi;
+    // 1. Emakandam
     upagrahas.add(_createPoint(
       type: SpecialPointType.yamakandam,
-      nameEn: 'Yamakandam',
+      nameEn: 'Emakandam',
       nameTa: 'எமகண்டம்',
       shortCode: 'எம',
       lon: yamaLon,
       udayamRasiIndex: udayamRasiIndex,
-      descriptionTa: 'எமகண்ட காரக புள்ளி',
+      descriptionTa: 'ஜாமக்கோள் எமகண்ட புள்ளி (Emakandam)',
     ));
 
-    // 2. Rahu Kaalam
-    final double rahuKaalamLon = rahuKaalamRasi * 30.0 + sunDegInRasi;
+    // 2. Rahu Kaalam (Ra.Ka)
     upagrahas.add(_createPoint(
       type: SpecialPointType.rahuKaalam,
-      nameEn: 'Rahu Kaalam',
-      nameTa: 'ராகு காலம்',
+      nameEn: 'Ra.Ka',
+      nameTa: 'ரா.கா',
       shortCode: 'ரா.கா',
       lon: rahuKaalamLon,
       udayamRasiIndex: udayamRasiIndex,
-      descriptionTa: 'ராகு கால காரக புள்ளி',
+      descriptionTa: 'ஜாமக்கோள் ராகு கால காரக புள்ளி (Ra.Ka)',
     ));
 
     // 3. Mandi (Gulikan)
-    final double mandiLon = mandiRasi * 30.0 + mandiDeg;
     upagrahas.add(_createPoint(
       type: SpecialPointType.mandi,
       nameEn: 'Mandi',
@@ -325,16 +423,15 @@ class JamakkolPlanetCalculator {
       descriptionTa: 'குளிகன் / மாந்தி புள்ளி',
     ));
 
-    // 4. Mrityu
-    final double mrityuLon = mrityuRasi * 30.0 + mrityuDeg;
+    // 4. Mridyu
     upagrahas.add(_createPoint(
       type: SpecialPointType.mrityu,
-      nameEn: 'Mrityu',
+      nameEn: 'Mridyu',
       nameTa: 'மிருத்யு',
       shortCode: 'மிரு',
       lon: mrityuLon,
       udayamRasiIndex: udayamRasiIndex,
-      descriptionTa: 'மிருத்யு காரக புள்ளி',
+      descriptionTa: 'ஜாமக்கோள் மிருத்யு புள்ளி (Mridyu)',
     ));
 
     return upagrahas;

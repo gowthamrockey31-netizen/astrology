@@ -15,7 +15,7 @@ void main() {
       expect(res['gregorian_year'], 2026);
       expect(res['thiruvalluvar_year'], 2057); // 2026 + 31
       expect(res['salivahana_year'], 1948);    // 2026 - 78
-      expect(res['kaliyugadhi_year'], 5127);   // 2026 + 3101
+      expect(res['kaliyugadhi_year'], 5128);   // 2026 + 3102
       expect(res['kollam_year'], 1202);        // 2026 - 824
       expect(res['fasli_year'], 1436);         // 2026 - 590 (Aug >= July 1)
       expect(res['hijri_year'], 1448);         // Astronomical Islamic lunar year for Aug 2026
@@ -35,7 +35,7 @@ void main() {
       expect(res['gregorian_year'], 1995);
       expect(res['thiruvalluvar_year'], 2026); // 1995 + 31
       expect(res['salivahana_year'], 1917);    // 1995 - 78
-      expect(res['kaliyugadhi_year'], 5096);   // 1995 + 3101
+      expect(res['kaliyugadhi_year'], 5097);   // 1995 + 3102
       expect(res['kollam_year'], 1170);        // 1995 - 824 - 1 (Aug 10 < Aug 16)
       expect(res['fasli_year'], 1405);         // 1995 - 590
       expect(res['hijri_year'], 1416);         // Accurate Islamic lunar year 1416 AH
@@ -100,8 +100,8 @@ void main() {
       expect(before['salivahana_year'], 1947);  // 2026 - 78 - 1
       expect(after['salivahana_year'], 1948);   // 2026 - 78
 
-      expect(before['kaliyugadhi_year'], 5126); // 2026 + 3101 - 1
-      expect(after['kaliyugadhi_year'], 5127);  // 2026 + 3101
+      expect(before['kaliyugadhi_year'], 5127); // 2026 + 3102 - 1
+      expect(after['kaliyugadhi_year'], 5128);  // 2026 + 3102
     });
 
     test('Test 4: Boundary Date - Kollam Year (Aug 15 vs Aug 16)', () {

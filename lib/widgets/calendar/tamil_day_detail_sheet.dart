@@ -8,14 +8,27 @@ import '../../models/tamil_calendar_models.dart';
 class TamilDayDetailSheet extends StatelessWidget {
   final CalendarDay dayData;
   final VoidCallback? onOpenFullDayView;
+  final bool showDurmuhurtham;
+  final bool showVarjyam;
+  final bool showAmritKalam;
 
   const TamilDayDetailSheet({
     super.key,
     required this.dayData,
     this.onOpenFullDayView,
+    this.showDurmuhurtham = false,
+    this.showVarjyam = false,
+    this.showAmritKalam = false,
   });
 
-  static void show(BuildContext context, CalendarDay dayData, {VoidCallback? onOpenFullDayView}) {
+  static void show(
+    BuildContext context,
+    CalendarDay dayData, {
+    VoidCallback? onOpenFullDayView,
+    bool showDurmuhurtham = false,
+    bool showVarjyam = false,
+    bool showAmritKalam = false,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -23,6 +36,9 @@ class TamilDayDetailSheet extends StatelessWidget {
       builder: (ctx) => TamilDayDetailSheet(
         dayData: dayData,
         onOpenFullDayView: onOpenFullDayView,
+        showDurmuhurtham: showDurmuhurtham,
+        showVarjyam: showVarjyam,
+        showAmritKalam: showAmritKalam,
       ),
     );
   }
@@ -364,17 +380,22 @@ class TamilDayDetailSheet extends StatelessWidget {
               Expanded(child: _buildTimingBadge('அபிஜித் முகூர்த்தம்', dayData.abhijit, Icons.star_rounded, Colors.greenAccent)),
             ],
           ),
-          const SizedBox(height: 8),
-          // Durmuhurtham / Varjyam / Amrit Kalam
-          Row(
-            children: [
-              Expanded(child: _buildTimingBadge('துர்முஹூர்த்தம்', dayData.durMuhurtham, Icons.block_rounded, Colors.orangeAccent)),
-              const SizedBox(width: 8),
-              Expanded(child: _buildTimingBadge('வர்ஜ்யம்', dayData.varjyam, Icons.do_not_disturb_on_total_silence_rounded, Colors.deepOrangeAccent)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          _buildTimingBadge('அமிர்த காலம்', dayData.amritKalam, Icons.favorite_rounded, Colors.pinkAccent),
+          if (showDurmuhurtham || showVarjyam) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                if (showDurmuhurtham)
+                  Expanded(child: _buildTimingBadge('துர்முஹூர்த்தம்', dayData.durMuhurtham, Icons.block_rounded, Colors.orangeAccent)),
+                if (showDurmuhurtham && showVarjyam) const SizedBox(width: 8),
+                if (showVarjyam)
+                  Expanded(child: _buildTimingBadge('வர்ஜ்யம்', dayData.varjyam, Icons.do_not_disturb_on_total_silence_rounded, Colors.deepOrangeAccent)),
+              ],
+            ),
+          ],
+          if (showAmritKalam) ...[
+            const SizedBox(height: 8),
+            _buildTimingBadge('அமிர்த காலம்', dayData.amritKalam, Icons.favorite_rounded, Colors.pinkAccent),
+          ],
         ],
       ),
     );

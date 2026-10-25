@@ -1,5 +1,5 @@
-import 'dart:math' as math;
 import 'astrology_calculator.dart';
+import '../jamakkol_prasannam/engine/kavippu_calculator.dart';
 
 /// Representation of an outer or inner Jamakkol planet/point
 class JamakkolOuterPlanet {
@@ -361,7 +361,6 @@ class JamakkolChartEngine {
                             ? 4 // Venus
                             : 5))))); // Saturday = Saturn
 
-    final String dayLordName = outerPlanetCycle[dayLordCycleIdx].tamil;
     final String currentJamamLord = isDay
         ? jamamLordsDay[(jamamIdx + dayLordCycleIdx) % 8]
         : jamamLordsDay[(jamamIdx + 4) % 8];
@@ -399,6 +398,7 @@ class JamakkolChartEngine {
     final int udhayamD = udhayamDegInRasi.floor();
     final int udhayamM = ((udhayamDegInRasi - udhayamD) * 60.0).round();
     final udhayamStarPada = getStarAndPada(udhayamLon);
+
 
     final udhayamPoint = JamakkolPoint(
       name: 'Udhayam',
@@ -449,18 +449,38 @@ class JamakkolChartEngine {
     );
 
     // 6. Kavippu (கவிப்பு)
-    // Anti-clockwise moving obstruction point based on Jamam, Weekday & Sun sign
-    final int weekdayOffsetSigns = (dtWeekday == 6) ? 0 : ((dtWeekday == 7) ? 1 : (dtWeekday + 1) % 7);
-    final double dayJamam1Base = normalizeDegrees((sunRasiIndex + 3 + weekdayOffsetSigns) * 30.0);
-    final double nightJamam1Base = normalizeDegrees((sunRasiIndex + 2 + weekdayOffsetSigns) * 30.0);
-    final double kavippuBase = isDay
-        ? normalizeDegrees(dayJamam1Base + ((jamamIdx ~/ 2) * 60.0))
-        : normalizeDegrees(nightJamam1Base + (jamamIdx * 60.0));
-    final double kavippuLon = normalizeDegrees(kavippuBase - aarudamLon);
-    final int kavippuRasi = (kavippuLon / 30.0).floor() % 12;
-    final double kavippuDegInRasi = kavippuLon % 30.0;
-    final int kavippuD = kavippuDegInRasi.floor();
-    final int kavippuM = ((kavippuDegInRasi - kavippuD) * 60.0).round();
+    // Calculated using authentic Sun Veedhi + Aarudham clockwise distance from Udhayam
+    final int sunRasi1 = sunRasiIndex + 1;
+    final int sunVeedhiIndex = KavippuCalculator.getSunVeedhiIndex(sunRasi1);
+    final int aarudhamRasi1 = aarudamRasi + 1;
+    final int clockwiseDist = KavippuCalculator.calculateClockwiseDistance(
+      aarudamRasi1: aarudhamRasi1,
+      sunVeedhiIndex: sunVeedhiIndex,
+    );
+    final int udayamRasi1 = udhayamRasi + 1;
+    final int kavippuRasi1 = KavippuCalculator.calculateKavippuRasi1(
+      udayamRasi1: udayamRasi1,
+      clockwiseDistance: clockwiseDist,
+    );
+    final int kavippuRasi = kavippuRasi1 - 1;
+
+    // 5-minute interval progression moving ANTI-CLOCKWISE
+    final int minuteInSlot = queryTime.minute % 5;
+    final double degInSlot = (minuteInSlot + (queryTime.second / 60.0) + (queryTime.millisecond / 60000.0)) * 6.0;
+    double kavippuDegInRasi = 30.0 - degInSlot;
+    if (kavippuDegInRasi >= 30.0) kavippuDegInRasi = 29.9999;
+    if (kavippuDegInRasi < 0.0) kavippuDegInRasi = 0.0;
+
+    final double kavippuLon = normalizeDegrees(kavippuRasi * 30.0 + kavippuDegInRasi);
+    int kavippuD = kavippuDegInRasi.floor();
+    int kavippuM = ((kavippuDegInRasi - kavippuD) * 60.0).round();
+    if (kavippuM >= 60) {
+      kavippuD = (kavippuD + 1).clamp(0, 30);
+      kavippuM = 0;
+    }
+    final String formattedKavippuDms = (minuteInSlot == 0 && queryTime.second == 0 && queryTime.millisecond == 0)
+        ? "30° 00'"
+        : "$kavippuD° ${kavippuM.toString().padLeft(2, '0')}'";
     final kavippuStarPada = getStarAndPada(kavippuLon);
     final int kavippuHouse = (((kavippuRasi - udhayamRasi) % 12 + 12) % 12) + 1;
 
@@ -473,7 +493,7 @@ class JamakkolChartEngine {
       degreeInRasi: kavippuDegInRasi,
       degree: kavippuD,
       minute: kavippuM,
-      formattedDms: "$kavippuD° ${kavippuM.toString().padLeft(2, '0')}'",
+      formattedDms: formattedKavippuDms,
       starName: kavippuStarPada.star,
       pada: kavippuStarPada.pada,
       formattedStarPada: kavippuStarPada.formatted,
@@ -493,25 +513,53 @@ class JamakkolChartEngine {
     for (int i = 0; i < 8; i++) {
       final item = outerPlanetCycle[i];
       final double pLon = normalizeDegrees(currentDayLordLon + ((dayLordCycleIdx - i) * 45.0));
-      final int rIdx = (pLon / 30.0).floor() % 12;
+      final int rawRIdx = (pLon / 30.0).floor() % 12;
       final double degInRasi = pLon % 30.0;
-      final borderInfo = getRasiBorderInfo(rIdx);
+
+      // Classical Jamakkol outer-ring planet path:
+      // Outer planets must not enter Fixed signs (ரிஷபம், சிம்மம், விருச்சிகம், கும்பம்).
+      // They are placed into the corresponding Ubhaya (dual) signs with degree retained:
+      // Rishabam (1) -> Mithunam (2)
+      // Simham (4) -> Kanni (5)
+      // Viruchigam (7) -> Dhanusu (8)
+      // Kumbam (10) -> Meenam (11)
+      int displayRasiIdx = rawRIdx;
+      switch (rawRIdx) {
+        case 1:
+          displayRasiIdx = 2; // Rishabam -> Mithunam
+          break;
+        case 4:
+          displayRasiIdx = 5; // Simham -> Kanni
+          break;
+        case 7:
+          displayRasiIdx = 8; // Viruchigam -> Dhanusu
+          break;
+        case 10:
+          displayRasiIdx = 11; // Kumbam -> Meenam
+          break;
+        default:
+          displayRasiIdx = rawRIdx;
+          break;
+      }
+
+      final double mappedLon = normalizeDegrees(displayRasiIdx * 30.0 + degInRasi);
+      final borderInfo = getRasiBorderInfo(displayRasiIdx);
 
       final outerPlanet = JamakkolOuterPlanet(
         key: item.key,
         tamilName: item.tamil,
         shortSymbol: item.short,
-        absoluteLongitude: pLon,
-        rasiIndex: rIdx,
+        absoluteLongitude: mappedLon,
+        rasiIndex: displayRasiIdx,
         degreeInRasi: degInRasi,
-        formattedDegree: "${item.short} ${formatDegreeMinute(pLon)}",
+        formattedDegree: "${item.short} ${formatDegreeMinute(mappedLon)}",
         borderSide: borderInfo.borderSide,
         gridCol: borderInfo.col,
         gridRow: borderInfo.row,
       );
 
       outerPlanets.add(outerPlanet);
-      outerPlanetsByRasi.putIfAbsent(rIdx, () => []).add(outerPlanet);
+      outerPlanetsByRasi.putIfAbsent(displayRasiIdx, () => []).add(outerPlanet);
     }
 
     // 8. Upagrahas / Prasannam Points
@@ -520,15 +568,44 @@ class JamakkolChartEngine {
     final int sunM = ((sunDegInRasi - sunD) * 60.0).round();
     final String sunDegStr = "$sunD° ${sunM.toString().padLeft(2, '0')}'";
 
+    // Fractional minutes calculation from reference time preserving precision:
+    // hours * 60 + minutes + seconds / 60
+    final double curTimeMinutesWithSec = queryTime.hour * 60.0 + queryTime.minute + (queryTime.second / 60.0);
+    final double sunriseMinutesWithSec = sunrise.hour * 60.0 + sunrise.minute + (sunrise.second / 60.0);
+    final double sunsetMinutesWithSec = sunset.hour * 60.0 + sunset.minute + (sunset.second / 60.0);
+
+    double elapsedMinutesWithSec;
+    double totalPeriodMinutesWithSec;
+    if (isDay) {
+      elapsedMinutesWithSec = curTimeMinutesWithSec - sunriseMinutesWithSec;
+      if (elapsedMinutesWithSec < 0) elapsedMinutesWithSec += 1440.0;
+      totalPeriodMinutesWithSec = sunset.difference(sunrise).inSeconds / 60.0;
+    } else {
+      elapsedMinutesWithSec = curTimeMinutesWithSec - sunsetMinutesWithSec;
+      if (elapsedMinutesWithSec < 0) elapsedMinutesWithSec += 1440.0;
+      final nextSunrise = sunrise.add(const Duration(days: 1));
+      totalPeriodMinutesWithSec = nextSunrise.difference(sunset).inSeconds / 60.0;
+    }
+    final double periodFraction = (elapsedMinutesWithSec / (totalPeriodMinutesWithSec > 0 ? totalPeriodMinutesWithSec : 720.0)).clamp(0.0, 1.0);
+    final double dynamicDegreeInRasi = periodFraction * 30.0;
+
+    final int yamaD = dynamicDegreeInRasi.floor();
+    final int yamaM = ((dynamicDegreeInRasi - yamaD) * 60.0).round();
+
+    final int rahuD = dynamicDegreeInRasi.floor();
+    final int rahuM = ((dynamicDegreeInRasi - rahuD) * 60.0).round();
+
     // Yamakandam and Rahu Kaalam signs on Weekdays (1=Mon..7=Sun) for Day & Night
+    // Rahu Kalam Day: Sun=0 (Mesham), Mon=9 (Makaram), Tue=8 (Dhanusu), Wed=7 (Viruchigam), Thu=6 (Thulam), Fri=5 (Kanni), Sat=4 (Simmam)
+    // Emakandam Day: Sun=8 (Dhanusu), Mon=7 (Viruchigam), Tue=6 (Thulam), Wed=5 (Kanni), Thu=4 (Simmam), Fri=3 (Kadakam), Sat=2 (Mithunam)
     const yamaDaySigns = {
-      7: 5, // Sun -> Kanni (5)
-      1: 2, // Mon -> Mithunam (2)
-      2: 0, // Tue -> Mesham (0)
-      3: 10, // Wed -> Kumbam (10)
-      4: 8, // Thu -> Dhanusu (8)
-      5: 6, // Fri -> Thulam (6)
-      6: 3, // Sat -> Katakam (3)
+      7: 8, // Sun -> Dhanusu (8)
+      1: 7, // Mon -> Viruchigam (7)
+      2: 6, // Tue -> Thulam (6)
+      3: 5, // Wed -> Kanni (5)
+      4: 4, // Thu -> Simmam (4)
+      5: 3, // Fri -> Kadakam (3)
+      6: 2, // Sat -> Mithunam (2)
     };
     const yamaNightSigns = {
       7: 3, // Sun -> Katakam (3)
@@ -542,12 +619,12 @@ class JamakkolChartEngine {
 
     const rahuDaySigns = {
       7: 0, // Sun -> Mesham (0)
-      1: 1, // Mon -> Rishabam (1)
-      2: 6, // Tue -> Thulam (6)
-      3: 4, // Wed -> Simmam (4)
-      4: 5, // Thu -> Kanni (5)
-      5: 3, // Fri -> Katakam (3)
-      6: 8, // Sat -> Dhanusu (8)
+      1: 9, // Mon -> Makaram (9)
+      2: 8, // Tue -> Dhanusu (8)
+      3: 7, // Wed -> Viruchigam (7)
+      4: 6, // Thu -> Thulam (6)
+      5: 5, // Fri -> Kanni (5)
+      6: 4, // Sat -> Simmam (4)
     };
     const rahuNightSigns = {
       7: 3, // Sun -> Katakam (3)
@@ -559,23 +636,27 @@ class JamakkolChartEngine {
       6: 8, // Sat -> Dhanusu (8)
     };
 
+    // Mrityu starting-sign rules:
+    // Sunday: Simmam (4), Monday: Kadakam (3), Tuesday: Mesham (0) / Viruchigam (7),
+    // Wednesday: Mithunam (2) / Kanni (5), Thursday: Dhanusu (8) / Meenam (11),
+    // Friday: Rishabam (1) / Thulam (6), Saturday: Makaram (9) / Kumbham (10)
     const mrityuDaySigns = {
-      7: 7, // Sun -> Viruchigam (7)
-      1: 2, // Mon -> Mithunam (2)
-      2: 3, // Tue -> Katakam (3)
-      3: 4, // Wed -> Simmam (4)
-      4: 5, // Thu -> Kanni (5)
-      5: 6, // Fri -> Thulam (6)
-      6: 7, // Sat -> Viruchigam (7)
+      7: 4, // Sun -> Simmam (4)
+      1: 3, // Mon -> Kadakam (3)
+      2: 0, // Tue -> Mesham (0)
+      3: 2, // Wed -> Mithunam (2)
+      4: 8, // Thu -> Dhanusu (8)
+      5: 1, // Fri -> Rishabam (1)
+      6: 9, // Sat -> Makaram (9)
     };
     const mrityuNightSigns = {
-      7: 7, // Sun -> Viruchigam (7)
-      1: 6, // Mon -> Thulam (6)
-      2: 5, // Tue -> Kanni (5)
-      3: 4, // Wed -> Simmam (4)
-      4: 3, // Thu -> Katakam (3)
-      5: 2, // Fri -> Mithunam (2)
-      6: 4, // Sat -> Simmam (4)
+      7: 4, // Sun -> Simmam (4)
+      1: 3, // Mon -> Kadakam (3)
+      2: 7, // Tue -> Viruchigam (7)
+      3: 5, // Wed -> Kanni (5)
+      4: 11, // Thu -> Meenam (11)
+      5: 6, // Fri -> Thulam (6)
+      6: 10, // Sat -> Kumbam (10)
     };
 
     const mrityuDayOffsets = {
@@ -584,7 +665,7 @@ class JamakkolChartEngine {
       2: 18.0,
       3: 14.0,
       4: 10.0,
-      5: 6.0,
+      5: 18.0,
       6: 24.0, // Sat -> +24°
     };
     const mrityuNightOffsets = {
@@ -642,13 +723,17 @@ class JamakkolChartEngine {
     final int mandiRasi = isDay ? (mandiDaySigns[dtWeekday] ?? 5) : (mandiNightSigns[dtWeekday] ?? 1);
     final double mandiOffset = isDay ? (mandiDayOffsets[dtWeekday] ?? 12.0) : (mandiNightOffsets[dtWeekday] ?? 24.0);
 
-    // Mrityu degree = (Sun's degree in rasi + offset) % 30
-    final double mrityuDeg = (sunDegInRasi + mrityuOffset) % 30.0;
+    // Mrityu longitude, sign, degree
+    final double mrityuLon = normalizeDegrees(mrityuRasi * 30.0 + sunDegInRasi + mrityuOffset);
+    final int finalMrityuRasi = (mrityuLon / 30.0).floor() % 12;
+    final double mrityuDeg = mrityuLon % 30.0;
     final int mrityuD = mrityuDeg.floor();
     final int mrityuM = ((mrityuDeg - mrityuD) * 60.0).round();
 
-    // Mandi degree = (Sun's degree in rasi + offset) % 30
-    final double mandiDeg = (sunDegInRasi + mandiOffset) % 30.0;
+    // Mandi longitude, sign, degree
+    final double mandiLon = normalizeDegrees(mandiRasi * 30.0 + sunDegInRasi + mandiOffset);
+    final int finalMandiRasi = (mandiLon / 30.0).floor() % 12;
+    final double mandiDeg = mandiLon % 30.0;
     final int mandiD = mandiDeg.floor();
     final int mandiM = ((mandiDeg - mandiD) * 60.0).round();
 
@@ -658,9 +743,9 @@ class JamakkolChartEngine {
         tamilName: 'எமகண்டம்',
         shortName: 'எம',
         rasiIndex: yamaRasi,
-        degree: sunD,
-        minute: sunM,
-        formattedDegree: "எம ($sunDegStr)",
+        degree: yamaD,
+        minute: yamaM,
+        formattedDegree: "எம ($yamaD° ${yamaM.toString().padLeft(2, '0')}')",
         colorCategory: 'red',
       ),
       JamakkolUpagraha(
@@ -668,16 +753,16 @@ class JamakkolChartEngine {
         tamilName: 'ராகு காலம்',
         shortName: 'ரா.கா',
         rasiIndex: rahuKaalamRasi,
-        degree: sunD,
-        minute: sunM,
-        formattedDegree: "ரா.கா ($sunDegStr)",
+        degree: rahuD,
+        minute: rahuM,
+        formattedDegree: "ரா.கா ($rahuD° ${rahuM.toString().padLeft(2, '0')}')",
         colorCategory: 'red',
       ),
       JamakkolUpagraha(
         key: 'Maandi',
         tamilName: 'மாந்தி',
         shortName: 'மாந்',
-        rasiIndex: mandiRasi,
+        rasiIndex: finalMandiRasi,
         degree: mandiD,
         minute: mandiM,
         formattedDegree: "மாந் ($mandiD° ${mandiM.toString().padLeft(2, '0')}')",
@@ -687,7 +772,7 @@ class JamakkolChartEngine {
         key: 'Mrityu',
         tamilName: 'மிருத்யு',
         shortName: 'மிருத்யு',
-        rasiIndex: mrityuRasi,
+        rasiIndex: finalMrityuRasi,
         degree: mrityuD,
         minute: mrityuM,
         formattedDegree: "மிருத்யு ($mrityuD° ${mrityuM.toString().padLeft(2, '0')}')",

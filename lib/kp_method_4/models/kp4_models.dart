@@ -1,17 +1,69 @@
+// ignore_for_file: constant_identifier_names
 import '../../models/user_model.dart';
 
 /// KP Proportional Level
 enum KpLevel { star, sub, subSub }
 
+/// Hierarchy Source Level for KP Method 4 Lord & Contact Resolution
+/// Priority 1: SUB_LORD
+/// Priority 2: SUB_SUB_LORD
+/// Priority 3: STAR_LORD
+enum KpSourceLevel {
+  SUB_LORD,
+  SUB_SUB_LORD,
+  STAR_LORD;
+
+  String get displayNameTa {
+    switch (this) {
+      case KpSourceLevel.SUB_LORD:
+        return 'உப நாதன்';
+      case KpSourceLevel.SUB_SUB_LORD:
+        return 'உப-உப நாதன்';
+      case KpSourceLevel.STAR_LORD:
+        return 'நட்சத்திர நாதன்';
+    }
+  }
+
+  String get displayNameEn {
+    switch (this) {
+      case KpSourceLevel.SUB_LORD:
+        return 'Sub Lord';
+      case KpSourceLevel.SUB_SUB_LORD:
+        return 'Sub-Sub Lord';
+      case KpSourceLevel.STAR_LORD:
+        return 'Star Lord';
+    }
+  }
+}
+
 /// Represents a single house number with fallback indicator for KP Method 4
 class KpHouseNumber implements Comparable<KpHouseNumber> {
   final int house;
   final bool isSubSubFallback;
+  final bool isStarLordFallback;
+  final KpSourceLevel sourceLevel;
 
-  const KpHouseNumber(this.house, {this.isSubSubFallback = false});
+  const KpHouseNumber(
+    this.house, {
+    this.isSubSubFallback = false,
+    this.isStarLordFallback = false,
+    KpSourceLevel? sourceLevel,
+  }) : sourceLevel = sourceLevel ??
+            (isSubSubFallback
+                ? KpSourceLevel.SUB_SUB_LORD
+                : (isStarLordFallback ? KpSourceLevel.STAR_LORD : KpSourceLevel.SUB_LORD));
 
-  /// Displays the number with '$' if derived from Sub-Sub level fallback
-  String get displayText => isSubSubFallback ? '$house\$' : '$house';
+  /// Displays the number with '$' if derived from Sub-Sub level fallback,
+  /// or '*' if derived from Star Lord fallback
+  String get displayText {
+    if (isSubSubFallback || sourceLevel == KpSourceLevel.SUB_SUB_LORD) {
+      return '$house\$';
+    }
+    if (isStarLordFallback || sourceLevel == KpSourceLevel.STAR_LORD) {
+      return '$house*';
+    }
+    return '$house';
+  }
 
   @override
   int compareTo(KpHouseNumber other) {
@@ -27,10 +79,46 @@ class KpHouseNumber implements Comparable<KpHouseNumber> {
       other is KpHouseNumber &&
           runtimeType == other.runtimeType &&
           house == other.house &&
-          isSubSubFallback == other.isSubSubFallback;
+          isSubSubFallback == other.isSubSubFallback &&
+          isStarLordFallback == other.isStarLordFallback &&
+          sourceLevel == other.sourceLevel;
 
   @override
-  int get hashCode => house.hashCode ^ isSubSubFallback.hashCode;
+  int get hashCode =>
+      house.hashCode ^
+      isSubSubFallback.hashCode ^
+      isStarLordFallback.hashCode ^
+      sourceLevel.hashCode;
+}
+
+/// Represents a resolved contact between a Bhava and a Planet in KP Method 4
+class BhavaContact {
+  final int bhava; // 1..12
+  final String planet;
+  final KpSourceLevel sourceLevel;
+
+  const BhavaContact({
+    required this.bhava,
+    required this.planet,
+    required this.sourceLevel,
+  });
+
+  @override
+  String toString() =>
+      'BhavaContact(bhava: $bhava, planet: $planet, sourceLevel: ${sourceLevel.name})';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BhavaContact &&
+          runtimeType == other.runtimeType &&
+          bhava == other.bhava &&
+          planet.toLowerCase() == other.planet.toLowerCase() &&
+          sourceLevel == other.sourceLevel;
+
+  @override
+  int get hashCode =>
+      bhava.hashCode ^ planet.toLowerCase().hashCode ^ sourceLevel.hashCode;
 }
 
 /// Planetary position encapsulation for KP Method 4
@@ -131,13 +219,18 @@ class PlanetRelation {
   final String starLordTa;
   final List<KpHouseNumber> starLordHouses;
   final bool isStarLordFallback;
+  final KpSourceLevel starLordSourceLevel;
   final String subLord;
   final String subLordTa;
   final List<KpHouseNumber> subLordHouses;
   final bool isSubLordFallback;
+  final KpSourceLevel subLordSourceLevel;
   final String subSubLord;
   final String subSubLordTa;
   final List<KpHouseNumber> combinedHouses;
+  final List<KpHouseNumber> planetHouses;
+  final List<BhavaContact> planetContacts;
+  final KpSourceLevel? planetSourceLevel;
 
   const PlanetRelation({
     required this.planet,
@@ -146,20 +239,27 @@ class PlanetRelation {
     required this.starLordTa,
     required this.starLordHouses,
     required this.isStarLordFallback,
+    this.starLordSourceLevel = KpSourceLevel.SUB_LORD,
     required this.subLord,
     required this.subLordTa,
     required this.subLordHouses,
     required this.isSubLordFallback,
+    this.subLordSourceLevel = KpSourceLevel.SUB_LORD,
     required this.subSubLord,
     required this.subSubLordTa,
     required this.combinedHouses,
+    this.planetHouses = const [],
+    this.planetContacts = const [],
+    this.planetSourceLevel,
   });
 }
 
-/// Bhava Graha Thodarbhu (House Relations) for KP Method 4
+/// Bhava Graha Thodarbhu (Bhava Planetary Connections) for KP Method 4
 /// For each of 12 Bhavas:
-/// 1. Bhava's Sub Lord -> its house relationships
-/// 2. Star Lord of Bhava's Sub Lord -> its house relationships
+/// Reads the Bhava's Sub Lord and directly retrieves that planet's existing Planetary Connections:
+/// - Connected Bhavas
+/// - Star Lord and its connected Bhavas
+/// - Sub Lord and its connected Bhavas
 class HouseRelation {
   final int houseNumber; // 1..12
   final String cuspSubLord;
@@ -168,7 +268,13 @@ class HouseRelation {
   final String cuspSubLordStarLord;
   final String cuspSubLordStarLordTa;
   final List<KpHouseNumber> cuspSubLordStarLordRelations;
+  final String cuspSubLordSubLord;
+  final String cuspSubLordSubLordTa;
+  final List<KpHouseNumber> cuspSubLordSubLordRelations;
   final List<KpHouseNumber> combinedHouses;
+  final PlanetRelation? planetRelation;
+  final bool isStarLordFallback;
+  final bool isSubLordFallback;
 
   const HouseRelation({
     required this.houseNumber,
@@ -178,7 +284,13 @@ class HouseRelation {
     required this.cuspSubLordStarLord,
     required this.cuspSubLordStarLordTa,
     required this.cuspSubLordStarLordRelations,
+    this.cuspSubLordSubLord = '',
+    this.cuspSubLordSubLordTa = '',
+    this.cuspSubLordSubLordRelations = const [],
     required this.combinedHouses,
+    this.planetRelation,
+    this.isStarLordFallback = false,
+    this.isSubLordFallback = false,
   });
 }
 
@@ -303,6 +415,8 @@ class KpResult {
   final List<PlanetRelation> planetRelations;
   final List<HouseRelation> houseRelations;
   final List<DashaRelation> dashaRelations;
+  final Map<String, List<BhavaContact>> planetBhavaContacts;
+  final Map<String, List<KpHouseNumber>> planetToBhavas;
 
   const KpResult({
     required this.birthData,
@@ -316,6 +430,8 @@ class KpResult {
     required this.planetRelations,
     required this.houseRelations,
     required this.dashaRelations,
+    this.planetBhavaContacts = const {},
+    this.planetToBhavas = const {},
   });
 
   PlanetPosition getPlanet(String name) {
@@ -337,5 +453,23 @@ class KpResult {
       (r) => r.planet.toLowerCase() == name.toLowerCase(),
       orElse: () => planetRelations.first,
     );
+  }
+
+  List<BhavaContact> getContactsForPlanet(String name) {
+    return planetBhavaContacts.entries
+        .firstWhere(
+          (e) => e.key.toLowerCase() == name.toLowerCase(),
+          orElse: () => MapEntry(name, <BhavaContact>[]),
+        )
+        .value;
+  }
+
+  List<KpHouseNumber> getHousesForPlanet(String name) {
+    return planetToBhavas.entries
+        .firstWhere(
+          (e) => e.key.toLowerCase() == name.toLowerCase(),
+          orElse: () => MapEntry(name, <KpHouseNumber>[]),
+        )
+        .value;
   }
 }

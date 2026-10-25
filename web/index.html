@@ -43,11 +43,35 @@
     <p style="margin-top:20px;font-family:'Segoe UI',sans-serif;font-size:13px;color:#FFD86B;letter-spacing:1.5px;animation:pulse 2s ease-in-out infinite;">ASTRODASHACARE</p>
   </div>
   <script>
-    // Remove loading screen once Flutter is ready
-    window.addEventListener('flutter-first-frame', function() {
+    function dismissLoading() {
       var el = document.getElementById('loading');
-      if (el) el.remove();
+      if (el) {
+        el.style.transition = 'opacity 0.4s ease-out';
+        el.style.opacity = '0';
+        setTimeout(function() {
+          if (el && el.parentNode) {
+            el.remove();
+          }
+          document.body.style.overflow = 'auto';
+        }, 400);
+      }
+    }
+
+    // 1. Flutter native first-frame event
+    window.addEventListener('flutter-first-frame', dismissLoading);
+
+    // 2. DOM observer for Flutter element attachment
+    var observer = new MutationObserver(function(mutations, obs) {
+      if (document.querySelector('flutter-view') || document.querySelector('flt-glass-pane') || document.querySelector('canvas')) {
+        obs.disconnect();
+        // Give Flutter a brief tick to paint the first frame
+        setTimeout(dismissLoading, 200);
+      }
     });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // 3. Safety fallback timer so loading screen never hangs permanently
+    setTimeout(dismissLoading, 3500);
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>

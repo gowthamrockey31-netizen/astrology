@@ -7,6 +7,7 @@ import '../engine/dignity_engine.dart';
 import '../models/horoscope_calculation_result.dart';
 import '../models/planet_position.dart';
 import '../models/user_model.dart';
+import '../services/auth_service.dart';
 import '../services/astrology_calculator.dart';
 import '../services/dasha_calculator.dart';
 import '../services/tithi_calculator.dart';
@@ -106,7 +107,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final user = widget.user;
+    final user = widget.user ?? AuthService.currentUser;
     final name = (user?.name.toLowerCase().contains('senthil') ?? false)
         ? 'Divine Seeker'
         : (user?.name ?? 'Divine Seeker');
@@ -243,13 +244,16 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                 children: [
                   const Icon(Icons.grid_view_rounded, color: AppColors.primaryGold, size: 22),
                   const SizedBox(width: 8),
-                  Text(
-                    'ஜாதக கட்டங்கள் (ராசி & நவாம்சம்)',
-                    style: GoogleFonts.cinzel(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.lightGold,
-                      letterSpacing: 0.5,
+                  Expanded(
+                    child: Text(
+                      'ஜாதக கட்டங்கள் (ராசி & நவாம்சம்)',
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.cinzel(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.lightGold,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
                 ],
@@ -411,7 +415,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
     HoroscopeCalculationResult astro,
   ) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.backgroundMid,
         borderRadius: BorderRadius.circular(12),
@@ -419,8 +423,8 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
       ),
       child: Wrap(
         alignment: WrapAlignment.spaceAround,
-        spacing: 12,
-        runSpacing: 8,
+        spacing: 10,
+        runSpacing: 5,
         children: [
           _buildPanchangMiniItem('லக்னம்', '${lagna.rasiNameTa} (${lagna.degreeFormatted})'),
           _buildPanchangMiniItem('ராசி', '${moon.rasiNameTa} (${moon.rasiNameEn})'),
@@ -437,10 +441,11 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
 
   Widget _buildPanchangMiniItem(String label, String val) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(label, style: GoogleFonts.outfit(fontSize: 9, color: AppColors.textSecondary)),
-        const SizedBox(height: 2),
-        Text(val, style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.lightGold)),
+        Text(label, style: GoogleFonts.outfit(fontSize: 8.5, color: AppColors.textSecondary)),
+        const SizedBox(height: 1),
+        Text(val, style: GoogleFonts.outfit(fontSize: 9.5, fontWeight: FontWeight.bold, color: AppColors.lightGold)),
       ],
     );
   }
@@ -836,7 +841,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                   // 4x4 RASI GRID + CENTER 2x2 CARD
                   Expanded(
                     child: AspectRatio(
-                      aspectRatio: 1.0,
+                      aspectRatio: 0.90,
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
@@ -845,7 +850,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                             physics: const NeverScrollableScrollPhysics(),
                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4,
-                              childAspectRatio: 1.0,
+                              childAspectRatio: 0.88,
                             ),
                             itemCount: 16,
                             itemBuilder: (context, index) {
@@ -1230,8 +1235,8 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
           // PROFILE NATAL RASI CHART WITH OUTER GOCHARAM ORBIT (Dark Cosmic Theme)
           LayoutBuilder(
             builder: (context, constraints) {
-              const double sideOrbitWidth = 44.0;
-              const double topBottomOrbitHeight = 38.0;
+              final double sideOrbitWidth = constraints.maxWidth < 380 ? 54.0 : 60.0;
+              final double topBottomOrbitHeight = constraints.maxWidth < 380 ? 50.0 : 54.0;
 
               return Container(
                 decoration: BoxDecoration(
@@ -1267,14 +1272,16 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                         // 1. TOP OUTER ORBIT ROW: [Meenam 11, Mesham 0, Rishabam 1, Mithunam 2]
                         Container(
                           height: topBottomOrbitHeight,
-                          padding: const EdgeInsets.symmetric(horizontal: sideOrbitWidth),
+                          padding: EdgeInsets.symmetric(horizontal: sideOrbitWidth),
                           child: Row(
                             children: [11, 0, 1, 2].map((rIdx) {
                               return Expanded(
+                                flex: _getOrbitSectorFlex(rIdx, transitRasiPlanets),
                                 child: _buildOuterOrbitRasiCell(
                                   rasiIdx: rIdx,
                                   planets: transitRasiPlanets[rIdx] ?? [],
                                   isSelected: _selectedRasiIndex == rIdx,
+                                  isSideColumn: false,
                                 ),
                               );
                             }).toList(),
@@ -1297,6 +1304,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                                         rasiIdx: 10,
                                         planets: transitRasiPlanets[10] ?? [],
                                         isSelected: _selectedRasiIndex == 10,
+                                        isSideColumn: true,
                                       ),
                                     ),
                                     Expanded(
@@ -1304,6 +1312,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                                         rasiIdx: 9,
                                         planets: transitRasiPlanets[9] ?? [],
                                         isSelected: _selectedRasiIndex == 9,
+                                        isSideColumn: true,
                                       ),
                                     ),
                                     const Expanded(child: SizedBox.shrink()),
@@ -1311,10 +1320,10 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                                 ),
                               ),
 
-                              // Existing Rasi Chart (Original Box - 100% Intact & Untouched)
+                              // Existing Rasi Chart (Expanded layout filling entire height with zero empty space)
                               Expanded(
                                 child: AspectRatio(
-                                  aspectRatio: 1.0,
+                                  aspectRatio: 0.88,
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: const Color(0xFF060913),
@@ -1350,125 +1359,58 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                                           ),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: GridView.builder(
-                                            clipBehavior: Clip.none,
-                                            physics: const NeverScrollableScrollPhysics(),
-                                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
-                                            itemCount: 16,
-                                            itemBuilder: (context, index) {
-                                              final isCenter = (index == 5 || index == 6 || index == 9 || index == 10);
-                                              if (isCenter) return const SizedBox.shrink();
-
-                                              final rasiIdx = _gridIndexToRasiIndex[index] ?? 0;
-                                              final rasiName = AstrologyCalculator.rasiNamesTa[rasiIdx];
-                                              final housePlanets = rasiPlanets[rasiIdx] ?? [];
-                                              final isSoonyam = soonyamRasiIndices.contains(rasiIdx);
-                                              final isSelected = _selectedRasiIndex == rasiIdx;
-
-                                              Color cellColor;
-                                              Color borderColor;
-                                              double borderWidth;
-                                              if (isSelected) {
-                                                cellColor = const Color(0xFF4A3800).withValues(alpha: 0.45);
-                                                borderColor = const Color(0xFFFFD700);
-                                                borderWidth = 2.0;
-                                              } else if (isSoonyam) {
-                                                cellColor = const Color(0xFF381708);
-                                                borderColor = const Color(0xFFC65A15);
-                                                borderWidth = 0.8;
-                                              } else {
-                                                cellColor = const Color(0xFF080D1A);
-                                                borderColor = AppColors.primaryGold.withValues(alpha: 0.28);
-                                                borderWidth = 0.5;
-                                              }
-
-                                              return GestureDetector(
-                                                key: Key('rasi_box_$rasiIdx'),
-                                                behavior: HitTestBehavior.opaque,
-                                                onTap: () {
-                                                  setState(() {
-                                                    _selectedRasiIndex = (_selectedRasiIndex == rasiIdx) ? null : rasiIdx;
-                                                  });
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: cellColor,
-                                                    border: Border.all(
-                                                      color: borderColor,
-                                                      width: borderWidth,
-                                                    ),
-                                                    boxShadow: isSelected
-                                                        ? [
-                                                            BoxShadow(
-                                                              color: const Color(0xFFFFD700).withValues(alpha: 0.35),
-                                                              blurRadius: 8,
-                                                              spreadRadius: 1,
-                                                            ),
-                                                          ]
-                                                        : null,
-                                                  ),
-                                                  child: Stack(
-                                                    children: [
-                                                      Positioned(
-                                                        top: 2,
-                                                        left: 4,
-                                                        child: Text(
-                                                          rasiName,
-                                                          style: GoogleFonts.outfit(
-                                                            fontSize: 8.5,
-                                                            fontWeight: FontWeight.w600,
-                                                            color: isSelected
-                                                                ? const Color(0xFFFFD700)
-                                                                : (isSoonyam ? const Color(0xFFFFB74D) : AppColors.lightGold),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Center(
-                                                        child: Padding(
-                                                          padding: const EdgeInsets.fromLTRB(4, 10, 4, 2),
-                                                          child: Wrap(
-                                                            alignment: WrapAlignment.center,
-                                                            crossAxisAlignment: WrapCrossAlignment.center,
-                                                            spacing: 4,
-                                                            runSpacing: 2,
-                                                            children: housePlanets.map((p) {
-                                                              final isLagna = p.name == 'Lagna';
-                                                              if (isLagna) {
-                                                                return Container(
-                                                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
-                                                                  decoration: BoxDecoration(
-                                                                    color: const Color(0xFFD32F2F),
-                                                                    borderRadius: BorderRadius.circular(3),
-                                                                    border: Border.all(color: const Color(0xFFFF5252), width: 0.5),
-                                                                  ),
-                                                                  child: Text(
-                                                                    'லக்',
-                                                                    style: GoogleFonts.outfit(
-                                                                      color: Colors.white,
-                                                                      fontWeight: FontWeight.bold,
-                                                                      fontSize: 9.5,
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              }
-                                                              return Text(
-                                                                p.symbol,
-                                                                style: GoogleFonts.outfit(
-                                                                  color: AppColors.brightGold,
-                                                                  fontWeight: FontWeight.bold,
-                                                                  fontSize: 10.5,
-                                                                ),
-                                                              );
-                                                            }).toList(),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Column(
+                                            children: [
+                                              // Row 0: Meenam (0), Mesham (1), Rishabam (2), Mithunam (3)
+                                              Expanded(
+                                                child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                  children: [
+                                                    Expanded(child: _buildRasiGridCell(index: 0, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                    Expanded(child: _buildRasiGridCell(index: 1, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                    Expanded(child: _buildRasiGridCell(index: 2, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                    Expanded(child: _buildRasiGridCell(index: 3, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                  ],
                                                 ),
-                                              );
-                                            },
+                                              ),
+                                              // Row 1: Kumbam (4), center (5), center (6), Kadagam (7)
+                                              Expanded(
+                                                child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                  children: [
+                                                    Expanded(child: _buildRasiGridCell(index: 4, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                    const Expanded(child: SizedBox.shrink()),
+                                                    const Expanded(child: SizedBox.shrink()),
+                                                    Expanded(child: _buildRasiGridCell(index: 7, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                  ],
+                                                ),
+                                              ),
+                                              // Row 2: Makaram (8), center (9), center (10), Simmam (11)
+                                              Expanded(
+                                                child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                  children: [
+                                                    Expanded(child: _buildRasiGridCell(index: 8, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                    const Expanded(child: SizedBox.shrink()),
+                                                    const Expanded(child: SizedBox.shrink()),
+                                                    Expanded(child: _buildRasiGridCell(index: 11, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                  ],
+                                                ),
+                                              ),
+                                              // Row 3: Dhanusu (12), Viruchigam (13), Thulam (14), Kanni (15)
+                                              Expanded(
+                                                child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                  children: [
+                                                    Expanded(child: _buildRasiGridCell(index: 12, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                    Expanded(child: _buildRasiGridCell(index: 13, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                    Expanded(child: _buildRasiGridCell(index: 14, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                    Expanded(child: _buildRasiGridCell(index: 15, rasiPlanets: rasiPlanets, soonyamRasiIndices: soonyamRasiIndices)),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
@@ -1488,6 +1430,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                                         rasiIdx: 3,
                                         planets: transitRasiPlanets[3] ?? [],
                                         isSelected: _selectedRasiIndex == 3,
+                                        isSideColumn: true,
                                       ),
                                     ),
                                     Expanded(
@@ -1495,6 +1438,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                                         rasiIdx: 4,
                                         planets: transitRasiPlanets[4] ?? [],
                                         isSelected: _selectedRasiIndex == 4,
+                                        isSideColumn: true,
                                       ),
                                     ),
                                     const Expanded(child: SizedBox.shrink()),
@@ -1508,14 +1452,16 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                         // 3. BOTTOM OUTER ORBIT ROW: [Dhanusu 8, Viruchigam 7, Thulam 6, Kanni 5]
                         Container(
                           height: topBottomOrbitHeight,
-                          padding: const EdgeInsets.symmetric(horizontal: sideOrbitWidth),
+                          padding: EdgeInsets.symmetric(horizontal: sideOrbitWidth),
                           child: Row(
                             children: [8, 7, 6, 5].map((rIdx) {
                               return Expanded(
+                                flex: _getOrbitSectorFlex(rIdx, transitRasiPlanets),
                                 child: _buildOuterOrbitRasiCell(
                                   rasiIdx: rIdx,
                                   planets: transitRasiPlanets[rIdx] ?? [],
                                   isSelected: _selectedRasiIndex == rIdx,
+                                  isSideColumn: false,
                                 ),
                               );
                             }).toList(),
@@ -1800,11 +1746,144 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
     );
   }
 
+  /// Dynamic flex allocation for outer orbit cells: empty cells stay compact, cells with transit planets expand
+  int _getOrbitSectorFlex(int rasiIdx, Map<int, List<PlanetDetail>> transitRasiPlanets) {
+    final count = (transitRasiPlanets[rasiIdx] ?? []).length;
+    if (count == 0) return 1;
+    if (count == 1) return 2;
+    if (count == 2) return 4;
+    return 6;
+  }
+
+  /// Individual Rasi grid cell in the expanded 4x4 inner chart
+  Widget _buildRasiGridCell({
+    required int index,
+    required Map<int, List<PlanetDetail>> rasiPlanets,
+    required Set<int> soonyamRasiIndices,
+  }) {
+    final rasiIdx = _gridIndexToRasiIndex[index] ?? 0;
+    final rasiName = AstrologyCalculator.rasiNamesTa[rasiIdx];
+    final housePlanets = rasiPlanets[rasiIdx] ?? [];
+    final isSoonyam = soonyamRasiIndices.contains(rasiIdx);
+    final isSelected = _selectedRasiIndex == rasiIdx;
+
+    Color cellColor;
+    Color borderColor;
+    double borderWidth;
+    if (isSelected) {
+      cellColor = const Color(0xFF4A3800).withValues(alpha: 0.45);
+      borderColor = const Color(0xFFFFD700);
+      borderWidth = 2.0;
+    } else if (isSoonyam) {
+      cellColor = const Color(0xFF381708);
+      borderColor = const Color(0xFFC65A15);
+      borderWidth = 0.8;
+    } else {
+      cellColor = const Color(0xFF080D1A);
+      borderColor = AppColors.primaryGold.withValues(alpha: 0.28);
+      borderWidth = 0.5;
+    }
+
+    return GestureDetector(
+      key: Key('rasi_box_$rasiIdx'),
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        setState(() {
+          _selectedRasiIndex = (_selectedRasiIndex == rasiIdx) ? null : rasiIdx;
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: cellColor,
+          border: Border.all(
+            color: borderColor,
+            width: borderWidth,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFFFFD700).withValues(alpha: 0.35),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 2,
+              left: 3,
+              right: 3,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.topLeft,
+                child: Text(
+                  rasiName,
+                  style: GoogleFonts.outfit(
+                    fontSize: 10.0,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected
+                        ? const Color(0xFFFFD700)
+                        : (isSoonyam ? const Color(0xFFFFB74D) : AppColors.lightGold),
+                  ),
+                  maxLines: 1,
+                ),
+              ),
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(2, 12, 2, 2),
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 3.5,
+                  runSpacing: 2,
+                  children: housePlanets.map((p) {
+                    final isLagna = p.name == 'Lagna';
+                    if (isLagna) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.0),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDC2626),
+                          borderRadius: BorderRadius.circular(3),
+                          border: Border.all(color: const Color(0xFFFF5252), width: 0.8),
+                        ),
+                        child: Text(
+                          'லக்',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 10.0,
+                            height: 1.1,
+                          ),
+                        ),
+                      );
+                    }
+                    return Text(
+                      p.symbol,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFFFFE082),
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12.0,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Outer Orbit Rasi sector cell displaying Gocharam/transit planets and exact degrees
   Widget _buildOuterOrbitRasiCell({
     required int rasiIdx,
     required List<PlanetDetail> planets,
     required bool isSelected,
+    bool isSideColumn = false,
   }) {
     return GestureDetector(
       key: Key('outer_orbit_rasi_$rasiIdx'),
@@ -1826,11 +1905,11 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
         child: planets.isEmpty
             ? Center(
                 child: Container(
-                  width: 3.5,
-                  height: 3.5,
+                  width: 4.0,
+                  height: 4.0,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFF1E88E5).withValues(alpha: 0.25),
+                    color: const Color(0xFF1E88E5).withValues(alpha: 0.35),
                   ),
                 ),
               )
@@ -1839,13 +1918,25 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                   fit: BoxFit.scaleDown,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 1.0),
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 3.0,
-                      runSpacing: 2.0,
-                      children: planets.map((p) => _buildOuterOrbitPlanetBadge(p)).toList(),
-                    ),
+                    child: isSideColumn
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: planets.map((p) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 1.5),
+                              child: _buildOuterOrbitPlanetBadge(p),
+                            )).toList(),
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: planets.map((p) => Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                              child: _buildOuterOrbitPlanetBadge(p),
+                            )).toList(),
+                          ),
                   ),
                 ),
               ),
@@ -1858,13 +1949,13 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
     final dms = "${p.degree}°${p.minute.toString().padLeft(2, '0')}'";
     final isVak = p.isRetrograde;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+      padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 2.0),
       decoration: BoxDecoration(
         color: const Color(0xFF091424),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(6.0),
         border: Border.all(
           color: const Color(0xFF42A5F5),
-          width: 0.9,
+          width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
@@ -1881,8 +1972,8 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
           Text(
             '${p.symbol}${isVak ? " (வ)" : ""}',
             style: GoogleFonts.outfit(
-              fontSize: 9.0,
-              fontWeight: FontWeight.bold,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w900,
               color: Colors.white,
               height: 1.1,
             ),
@@ -1891,9 +1982,10 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
           Text(
             dms,
             style: GoogleFonts.outfit(
-              fontSize: 7.5,
-              fontWeight: FontWeight.w600,
+              fontSize: 9.0,
+              fontWeight: FontWeight.bold,
               color: const Color(0xFF80D8FF),
+              letterSpacing: 0.2,
               height: 1.1,
             ),
           ),
@@ -2768,12 +2860,15 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                 height: 8,
                 decoration: const BoxDecoration(color: Colors.greenAccent, shape: BoxShape.circle),
               ),
-            Text(
-              "${md.lordTa} மகா தசா (${md.lordEn})",
-              style: GoogleFonts.cinzel(
-                fontSize: 13,
-                fontWeight: md.isActive ? FontWeight.bold : FontWeight.w600,
-                color: md.isActive ? AppColors.lightGold : Colors.white,
+            Expanded(
+              child: Text(
+                "${md.lordTa} மகா தசா (${md.lordEn})",
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.cinzel(
+                  fontSize: 13,
+                  fontWeight: md.isActive ? FontWeight.bold : FontWeight.w600,
+                  color: md.isActive ? AppColors.lightGold : Colors.white,
+                ),
               ),
             ),
           ],
@@ -2813,12 +2908,15 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                   height: 6,
                   decoration: const BoxDecoration(color: Colors.greenAccent, shape: BoxShape.circle),
                 ),
-              Text(
-                "  ↳ ${bh.lordTa} புக்தி (${bh.lordEn})",
-                style: GoogleFonts.outfit(
-                  fontSize: 12,
-                  fontWeight: bh.isActive ? FontWeight.bold : FontWeight.w500,
-                  color: bh.isActive ? AppColors.lightGold : Colors.white70,
+              Expanded(
+                child: Text(
+                  "  ↳ ${bh.lordTa} புக்தி (${bh.lordEn})",
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    fontWeight: bh.isActive ? FontWeight.bold : FontWeight.w500,
+                    color: bh.isActive ? AppColors.lightGold : Colors.white70,
+                  ),
                 ),
               ),
             ],

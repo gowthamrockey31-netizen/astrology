@@ -105,12 +105,14 @@ class _JamakkolResultSectionsWidgetState extends State<JamakkolResultSectionsWid
             children: [
               const Icon(Icons.help_outline_rounded, color: Color(0xFFFFD700), size: 20),
               const SizedBox(width: 8),
-              Text(
-                widget.isTamil ? 'உங்கள் கேள்வியை உள்ளிடுங்கள்' : 'Enter Your Question',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
+              Expanded(
+                child: Text(
+                  widget.isTamil ? 'உங்கள் கேள்வியை உள்ளிடுங்கள்' : 'Enter Your Question',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
               ),
             ],
@@ -273,12 +275,14 @@ class _JamakkolResultSectionsWidgetState extends State<JamakkolResultSectionsWid
                   children: [
                     const Icon(Icons.psychology_alt_rounded, color: Color(0xFFFFD700), size: 16),
                     const SizedBox(width: 6),
-                    Text(
-                      widget.isTamil ? interp.questionCategoryLabelTa : interp.questionCategoryLabelEn,
-                      style: const TextStyle(
-                        color: Color(0xFFFFD700),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12.5,
+                    Expanded(
+                      child: Text(
+                        widget.isTamil ? interp.questionCategoryLabelTa : interp.questionCategoryLabelEn,
+                        style: const TextStyle(
+                          color: Color(0xFFFFD700),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.5,
+                        ),
                       ),
                     ),
                   ],
@@ -345,9 +349,11 @@ class _JamakkolResultSectionsWidgetState extends State<JamakkolResultSectionsWid
             children: [
               const Icon(Icons.auto_awesome_rounded, color: Color(0xFFFFD700), size: 18),
               const SizedBox(width: 8),
-              Text(
-                widget.isTamil ? 'முக்கிய யோகங்கள் & அமைப்புகள்' : 'Key Planetary Combinations',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+              Expanded(
+                child: Text(
+                  widget.isTamil ? 'முக்கிய யோகங்கள் & அமைப்புகள்' : 'Key Planetary Combinations',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                ),
               ),
             ],
           ),
@@ -423,9 +429,11 @@ class _JamakkolResultSectionsWidgetState extends State<JamakkolResultSectionsWid
             children: [
               const Icon(Icons.remove_red_eye_rounded, color: Color(0xFFFFD700), size: 18),
               const SizedBox(width: 8),
-              Text(
-                widget.isTamil ? 'கிரக பார்வைகள் (Aspects)' : 'Planetary Aspects',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+              Expanded(
+                child: Text(
+                  widget.isTamil ? 'கிரக பார்வைகள் (Aspects)' : 'Planetary Aspects',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                ),
               ),
             ],
           ),
@@ -441,18 +449,22 @@ class _JamakkolResultSectionsWidgetState extends State<JamakkolResultSectionsWid
                 padding: const EdgeInsets.symmetric(vertical: 3.0),
                 child: Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                      decoration: BoxDecoration(
-                        color: asp.isBenefic ? const Color(0xFF059669).withValues(alpha: 0.3) : const Color(0xFFDC2626).withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        widget.isTamil ? asp.aspectTypeTa : asp.aspectTypeEn,
-                        style: TextStyle(
-                          color: asp.isBenefic ? const Color(0xFF6EE7B7) : const Color(0xFFFCA5A5),
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.bold,
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 130),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                        decoration: BoxDecoration(
+                          color: asp.isBenefic ? const Color(0xFF059669).withValues(alpha: 0.3) : const Color(0xFFDC2626).withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          widget.isTamil ? asp.aspectTypeTa : asp.aspectTypeEn,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: asp.isBenefic ? const Color(0xFF6EE7B7) : const Color(0xFFFCA5A5),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -488,9 +500,11 @@ class _JamakkolResultSectionsWidgetState extends State<JamakkolResultSectionsWid
             children: [
               const Icon(Icons.schedule_rounded, color: Color(0xFFFFD700), size: 18),
               const SizedBox(width: 8),
-              Text(
-                widget.isTamil ? 'அடுத்த 1 மணி நேர பலன் (Next 1 Hour)' : 'Next 1-Hour Time Breakdown',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+              Expanded(
+                child: Text(
+                  widget.isTamil ? 'அடுத்த 1 மணி நேர பலன் (Next 1 Hour)' : 'Next 1-Hour Time Breakdown',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                ),
               ),
             ],
           ),
@@ -571,9 +585,11 @@ class _JamakkolResultSectionsWidgetState extends State<JamakkolResultSectionsWid
             children: [
               const Icon(Icons.lightbulb_rounded, color: Color(0xFFFFD700), size: 18),
               const SizedBox(width: 8),
-              Text(
-                widget.isTamil ? 'வழிகாட்டல் & ஜோதிடப் பரிகாரம்' : 'Guidance & Remedies',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+              Expanded(
+                child: Text(
+                  widget.isTamil ? 'வழிகாட்டல் & ஜோதிடப் பரிகாரம்' : 'Guidance & Remedies',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                ),
               ),
             ],
           ),

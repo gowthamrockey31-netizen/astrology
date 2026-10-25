@@ -196,65 +196,73 @@ class JamakkolChartWidget extends StatelessWidget {
               ),
             ),
 
-            // Planets & Special Points Content (Centered)
+            // Planets & Special Points Content (Centered, scaled to never clip)
             Positioned.fill(
               top: 14,
-              child: SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Special 3 Pillars
-                    Wrap(
-                      spacing: 2,
-                      runSpacing: 1,
-                      alignment: WrapAlignment.center,
+              left: 1,
+              right: 1,
+              bottom: 2,
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: cellSize - 2),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (isUdayam)
-                          _buildPillarBadge(
-                            label: isTamil ? 'உதயம்' : 'UDY',
-                            degree: state.udayam.formattedDms,
-                            bgColor: const Color(0xFF2563EB),
-                          ),
-                        if (isArudam)
-                          _buildPillarBadge(
-                            label: isTamil ? 'ஆருடம்' : 'ARD',
-                            degree: state.arudam.formattedDms,
-                            bgColor: const Color(0xFF059669),
-                          ),
-                        if (isKavippu)
-                          _buildPillarBadge(
-                            label: isTamil ? 'கவிப்பு' : 'KAV',
-                            degree: state.kavippu.formattedDms,
-                            bgColor: const Color(0xFFDC2626),
-                          ),
+                        // Special 3 Pillars
+                        Wrap(
+                          spacing: 2,
+                          runSpacing: 1,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            if (isUdayam)
+                              _buildPillarBadge(
+                                label: isTamil ? 'உத' : 'UDY',
+                                degree: state.udayam.formattedDms,
+                                bgColor: const Color(0xFF2563EB),
+                              ),
+                            if (isArudam)
+                              _buildPillarBadge(
+                                label: isTamil ? 'ஆரு' : 'ARD',
+                                degree: state.arudam.formattedDms,
+                                bgColor: const Color(0xFF059669),
+                              ),
+                            if (isKavippu)
+                              _buildPillarBadge(
+                                label: isTamil ? 'கவி' : 'KAV',
+                                degree: state.kavippu.formattedDms,
+                                bgColor: const Color(0xFFDC2626),
+                              ),
+                          ],
+                        ),
+
+                        // Upagrahas & Special Points (Mandi, Mrityu, Ra.Ka, Emakandam, Lagna)
+                        Wrap(
+                          spacing: 2,
+                          runSpacing: 1,
+                          alignment: WrapAlignment.center,
+                          children: specialPoints
+                              .where((pt) =>
+                                  pt.type != SpecialPointType.udayam &&
+                                  pt.type != SpecialPointType.arudam &&
+                                  pt.type != SpecialPointType.kavippu)
+                              .map((u) => _buildUpagrahaBadge(u))
+                              .toList(),
+                        ),
+
+                        // Gocharam / Transit Planets
+                        Wrap(
+                          spacing: 2,
+                          runSpacing: 1,
+                          alignment: WrapAlignment.center,
+                          children: gocharamPlanets.map((tp) => _buildTransitPlanetBadge(tp)).toList(),
+                        ),
                       ],
                     ),
-
-                    // Upagrahas in this sign
-                    Wrap(
-                      spacing: 2,
-                      runSpacing: 1,
-                      alignment: WrapAlignment.center,
-                      children: specialPoints
-                          .where((pt) =>
-                              pt.type != SpecialPointType.udayam &&
-                              pt.type != SpecialPointType.arudam &&
-                              pt.type != SpecialPointType.kavippu &&
-                              pt.type != SpecialPointType.lagna)
-                          .map((u) => _buildUpagrahaBadge(u))
-                          .toList(),
-                    ),
-
-                    // Gocharam / Transit Planets
-                    Wrap(
-                      spacing: 2,
-                      runSpacing: 1,
-                      alignment: WrapAlignment.center,
-                      children: gocharamPlanets.map((tp) => _buildTransitPlanetBadge(tp)).toList(),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -271,13 +279,20 @@ class JamakkolChartWidget extends StatelessWidget {
         color: const Color(0xFF0B1120).withValues(alpha: 0.92),
         border: Border.all(color: const Color(0xFFFFD700).withValues(alpha: 0.5), width: 1.0),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Title
-          Text(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      child: Center(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: SizedBox(
+            width: 250,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Title
+                Text(
             isTamil ? 'ஜாமக்கோள் பிரசன்னம்' : 'JAMAKKOL PRASANNAM',
             style: const TextStyle(
               color: Color(0xFFFFD700),
@@ -289,9 +304,9 @@ class JamakkolChartWidget extends StatelessWidget {
           ),
           const SizedBox(height: 3),
 
-          // Location & Date
+          // Location & Date & Tamil Month
           Text(
-            '${state.location.name} • ${_formatShortTime(state.queryDateTime)}',
+            '${state.location.name} • ${state.tamilMonth.isNotEmpty ? "${state.tamilMonth} • " : ""}${_formatShortTime(state.queryDateTime)}',
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 9.5,
@@ -328,39 +343,77 @@ class JamakkolChartWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildMiniStatus(
-                label: isTamil ? 'உதயம்' : 'UDY',
+                label: isTamil ? 'உதயம்' : 'Udayam',
                 sign: isTamil ? state.udayam.rasiNameTa : state.udayam.rasiNameEn,
-                deg: state.udayam.formattedDms,
+                deg: '★ ${state.udayam.nakshatraTa}-${state.udayam.pada}',
                 color: const Color(0xFF60A5FA),
               ),
               _buildMiniStatus(
-                label: isTamil ? 'ஆருடம்' : 'ARD',
+                label: isTamil ? 'ஆருடம்' : 'Arudam',
                 sign: isTamil ? state.arudam.rasiNameTa : state.arudam.rasiNameEn,
-                deg: state.arudam.formattedDms,
+                deg: '★ ${state.arudam.nakshatraTa}-${state.arudam.pada}',
                 color: const Color(0xFF34D399),
               ),
               _buildMiniStatus(
-                label: isTamil ? 'கவிப்பு' : 'KAV',
+                label: isTamil ? 'கவிப்பு' : 'Kavippu',
                 sign: isTamil ? state.kavippu.rasiNameTa : state.kavippu.rasiNameEn,
-                deg: state.kavippu.formattedDms,
+                deg: '★ ${state.kavippu.nakshatraTa}-${state.kavippu.pada}',
                 color: const Color(0xFFF87171),
               ),
             ],
           ),
 
           const SizedBox(height: 3),
+          // Quick summary of Jamakkol Points: Ra.Ka, Emakandam, Mridyu
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildMiniStatus(
+                label: isTamil ? 'ரா.கா' : 'Ra.Ka',
+                sign: isTamil
+                    ? AstrologyCalculator.rasiNamesTa[state.rahuKalamRasi]
+                    : AstrologyCalculator.rasiNamesEn[state.rahuKalamRasi],
+                deg: state.upagrahas.firstWhere((u) => u.type == SpecialPointType.rahuKaalam, orElse: () => state.udayam).formattedDms,
+                color: const Color(0xFFC084FC),
+              ),
+              _buildMiniStatus(
+                label: isTamil ? 'எம' : 'Emakandam',
+                sign: isTamil
+                    ? AstrologyCalculator.rasiNamesTa[state.emakandamRasi]
+                    : AstrologyCalculator.rasiNamesEn[state.emakandamRasi],
+                deg: state.upagrahas.firstWhere((u) => u.type == SpecialPointType.yamakandam, orElse: () => state.udayam).formattedDms,
+                color: const Color(0xFFFB923C),
+              ),
+              _buildMiniStatus(
+                label: isTamil ? 'மிரு' : 'Mridyu',
+                sign: isTamil
+                    ? AstrologyCalculator.rasiNamesTa[state.mridyuRasi]
+                    : AstrologyCalculator.rasiNamesEn[state.mridyuRasi],
+                deg: state.upagrahas.firstWhere((u) => u.type == SpecialPointType.mrityu, orElse: () => state.udayam).formattedDms,
+                color: const Color(0xFFFB7185),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 3),
           // Sunrise & Sunset info
-          Text(
-            isTamil
-                ? 'சூரிய உதயம்: ${_formatShortTime(state.sunrise)} | அஸ்தமனம்: ${_formatShortTime(state.sunset)}'
-                : 'Sunrise: ${_formatShortTime(state.sunrise)} | Sunset: ${_formatShortTime(state.sunset)}',
-            style: const TextStyle(
-              color: Colors.white54,
-              fontSize: 8,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              isTamil
+                  ? 'சூரிய உதயம்: ${_formatShortTime(state.sunrise)} | அஸ்தமனம்: ${_formatShortTime(state.sunset)}'
+                  : 'Sunrise: ${_formatShortTime(state.sunrise)} | Sunset: ${_formatShortTime(state.sunset)}',
+              style: const TextStyle(
+                color: Colors.white54,
+                fontSize: 8,
+              ),
             ),
           ),
         ],
       ),
+    ),
+    ),
+    ),
     );
   }
 
@@ -384,29 +437,36 @@ class JamakkolChartWidget extends StatelessWidget {
   List<Widget> _buildOuterPlanetBadges(double chartSize, double padding, double innerGridSize) {
     final List<Widget> widgets = [];
     final cellSize = innerGridSize / 4.0;
+    final Map<String, int> cellBadgeCount = {};
 
     for (final jp in state.jamakkolPlanets) {
+      final cellKey = '${jp.borderSide}_${jp.gridCol}_${jp.gridRow}';
+      final int badgeIndex = cellBadgeCount[cellKey] ?? 0;
+      cellBadgeCount[cellKey] = badgeIndex + 1;
+
+      final double offset = badgeIndex * 26.0;
+
       double left = 0;
       double top = 0;
 
       // Position along the top, right, bottom, left outer margins
       switch (jp.borderSide) {
         case 0: // Top border
-          left = padding + (jp.gridCol * cellSize) + (cellSize * 0.1);
+          left = padding + (jp.gridCol * cellSize) + (cellSize * 0.05) + offset;
           top = 4.0;
           break;
         case 1: // Right border
           left = chartSize - padding + 2.0;
-          top = padding + (jp.gridRow * cellSize) + (cellSize * 0.2);
+          top = padding + (jp.gridRow * cellSize) + (cellSize * 0.1) + offset;
           break;
         case 2: // Bottom border
-          left = padding + (jp.gridCol * cellSize) + (cellSize * 0.1);
+          left = padding + (jp.gridCol * cellSize) + (cellSize * 0.05) + offset;
           top = chartSize - padding + 4.0;
           break;
         case 3: // Left border
         default:
           left = 4.0;
-          top = padding + (jp.gridRow * cellSize) + (cellSize * 0.2);
+          top = padding + (jp.gridRow * cellSize) + (cellSize * 0.1) + offset;
           break;
       }
 
@@ -438,7 +498,7 @@ class JamakkolChartWidget extends StatelessWidget {
                   : null,
             ),
             child: Text(
-              '${isTamil ? jp.shortTa : jp.shortEn} ${jp.degreeInRasi.floor()}°',
+              '${isTamil ? jp.shortTa : jp.shortEn} ${_formatOuterPlanetDegree(jp)}',
               style: TextStyle(
                 color: isCurrentLord ? Colors.black : const Color(0xFFFDE68A),
                 fontSize: 8.5,
@@ -451,6 +511,13 @@ class JamakkolChartWidget extends StatelessWidget {
     }
 
     return widgets;
+  }
+
+  String _formatOuterPlanetDegree(JamakkolPlanet jp) {
+    final double norm = (jp.absoluteLongitude % 360.0 + 360.0) % 360.0;
+    final int d = norm.floor();
+    final int m = ((norm - d) * 60.0).floor();
+    return "$d° ${m.toString().padLeft(2, '0')}'";
   }
 
   Widget _buildPillarBadge({
@@ -477,19 +544,51 @@ class JamakkolChartWidget extends StatelessWidget {
   }
 
   Widget _buildUpagrahaBadge(JamakkolSpecialPoint pt) {
+    Color bg = const Color(0xFF831843).withValues(alpha: 0.85);
+    Color txt = const Color(0xFFFBCFE8);
+    String label = pt.shortCode;
+
+    if (pt.type == SpecialPointType.rahuKaalam) {
+      bg = const Color(0xFF7E22CE).withValues(alpha: 0.9);
+      txt = Colors.white;
+      label = isTamil ? 'ரா.கா' : 'Ra.Ka';
+    } else if (pt.type == SpecialPointType.yamakandam) {
+      bg = const Color(0xFFC2410C).withValues(alpha: 0.9);
+      txt = Colors.white;
+      label = isTamil ? 'எம' : 'Emakandam';
+    } else if (pt.type == SpecialPointType.mrityu) {
+      bg = const Color(0xFFBE123C).withValues(alpha: 0.9);
+      txt = Colors.white;
+      label = isTamil ? 'மிரு' : 'Mridyu';
+    } else if (pt.type == SpecialPointType.mandi) {
+      bg = const Color(0xFF831843).withValues(alpha: 0.9);
+      txt = const Color(0xFFFBCFE8);
+      label = isTamil ? 'மாந்' : 'Mandi';
+    } else if (pt.type == SpecialPointType.lagna) {
+      bg = const Color(0xFF0284C7).withValues(alpha: 0.9);
+      txt = Colors.white;
+      label = isTamil ? 'லக்' : 'LAG';
+    }
+
+    final d = pt.degreeInRasi.floor();
+    final m = ((pt.degreeInRasi - d) * 60.0).round();
+    final String degStr = m == 0
+        ? "$d°"
+        : (m >= 60 ? "${d + 1}°" : "$d° ${m.toString().padLeft(2, '0')}'");
+
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 0.5),
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0.5),
+      margin: const EdgeInsets.symmetric(vertical: 0.5, horizontal: 0.5),
+      padding: const EdgeInsets.symmetric(horizontal: 2.5, vertical: 0.8),
       decoration: BoxDecoration(
-        color: const Color(0xFF831843).withValues(alpha: 0.8),
+        color: bg,
         borderRadius: BorderRadius.circular(2.5),
       ),
       child: Text(
-        '${pt.shortCode} ${pt.degreeInRasi.floor()}°',
-        style: const TextStyle(
-          color: Color(0xFFFBCFE8),
+        '$label $degStr',
+        style: TextStyle(
+          color: txt,
           fontSize: 7,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
@@ -500,6 +599,12 @@ class JamakkolChartWidget extends StatelessWidget {
     if (tp.isRetrograde) suffix += '(R)';
     if (tp.isCombust) suffix += '(C)';
 
+    final d = tp.degreeInRasi.floor();
+    final m = ((tp.degreeInRasi - d) * 60.0).round();
+    final String degStr = m == 0
+        ? "$d°"
+        : (m >= 60 ? "${d + 1}°" : "$d° ${m.toString().padLeft(2, '0')}'");
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 0.5),
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0.5),
@@ -508,10 +613,10 @@ class JamakkolChartWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(2.5),
       ),
       child: Text(
-        '${isTamil ? tp.symbol : tp.nameEn.substring(0, 2)} ${tp.degreeInRasi.floor()}°$suffix',
+        '${isTamil ? tp.symbol : tp.nameEn.substring(0, 2)} $degStr$suffix',
         style: const TextStyle(
           color: Color(0xFFCCFBF1),
-          fontSize: 7.5,
+          fontSize: 7.0,
           fontWeight: FontWeight.bold,
         ),
       ),

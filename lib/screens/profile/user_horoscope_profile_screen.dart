@@ -10,6 +10,8 @@ import '../../widgets/cosmic_background.dart';
 import '../../widgets/golden_button.dart';
 import '../../widgets/golden_text_field.dart';
 import '../../modules/horoscope/current_age_card.dart';
+import '../../services/profile_service.dart';
+import '../../widgets/profile/family_profiles_sheet.dart';
 
 class UserHoroscopeProfileScreen extends StatefulWidget {
   final VoidCallback onSaved;
@@ -221,10 +223,11 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
     );
 
     await AuthService.updateUserProfile(updated);
+    await ProfileService().updateProfile(updated);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Horoscope Profile saved to MongoDB!', style: GoogleFonts.outfit(color: AppColors.lightGold)),
+          content: Text('Horoscope Profile saved to Local Storage & Cloud!', style: GoogleFonts.outfit(color: AppColors.lightGold)),
           backgroundColor: AppColors.backgroundMid,
         ),
       );
@@ -246,13 +249,34 @@ class _UserHoroscopeProfileScreenState extends State<UserHoroscopeProfileScreen>
                   children: [
                     const Icon(Icons.brightness_5_rounded, color: AppColors.lightGold, size: 28),
                     const SizedBox(width: 12),
-                    Text(
-                      'Horoscope Profile',
-                      style: GoogleFonts.cinzel(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                    Expanded(
+                      child: Text(
+                        'Horoscope Profile',
+                        style: GoogleFonts.cinzel(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.people_alt_rounded, color: AppColors.lightGold),
+                      tooltip: 'Family Profiles (Max 5)',
+                      onPressed: () => FamilyProfilesSheet.show(context, onProfileChanged: () {
+                        final current = AuthService.currentUser;
+                        if (current != null) {
+                          setState(() {
+                            _nameController.text = current.name;
+                            _placeController.text = current.placeOfBirth;
+                            _cityController.text = current.city;
+                            _stateController.text = current.state;
+                            _gender = current.gender;
+                            final pd = DateTime.tryParse(current.dob);
+                            if (pd != null) _dob = pd;
+                            _recalculateAstrology();
+                          });
+                        }
+                      }),
                     ),
                   ],
                 ),

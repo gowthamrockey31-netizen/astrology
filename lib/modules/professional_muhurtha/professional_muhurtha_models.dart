@@ -2,6 +2,8 @@
 // PROFESSIONAL SUBHA MUHURTHAM - DATA MODELS
 // ===============================================================
 
+import 'subha_muhurtham_rules.dart';
+
 /// Categories of Muhurtham
 enum MuhurthaCategory {
   generalSubha,
@@ -73,6 +75,264 @@ class BirthProfile {
     required this.birthRasi,
   });
 }
+
+// ===============================================================
+// LEVEL 1: GENERAL DAY SUITABILITY MODELS
+// ===============================================================
+
+class VaaramEvaluation {
+  final int weekdayNumber; // 1=Mon..7=Sun
+  final String weekdayName;
+  final bool isSuitable;
+  final bool isValarpiraiSunday;
+  final String reason;
+
+  const VaaramEvaluation({
+    required this.weekdayNumber,
+    required this.weekdayName,
+    required this.isSuitable,
+    required this.isValarpiraiSunday,
+    required this.reason,
+  });
+}
+
+class TithiEvaluation {
+  final int tithiNumber; // 1..30
+  final int singleTithiNumber; // 1..15
+  final String tithiName;
+  final String paksha;
+  final bool isSuitable;
+  final String? conflictNote;
+  final String reason;
+
+  const TithiEvaluation({
+    required this.tithiNumber,
+    required this.singleTithiNumber,
+    required this.tithiName,
+    required this.paksha,
+    required this.isSuitable,
+    this.conflictNote,
+    required this.reason,
+  });
+}
+
+class NakshatraEvaluation {
+  final int nakshatraIndex; // 0..26
+  final String nakshatraName;
+  final bool isSuitable;
+  final String? conflictNote;
+  final String reason;
+
+  const NakshatraEvaluation({
+    required this.nakshatraIndex,
+    required this.nakshatraName,
+    required this.isSuitable,
+    this.conflictNote,
+    required this.reason,
+  });
+}
+
+class YogaEvaluation {
+  final String yogaName;
+  final String amirthathiYoga;
+  final bool isSuitable;
+  final String reason;
+
+  const YogaEvaluation({
+    required this.yogaName,
+    required this.amirthathiYoga,
+    required this.isSuitable,
+    required this.reason,
+  });
+}
+
+class KaranaEvaluation {
+  final String karanaName;
+  final bool isSuitable;
+  final String reason;
+
+  const KaranaEvaluation({
+    required this.karanaName,
+    required this.isSuitable,
+    required this.reason,
+  });
+}
+
+/// Level 1: Aggregated General Day Suitability
+class DaySuitabilityLevel1 {
+  final VaaramEvaluation vaaram;
+  final TithiEvaluation tithi;
+  final NakshatraEvaluation nakshatra;
+  final YogaEvaluation yoga;
+  final KaranaEvaluation karana;
+  final bool isLevel1Passed;
+  final String summary;
+
+  const DaySuitabilityLevel1({
+    required this.vaaram,
+    required this.tithi,
+    required this.nakshatra,
+    required this.yoga,
+    required this.karana,
+    required this.isLevel1Passed,
+    required this.summary,
+  });
+}
+
+// ===============================================================
+// LEVEL 2: AVOIDANCE RULES MODELS
+// ===============================================================
+
+class MonthAvoidanceEvaluation {
+  final String tamilMonth;
+  final int tamilMonthIndex;
+  final bool isMonthAvoided;
+  final bool isSuitable;
+  final String reason;
+
+  const MonthAvoidanceEvaluation({
+    required this.tamilMonth,
+    required this.tamilMonthIndex,
+    required this.isMonthAvoided,
+    required this.isSuitable,
+    required this.reason,
+  });
+}
+
+class KariDayEvaluation {
+  final int tamilDay;
+  final bool isKariDay;
+  final List<int> kariDaysInMonth;
+  final bool isSuitable;
+  final String reason;
+
+  const KariDayEvaluation({
+    required this.tamilDay,
+    required this.isKariDay,
+    required this.kariDaysInMonth,
+    required this.isSuitable,
+    required this.reason,
+  });
+}
+
+class AvoidanceCheckItem {
+  final String name;
+  final String timingFormatted;
+  final bool isAvoided;
+  final String description;
+
+  const AvoidanceCheckItem({
+    required this.name,
+    required this.timingFormatted,
+    required this.isAvoided,
+    required this.description,
+  });
+}
+
+/// Level 2: Aggregated Avoidance Rules Result
+class AvoidanceLevel2 {
+  final MonthAvoidanceEvaluation monthCheck;
+  final KariDayEvaluation kariDayCheck;
+  final AvoidanceCheckItem rahuKalam;
+  final AvoidanceCheckItem yamagandam;
+  final AvoidanceCheckItem kuligai;
+  final List<InauspiciousPeriod> allInauspiciousPeriods;
+  final bool isLevel2Passed;
+  final String summary;
+
+  const AvoidanceLevel2({
+    required this.monthCheck,
+    required this.kariDayCheck,
+    required this.rahuKalam,
+    required this.yamagandam,
+    required this.kuligai,
+    required this.allInauspiciousPeriods,
+    required this.isLevel2Passed,
+    required this.summary,
+  });
+}
+
+// ===============================================================
+// LEVEL 3: PERSON-SPECIFIC JATHAGA CHECK MODELS
+// ===============================================================
+
+/// Level 3: Aggregated Person-Specific Result
+class JathagaLevel3 {
+  final bool hasBirthProfile;
+  final ChandraBalaResult chandrashtama;
+  final TaraBalaResult tarabalam;
+  final GuruBalaResult? guruBalam;
+  final SuryaBalaResult? suryaBalam;
+  final bool isLevel3Passed;
+  final String summary;
+
+  const JathagaLevel3({
+    required this.hasBirthProfile,
+    required this.chandrashtama,
+    required this.tarabalam,
+    this.guruBalam,
+    this.suryaBalam,
+    required this.isLevel3Passed,
+    required this.summary,
+  });
+}
+
+// ===============================================================
+// LEVEL 4: MUHURTHAM LAGNA CHECK MODELS
+// ===============================================================
+
+class MuhurthaLagnaEvaluation {
+  final String lagnaRasi;
+  final int lagnaIndex;
+  final String lagnaDegreeStr;
+  final bool isLagnaSuitable;
+
+  final String lagnaLord;
+  final String lagnaLordStrength; // 'வலுவானது (Strong)' / 'பலவீனமானது (Weak)'
+  final String lagnaLordReason;
+
+  final bool house7Checked;
+  final String house7Reason;
+
+  final bool house8Checked;
+  final String house8Reason;
+
+  final String marsCheck;
+  final String saturnCheck;
+  final String rahuCheck;
+  final String ketuCheck;
+
+  final bool isClean;
+  final List<String> papaGrahaViolations;
+  final String status;
+  final String reason;
+
+  const MuhurthaLagnaEvaluation({
+    required this.lagnaRasi,
+    required this.lagnaIndex,
+    required this.lagnaDegreeStr,
+    required this.isLagnaSuitable,
+    required this.lagnaLord,
+    required this.lagnaLordStrength,
+    required this.lagnaLordReason,
+    required this.house7Checked,
+    required this.house7Reason,
+    required this.house8Checked,
+    required this.house8Reason,
+    required this.marsCheck,
+    required this.saturnCheck,
+    required this.rahuCheck,
+    required this.ketuCheck,
+    required this.isClean,
+    required this.papaGrahaViolations,
+    required this.status,
+    required this.reason,
+  });
+}
+
+// ===============================================================
+// EXISTING / COMPATIBILITY MODELS
+// ===============================================================
 
 /// Panchanga Five Angas evaluation result
 class PanchangaAngasResult {
@@ -274,6 +534,7 @@ class SubhaTimeWindow {
   final String panchakaName;
   final double suitabilityScore; // 0..100
   final List<String> reasons;
+  final MuhurthaLagnaEvaluation? lagnaEvaluation;
 
   const SubhaTimeWindow({
     required this.start,
@@ -284,6 +545,7 @@ class SubhaTimeWindow {
     required this.panchakaName,
     required this.suitabilityScore,
     required this.reasons,
+    this.lagnaEvaluation,
   });
 }
 
@@ -318,6 +580,14 @@ class MuhurthaResult {
   final List<SubhaTimeWindow> validWindows;
   final String summaryVerdict;
 
+  // Transparent 4-Level Evaluation Hierarchy
+  final DaySuitabilityLevel1 level1Day;
+  final AvoidanceLevel2 level2Avoidance;
+  final JathagaLevel3? level3Jathaga;
+  final SubhaMuhurthamRules rules;
+  final MuhurthamRulePreset rulePreset;
+  final String? conflictNote;
+
   const MuhurthaResult({
     required this.date,
     required this.location,
@@ -343,5 +613,17 @@ class MuhurthaResult {
     required this.inauspiciousPeriods,
     required this.validWindows,
     required this.summaryVerdict,
+    required this.level1Day,
+    required this.level2Avoidance,
+    this.level3Jathaga,
+    required this.rules,
+    required this.rulePreset,
+    this.conflictNote,
   });
+
+  /// Convenience getters distinguishing the evaluation layers
+  bool get isGeneralDaySuitable => level1Day.isLevel1Passed && level2Avoidance.isLevel2Passed;
+  bool get isPersonSuitable => level3Jathaga == null || level3Jathaga!.isLevel3Passed;
+  bool get hasMuhurthaTimeWindows => validWindows.isNotEmpty;
+  bool get isOverallSubhaMuhurthamDay => isGeneralDaySuitable && isPersonSuitable && hasMuhurthaTimeWindows;
 }

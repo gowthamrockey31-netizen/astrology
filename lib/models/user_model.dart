@@ -21,6 +21,7 @@ class UserModel {
   final double latitude;
   final double longitude;
   final double timezone;
+  final String relationship; // Self, Father, Mother, Spouse, Child, Brother, Sister, Other
 
   UserModel({
     required this.id,
@@ -44,10 +45,14 @@ class UserModel {
     this.latitude = 13.0827,
     this.longitude = 80.2707,
     this.timezone = 5.5,
+    this.relationship = 'Self',
   });
 
   /// Check if user has Admin privileges
   bool get isAdmin => role.toLowerCase() == 'admin';
+
+  /// Convenient alias for timeOfBirth
+  String get tob => timeOfBirth;
 
   /// Automatically calculate age from DOB
   int get calculatedAge {
@@ -62,6 +67,33 @@ class UserModel {
       return age < 0 ? 0 : age;
     } catch (_) {
       return 28;
+    }
+  }
+
+  /// Exact DateTime of birth combining dob and timeOfBirth
+  DateTime get birthDateTime {
+    try {
+      final dateParts = dob.split('-');
+      final year = int.parse(dateParts[0]);
+      final month = int.parse(dateParts[1]);
+      final day = int.parse(dateParts[2]);
+
+      int hour = 12;
+      int min = 0;
+      final t = timeOfBirth.trim().toUpperCase();
+      if (t.contains(':')) {
+        final isPm = t.contains('PM');
+        final isAm = t.contains('AM');
+        final cleanT = t.replaceAll('AM', '').replaceAll('PM', '').trim();
+        final tp = cleanT.split(':');
+        hour = int.tryParse(tp[0]) ?? 12;
+        min = int.tryParse(tp.length > 1 ? tp[1] : '0') ?? 0;
+        if (isPm && hour < 12) hour += 12;
+        if (isAm && hour == 12) hour = 0;
+      }
+      return DateTime(year, month, day, hour, min);
+    } catch (_) {
+      return DateTime(2000, 1, 1, 12, 0);
     }
   }
 
@@ -88,6 +120,7 @@ class UserModel {
       'latitude': latitude,
       'longitude': longitude,
       'timezone': timezone,
+      'relationship': relationship,
     };
   }
 
@@ -114,12 +147,15 @@ class UserModel {
       latitude: (map['latitude'] as num?)?.toDouble() ?? 13.0827,
       longitude: (map['longitude'] as num?)?.toDouble() ?? 80.2707,
       timezone: (map['timezone'] as num?)?.toDouble() ?? 5.5,
+      relationship: map['relationship'] ?? 'Self',
     );
   }
 
   UserModel copyWith({
+    String? id,
     String? name,
     String? mobile,
+    String? email,
     String? gender,
     String? dob,
     String? timeOfBirth,
@@ -137,12 +173,13 @@ class UserModel {
     double? latitude,
     double? longitude,
     double? timezone,
+    String? relationship,
   }) {
     return UserModel(
-      id: id,
+      id: id ?? this.id,
       name: name ?? this.name,
       mobile: mobile ?? this.mobile,
-      email: email,
+      email: email ?? this.email,
       gender: gender ?? this.gender,
       dob: dob ?? this.dob,
       timeOfBirth: timeOfBirth ?? this.timeOfBirth,
@@ -160,6 +197,7 @@ class UserModel {
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       timezone: timezone ?? this.timezone,
+      relationship: relationship ?? this.relationship,
     );
   }
 }

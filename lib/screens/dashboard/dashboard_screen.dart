@@ -20,6 +20,8 @@ import 'package:astrocall/screens/login/login_screen.dart';
 import 'package:astrocall/screens/magazine/magazine_feed_screen.dart';
 import 'package:astrocall/kp_method_model_1/kp_method_model_1.dart';
 import 'package:astrocall/widgets/jamakkol_dashboard_card.dart';
+import 'package:astrocall/services/profile_service.dart';
+import 'package:astrocall/widgets/profile/family_profiles_sheet.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -44,6 +46,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _loadAstrologers();
+    ProfileService().addListener(_onProfileChanged);
+  }
+
+  @override
+  void dispose() {
+    ProfileService().removeListener(_onProfileChanged);
+    super.dispose();
+  }
+
+  void _onProfileChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadAstrologers() async {
@@ -229,6 +242,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildBannerCard().animate().fade(duration: 800.ms).slideY(begin: 0.1, end: 0),
+          const SizedBox(height: 16),
+          // Family Profiles Switcher Banner (Priority 4 — Req 15, 16, 17, 18)
+          _buildFamilyProfilesBar().animate().fade(delay: 50.ms).slideY(begin: 0.08, end: 0),
           const SizedBox(height: 18),
           JamakkolDashboardCard(
             onTap: () => Navigator.of(context).pushNamed('/jamakkol_prasannam'),
@@ -261,6 +277,194 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildFamilyProfilesBar() {
+    final profileService = ProfileService();
+    final profiles = profileService.profiles;
+    final active = profileService.activeProfile ?? AuthService.currentUser;
+    final activeId = profileService.activeProfileId;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.cardSurface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.primaryGold.withOpacity(0.5), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryGold.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryGold.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.people_alt_rounded, color: AppColors.lightGold, size: 18),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'குடும்ப ஜாதகங்கள் (Family Profiles)',
+                        style: GoogleFonts.cinzel(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.lightGold,
+                        ),
+                      ),
+                      Text(
+                        'அதிகபட்சம் 5 ஜாதகங்கள் (${profiles.length}/5 சேமிக்கப்பட்டது)',
+                        style: GoogleFonts.outfit(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              InkWell(
+                onTap: () => FamilyProfilesSheet.show(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryGold,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.manage_accounts_rounded, size: 14, color: AppColors.backgroundDeep),
+                      const SizedBox(width: 4),
+                      Text(
+                        'மேலாண்மை',
+                        style: GoogleFonts.outfit(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.backgroundDeep,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          const Divider(color: Colors.white10, height: 1),
+          const SizedBox(height: 10),
+
+          // Active Profile details row
+          if (active != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                children: [
+                  const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 16),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        style: GoogleFonts.outfit(fontSize: 12, color: Colors.white),
+                        children: [
+                          const TextSpan(text: 'செயலில் உள்ள ஜாதகம்: ', style: TextStyle(color: Colors.white70)),
+                          TextSpan(
+                            text: '${active.name} (${active.relationship.isNotEmpty ? active.relationship : "Self"})',
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                          ),
+                          TextSpan(
+                            text: ' • ராசி: ${active.zodiac} • லக்னம்: ${active.lagna}',
+                            style: const TextStyle(color: Colors.white60, fontSize: 11),
+                          ),
+                        ],
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          // Horizontal Profile Switcher Chips (Requirement 17)
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: Row(
+              children: [
+                ...profiles.map((p) {
+                  final isSelected = p.id == activeId;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      selected: isSelected,
+                      selectedColor: AppColors.primaryGold,
+                      backgroundColor: AppColors.backgroundMid,
+                      side: BorderSide(
+                        color: isSelected ? AppColors.primaryGold : Colors.white12,
+                        width: isSelected ? 1.5 : 1,
+                      ),
+                      avatar: CircleAvatar(
+                        radius: 9,
+                        backgroundColor: isSelected ? AppColors.backgroundDeep : AppColors.primaryGold,
+                        child: Icon(
+                          isSelected ? Icons.check : Icons.person,
+                          size: 10,
+                          color: isSelected ? AppColors.primaryGold : AppColors.backgroundDeep,
+                        ),
+                      ),
+                      label: Text(
+                        '${p.name} (${p.relationship.isNotEmpty ? p.relationship : "Self"})',
+                        style: GoogleFonts.outfit(
+                          fontSize: 12,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected ? AppColors.backgroundDeep : Colors.white,
+                        ),
+                      ),
+                      onSelected: (val) async {
+                        if (val) {
+                          await profileService.selectProfile(p.id);
+                          if (mounted) setState(() {});
+                        }
+                      },
+                    ),
+                  );
+                }),
+                if (profiles.length < ProfileService.maxProfiles)
+                  ActionChip(
+                    backgroundColor: Colors.transparent,
+                    side: BorderSide(color: AppColors.primaryGold.withOpacity(0.6)),
+                    avatar: const Icon(Icons.add, size: 14, color: AppColors.lightGold),
+                    label: Text(
+                      'புதிய ஜாதகம் (+)',
+                      style: GoogleFonts.outfit(
+                        fontSize: 12,
+                        color: AppColors.lightGold,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onPressed: () => FamilyProfilesSheet.show(context),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildModuleSwitchSection() {
     final role = AuthService.activeRole;
     final List<Map<String, dynamic>> allModules = [
@@ -270,6 +474,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         {'title': 'Admin Control Panel', 'sub': 'CMS & Approvals', 'icon': Icons.admin_panel_settings_rounded, 'route': '/admin_dashboard', 'color': AppColors.blueAccent},
         {'title': 'உலகியல் ஜோதிடம்', 'sub': 'Mundane Astrology', 'icon': Icons.public_rounded, 'route': '/mundane_astrology', 'color': Colors.indigo.shade900},
       ],
+      {'title': 'குடும்ப ஜாதகங்கள்', 'sub': 'Max 5 Offline Family Profiles', 'icon': Icons.people_alt_rounded, 'route': '/family_profiles', 'color': Colors.teal.shade800},
       {'title': 'ஜாமக்கோள் பிரசன்னம்', 'sub': 'Jamakkol Prasannam Module', 'icon': Icons.explore_rounded, 'route': '/jamakkol_prasannam', 'color': Colors.amber.shade900},
       {'title': 'KP Method Model 1', 'sub': 'KP Astrology Calculation & Analysis', 'icon': Icons.auto_awesome, 'route': '/kp_method_model_1', 'color': Colors.purple.shade900},
       {'title': 'KP Method 2', 'sub': 'கே.பி முறை 2 - அட்வான்டேஜ் விதிமுறை', 'icon': Icons.stars_rounded, 'route': '/kp_method_2', 'color': Colors.deepPurple.shade900},
@@ -293,7 +498,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       {'title': 'ஆயுள் கணிதம்', 'sub': 'Pindayu Longevity', 'icon': Icons.health_and_safety_rounded, 'route': '/longevity', 'color': Colors.green.shade800},
       {'title': 'Daily Horoscopes', 'sub': '12 Zodiac Signs', 'icon': Icons.brightness_7_rounded, 'route': '/horoscope', 'color': Colors.amber.shade900},
       {'title': 'Live Panchangam', 'sub': 'Tithi & Rahu Kalam', 'icon': Icons.calendar_month_rounded, 'route': '/panchang', 'color': Colors.deepOrange.shade900},
-      {'title': 'சுப முகூர்த்தம்', 'sub': 'Professional நல்ல நேரம்', 'icon': Icons.hourglass_top_rounded, 'route': '/professional_muhurtha', 'color': Colors.amber.shade900},
+      {'title': 'சுப முகூர்த்தம்', 'sub': 'Subha Muhurtham Calculator', 'icon': Icons.hourglass_top_rounded, 'route': '/professional_muhurtha', 'color': Colors.amber.shade900},
       {'title': 'அயன கால கணிப்பு', 'sub': 'உத்தராயணம் / தட்சிணாயணம்', 'icon': Icons.brightness_6_rounded, 'route': '/ayana_kala', 'color': Colors.amber.shade900},
       {'title': 'தனிஷ்டா பஞ்சமி', 'sub': 'திதி அடைப்பு கணிதம்', 'icon': Icons.hourglass_bottom_rounded, 'route': '/dhanishta_panchami', 'color': Colors.deepOrange.shade900},
       {'title': 'AI Horoscope Guru', 'sub': 'Ask AI Assistant', 'icon': Icons.smart_toy_rounded, 'route': '/ai_assistant', 'color': Colors.indigo.shade900},
@@ -400,6 +605,82 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _buildSectionHeader(
             title: "Consult Astrologers",
             tamilTitle: "ஜோதிட ஆலோசனை",
+          ),
+          const SizedBox(height: 14),
+
+          // 4-Slot Quick Consultation Action Banner
+          InkWell(
+            onTap: () => Navigator.of(context).pushNamed('/quick_consultation'),
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primaryGold.withOpacity(0.18),
+                    AppColors.cardSurface,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.primaryGold, width: 1.2),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryGold.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryGold.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.dashboard_customize_rounded, color: AppColors.lightGold, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '4-ஸ்லாட் விரைவு ஆலோசனை பார்வை',
+                          style: GoogleFonts.cinzel(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.lightGold,
+                          ),
+                        ),
+                        Text(
+                          'Slot 1: விபரம் • Slot 2: ராசி • Slot 3: KP • Slot 4: தசா',
+                          style: GoogleFonts.outfit(fontSize: 11, color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryGold,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      'திறக்க',
+                      style: GoogleFonts.outfit(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.backgroundDeep,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           if (_astrologers.isEmpty)
@@ -689,10 +970,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 18),
 
+          // Family Profiles Switcher & Management inside Profile Tab
+          _buildFamilyProfilesBar(),
+
+          const SizedBox(height: 18),
 
           // Profile Menu Items
+          _buildProfileMenuItem(
+            Icons.people_alt_rounded,
+            "குடும்ப ஜாதகங்கள் (Family Profiles - Max 5)",
+            subtitle: "Offline Saved Profiles, Switching & Local Storage",
+            onTap: () => Navigator.of(context).pushNamed('/family_profiles'),
+          ),
+          _buildProfileMenuItem(
+            Icons.dashboard_customize_rounded,
+            "4-ஸ்லாட் விரைவு ஆலோசனை (4-Slot Quick Consultation)",
+            subtitle: "Slot 1: Info, Slot 2: Rasi, Slot 3: KP Sub-Lord, Slot 4: Dasa",
+            onTap: () => Navigator.of(context).pushNamed('/quick_consultation'),
+          ),
+          _buildProfileMenuItem(
+            Icons.manage_accounts_rounded,
+            "Edit Active Horoscope Profile",
+            subtitle: "Update birth date, time, place and coordinates",
+            onTap: () => Navigator.of(context).pushNamed('/profile'),
+          ),
           _buildProfileMenuItem(Icons.history_rounded, "My Consultations & History"),
           _buildProfileMenuItem(Icons.description_outlined, "Saved Birth Charts & Reports"),
           _buildProfileMenuItem(Icons.card_membership_rounded, "Astrogen VIP Membership"),
@@ -721,29 +1024,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-
-  Widget _buildProfileMenuItem(IconData icon, String title) {
+  Widget _buildProfileMenuItem(
+    IconData icon,
+    String title, {
+    String? subtitle,
+    VoidCallback? onTap,
+    Widget? trailing,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       child: AstroCard(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         hasGlow: false,
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Opening $title..."), backgroundColor: AppColors.backgroundMid),
-          );
-        },
+        onTap: onTap ??
+            () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Opening $title..."), backgroundColor: AppColors.backgroundMid),
+              );
+            },
         child: Row(
           children: [
             Icon(icon, color: AppColors.lightGold, size: 22),
             const SizedBox(width: 14),
             Expanded(
-              child: Text(
-                title,
-                style: GoogleFonts.poppins(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 11),
+                    ),
+                  ],
+                ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, color: AppColors.lightGold, size: 14),
+            trailing ?? const Icon(Icons.arrow_forward_ios, color: AppColors.lightGold, size: 14),
           ],
         ),
       ),
@@ -998,6 +1319,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Navigator.of(context).pushNamed('/tamil_month_calendar');
             } else if (service.id == 'birth_chart') {
               Navigator.of(context).pushNamed('/birth_chart');
+            } else if (service.id == 'quick_consultation') {
+              Navigator.of(context).pushNamed('/quick_consultation');
+            } else if (service.id == 'family_profiles') {
+              Navigator.of(context).pushNamed('/family_profiles');
             }
           },
           child: Column(

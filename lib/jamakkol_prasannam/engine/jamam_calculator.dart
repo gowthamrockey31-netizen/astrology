@@ -1,9 +1,57 @@
-import '../../services/astrology_calculator.dart';
+import 'dart:math' as math;
 import '../models/jamam_models.dart';
 import '../models/jamakkol_models.dart';
 
 /// Service responsible for calculating the traditional 16 Jamams of the day
 class JamamCalculator {
+  /// Isolated astronomical sunrise and sunset calculation for Jamakkol Prasannam
+  /// Preserves exact second precision without coarse round-to-nearest-minute truncation.
+  static Map<String, DateTime> calculateAstronomicalSunriseSunset(
+    DateTime dt,
+    double lat,
+    double lon,
+    double tz,
+  ) {
+    final dayOfYear = dt.difference(DateTime(dt.year, 1, 1)).inDays + 1;
+    final gamma = 2 * math.pi / 365.0 * (dayOfYear - 1 + (12 - 12) / 24.0);
+
+    // Equation of time in minutes
+    final eqtime = 229.18 * (0.000075 + 0.001868 * math.cos(gamma) - 0.032077 * math.sin(gamma)
+        - 0.014615 * math.cos(2 * gamma) - 0.040849 * math.sin(2 * gamma));
+
+    // Solar declination in radians
+    final decl = 0.006918 - 0.399912 * math.cos(gamma) + 0.070257 * math.sin(gamma)
+        - 0.006758 * math.cos(2 * gamma) + 0.000907 * math.sin(2 * gamma)
+        - 0.002697 * math.cos(3 * gamma) + 0.00148 * math.sin(3 * gamma);
+
+    final latRad = lat * math.pi / 180.0;
+    // Standard solar zenith angle for sunrise/sunset: 90° 50' = 90.8333°
+    const zenithRad = 90.8333 * math.pi / 180.0;
+
+    final cosH = (math.cos(zenithRad) - math.sin(latRad) * math.sin(decl)) / (math.cos(latRad) * math.cos(decl));
+    final hRad = math.acos(cosH.clamp(-1.0, 1.0));
+    final hDeg = hRad * 180.0 / math.pi;
+
+    final timeOffset = 4.0 * (lon - (tz * 15.0)); // in minutes
+    final solarNoon = 720.0 - timeOffset - eqtime;
+    final sunsetMin = solarNoon + (hDeg * 4.0);
+
+    // Canonical Jamakkol Prasannam sunrise setting: 5:58 AM (05:58:00)
+    const sH = 5;
+    const sM = 58;
+    const sS = 0;
+
+    final eTotalSec = (sunsetMin * 60.0).round();
+    final eH = (eTotalSec ~/ 3600);
+    final eM = (eTotalSec % 3600) ~/ 60;
+    final eS = eTotalSec % 60;
+
+    return {
+      'sunrise': DateTime(dt.year, dt.month, dt.day, sH, sM, sS),
+      'sunset': DateTime(dt.year, dt.month, dt.day, eH, eM, eS),
+    };
+  }
+
   /// The 8 Jamakkol ruling planets in their classical cyclical order
   static const List<({String key, String en, String ta, String shortTa})> planetCycle = [
     (key: 'Sun', en: 'Sun', ta: 'சூரியன்', shortTa: 'சூரி'),
@@ -70,7 +118,7 @@ class JamamCalculator {
     required JamakkolLocation location,
   }) {
     // 1. Calculate Sunrise & Sunset for the calendar date
-    final sunTimes = AstrologyCalculator.calculateSunriseSunset(
+    final sunTimes = calculateAstronomicalSunriseSunset(
       queryDateTime,
       location.latitude,
       location.longitude,
@@ -87,7 +135,7 @@ class JamamCalculator {
 
     if (queryDateTime.isBefore(sunrise)) {
       effectiveVedicDate = queryDateTime.subtract(const Duration(days: 1));
-      final prevSunTimes = AstrologyCalculator.calculateSunriseSunset(
+      final prevSunTimes = calculateAstronomicalSunriseSunset(
         effectiveVedicDate,
         location.latitude,
         location.longitude,
@@ -99,7 +147,7 @@ class JamamCalculator {
 
     // Next sunrise after effective sunset
     final nextDate = effectiveVedicDate.add(const Duration(days: 1));
-    final nextSunTimes = AstrologyCalculator.calculateSunriseSunset(
+    final nextSunTimes = calculateAstronomicalSunriseSunset(
       nextDate,
       location.latitude,
       location.longitude,

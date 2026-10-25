@@ -132,7 +132,7 @@ class GowriPanchangamEngine {
       GowriType.soram,
       GowriType.visham,
     ],
-    // 1: Monday (அமிர்தம், விஷம், ரோகம், லாபம், தனம், சுகம், சோரம், விஷம்)
+    // 1: Monday (அமிர்தம், விஷம், ரோகம், லாபம், தனம், சுகம், சோரம், உத்தி)
     1: [
       GowriType.amirtham,
       GowriType.visham,
@@ -141,53 +141,53 @@ class GowriPanchangamEngine {
       GowriType.dhanam,
       GowriType.sugam,
       GowriType.soram,
-      GowriType.visham,
+      GowriType.uthi,
     ],
-    // 2: Tuesday (ரோகம், லாபம், தனம், சுகம், விஷம், உத்தி, சோரம், அமிர்தம்)
+    // 2: Tuesday (ரோகம், லாபம், தனம், சுகம், சோரம், உத்தி, விஷம், அமிர்தம்)
     2: [
       GowriType.rogam,
       GowriType.labham,
       GowriType.dhanam,
       GowriType.sugam,
-      GowriType.visham,
-      GowriType.uthi,
       GowriType.soram,
+      GowriType.uthi,
+      GowriType.visham,
       GowriType.amirtham,
     ],
-    // 3: Wednesday (லாபம், தனம், சுகம், விஷம், சோரம், அமிர்தம், உத்தி, ரோகம்)
+    // 3: Wednesday (லாபம், தனம், சுகம், சோரம், விஷம், உத்தி, அமிர்தம், ரோகம்)
     3: [
       GowriType.labham,
       GowriType.dhanam,
       GowriType.sugam,
-      GowriType.visham,
       GowriType.soram,
-      GowriType.amirtham,
+      GowriType.visham,
       GowriType.uthi,
+      GowriType.amirtham,
       GowriType.rogam,
     ],
-    // 4: Thursday (தனம், சுகம், சோரம், அமிர்தம், உத்தி, விஷம், ரோகம், லாபம்)
+    // 4: Thursday (தனம், சுகம், சோரம், உத்தி, அமிர்தம், விஷம், ரோகம், லாபம்)
     4: [
       GowriType.dhanam,
       GowriType.sugam,
       GowriType.soram,
-      GowriType.amirtham,
       GowriType.uthi,
+      GowriType.amirtham,
       GowriType.visham,
       GowriType.rogam,
       GowriType.labham,
     ],
-    // 5: Friday (சுகம், சோரம், உத்தி, விஷம், அமிர்தம், தனம், லாபம், தனம்)
+    // 5: Friday (சுகம், சோரம், உத்தி, விஷம், அமிர்தம், ரோகம், லாபம், தனம்)
     5: [
       GowriType.sugam,
       GowriType.soram,
       GowriType.uthi,
       GowriType.visham,
       GowriType.amirtham,
-      GowriType.dhanam,
+      GowriType.rogam,
       GowriType.labham,
       GowriType.dhanam,
     ],
-    // 6: Saturday (சோரம், உத்தி, விஷம், அமிர்தம், ரோகம், லாபம், சுகம், உத்தி)
+    // 6: Saturday (சோரம், உத்தி, விஷம், அமிர்தம், ரோகம், லாபம், தனம், சுகம்)
     6: [
       GowriType.soram,
       GowriType.uthi,
@@ -195,8 +195,8 @@ class GowriPanchangamEngine {
       GowriType.amirtham,
       GowriType.rogam,
       GowriType.labham,
+      GowriType.dhanam,
       GowriType.sugam,
-      GowriType.uthi,
     ],
   };
 
@@ -213,46 +213,46 @@ class GowriPanchangamEngine {
       GowriType.rogam,
       GowriType.labham,
     ],
-    // 1: Monday (சுகம், சோரம், உத்தி, அமிர்தம், ரோகம், விஷம், தனம், அமிர்தம்)
+    // 1: Monday (சுகம், சோரம், உத்தி, அமிர்தம், விஷம், ரோகம், லாபம், தனம்)
     1: [
       GowriType.sugam,
       GowriType.soram,
       GowriType.uthi,
       GowriType.amirtham,
-      GowriType.rogam,
       GowriType.visham,
+      GowriType.rogam,
+      GowriType.labham,
       GowriType.dhanam,
-      GowriType.amirtham,
     ],
-    // 2: Tuesday (சோரம், உத்தி, சோரம், அமிர்தம், சோரம், லாபம், சுகம், விஷம்)
+    // 2: Tuesday (சோரம், உத்தி, விஷம், அமிர்தம், ரோகம், லாபம், தனம், சுகம்)
     2: [
       GowriType.soram,
       GowriType.uthi,
-      GowriType.soram,
-      GowriType.amirtham,
-      GowriType.soram,
-      GowriType.labham,
-      GowriType.sugam,
       GowriType.visham,
+      GowriType.amirtham,
+      GowriType.rogam,
+      GowriType.labham,
+      GowriType.dhanam,
+      GowriType.sugam,
     ],
-    // 3: Wednesday (உத்தி, அமிர்தம், ரோகம், லாபம், சுகம், தனம், விஷம், ரோகம்)
+    // 3: Wednesday (உத்தி, அமிர்தம், ரோகம், லாபம், தனம், சுகம், சோரம், விஷம்)
     3: [
       GowriType.uthi,
       GowriType.amirtham,
       GowriType.rogam,
       GowriType.labham,
-      GowriType.sugam,
       GowriType.dhanam,
+      GowriType.sugam,
+      GowriType.soram,
       GowriType.visham,
-      GowriType.rogam,
     ],
-    // 4: Thursday (அமிர்தம், ரோகம், விஷம், தனம், லாபம், சுகம், சோரம், உத்தி)
+    // 4: Thursday (அமிர்தம், விஷம், ரோகம், லாபம், தனம், சுகம், சோரம், உத்தி)
     4: [
       GowriType.amirtham,
-      GowriType.rogam,
       GowriType.visham,
-      GowriType.dhanam,
+      GowriType.rogam,
       GowriType.labham,
+      GowriType.dhanam,
       GowriType.sugam,
       GowriType.soram,
       GowriType.uthi,
@@ -268,20 +268,24 @@ class GowriPanchangamEngine {
       GowriType.visham,
       GowriType.amirtham,
     ],
-    // 6: Saturday (லாபம், தனம், சுகம், விஷம், உத்தி, சோரம், அமிர்தம், ரோகம்)
+    // 6: Saturday (லாபம், தனம், சுகம், சோரம், உத்தி, விஷம், அமிர்தம், ரோகம்)
     6: [
       GowriType.labham,
       GowriType.dhanam,
       GowriType.sugam,
-      GowriType.visham,
-      GowriType.uthi,
       GowriType.soram,
+      GowriType.uthi,
+      GowriType.visham,
       GowriType.amirtham,
       GowriType.rogam,
     ],
   };
 
   /// Calculate Day Gowri periods from Sunrise to Sunset divided into 8 equal parts
+  /// 1. Sunrise → Sunrise + 1 period
+  /// 2. Period 1 end → Period 2 end
+  /// ...
+  /// 8. Period 7 end → Sunset
   static List<GowriPeriod> calculateDayGowriPeriods({
     required DateTime sunrise,
     required DateTime sunset,
@@ -295,28 +299,38 @@ class GowriPanchangamEngine {
     final List<GowriPeriod> list = [];
 
     final now = currentTime ?? DateTime.now();
+    DateTime currentStart = sunrise;
 
     for (int i = 0; i < 8; i++) {
-      final pStart = sunrise.add(Duration(minutes: (i * sliceMins).round()));
-      final pEnd = sunrise.add(Duration(minutes: ((i + 1) * sliceMins).round()));
+      // Period 1 ends at Sunrise + 1 period, ..., Period 8 ends exactly at Sunset
+      final DateTime currentEnd = (i == 7)
+          ? sunset
+          : sunrise.add(Duration(minutes: ((i + 1) * sliceMins).round()));
       final type = types[i];
-      final isCurrent = !now.isBefore(pStart) && now.isBefore(pEnd);
+      final isCurrent = !now.isBefore(currentStart) && now.isBefore(currentEnd);
 
       list.add(GowriPeriod(
+        periodNumber: i + 1,
         nameTa: type.tamilName,
-        timeRange: '${formatter.format(pStart)} - ${formatter.format(pEnd)}',
+        timeRange: '${formatter.format(currentStart)} - ${formatter.format(currentEnd)}',
         isGood: type.isGood,
         natureTa: type.natureTa,
-        startTime: pStart,
-        endTime: pEnd,
+        startTime: currentStart,
+        endTime: currentEnd,
+        isDay: true,
         isCurrent: isCurrent,
       ));
+
+      currentStart = currentEnd;
     }
     return list;
   }
 
   /// Calculate Night Gowri periods from Sunset to next day's Sunrise divided into 8 equal parts
   /// Important: Night belongs to the date on which the night starts
+  /// 1. Sunset → Sunset + 1 period
+  /// ...
+  /// 8. Period 7 end → Next Sunrise
   static List<GowriPeriod> calculateNightGowriPeriods({
     required DateTime sunset,
     required DateTime nextSunrise,
@@ -330,22 +344,29 @@ class GowriPanchangamEngine {
     final List<GowriPeriod> list = [];
 
     final now = currentTime ?? DateTime.now();
+    DateTime currentStart = sunset;
 
     for (int i = 0; i < 8; i++) {
-      final pStart = sunset.add(Duration(minutes: (i * sliceMins).round()));
-      final pEnd = sunset.add(Duration(minutes: ((i + 1) * sliceMins).round()));
+      // Period 1 ends at Sunset + 1 period, ..., Period 8 ends exactly at Next Sunrise
+      final DateTime currentEnd = (i == 7)
+          ? nextSunrise
+          : sunset.add(Duration(minutes: ((i + 1) * sliceMins).round()));
       final type = types[i];
-      final isCurrent = !now.isBefore(pStart) && now.isBefore(pEnd);
+      final isCurrent = !now.isBefore(currentStart) && now.isBefore(currentEnd);
 
       list.add(GowriPeriod(
+        periodNumber: i + 1,
         nameTa: type.tamilName,
-        timeRange: '${formatter.format(pStart)} - ${formatter.format(pEnd)}',
+        timeRange: '${formatter.format(currentStart)} - ${formatter.format(currentEnd)}',
         isGood: type.isGood,
         natureTa: type.natureTa,
-        startTime: pStart,
-        endTime: pEnd,
+        startTime: currentStart,
+        endTime: currentEnd,
+        isDay: false,
         isCurrent: isCurrent,
       ));
+
+      currentStart = currentEnd;
     }
     return list;
   }
@@ -356,6 +377,7 @@ class GowriPanchangamEngine {
     required List<GowriPeriod> nightPeriods,
     DateTime? currentTime,
     int? weekdayIndex,
+    DateTime? prevSunset,
   }) {
     final now = currentTime ?? DateTime.now();
 
@@ -391,11 +413,11 @@ class GowriPanchangamEngine {
       final todaySunrise = dayPeriods.first.startTime;
       final todaySunset = nightPeriods.first.startTime;
       if (todaySunrise != null && todaySunset != null && now.isBefore(todaySunrise)) {
-        final prevSunset = todaySunset.subtract(const Duration(days: 1));
+        final effectivePrevSunset = prevSunset ?? todaySunset.subtract(const Duration(days: 1));
         final effectiveWk = weekdayIndex ?? toGowriWeekdayIndex(todaySunrise.weekday);
         final prevWeekday = (effectiveWk - 1 + 7) % 7;
         final prevNightPeriods = calculateNightGowriPeriods(
-          sunset: prevSunset,
+          sunset: effectivePrevSunset,
           nextSunrise: todaySunrise,
           weekdayIndex: prevWeekday,
           currentTime: now,

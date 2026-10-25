@@ -7,6 +7,7 @@ import '../../models/consultation_model.dart';
 import '../../services/auth_service.dart';
 import '../../services/payment_service.dart';
 import '../../widgets/south_indian_jathagam_widget.dart';
+import '../../widgets/consultation/quick_consultation_view.dart';
 
 class ConsultationScreen extends StatefulWidget {
   final AstrologerModel astrologer;
@@ -139,6 +140,55 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
     );
   }
 
+  void _showQuickConsultationModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.92,
+          decoration: const BoxDecoration(
+            color: AppColors.backgroundDeep,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white30,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '4-Slot Quick Consultation View (விரைவு ஆலோசனை)',
+                      style: GoogleFonts.cinzel(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              const Expanded(
+                child: QuickConsultationView(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _showExtensionModal() {
     showDialog(
       context: context,
@@ -259,6 +309,11 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.dashboard_customize_rounded, color: AppColors.lightGold),
+            tooltip: '4-Slot Quick Consultation View (4-ஸ்லாட் விரைவு ஆலோசனை)',
+            onPressed: _showQuickConsultationModal,
+          ),
+          IconButton(
             icon: const Icon(Icons.grid_on_rounded, color: AppColors.lightGold),
             tooltip: 'View Birth Chart (ராசி & நவாம்சம்)',
             onPressed: _showJathagamModal,
@@ -304,6 +359,15 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                CircleAvatar(
+                  radius: 25,
+                  backgroundColor: AppColors.primaryGold.withOpacity(0.25),
+                  child: IconButton(
+                    icon: const Icon(Icons.dashboard_customize_rounded, color: AppColors.lightGold),
+                    tooltip: '4-Slot Quick Consultation View',
+                    onPressed: _showQuickConsultationModal,
+                  ),
+                ),
                 CircleAvatar(
                   radius: 25,
                   backgroundColor: AppColors.primaryGold.withOpacity(0.25),
@@ -374,7 +438,19 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
               'Analysis Time Remaining: ${aMinutes.toString().padLeft(2, '0')}:${aSeconds.toString().padLeft(2, '0')}',
               style: GoogleFonts.cinzel(fontSize: 18, color: AppColors.lightGold, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.backgroundMid,
+                side: const BorderSide(color: AppColors.primaryGold),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              icon: const Icon(Icons.dashboard_customize_rounded, color: AppColors.lightGold),
+              label: Text('Open 4-Slot Quick Consultation View', style: GoogleFonts.outfit(color: AppColors.lightGold, fontWeight: FontWeight.bold)),
+              onPressed: _showQuickConsultationModal,
+            ),
+            const SizedBox(height: 12),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryGold,

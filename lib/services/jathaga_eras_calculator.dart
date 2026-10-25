@@ -28,7 +28,7 @@ class JathagaErasCalculator {
 
     // 4. Kali Yugadhi Year
     // New year around April 14
-    int kaliyugadhiYear = gregorianYear + 3101;
+    int kaliyugadhiYear = gregorianYear + 3102;
     if (month < 4 || (month == 4 && day < 14)) {
       kaliyugadhiYear -= 1;
     }

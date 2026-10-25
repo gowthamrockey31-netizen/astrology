@@ -4,11 +4,15 @@ import '../../services/panchanga_provider.dart';
 import '../../services/swiss_ephemeris_calculator.dart';
 import '../../services/tithi_calculator.dart';
 import 'professional_muhurtha_models.dart';
+import 'subha_muhurtham_rules.dart';
 
 /// Authoritative Subha Muhurtham Calculation Engine
-/// Consumes the existing Swiss Ephemeris and Panchanga engines
-/// Evaluates classical 5 Angas, Tara/Chandra/Guru/Surya Bala, Lagna Shuddhi,
-/// Panchaka Dosha, Visha Kadigai, Month Sunyam, Agni Nakshatra, and Abhijit Muhurtham.
+/// Consumes existing Swiss Ephemeris and Panchanga calculations
+/// Strictly evaluates:
+/// - Level 1: General Day Suitability (Vaaram, Tithi, Nakshatra, Yoga, Karana)
+/// - Level 2: Avoidance Rules (Aadi, Purattasi, Margazhi, Kari Naal, Rahu Kalam, Yamagandam, Kuligai)
+/// - Level 3: Person-Specific Suitability (Chandrashtama, Tarabalam, Guru Balam, Surya Balam)
+/// - Level 4: Muhurtham Time & Lagna Suitability (Lagna, Lagna Lord, 7th/8th house, Mars, Saturn, Rahu, Ketu)
 class ProfessionalMuhurthaEngine {
   static const List<String> rasiNamesTa = [
     'மேஷம்', 'ரிஷபம்', 'மிதுனம்', 'கடகம்',
@@ -27,7 +31,7 @@ class ProfessionalMuhurthaEngine {
   ];
 
   static const List<String> nakshatrasTa = [
-    'அஸ்வினி', 'பரணி', 'கார்த்திகை', 'ரோகிணி', 'மிருகசீரிஷம்',
+    'அசுவினி', 'பரணி', 'கார்த்திகை', 'ரோகிணி', 'மிருகசீரிஷம்',
     'திருவாதிரை', 'புனர்பூசம்', 'பூசம்', 'ஆயில்யம்', 'மகம்',
     'பூரம்', 'உத்திரம்', 'ஹஸ்தம்', 'சித்திரை', 'சுவாதி',
     'விசாகம்', 'அனுஷம்', 'கேட்டை', 'மூலம்', 'பூராடம்',
@@ -40,16 +44,12 @@ class ProfessionalMuhurthaEngine {
     'ஐப்பசி', 'கார்த்திகை', 'மார்கழி', 'தை', 'மாசி', 'பங்குனி'
   ];
 
-  /// The 16 classical Muhurtha suitable Nakshatras (0-indexed)
-  /// Ashwini (0), Rohini (3), Mrigashirsha (4), Punarvasu (6), Pushya (7),
-  /// Uttara Phalguni (11), Hasta (12), Chitra (13), Swati (14), Anuradha (16),
-  /// Uttara Ashadha (20), Shravana (21), Dhanishta (22), Shatabhisha (23),
-  /// Uttara Bhadrapada (25), Revati (26).
+  /// 16 Classical Suitable Nakshatras (0-indexed set)
   static const Set<int> suitableNakshatras = {
     0, 3, 4, 6, 7, 11, 12, 13, 14, 16, 20, 21, 22, 23, 25, 26
   };
 
-  /// Month Sunya Rasis (Masa Sunyam) in classical Tamil astrology (1..12 index)
+  /// Month Sunya Rasis (Masa Sunyam) in classical Tamil astrology
   static const Map<int, List<int>> monthSunyaRasiMap = {
     0: [9],        // Chithirai: Makaram (9)
     1: [8, 11],    // Vaikasi: Dhanusu (8), Meenam (11)
@@ -65,7 +65,7 @@ class ProfessionalMuhurthaEngine {
     11: [8, 5],    // Panguni: Dhanusu (8), Kanni (5)
   };
 
-  /// Traditional 27 Nakshatras Visha Nazhigai start points (out of 60 Nazhigais, span = 4 Nazhigais)
+  /// Traditional 27 Nakshatras Visha Nazhigai start points
   static const List<int> vishaNazhigaiStart = [
     50, // 0: Ashwini
     24, // 1: Bharani
@@ -107,14 +107,16 @@ class ProfessionalMuhurthaEngine {
     required GeoLocation location,
     required MuhurthaCategory category,
     BirthProfile? birthProfile,
+    SubhaMuhurthamRules? rules,
   }) {
+    final activeRules = rules ?? SubhaMuhurthamRules.defaultRules;
     final cleanDate = DateTime(date.year, date.month, date.day, 12, 0);
 
-    // 1. Julian Day & Ayanamsa
+    // 1. Julian Day & Ayanamsa from existing Swiss Ephemeris engine
     final jd = SwissEphemerisCalculator.getJulianDay(cleanDate, utcOffsetHours: location.timeZone);
     final ayanamsa = SwissEphemerisCalculator.calculateLahiriAyanamsa(jd);
 
-    // 2. Accurate Planetary Positions
+    // 2. Accurate Planetary Positions from existing Swiss Ephemeris engine
     final planets = SwissEphemerisCalculator.calculatePlanetaryPositions(
       jd: jd,
       ayanamsa: ayanamsa,
@@ -123,7 +125,7 @@ class ProfessionalMuhurthaEngine {
     final moonLong = planets['Moon']!.longitude;
     final jupiterLong = planets['Jupiter']!.longitude;
 
-    // 3. Exact Sunrise & Sunset
+    // 3. Exact Sunrise & Sunset from existing shared engine
     final sunTimes = AstrologyCalculator.calculateSunriseSunset(
       cleanDate,
       location.latitude,
@@ -134,21 +136,13 @@ class ProfessionalMuhurthaEngine {
     final sunset = sunTimes['sunset']!;
     final solarNoon = sunrise.add(Duration(milliseconds: (sunset.difference(sunrise).inMilliseconds / 2).round()));
 
-    // 4. Tamil Date
+    // 4. Tamil Solar Calendar Date
     final sunRasiIdx = (sunLong / 30.0).floor() % 12;
     final tamilMonthIdx = sunRasiIdx;
     final tamilMonth = tamilMonths[tamilMonthIdx];
     final tamilDay = (sunLong % 30.0).floor() + 1;
     final int tamilYearCycle = ((cleanDate.year - 1987) % 60 + 60) % 60;
     final String tamilYearName = AstronomicalPanchangaProvider.tamilYearsTa[tamilYearCycle];
-
-    // Month Preferences
-    // Generally avoided for major Subha Karyas: Aadi (3), Margazhi (8), Purattasi (5), Masi (10)
-    final bool isMonthAvoided = (tamilMonthIdx == 3 || tamilMonthIdx == 5 || tamilMonthIdx == 8 || tamilMonthIdx == 10);
-    final bool isMonthPreferred = !isMonthAvoided;
-    final String monthRestrictionReason = isMonthAvoided
-        ? '$tamilMonth மாதம் முக்கிய சுப காரியங்களுக்கு தவிர்க்கப்பட வேண்டிய மாதம் (Avoided Month)'
-        : '$tamilMonth மாதம் சுப காரியங்களுக்கு உகந்த மாதம் (Preferred Month)';
 
     // Month Sunyam Rasis
     final sunyaRasiIndices = monthSunyaRasiMap[tamilMonthIdx] ?? [];
@@ -160,15 +154,7 @@ class ProfessionalMuhurthaEngine {
         ? 'அக்னி நட்சத்திரம் (கத்திரி வெயில்) காலம் - பூமி பூஜை, வீடு கட்ட ஆரம்பிக்க தவிர்க்கவும்'
         : 'அக்னி நட்சத்திர பாதிப்பு இல்லை';
 
-    // 5. Five Angas
-    final angas = evaluateFiveAngas(
-      date: cleanDate,
-      sunLong: sunLong,
-      moonLong: moonLong,
-      category: category,
-    );
-
-    // 6. Inauspicious Periods Calculation
+    // 5. Inauspicious Periods Calculation
     final inauspiciousPeriods = calculateInauspiciousPeriods(
       sunrise: sunrise,
       sunset: sunset,
@@ -176,7 +162,84 @@ class ProfessionalMuhurthaEngine {
       moonLong: moonLong,
     );
 
-    // 7. Abhijit Muhurtham (8th of 15 daytime muhurthas)
+    // ===============================================================
+    // LEVEL 1: GENERAL DAY SUITABILITY EVALUATION
+    // ===============================================================
+    final level1Day = evaluateLevel1Day(
+      date: cleanDate,
+      sunLong: sunLong,
+      moonLong: moonLong,
+      category: category,
+      rules: activeRules,
+    );
+
+    // Compatibility angas result
+    final angas = PanchangaAngasResult(
+      tithiName: level1Day.tithi.tithiName,
+      tithiNumber: level1Day.tithi.tithiNumber,
+      paksha: level1Day.tithi.paksha,
+      isTithiPreferred: level1Day.tithi.isSuitable,
+      tithiReason: level1Day.tithi.reason,
+      weekdayName: level1Day.vaaram.weekdayName,
+      weekdayNumber: level1Day.vaaram.weekdayNumber,
+      isVaraPreferred: level1Day.vaaram.isSuitable,
+      varaReason: level1Day.vaaram.reason,
+      nakshatraName: level1Day.nakshatra.nakshatraName,
+      nakshatraIndex: level1Day.nakshatra.nakshatraIndex,
+      isNakshatraSuitable: level1Day.nakshatra.isSuitable,
+      nakshatraReason: level1Day.nakshatra.reason,
+      yogaName: level1Day.yoga.yogaName,
+      amirthathiYoga: level1Day.yoga.amirthathiYoga,
+      isYogaAuspicious: level1Day.yoga.isSuitable,
+      yogaReason: level1Day.yoga.reason,
+      karanaName: level1Day.karana.karanaName,
+      isKaranaAuspicious: level1Day.karana.isSuitable,
+      karanaReason: level1Day.karana.reason,
+    );
+
+    // ===============================================================
+    // LEVEL 2: AVOIDANCE RULES EVALUATION
+    // ===============================================================
+    final level2Avoidance = evaluateLevel2Avoidance(
+      tamilMonthIdx: tamilMonthIdx,
+      tamilMonth: tamilMonth,
+      tamilDay: tamilDay,
+      sunrise: sunrise,
+      sunset: sunset,
+      weekday: cleanDate.weekday,
+      inauspiciousPeriods: inauspiciousPeriods,
+      rules: activeRules,
+    );
+
+    final bool isMonthPreferred = level2Avoidance.monthCheck.isSuitable;
+    final String monthRestrictionReason = level2Avoidance.monthCheck.reason;
+
+    // ===============================================================
+    // LEVEL 3: PERSON-SPECIFIC JATHAGA EVALUATION
+    // ===============================================================
+    JathagaLevel3? level3Jathaga;
+    TaraBalaResult? taraBala;
+    ChandraBalaResult? chandraBala;
+    GuruBalaResult? guruBala;
+    SuryaBalaResult? suryaBala;
+
+    if (birthProfile != null) {
+      level3Jathaga = evaluateLevel3Jathaga(
+        birthProfile: birthProfile,
+        targetNakshatra: level1Day.nakshatra.nakshatraIndex,
+        moonLong: moonLong,
+        jupiterLong: jupiterLong,
+        sunLong: sunLong,
+        category: category,
+        rules: activeRules,
+      );
+      taraBala = level3Jathaga.tarabalam;
+      chandraBala = level3Jathaga.chandrashtama;
+      guruBala = level3Jathaga.guruBalam;
+      suryaBala = level3Jathaga.suryaBalam;
+    }
+
+    // Abhijit Muhurtham (8th of 15 daytime muhurthas)
     final dayMins = sunset.difference(sunrise).inMinutes;
     final double muhurthaLenMins = dayMins > 0 ? dayMins / 15.0 : 48.0;
     final DateTime abhijitStart = sunrise.add(Duration(minutes: (7 * muhurthaLenMins).round()));
@@ -192,35 +255,9 @@ class ProfessionalMuhurthaEngine {
       reasons: const ['மத்தியான அபிஜித் முகூர்த்தம் - அனைத்து தோஷங்களையும் போக்கும் உத்தம நேரம்'],
     );
 
-    // 8. Personal Balas (if Birth Profile is provided)
-    TaraBalaResult? taraBala;
-    ChandraBalaResult? chandraBala;
-    GuruBalaResult? guruBala;
-    SuryaBalaResult? suryaBala;
-
-    if (birthProfile != null) {
-      taraBala = evaluateTaraBala(
-        birthNakshatra: birthProfile.birthNakshatra,
-        targetNakshatra: angas.nakshatraIndex,
-      );
-
-      chandraBala = evaluateChandraBala(
-        birthRasi: birthProfile.birthRasi,
-        moonLong: moonLong,
-      );
-
-      guruBala = evaluateGuruBala(
-        birthRasi: birthProfile.birthRasi,
-        jupiterLong: jupiterLong,
-      );
-
-      suryaBala = evaluateSuryaBala(
-        birthRasi: birthProfile.birthRasi,
-        sunLong: sunLong,
-      );
-    }
-
-    // 9. Date-Wise Calculation: Continuous Valid Time Windows
+    // ===============================================================
+    // LEVEL 4: MUHURTHAM TIME & LAGNA EVALUATION
+    // ===============================================================
     final validWindows = calculateValidTimeWindows(
       cleanDate: cleanDate,
       sunrise: sunrise,
@@ -234,16 +271,37 @@ class ProfessionalMuhurthaEngine {
       inauspiciousPeriods: inauspiciousPeriods,
       sunyaRasiIndices: sunyaRasiIndices,
       isKathiriAgniActive: isKathiriAgniActive,
+      rules: activeRules,
     );
 
-    // Summary Verdict
+    // Transparent Summary Verdict
     String summaryVerdict;
-    if (chandraBala != null && chandraBala.isChandrashtama) {
-      summaryVerdict = 'சந்திராஷ்டம நாள் - இந்த நாளில் சுப முகூர்த்தம் அமைப்பது முற்றிலும் தவிர்க்கப்பட வேண்டும்.';
+    if (level3Jathaga != null && !level3Jathaga.isLevel3Passed) {
+      if (level3Jathaga.chandrashtama.isChandrashtama) {
+        summaryVerdict = 'சந்திராஷ்டம நாள் - ஜாதகருக்கு இந்த நாளில் சுப முகூர்த்தம் அமைப்பது முற்றிலும் தவிர்க்கப்பட வேண்டும்.';
+      } else {
+        summaryVerdict = 'தனிநபர் தாராபலன் அசுபமாக அமைந்துள்ளது (${level3Jathaga.tarabalam.taraName}). சுப காரியங்களை தவிர்க்கவும்.';
+      }
+    } else if (!level2Avoidance.isLevel2Passed) {
+      if (level2Avoidance.kariDayCheck.isKariDay) {
+        summaryVerdict = 'கரி நாள் (Kari Day) - பாரம்பரிய முறைப்படி இந்த நாளில் சுப முகூர்த்தம் வைக்கலாகாது.';
+      } else {
+        summaryVerdict = level2Avoidance.monthCheck.reason;
+      }
+    } else if (!level1Day.isLevel1Passed) {
+      summaryVerdict = 'பஞ்சாங்க அங்கங்களில் பொருத்தமின்மை: ${level1Day.summary}';
     } else if (validWindows.isNotEmpty) {
-      summaryVerdict = 'இந்த நாளில் ${validWindows.length} சுப முகூர்த்த நேர இடைவெளிகள் வெற்றிகரமாக கணக்கிடப்பட்டுள்ளன.';
+      summaryVerdict = 'உத்தம சுப முகூர்த்த நாள்! இந்த நாளில் ${validWindows.length} சுப முகூர்த்த லக்ன நேர இடைவெளிகள் கணக்கிடப்பட்டுள்ளன.';
     } else {
-      summaryVerdict = 'இந்த நாளில் பொதுவான முகூர்த்த விதிமுறைகளின்படி உகந்த நேர இடைவெளிகள் அமையவில்லை. விதிவிலக்காக அபிஜித் முகூர்த்தத்தை பரிசீலிக்கலாம்.';
+      summaryVerdict = 'பொதுவான முகூர்த்த விதிமுறைகளின்படி லக்ன சுத்தி பெற்ற நேர இடைவெளிகள் அமையவில்லை. மாற்று நேரமாக அபிஜித் முகூர்த்தத்தை பரிசீலிக்கலாம்.';
+    }
+
+    // Conflict note
+    String? conflictNote;
+    if (level1Day.tithi.conflictNote != null && level1Day.nakshatra.conflictNote != null) {
+      conflictNote = '${level1Day.tithi.conflictNote} | ${level1Day.nakshatra.conflictNote}';
+    } else {
+      conflictNote = level1Day.tithi.conflictNote ?? level1Day.nakshatra.conflictNote;
     }
 
     return MuhurthaResult(
@@ -271,17 +329,31 @@ class ProfessionalMuhurthaEngine {
       inauspiciousPeriods: inauspiciousPeriods,
       validWindows: validWindows,
       summaryVerdict: summaryVerdict,
+      level1Day: level1Day,
+      level2Avoidance: level2Avoidance,
+      level3Jathaga: level3Jathaga,
+      rules: activeRules,
+      rulePreset: activeRules.preset,
+      conflictNote: conflictNote,
     );
   }
 
-  /// Evaluates the 5 Panchanga Angas
-  PanchangaAngasResult evaluateFiveAngas({
+  // ===============================================================
+  // LEVEL 1: GENERAL DAY SUITABILITY EVALUATION
+  // ===============================================================
+  DaySuitabilityLevel1 evaluateLevel1Day({
     required DateTime date,
     required double sunLong,
     required double moonLong,
     required MuhurthaCategory category,
+    required SubhaMuhurthamRules rules,
   }) {
-    // 1. Tithi
+    // 1. Vaaram
+    final int weekdayNum = date.weekday; // 1=Mon..7=Sun
+    final String weekdayName = weekdaysTa[weekdayNum - 1];
+    final bool isVaaramAllowed = rules.allowedWeekdays.contains(weekdayNum);
+
+    // 2. Tithi
     final tithiDetail = TithiCalculator.calculateTithi(
       sunLongitude: sunLong,
       moonLongitude: moonLong,
@@ -289,66 +361,88 @@ class ProfessionalMuhurthaEngine {
     final tNum = tithiDetail.tithiNumber;
     final int singleTNum = (tNum > 15) ? (tNum - 15) : tNum;
 
-    // Preferred Tithis: Dvitiya (2), Tritiya (3), Panchami (5), Saptami (7),
-    // Dashami (10), Ekadashi (11), Dwadashi (12), Trayodashi (13)
-    final bool isPreferredTithi = (singleTNum == 2 || singleTNum == 3 || singleTNum == 5 ||
-        singleTNum == 7 || singleTNum == 10 || singleTNum == 11 || singleTNum == 12 || singleTNum == 13);
+    // Check Valarpirai Sunday
+    final bool isShuklaPaksha = tithiDetail.pakshaTa.contains('வளர்பிறை');
+    final bool isValarpiraiSunday = (weekdayNum == 7 && isShuklaPaksha);
 
-    // Avoided: Amavasya (30), Purnima (15), Ashtami (8), Navami (9), Chaturdashi (14)
-    final bool isAvoidedTithi = (tNum == 15 || tNum == 30 || singleTNum == 8 || singleTNum == 9 || singleTNum == 14);
-
-    String tReason;
-    if (isPreferredTithi) {
-      tReason = '${tithiDetail.tithiNameTa} சுப காரியங்களுக்கு உகந்த சிறந்த திதியாகும் (Preferred Tithi)';
-    } else if (isAvoidedTithi) {
-      tReason = '${tithiDetail.tithiNameTa} சுப காரியங்களுக்கு தவிர்க்கப்பட வேண்டிய திதி (Avoided Tithi)';
+    String vaaramReason;
+    if (isValarpiraiSunday) {
+      vaaramReason = 'வளர்பிறை ஞாயிற்றுக்கிழமை - சுப முகூர்த்தத்திற்கு விசேஷ உகந்த நாள் (Favourable Valarpirai Sunday)';
+    } else if (isVaaramAllowed) {
+      vaaramReason = '$weekdayName கிழமை சுப காரியங்களுக்கு உகந்த மங்களகரமான நாள்';
     } else {
-      tReason = '${tithiDetail.tithiNameTa} மத்திமமான திதியாகும்';
+      vaaramReason = '$weekdayName கிழமை சுப முகூர்த்தங்களுக்கு பொதுவாக விலக்கப்பட வேண்டும்';
     }
 
-    // 2. Weekday (Vara)
-    final int weekdayNum = date.weekday; // 1=Mon..7=Sun
-    final String weekdayName = weekdaysTa[weekdayNum - 1];
+    final vaaramEval = VaaramEvaluation(
+      weekdayNumber: weekdayNum,
+      weekdayName: weekdayName,
+      isSuitable: isVaaramAllowed,
+      isValarpiraiSunday: isValarpiraiSunday,
+      reason: vaaramReason,
+    );
 
-    // Preferred: Monday, Wednesday, Thursday, Friday
-    final bool isPreferredVara = (weekdayNum == 1 || weekdayNum == 3 || weekdayNum == 4 || weekdayNum == 5);
-    final bool isAvoidedVara = (weekdayNum == 2 || weekdayNum == 6); // Tuesday, Saturday
+    // Tithi check based on active rules
+    final bool isTithiAllowed = rules.allowedTithis.contains(singleTNum);
+    final bool isTithiExplicitlyAvoided = rules.avoidedTithis.contains(tNum) || rules.avoidedTithis.contains(singleTNum);
+    final bool isTithiSuitable = isTithiAllowed && !isTithiExplicitlyAvoided;
 
-    String vReason;
-    if (isPreferredVara) {
-      vReason = '$weekdayName கிழமை சுப காரியங்களுக்கு உகந்த மங்களகரமான நாள்';
-    } else if (isAvoidedVara) {
-      vReason = '$weekdayName கிழமை சுப முகூர்த்தங்களுக்கு பொதுவாக விலக்கப்பட வேண்டும்';
+    final String? tithiConflictNote = SubhaMuhurthamRules.getTithiConflictNote(singleTNum);
+
+    String tithiReason;
+    if (isTithiSuitable) {
+      tithiReason = '${tithiDetail.tithiNameTa} சுப காரியங்களுக்கு உகந்த சிறந்த திதியாகும் (Suitable Tithi)';
+    } else if (isTithiExplicitlyAvoided) {
+      tithiReason = '${tithiDetail.tithiNameTa} சுப முகூர்த்தத்திற்கு தவிர்க்கப்பட வேண்டிய திதியாகும் (Avoided Tithi)';
     } else {
-      // Sunday
-      if (category == MuhurthaCategory.marriage) {
-        vReason = 'ஞாயிற்றுக்கிழமை திருமண சுப காரியங்களுக்கு பொதுவாக தவிர்க்கப்படும்';
-      } else {
-        vReason = 'ஞாயிற்றுக்கிழமை சூரிய பலம் கொண்ட காரியங்களுக்கு மத்திம பலன் தரும்';
-      }
+      tithiReason = '${tithiDetail.tithiNameTa} மத்திம திதி (விலக்கப்பட வேண்டும்)';
     }
+
+    final tithiEval = TithiEvaluation(
+      tithiNumber: tNum,
+      singleTithiNumber: singleTNum,
+      tithiName: tithiDetail.tithiNameTa,
+      paksha: tithiDetail.pakshaTa,
+      isSuitable: isTithiSuitable,
+      conflictNote: tithiConflictNote,
+      reason: tithiReason,
+    );
 
     // 3. Nakshatra
     const nakSpan = 360.0 / 27.0;
     final int nakIdx = (moonLong % 360.0 / nakSpan).floor() % 27;
     final String nakName = nakshatrasTa[nakIdx];
-    final bool isNakSuitable = suitableNakshatras.contains(nakIdx);
-    final String nakReason = isNakSuitable
-        ? '$nakName சுப முகூர்த்தத்திற்கு பரிந்துரைக்கப்பட்ட 16 உத்தம நட்சத்திரங்களில் ஒன்றாகும்'
-        : '$nakName சுப முகூர்த்தத்திற்கு பரிந்துரைக்கப்படாத நட்சத்திரம் (விலக்கப்பட வேண்டும்)';
+    final bool isNakSuitable = rules.allowedNakshatras.contains(nakIdx);
+    final String? nakConflictNote = SubhaMuhurthamRules.getNakshatraConflictNote(nakIdx);
 
-    // 4. Yoga (Amirthathi Yoga)
+    String nakReason;
+    if (isNakSuitable) {
+      nakReason = '$nakName சுப முகூர்த்தத்திற்கு பரிந்துரைக்கப்பட்ட உத்தம நட்சத்திரங்களில் ஒன்றாகும் (Suitable Nakshatra)';
+    } else {
+      nakReason = '$nakName சுப முகூர்த்தத்திற்கு பரிந்துரைக்கப்படாத நட்சத்திரம் (விலக்கப்பட வேண்டும்)';
+    }
+
+    final nakshatraEval = NakshatraEvaluation(
+      nakshatraIndex: nakIdx,
+      nakshatraName: nakName,
+      isSuitable: isNakSuitable,
+      conflictNote: nakConflictNote,
+      reason: nakReason,
+    );
+
+    // 4. Yoga (Amirthathi Yoga: Siddha, Amrita, Marana)
     final int rem = (weekdayNum + nakIdx) % 3;
     String amirthathiYoga;
     bool isYogaAuspicious;
     String yogaReason;
+
     if (rem == 0) {
       amirthathiYoga = 'அமிர்த யோகம்';
-      isYogaAuspicious = true;
+      isYogaAuspicious = rules.allowedAmirthathiYogas.contains('அமிர்த யோகம்');
       yogaReason = 'அமிர்த யோகம் - சகல சுப காரியங்களுக்கும் மிக உன்னதமானது';
     } else if (rem == 1) {
       amirthathiYoga = 'சித்த யோகம்';
-      isYogaAuspicious = true;
+      isYogaAuspicious = rules.allowedAmirthathiYogas.contains('சித்த யோகம்');
       yogaReason = 'சித்த யோகம் - காரிய வெற்றி தரக்கூடிய உகந்த யோகம்';
     } else {
       amirthathiYoga = 'மரண யோகம்';
@@ -359,38 +453,463 @@ class ProfessionalMuhurthaEngine {
     final yogaData = AstrologyCalculator.calculateYoga(sunLong, moonLong);
     final String yogaName = yogaData['nameTa'] as String;
 
+    final yogaEval = YogaEvaluation(
+      yogaName: yogaName,
+      amirthathiYoga: amirthathiYoga,
+      isSuitable: isYogaAuspicious,
+      reason: yogaReason,
+    );
+
     // 5. Karana
     final karanaData = AstrologyCalculator.calculateKarana(sunLong, moonLong);
     final String karanaName = karanaData['nameTa'] as String;
-    final bool isVishti = (karanaData['nameEn'] == 'Vishti' || karanaName.contains('பத்திரை'));
-    final bool isKaranaAuspicious = !isVishti;
-    final String karanaReason = isVishti
-        ? 'விஷ்டி / பத்திரை கரணம் - சுப காரியங்களை தவிர்க்க வேண்டும்'
-        : '$karanaName சுப காரியங்களுக்கு உகந்த கரணம்';
+    final String karanaEn = karanaData['nameEn'] as String;
 
-    return PanchangaAngasResult(
-      tithiName: tithiDetail.tithiNameTa,
-      tithiNumber: tNum,
-      paksha: tithiDetail.pakshaTa,
-      isTithiPreferred: isPreferredTithi,
-      tithiReason: tReason,
-      weekdayName: weekdayName,
-      weekdayNumber: weekdayNum,
-      isVaraPreferred: isPreferredVara,
-      varaReason: vReason,
-      nakshatraName: nakName,
-      nakshatraIndex: nakIdx,
-      isNakshatraSuitable: isNakSuitable,
-      nakshatraReason: nakReason,
-      yogaName: yogaName,
-      amirthathiYoga: amirthathiYoga,
-      isYogaAuspicious: isYogaAuspicious,
-      yogaReason: yogaReason,
+    final bool isVishti = (karanaEn == 'Vishti' || karanaName.contains('பத்திரை'));
+    final bool isFixedAvoided = (karanaEn == 'Shakuni' || karanaEn == 'Chatushpada' || karanaEn == 'Naga' || karanaEn == 'Kimstughna');
+    final bool isKaranaSuitable = !isVishti && !isFixedAvoided;
+
+    String karanaReason;
+    if (isVishti) {
+      karanaReason = 'விஷ்டி / பத்திரை கரணம் - சுப காரியங்களை தவிர்க்க வேண்டும்';
+    } else if (isFixedAvoided) {
+      karanaReason = '$karanaName ஸ்திர கரணம் - சுப முகூர்த்தங்களுக்கு விலக்கப்பட வேண்டும்';
+    } else {
+      karanaReason = '$karanaName சுப காரியங்களுக்கு உகந்த கரணம்';
+    }
+
+    final karanaEval = KaranaEvaluation(
       karanaName: karanaName,
-      isKaranaAuspicious: isKaranaAuspicious,
-      karanaReason: karanaReason,
+      isSuitable: isKaranaSuitable,
+      reason: karanaReason,
+    );
+
+    final bool isAllSuitable = vaaramEval.isSuitable &&
+        tithiEval.isSuitable &&
+        nakshatraEval.isSuitable &&
+        yogaEval.isSuitable &&
+        karanaEval.isSuitable;
+
+    final List<String> issues = [];
+    if (!vaaramEval.isSuitable) issues.add('கிழமை (${vaaramEval.weekdayName})');
+    if (!tithiEval.isSuitable) issues.add('திதி (${tithiEval.tithiName})');
+    if (!nakshatraEval.isSuitable) issues.add('நட்சத்திரம் (${nakshatraEval.nakshatraName})');
+    if (!yogaEval.isSuitable) issues.add('யோகம் (${yogaEval.amirthathiYoga})');
+    if (!karanaEval.isSuitable) issues.add('கரணம் (${karanaEval.karanaName})');
+
+    final String summary = isAllSuitable
+        ? 'ஐந்து பஞ்சாங்க அங்கங்களும் சுப முகூர்த்தத்திற்கு உகந்ததாக அமைந்துள்ளன.'
+        : 'விலக்கப்பட்ட அங்கங்கள்: ${issues.join(', ')}';
+
+    return DaySuitabilityLevel1(
+      vaaram: vaaramEval,
+      tithi: tithiEval,
+      nakshatra: nakshatraEval,
+      yoga: yogaEval,
+      karana: karanaEval,
+      isLevel1Passed: isAllSuitable,
+      summary: summary,
     );
   }
+
+  /// Backward-compatible 5 Angas evaluation method
+  PanchangaAngasResult evaluateFiveAngas({
+    required DateTime date,
+    required double sunLong,
+    required double moonLong,
+    required MuhurthaCategory category,
+    SubhaMuhurthamRules? rules,
+  }) {
+    final l1 = evaluateLevel1Day(
+      date: date,
+      sunLong: sunLong,
+      moonLong: moonLong,
+      category: category,
+      rules: rules ?? SubhaMuhurthamRules.standard(),
+    );
+
+    return PanchangaAngasResult(
+      tithiName: l1.tithi.tithiName,
+      tithiNumber: l1.tithi.tithiNumber,
+      paksha: l1.tithi.paksha,
+      isTithiPreferred: l1.tithi.isSuitable,
+      tithiReason: l1.tithi.reason,
+      weekdayName: l1.vaaram.weekdayName,
+      weekdayNumber: l1.vaaram.weekdayNumber,
+      isVaraPreferred: l1.vaaram.isSuitable,
+      varaReason: l1.vaaram.reason,
+      nakshatraName: l1.nakshatra.nakshatraName,
+      nakshatraIndex: l1.nakshatra.nakshatraIndex,
+      isNakshatraSuitable: l1.nakshatra.isSuitable,
+      nakshatraReason: l1.nakshatra.reason,
+      yogaName: l1.yoga.yogaName,
+      amirthathiYoga: l1.yoga.amirthathiYoga,
+      isYogaAuspicious: l1.yoga.isSuitable,
+      yogaReason: l1.yoga.reason,
+      karanaName: l1.karana.karanaName,
+      isKaranaAuspicious: l1.karana.isSuitable,
+      karanaReason: l1.karana.reason,
+    );
+  }
+
+  // ===============================================================
+  // LEVEL 2: AVOIDANCE RULES EVALUATION
+  // ===============================================================
+  AvoidanceLevel2 evaluateLevel2Avoidance({
+    required int tamilMonthIdx,
+    required String tamilMonth,
+    required int tamilDay,
+    required DateTime sunrise,
+    required DateTime sunset,
+    required int weekday,
+    required List<InauspiciousPeriod> inauspiciousPeriods,
+    required SubhaMuhurthamRules rules,
+  }) {
+    // 1. Month Restriction (Aadi, Purattasi, Margazhi)
+    final bool isMonthAvoided = rules.avoidedTamilMonths.contains(tamilMonthIdx);
+    final String monthReason = isMonthAvoided
+        ? '$tamilMonth மாதம் சுப முகூர்த்தத்திற்கு தவிர்க்கப்பட வேண்டிய மாதம் (Avoided Month)'
+        : '$tamilMonth மாதம் சுப முகூர்த்தத்திற்கு உகந்த மாதம் (Preferred Month)';
+
+    final monthCheck = MonthAvoidanceEvaluation(
+      tamilMonth: tamilMonth,
+      tamilMonthIndex: tamilMonthIdx,
+      isMonthAvoided: isMonthAvoided,
+      isSuitable: !isMonthAvoided,
+      reason: monthReason,
+    );
+
+    // 2. Kari Days (கரி நாட்கள்)
+    final bool isKari = rules.isKariDay(tamilMonthIdx, tamilDay);
+    final List<int> monthKariDays = rules.kariDaysMap[tamilMonthIdx] ?? [];
+    final String kariReason = isKari
+        ? '$tamilMonth $tamilDay-ம் நாள் கரி நாள் (Kari Day) ஆகும் - சுப முகூர்த்தம் செய்யலாகாது'
+        : 'கரி நாள் இல்லை (Safe Day)';
+
+    final kariDayCheck = KariDayEvaluation(
+      tamilDay: tamilDay,
+      isKariDay: isKari,
+      kariDaysInMonth: monthKariDays,
+      isSuitable: !isKari,
+      reason: kariReason,
+    );
+
+    // 3. Rahu Kalam, Yamagandam, Kuligai from inauspiciousPeriods
+    final rahu = inauspiciousPeriods.firstWhere(
+      (p) => p.name.contains('ராகு'),
+      orElse: () => InauspiciousPeriod(name: 'ராகுகாலம்', start: sunrise, end: sunrise, timingFormatted: '-', description: ''),
+    );
+    final yama = inauspiciousPeriods.firstWhere(
+      (p) => p.name.contains('எமகண்டம்'),
+      orElse: () => InauspiciousPeriod(name: 'எமகண்டம்', start: sunrise, end: sunrise, timingFormatted: '-', description: ''),
+    );
+    final guli = inauspiciousPeriods.firstWhere(
+      (p) => p.name.contains('குளிகை'),
+      orElse: () => InauspiciousPeriod(name: 'குளிகை காலம்', start: sunrise, end: sunrise, timingFormatted: '-', description: ''),
+    );
+
+    final rahuCheck = AvoidanceCheckItem(
+      name: 'ராகுகாலம்',
+      timingFormatted: rahu.timingFormatted,
+      isAvoided: true,
+      description: 'முகூர்த்த நேர கணிதத்திலிருந்து தானாக விலக்கப்பட்டுள்ளது',
+    );
+
+    final yamaCheck = AvoidanceCheckItem(
+      name: 'எமகண்டம்',
+      timingFormatted: yama.timingFormatted,
+      isAvoided: true,
+      description: 'முகூர்த்த நேர கணிதத்திலிருந்து தானாக விலக்கப்பட்டுள்ளது',
+    );
+
+    final kuligaiCheck = AvoidanceCheckItem(
+      name: 'குளிகை காலம்',
+      timingFormatted: guli.timingFormatted,
+      isAvoided: true,
+      description: 'முகூர்த்த நேர கணிதத்திலிருந்து தானாக விலக்கப்பட்டுள்ளது',
+    );
+
+    final bool isLevel2Passed = !isMonthAvoided && !isKari;
+    final String summary = isLevel2Passed
+        ? 'மாத விலக்கு மற்றும் கரி நாள் பாதிப்புகள் இல்லை. ராகு/எமகண்ட நேரங்கள் விலக்கப்படும்.'
+        : isKari
+            ? 'கரி நாள் என்பதால் இந்த நாளில் முகூர்த்தம் தவிர்க்கப்பட வேண்டும்.'
+            : monthReason;
+
+    return AvoidanceLevel2(
+      monthCheck: monthCheck,
+      kariDayCheck: kariDayCheck,
+      rahuKalam: rahuCheck,
+      yamagandam: yamaCheck,
+      kuligai: kuligaiCheck,
+      allInauspiciousPeriods: inauspiciousPeriods,
+      isLevel2Passed: isLevel2Passed,
+      summary: summary,
+    );
+  }
+
+  // ===============================================================
+  // LEVEL 3: PERSON-SPECIFIC JATHAGA EVALUATION
+  // ===============================================================
+  JathagaLevel3 evaluateLevel3Jathaga({
+    required BirthProfile birthProfile,
+    required int targetNakshatra,
+    required double moonLong,
+    required double jupiterLong,
+    required double sunLong,
+    required MuhurthaCategory category,
+    required SubhaMuhurthamRules rules,
+  }) {
+    // 1. Chandrashtama
+    final chandra = evaluateChandraBala(
+      birthRasi: birthProfile.birthRasi,
+      moonLong: moonLong,
+    );
+
+    // 2. Tarabalam
+    final tara = evaluateTaraBala(
+      birthNakshatra: birthProfile.birthNakshatra,
+      targetNakshatra: targetNakshatra,
+    );
+
+    // 3. Guru Balam
+    final guru = evaluateGuruBala(
+      birthRasi: birthProfile.birthRasi,
+      jupiterLong: jupiterLong,
+    );
+
+    // 4. Surya Balam
+    final surya = evaluateSuryaBala(
+      birthRasi: birthProfile.birthRasi,
+      sunLong: sunLong,
+    );
+
+    final bool isLevel3Passed = !chandra.isChandrashtama && tara.isAccepted;
+
+    String summary;
+    if (chandra.isChandrashtama) {
+      summary = 'சந்திராஷ்டம தோஷம் உள்ளது! இந்த நாளில் முகூர்த்தம் கூடாது.';
+    } else if (!tara.isAccepted) {
+      summary = 'தாராபலம் விலக்கப்பட்டுள்ளது (${tara.taraName}).';
+    } else {
+      summary = 'தனிநபர் ஜாதக அடிப்படையில் சந்திராஷ்டமம் இல்லை மற்றும் தாராபலம் உத்தமமாக உள்ளது.';
+    }
+
+    return JathagaLevel3(
+      hasBirthProfile: true,
+      chandrashtama: chandra,
+      tarabalam: tara,
+      guruBalam: guru,
+      suryaBalam: surya,
+      isLevel3Passed: isLevel3Passed,
+      summary: summary,
+    );
+  }
+
+  // ===============================================================
+  // LEVEL 4: MUHURTHAM LAGNA EVALUATION
+  // ===============================================================
+  MuhurthaLagnaEvaluation evaluateMuhurthaLagna({
+    required double ascLong,
+    required Map<String, ({double longitude, bool isRetrograde})> planets,
+    BirthProfile? birthProfile,
+    SubhaMuhurthamRules? rules,
+  }) {
+    final activeRules = rules ?? SubhaMuhurthamRules.defaultRules;
+    final int lagnaRasi = (ascLong % 360.0 / 30.0).floor() % 12;
+    final double degInRasi = ascLong % 30.0;
+    final lagnaDegStr = '${degInRasi.floor()}° ${(degInRasi * 60 % 60).floor()}\'';
+
+    // 1. Lagna Lord & Strength
+    final lagnaLordEn = SubhaMuhurthamRules.lagnaLordMap[lagnaRasi] ?? 'Sun';
+    final lagnaLordTa = SubhaMuhurthamRules.planetNamesTa[lagnaLordEn] ?? lagnaLordEn;
+
+    final lordPos = planets[lagnaLordEn];
+    String lagnaLordStrength = 'வலுவானது (Strong)';
+    String lagnaLordReason = '';
+
+    if (lordPos != null) {
+      final lordRasi = (lordPos.longitude % 360.0 / 30.0).floor() % 12;
+      final int relHouse = (((lordRasi - lagnaRasi) % 12 + 12) % 12) + 1;
+
+      // Kendra (1, 4, 7, 10), Trikona (5, 9), Dhana/Labha (2, 11) vs Dusthana (6, 8, 12)
+      if (relHouse == 6 || relHouse == 8 || relHouse == 12) {
+        lagnaLordStrength = 'பலவீனமானது (Weak)';
+        lagnaLordReason = 'லக்னாதிபதி $lagnaLordTa $relHouse-ம் மறைவு ஸ்தானத்தில் உள்ளார் (Dusthana)';
+      } else if (relHouse == 1 || relHouse == 4 || relHouse == 7 || relHouse == 10 || relHouse == 5 || relHouse == 9) {
+        lagnaLordStrength = 'வலுவானது (Strong)';
+        lagnaLordReason = 'லக்னாதிபதி $lagnaLordTa $relHouse-ம் கேந்திர/திரிகோண சுப ஸ்தானத்தில் பலமாக உள்ளார்';
+      } else {
+        lagnaLordStrength = 'மத்திமம் (Moderate)';
+        lagnaLordReason = 'லக்னாதிபதி $lagnaLordTa $relHouse-ம் வீட்டில் உள்ளார்';
+      }
+    }
+
+    // 2. 7th and 8th House Papa Graha Check
+    final int house7 = (lagnaRasi + 6) % 12;
+    final int house8 = (lagnaRasi + 7) % 12;
+
+    final List<String> house7Grahas = [];
+    final List<String> house8Grahas = [];
+    final List<String> violations = [];
+
+    // Checked Papa Grahas: Mars, Saturn, Rahu, Ketu
+    final papaList = activeRules.papaGrahas;
+
+    String marsCheck = 'செவ்வாய்: சுத்தி (7, 8-ல் இல்லை)';
+    String saturnCheck = 'சனி: சுத்தி (7, 8-ல் இல்லை)';
+    String rahuCheck = 'ராகு: சுத்தி (7, 8-ல் இல்லை)';
+    String ketuCheck = 'கேது: சுத்தி (7, 8-ல் இல்லை)';
+
+    for (final p in papaList) {
+      final pos = planets[p];
+      if (pos != null) {
+        final pRasi = (pos.longitude % 360.0 / 30.0).floor() % 12;
+        final pTa = SubhaMuhurthamRules.planetNamesTa[p] ?? p;
+        final int houseNum = (((pRasi - lagnaRasi) % 12 + 12) % 12) + 1;
+
+        if (pRasi == house7) {
+          house7Grahas.add(pTa);
+          violations.add('7-ம் இடத்தில் $pTa (ஜாமித்ர தோஷம்)');
+          if (p == 'Mars') marsCheck = 'செவ்வாய்: தோஷம் (7-ம் இடத்தில் ஜாமித்ர தோஷம்)';
+          if (p == 'Saturn') saturnCheck = 'சனி: தோஷம் (7-ம் இடத்தில்)';
+          if (p == 'Rahu') rahuCheck = 'ராகு: தோஷம் (7-ம் இடத்தில்)';
+          if (p == 'Ketu') ketuCheck = 'கேது: தோஷம் (7-ம் இடத்தில்)';
+        } else if (pRasi == house8) {
+          house8Grahas.add(pTa);
+          violations.add('8-ம் இடத்தில் $pTa (அஷ்டம தோஷம்)');
+          if (p == 'Mars') marsCheck = 'செவ்வாய்: தோஷம் (8-ம் இடத்தில் அஷ்டம தோஷம்)';
+          if (p == 'Saturn') saturnCheck = 'சனி: தோஷம் (8-ம் இடத்தில்)';
+          if (p == 'Rahu') rahuCheck = 'ராகு: தோஷம் (8-ம் இடத்தில்)';
+          if (p == 'Ketu') ketuCheck = 'கேது: தோஷம் (8-ம் இடத்தில்)';
+        } else {
+          final info = '$pTa: சுத்தி ($houseNum-ம் வீட்டில் உள்ளார்)';
+          if (p == 'Mars') marsCheck = info;
+          if (p == 'Saturn') saturnCheck = info;
+          if (p == 'Rahu') rahuCheck = info;
+          if (p == 'Ketu') ketuCheck = info;
+        }
+      }
+    }
+
+    final bool house7Checked = house7Grahas.isEmpty;
+    final String house7Reason = house7Checked
+        ? '7-ம் இடம் சுத்தி (ஜாமித்ர தோஷம் இல்லை - பாப கிரகங்கள் அற்றது)'
+        : '7-ம் இடத்தில் பாப கிரகங்கள்: ${house7Grahas.join(', ')}';
+
+    final bool house8Checked = house8Grahas.isEmpty;
+    final String house8Reason = house8Checked
+        ? '8-ம் இடம் சுத்தி (அஷ்டம தோஷம் இல்லை - பாப கிரகங்கள் அற்றது)'
+        : '8-ம் இடத்தில் பாப கிரகங்கள்: ${house8Grahas.join(', ')}';
+
+    // Ashtama Lagna Check from Birth Rasi
+    bool isAshtamaLagna = false;
+    if (birthProfile != null) {
+      final distance = (((lagnaRasi - birthProfile.birthRasi) % 12 + 12) % 12) + 1;
+      if (distance == 8) {
+        isAshtamaLagna = true;
+        violations.add('பிறந்த ராசிக்கு 8-ம் வீடான அஷ்டம லக்னம்');
+      }
+    }
+
+    final bool isClean = house7Checked && house8Checked && !isAshtamaLagna;
+    final String status = isClean ? 'உத்தமம் (Lagna Shuddhi Passed)' : 'அசுத்தம் (Lagna Afflicted)';
+    final String reason = isClean
+        ? '7 மற்றும் 8 ஆகிய இடங்களில் பாப கிரகங்கள் இல்லை; லக்னம் தூய்மையாக உள்ளது.'
+        : violations.join('; ');
+
+    return MuhurthaLagnaEvaluation(
+      lagnaRasi: rasiNamesTa[lagnaRasi],
+      lagnaIndex: lagnaRasi,
+      lagnaDegreeStr: lagnaDegStr,
+      isLagnaSuitable: isClean,
+      lagnaLord: '$lagnaLordTa ($lagnaLordEn)',
+      lagnaLordStrength: lagnaLordStrength,
+      lagnaLordReason: lagnaLordReason,
+      house7Checked: house7Checked,
+      house7Reason: house7Reason,
+      house8Checked: house8Checked,
+      house8Reason: house8Reason,
+      marsCheck: marsCheck,
+      saturnCheck: saturnCheck,
+      rahuCheck: rahuCheck,
+      ketuCheck: ketuCheck,
+      isClean: isClean,
+      papaGrahaViolations: violations,
+      status: status,
+      reason: reason,
+    );
+  }
+
+  /// Backward-compatible Lagna Shuddhi evaluation
+  LagnaShuddhiResult evaluateLagnaShuddhi({
+    required double ascLong,
+    required Map<String, ({double longitude, bool isRetrograde})> planets,
+    BirthProfile? birthProfile,
+  }) {
+    final int lagnaRasi = (ascLong % 360.0 / 30.0).floor() % 12;
+    final double degInRasi = ascLong % 30.0;
+    final lagnaDegStr = '${degInRasi.floor()}° ${(degInRasi * 60 % 60).floor()}\'';
+
+    bool isAshtamaLagna = false;
+    if (birthProfile != null) {
+      final distance = (((lagnaRasi - birthProfile.birthRasi) % 12 + 12) % 12) + 1;
+      if (distance == 8) {
+        isAshtamaLagna = true;
+      }
+    }
+
+    final int house7 = (lagnaRasi + 6) % 12;
+    final int house8 = (lagnaRasi + 7) % 12;
+    final int house12 = (lagnaRasi + 11) % 12;
+
+    const malefics = ['Sun', 'Mars', 'Rahu', 'Ketu', 'Saturn'];
+    final List<String> maleficInfluences = [];
+
+    for (final m in malefics) {
+      final pos = planets[m];
+      if (pos != null) {
+        final pRasi = (pos.longitude % 360.0 / 30.0).floor() % 12;
+        final pNameTa = SubhaMuhurthamRules.planetNamesTa[m] ?? m;
+        if (pRasi == house7) {
+          maleficInfluences.add('7-ம் இடத்தில் $pNameTa (ஜாமித்ர தோஷம்)');
+        } else if (pRasi == house8) {
+          maleficInfluences.add('8-ம் இடத்தில் $pNameTa (அஷ்டம தோஷம்)');
+        } else if (pRasi == house12) {
+          maleficInfluences.add('12-ம் இடத்தில் $pNameTa (விரய தோஷம்)');
+        }
+      }
+    }
+
+    final bool isClean = (!isAshtamaLagna && maleficInfluences.isEmpty);
+    String status;
+    String reason;
+
+    if (isAshtamaLagna) {
+      status = 'அஷ்டம லக்ன தோஷம் (Rejected)';
+      reason = 'முகூர்த்த லக்னம் பிறப்பு ராசிக்கு 8-ம் வீடாக அமைந்துள்ளதால் நிராகரிக்கப்பட்டது.';
+    } else if (maleficInfluences.isNotEmpty) {
+      status = 'லக்ன அசுத்தி (Malefic In 7/8/12)';
+      reason = maleficInfluences.join(', ');
+    } else {
+      status = 'லக்ன சுத்தி உத்தமம் (Pure)';
+      reason = '7, 8, 12 ஆகிய இடங்களில் பாப கிரகங்கள் இல்லை; லக்னம் தூய்மையாக உள்ளது.';
+    }
+
+    return LagnaShuddhiResult(
+      lagnaRasi: rasiNamesTa[lagnaRasi],
+      lagnaDegreeStr: lagnaDegStr,
+      isAshtamaLagna: isAshtamaLagna,
+      isClean: isClean,
+      maleficPlanetsIn7812: maleficInfluences,
+      status: status,
+      reason: reason,
+    );
+  }
+
+  // ===============================================================
+  // PERSONAL BALAS (Tara, Chandra, Guru, Surya)
+  // ===============================================================
 
   /// Tara Bala evaluation (1..9 cyclical)
   TaraBalaResult evaluateTaraBala({
@@ -520,7 +1039,7 @@ class ProfessionalMuhurthaEngine {
     final int sunRasi = (sunLong % 360.0 / 30.0).floor() % 12;
     final int relativeHouse = (((sunRasi - birthRasi) % 12 + 12) % 12) + 1;
 
-    // Preferred positions: 3, 6, 10, 11
+    // Preferred positions: 3, 6, 10, 11 (Upachaya)
     final bool isAuspicious = (relativeHouse == 3 || relativeHouse == 6 || relativeHouse == 10 || relativeHouse == 11);
 
     String status;
@@ -543,75 +1062,6 @@ class ProfessionalMuhurthaEngine {
     );
   }
 
-  /// Lagna Shuddhi evaluation for a specific candidate time
-  LagnaShuddhiResult evaluateLagnaShuddhi({
-    required double ascLong,
-    required Map<String, ({double longitude, bool isRetrograde})> planets,
-    BirthProfile? birthProfile,
-  }) {
-    final int lagnaRasi = (ascLong % 360.0 / 30.0).floor() % 12;
-    final double degInRasi = ascLong % 30.0;
-    final lagnaDegStr = '${degInRasi.floor()}° ${(degInRasi * 60 % 60).floor()}\'';
-
-    // 1. Ashtama Lagna Check
-    bool isAshtamaLagna = false;
-    if (birthProfile != null) {
-      final distance = (((lagnaRasi - birthProfile.birthRasi) % 12 + 12) % 12) + 1;
-      if (distance == 8) {
-        isAshtamaLagna = true;
-      }
-    }
-
-    // 2. 7th, 8th, 12th houses from Lagna
-    final int house7 = (lagnaRasi + 6) % 12;
-    final int house8 = (lagnaRasi + 7) % 12;
-    final int house12 = (lagnaRasi + 11) % 12;
-
-    // Malefic planets: Sun, Mars, Rahu, Ketu, Saturn
-    const malefics = ['Sun', 'Mars', 'Rahu', 'Ketu', 'Saturn'];
-    final List<String> maleficInfluences = [];
-
-    for (final m in malefics) {
-      final pos = planets[m];
-      if (pos != null) {
-        final pRasi = (pos.longitude % 360.0 / 30.0).floor() % 12;
-        final pNameTa = _planetTa(m);
-        if (pRasi == house7) {
-          maleficInfluences.add('7-ம் இடத்தில் $pNameTa (ஜாமித்ர தோஷம்)');
-        } else if (pRasi == house8) {
-          maleficInfluences.add('8-ம் இடத்தில் $pNameTa (அஷ்டம தோஷம்)');
-        } else if (pRasi == house12) {
-          maleficInfluences.add('12-ம் இடத்தில் $pNameTa (விரய தோஷம்)');
-        }
-      }
-    }
-
-    final bool isClean = (!isAshtamaLagna && maleficInfluences.isEmpty);
-    String status;
-    String reason;
-
-    if (isAshtamaLagna) {
-      status = 'அஷ்டம லக்ன தோஷம் (Rejected)';
-      reason = 'முகூர்த்த லக்னம் பிறப்பு ராசிக்கு 8-ம் வீடாக அமைந்துள்ளதால் நிராகரிக்கப்பட்டது.';
-    } else if (maleficInfluences.isNotEmpty) {
-      status = 'லக்ன அசுத்தி (Malefic In 7/8/12)';
-      reason = maleficInfluences.join(', ');
-    } else {
-      status = 'லக்ன சுத்தி உத்தமம் (Pure)';
-      reason = '7, 8, 12 ஆகிய இடங்களில் பாப கிரகங்கள் இல்லை; லக்னம் தூய்மையாக உள்ளது.';
-    }
-
-    return LagnaShuddhiResult(
-      lagnaRasi: rasiNamesTa[lagnaRasi],
-      lagnaDegreeStr: lagnaDegStr,
-      isAshtamaLagna: isAshtamaLagna,
-      isClean: isClean,
-      maleficPlanetsIn7812: maleficInfluences,
-      status: status,
-      reason: reason,
-    );
-  }
-
   /// Panchaka Dosha evaluation: (Day + Tithi + Nakshatra + Lagna) % 9
   PanchakaResult evaluatePanchaka({
     required int weekdayNum, // 1=Mon..7=Sun
@@ -619,16 +1069,9 @@ class ProfessionalMuhurthaEngine {
     required int nakIdx,     // 0..26
     required int lagnaRasi,  // 0..11
   }) {
-    // Day index: Sunday=1, Monday=2, Tuesday=3, Wednesday=4, Thursday=5, Friday=6, Saturday=7
     final int dayVal = (weekdayNum % 7) + 1;
-
-    // Tithi index: 1..15
     final int tithiVal = ((tithiNum - 1) % 15) + 1;
-
-    // Nakshatra index: 1..27
     final int nakVal = nakIdx + 1;
-
-    // Lagna index: 1..12
     final int lagnaVal = lagnaRasi + 1;
 
     final int total = dayVal + tithiVal + nakVal + lagnaVal;
@@ -665,7 +1108,6 @@ class ProfessionalMuhurthaEngine {
         reason = 'ரோக பஞ்சகம் (8) - நோய், ஆரோக்கிய குறைபாடு தரும் அசுப பஞ்சகம்';
         break;
       default:
-        // 0, 3, 5, 7
         typeName = 'சுப பஞ்சகம்';
         isGood = true;
         reason = 'சுப பஞ்சகம் ($rem) - தோஷமற்ற உத்தம சுப பஞ்சகம்';
@@ -736,7 +1178,6 @@ class ProfessionalMuhurthaEngine {
     const nakSpan = 360.0 / 27.0;
     final int nakIdx = (moonLong % 360.0 / nakSpan).floor() % 27;
     final int vStartNazhigai = vishaNazhigaiStart[nakIdx];
-    // 1 Nazhigai = 24 minutes. 60 Nazhigais = 24 hours.
     final int vOffsetMins = (vStartNazhigai * 24);
     final vStart = sunrise.add(Duration(minutes: vOffsetMins % 1440));
     final vEnd = vStart.add(const Duration(minutes: 96)); // 4 Nazhigais = 96 mins
@@ -748,7 +1189,7 @@ class ProfessionalMuhurthaEngine {
       description: '${nakshatrasTa[nakIdx]} நட்சத்திரத்தின் விஷ நாழிகை - விஷம பலன் தரும்',
     ));
 
-    // 5. Pratah Sandhya (Morning Twilight: 24 mins before and after sunrise)
+    // 5. Pratah Sandhya
     final pratahStart = sunrise.subtract(const Duration(minutes: 24));
     final pratahEnd = sunrise.add(const Duration(minutes: 24));
     list.add(InauspiciousPeriod(
@@ -759,7 +1200,7 @@ class ProfessionalMuhurthaEngine {
       description: 'சூரிய உதய சந்திப்பு நேரம் - முக்கிய முகூர்த்தங்கள் தவிர்க்கவும்',
     ));
 
-    // 6. Sayam Sandhya (Evening Twilight: 24 mins before and after sunset)
+    // 6. Sayam Sandhya
     final sayamStart = sunset.subtract(const Duration(minutes: 24));
     final sayamEnd = sunset.add(const Duration(minutes: 24));
     list.add(InauspiciousPeriod(
@@ -787,8 +1228,11 @@ class ProfessionalMuhurthaEngine {
     required List<int> sunyaRasiIndices,
     required bool isKathiriAgniActive,
     BirthProfile? birthProfile,
+    SubhaMuhurthamRules? rules,
   }) {
-    // If Chandrashtama is active, reject the entire day
+    final activeRules = rules ?? SubhaMuhurthamRules.defaultRules;
+
+    // If Chandrashtama is active, reject the entire day for that native
     if (birthProfile != null) {
       final moonRasi = (planets['Moon']!.longitude % 360.0 / 30.0).floor() % 12;
       final int relHouse = (((moonRasi - birthProfile.birthRasi) % 12 + 12) % 12) + 1;
@@ -803,7 +1247,7 @@ class ProfessionalMuhurthaEngine {
     }
 
     // Step across daytime in 5-minute increments
-    final List<({DateTime time, String lagna, String panchaka, double score})> validMinutes = [];
+    final List<({DateTime time, String lagna, String panchaka, double score, MuhurthaLagnaEvaluation lagnaEval})> validMinutes = [];
 
     DateTime cur = sunrise.add(const Duration(minutes: 25)); // Skip morning sandhya
     final endTime = sunset.subtract(const Duration(minutes: 25)); // Skip evening sandhya
@@ -819,7 +1263,7 @@ class ProfessionalMuhurthaEngine {
       }
 
       if (!isInauspicious) {
-        // Calculate Lagna at this exact minute
+        // Calculate Sidereal Ascendant (Lagna) at this exact minute
         final jdCur = SwissEphemerisCalculator.getJulianDay(cur, utcOffsetHours: location.timeZone);
         final ascLong = SwissEphemerisCalculator.calculateAscendantSidereal(
           jd: jdCur,
@@ -832,11 +1276,12 @@ class ProfessionalMuhurthaEngine {
         // Check Month Sunyam Rasi
         final isMonthSunyam = sunyaRasiIndices.contains(lagnaRasi);
 
-        // Check Lagna Shuddhi
-        final lagnaShuddhi = evaluateLagnaShuddhi(
+        // Check Level 4 Muhurtham Lagna
+        final lagnaEval = evaluateMuhurthaLagna(
           ascLong: ascLong,
           planets: planets,
           birthProfile: birthProfile,
+          rules: activeRules,
         );
 
         // Check Panchaka Dosha
@@ -848,7 +1293,7 @@ class ProfessionalMuhurthaEngine {
         );
 
         // Filter: Must be Clean Lagna, Good Panchaka, and Not Month Sunyam
-        if (!isMonthSunyam && lagnaShuddhi.isClean && panchaka.isGood) {
+        if (!isMonthSunyam && lagnaEval.isClean && panchaka.isGood) {
           double score = 75.0;
           if (angas.isTithiPreferred) score += 10;
           if (angas.isVaraPreferred) score += 5;
@@ -856,9 +1301,10 @@ class ProfessionalMuhurthaEngine {
 
           validMinutes.add((
             time: cur,
-            lagna: lagnaShuddhi.lagnaRasi,
+            lagna: lagnaEval.lagnaRasi,
             panchaka: panchaka.typeName,
             score: score,
+            lagnaEval: lagnaEval,
           ));
         }
       }
@@ -877,34 +1323,68 @@ class ProfessionalMuhurthaEngine {
     String curLagna = validMinutes.first.lagna;
     String curPanchaka = validMinutes.first.panchaka;
     double maxScore = validMinutes.first.score;
+    MuhurthaLagnaEvaluation curLagnaEval = validMinutes.first.lagnaEval;
 
     for (int i = 1; i < validMinutes.length; i++) {
       final m = validMinutes[i];
       if (m.time.isAtSameMomentAs(winEnd) && m.lagna == curLagna) {
-        // Contiguous in same lagna
         winEnd = m.time.add(const Duration(minutes: 5));
         if (m.score > maxScore) maxScore = m.score;
       } else {
-        // Boundary reached
         final durMins = winEnd.difference(winStart).inMinutes;
         if (durMins >= 15) {
-          windows.add(_createWindow(winStart, winEnd, curLagna, curPanchaka, maxScore));
+          windows.add(_createWindow(winStart, winEnd, curLagna, curPanchaka, maxScore, curLagnaEval));
         }
         winStart = m.time;
         winEnd = winStart.add(const Duration(minutes: 5));
         curLagna = m.lagna;
         curPanchaka = m.panchaka;
         maxScore = m.score;
+        curLagnaEval = m.lagnaEval;
       }
     }
 
-    // Final window
     final finalDur = winEnd.difference(winStart).inMinutes;
     if (finalDur >= 15) {
-      windows.add(_createWindow(winStart, winEnd, curLagna, curPanchaka, maxScore));
+      windows.add(_createWindow(winStart, winEnd, curLagna, curPanchaka, maxScore, curLagnaEval));
     }
 
     return windows;
+  }
+
+  // ===============================================================
+  // DATE RANGE SEARCH (PROCESSES EACH DATE INDEPENDENTLY)
+  // ===============================================================
+  List<MuhurthaResult> searchDateRange({
+    required DateTime startDate,
+    required DateTime endDate,
+    required GeoLocation location,
+    required MuhurthaCategory category,
+    BirthProfile? birthProfile,
+    SubhaMuhurthamRules? rules,
+    bool onlySuitable = false,
+  }) {
+    final List<MuhurthaResult> results = [];
+    DateTime cur = DateTime(startDate.year, startDate.month, startDate.day);
+    final end = DateTime(endDate.year, endDate.month, endDate.day);
+
+    while (!cur.isAfter(end)) {
+      final res = calculate(
+        date: cur,
+        location: location,
+        category: category,
+        birthProfile: birthProfile,
+        rules: rules,
+      );
+
+      if (!onlySuitable || res.isGeneralDaySuitable) {
+        results.add(res);
+      }
+
+      cur = cur.add(const Duration(days: 1));
+    }
+
+    return results;
   }
 
   static SubhaTimeWindow _createWindow(
@@ -913,6 +1393,7 @@ class ProfessionalMuhurthaEngine {
     String lagna,
     String panchaka,
     double score,
+    MuhurthaLagnaEvaluation lagnaEval,
   ) {
     final dur = end.difference(start).inMinutes;
     final hrs = dur ~/ 60;
@@ -927,8 +1408,10 @@ class ProfessionalMuhurthaEngine {
       lagnaName: '$lagna லக்னம்',
       panchakaName: panchaka,
       suitabilityScore: score,
+      lagnaEvaluation: lagnaEval,
       reasons: [
-        '$lagna லக்ன சுத்தி பெற்றது (7, 8, 12-ல் பாப கிரகங்கள் இல்லை)',
+        '$lagna லக்ன சுத்தி பெற்றது (7, 8-ல் பாப கிரகங்கள் இல்லை)',
+        'லக்னாதிபதி நிலை: ${lagnaEval.lagnaLordStrength}',
         '$panchaka யோகம் அமையப்பெற்றது',
         'ராகுகாலம், எமகண்டம், குளிகை, விஷ கடிகை அற்ற தூய நேரம்',
       ],
@@ -937,20 +1420,5 @@ class ProfessionalMuhurthaEngine {
 
   static String _time(DateTime dt) {
     return DateFormat('hh:mm a').format(dt);
-  }
-
-  static String _planetTa(String en) {
-    switch (en) {
-      case 'Sun': return 'சூரியன்';
-      case 'Moon': return 'சந்திரன்';
-      case 'Mars': return 'செவ்வாய்';
-      case 'Mercury': return 'புதன்';
-      case 'Jupiter': return 'குரு';
-      case 'Venus': return 'சுக்கிரன்';
-      case 'Saturn': return 'சனி';
-      case 'Rahu': return 'ராகு';
-      case 'Ketu': return 'கேது';
-      default: return en;
-    }
   }
 }

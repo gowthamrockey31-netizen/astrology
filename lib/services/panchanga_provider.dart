@@ -3,6 +3,7 @@ import '../data/tamil_festivals_data.dart';
 import '../data/tamil_nadu_holidays.dart';
 import '../models/tamil_calendar_models.dart';
 import 'astrology_calculator.dart';
+import 'swiss_ephemeris_calculator.dart';
 import 'tithi_calculator.dart';
 
 /// Abstract Provider interface allowing real ephemeris or local astronomical calculations
@@ -91,8 +92,54 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
 
   /// Rahu Kalam, Yamagandam, Gulikai 8-part index by weekday (1=Mon ... 7=Sun)
   static const Map<int, int> rahuParts = {1: 1, 2: 6, 3: 4, 4: 5, 5: 3, 6: 2, 7: 7};
-  static const Map<int, int> yamaParts = {1: 4, 2: 3, 3: 2, 4: 1, 5: 0, 6: 6, 7: 5};
+  static const Map<int, int> yamaParts = {1: 3, 2: 2, 3: 1, 4: 0, 5: 6, 6: 5, 7: 4};
   static const Map<int, int> gulikaiParts = {1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0, 7: 6};
+
+  /// Computes the exact start date of Tamil Month [monthIndex] in Tamil Year [year]
+  /// according to the authoritative Tamil solar month reference:
+  /// 0: சித்திரை (Chithirai) - April 14 (31 days)
+  /// 1: வைகாசி (Vaikasi) - May 15 (31 days)
+  /// 2: ஆனி (Aani) - June 15 (32 days)
+  /// 3: ஆடி (Aadi) - July 17 (31 days)
+  /// 4: ஆவணி (Aavani) - August 17 (31 days)
+  /// 5: புரட்டாசி (Purattasi) - September 17 (30 days)
+  /// 6: ஐப்பசி (Aippasi) - October 17 (30 days)
+  /// 7: கார்த்திகை (Karthigai) - November 16 (30 days)
+  /// 8: மார்கழி (Margazhi) - December 16 (29 days)
+  /// 9: தை (Thai) - January 14 (30 days)
+  /// 10: மாசி (Maasi) - February 13 (30 days)
+  /// 11: பங்குனி (Panguni) - March 15 (30 days, or March 14 in leap year)
+  static DateTime _computeReferenceMonthStartDate(int year, int monthIndex) {
+    switch (monthIndex) {
+      case 0:
+        return DateTime(year, 4, 14);
+      case 1:
+        return DateTime(year, 5, 15);
+      case 2:
+        return DateTime(year, 6, 15);
+      case 3:
+        return DateTime(year, 7, 17);
+      case 4:
+        return DateTime(year, 8, 17);
+      case 5:
+        return DateTime(year, 9, 17);
+      case 6:
+        return DateTime(year, 10, 17);
+      case 7:
+        return DateTime(year, 11, 16);
+      case 8:
+        return DateTime(year, 12, 16);
+      case 9:
+        return DateTime(year + 1, 1, 14);
+      case 10:
+        return DateTime(year + 1, 2, 13);
+      case 11:
+        final isNextYearLeap = DateTime(year + 1, 2, 29).month == 2;
+        return DateTime(year + 1, 3, isNextYearLeap ? 14 : 15);
+      default:
+        throw ArgumentError('Invalid Tamil month index: $monthIndex');
+    }
+  }
 
   /// Authoritative Tamil Solar Month Start Dates for verified calendar years
   static final Map<int, List<DateTime>> _tamilMonthStartDatesByYear = {
@@ -135,7 +182,7 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
     2026: [
       DateTime(2026, 4, 14), // 0: சித்திரை (Chithirai 1)
       DateTime(2026, 5, 15), // 1: வைகாசி (Vaikasi 1)
-      DateTime(2026, 6, 16), // 2: ஆனி (Aani 1)
+      DateTime(2026, 6, 15), // 2: ஆனி (Aani 1)
       DateTime(2026, 7, 17), // 3: ஆடி (Aadi 1)
       DateTime(2026, 8, 17), // 4: ஆவணி (Aavani 1)
       DateTime(2026, 9, 18), // 5: புரட்டாசி (Purattasi 1 -> Sep 19 = Purattasi 2)
@@ -172,7 +219,12 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
     ],
   };
 
-  /// Calculates the exact start date of Tamil Month [monthIndex] in Tamil Year [year]
+  /// Cache for dynamically calculated astronomical month start dates
+  static final Map<String, List<DateTime>> _astronomicalMonthStartCache = {};
+
+  /// Calculates the exact start date of Tamil Month [monthIndex] in Tamil Year [year].
+  /// Preserves the authoritative verified table for 2020–2030, and dynamically calculates
+  /// the true astronomical solar ingress for all other historical or future years.
   DateTime calculateTamilMonthStartDate({
     required int year,
     required int monthIndex,
@@ -182,30 +234,120 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
       return _tamilMonthStartDatesByYear[year]![monthIndex];
     }
 
-    // Dynamic astronomical calculation for any extended year
-    int searchYear = year;
-    int searchMonth = monthIndex + 4;
-    if (searchMonth > 12) {
-      searchMonth -= 12;
-      searchYear += 1;
+    final cacheKey = '$year:${location.latitude.toStringAsFixed(2)}:${location.longitude.toStringAsFixed(2)}:${location.timezone}';
+    final cached = _astronomicalMonthStartCache[cacheKey];
+    if (cached != null) {
+      return cached[monthIndex];
     }
 
-    DateTime candidate = DateTime(searchYear, searchMonth, 13);
-    while (candidate.day <= 20) {
-      final scanTime = DateTime(candidate.year, candidate.month, candidate.day, 18, 0);
-      final astroData = AstrologyCalculator.calculateHoroscope(
-        dateOfBirth: scanTime,
-        latitude: location.latitude,
-        longitude: location.longitude,
-        utcOffsetHours: location.timezone,
-      );
-      final rasi = (astroData.sun.longitude / 30.0).floor() % 12;
-      if (rasi == monthIndex) {
-        return candidate;
-      }
-      candidate = candidate.add(const Duration(days: 1));
+    try {
+      final computedStarts = List<DateTime>.generate(12, (m) {
+        return _calculateAstronomicalMonthStartDate(
+          year: year,
+          monthIndex: m,
+          location: location,
+        );
+      });
+      _astronomicalMonthStartCache[cacheKey] = computedStarts;
+      return computedStarts[monthIndex];
+    } catch (_) {
+      return _computeReferenceMonthStartDate(year, monthIndex);
     }
-    return DateTime(searchYear, searchMonth, 14);
+  }
+
+  /// Dynamically computes Tamil month start date using high-precision Swiss Ephemeris solar ingress
+  static DateTime _calculateAstronomicalMonthStartDate({
+    required int year,
+    required int monthIndex,
+    PanchangaLocation location = PanchangaLocation.chennai,
+  }) {
+    // Tamil Solar Months & Ingress Rasis:
+    // 0: சித்திரை -> Mesha Ingress (0 deg) in April of [year]
+    // 1: வைகாசி   -> Vrishabha Ingress (30 deg) in May of [year]
+    // 2: ஆனி       -> Mithuna Ingress (60 deg) in June of [year]
+    // 3: ஆடி       -> Karka Ingress (90 deg) in July of [year]
+    // 4: ஆவணி     -> Simha Ingress (120 deg) in August of [year]
+    // 5: புரட்டாசி -> Kanya Ingress (150 deg) in September of [year]
+    // 6: ஐப்பசி   -> Tula Ingress (180 deg) in October of [year]
+    // 7: கார்த்திகை -> Vrishchika Ingress (210 deg) in November of [year]
+    // 8: மார்கழி   -> Dhanu Ingress (240 deg) in December of [year]
+    // 9: தை        -> Makara Ingress (270 deg) in January of [year + 1]
+    // 10: மாசி     -> Kumbha Ingress (300 deg) in February of [year + 1]
+    // 11: பங்குனி  -> Meena Ingress (330 deg) in March of [year + 1]
+    int approxYear = year;
+    int approxMonth = monthIndex + 4;
+    if (approxMonth > 12) {
+      approxMonth -= 12;
+      approxYear += 1;
+    }
+
+    final sankrantiDt = _findSankrantiDateTime(
+      targetSignIndex: monthIndex,
+      approxYear: approxYear,
+      approxMonth: approxMonth,
+      utcOffsetHours: location.timezone,
+    );
+
+    // Tamil Calendar date-boundary rule (Thirukanitham / Drik convention):
+    // 1. If Sankranti occurs between Sunrise and Sunset (daytime): Day 1 is that exact calendar day.
+    // 2. If Sankranti occurs after Sunset: Day 1 is the following calendar day.
+    // 3. If Sankranti occurs after midnight but before sunrise: Day 1 is that current calendar day.
+    // Therefore, if Sankranti occurs on or before Sunset of that calendar day, Day 1 is that day;
+    // if Sankranti occurs after Sunset, Day 1 is the next calendar day.
+    final sankrantiDay = DateTime(sankrantiDt.year, sankrantiDt.month, sankrantiDt.day);
+    final sunTimes = AstrologyCalculator.calculateSunriseSunset(
+      sankrantiDay,
+      location.latitude,
+      location.longitude,
+      location.timezone,
+    );
+    final sunset = sunTimes['sunset']!;
+
+    if (!sankrantiDt.isAfter(sunset)) {
+      return sankrantiDay;
+    } else {
+      return sankrantiDay.add(const Duration(days: 1));
+    }
+  }
+
+  /// Binary-searches the precise DateTime when sidereal Sun crosses [targetSignIndex] * 30.0 degrees
+  static DateTime _findSankrantiDateTime({
+    required int targetSignIndex,
+    required int approxYear,
+    required int approxMonth,
+    double utcOffsetHours = 5.5,
+  }) {
+    final double targetLong = (targetSignIndex * 30.0) % 360.0;
+
+    // Search window: Days 10 to 21 of the ingress month
+    final DateTime start = DateTime(approxYear, approxMonth, 10);
+    final DateTime end = DateTime(approxYear, approxMonth, 21);
+
+    double getDiff(DateTime dt) {
+      final sm = SwissEphemerisCalculator.calculateSunMoonSidereal(
+        dt,
+        utcOffsetHours: utcOffsetHours,
+      );
+      double diff = (sm.sun - targetLong + 360.0) % 360.0;
+      if (diff > 180.0) diff -= 360.0;
+      return diff;
+    }
+
+    int lowMs = start.millisecondsSinceEpoch;
+    int highMs = end.millisecondsSinceEpoch;
+
+    while (highMs - lowMs > 1000) {
+      int midMs = (lowMs + highMs) ~/ 2;
+      DateTime midDt = DateTime.fromMillisecondsSinceEpoch(midMs);
+      double diff = getDiff(midDt);
+      if (diff < 0) {
+        lowMs = midMs;
+      } else {
+        highMs = midMs;
+      }
+    }
+
+    return DateTime.fromMillisecondsSinceEpoch(lowMs);
   }
 
   /// Calculates the exact end date of Tamil Month [monthIndex] in Tamil Year [year]
@@ -420,7 +562,7 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
     final double partMinutes = dayMinutes > 0 ? dayMinutes / 8.0 : 90.0;
 
     final String rahuKalam = _formatDynamicWindow(sunrise, partMinutes, rahuParts[weekdayNum] ?? 1);
-    final String yemakandam = _formatDynamicWindow(sunrise, partMinutes, yamaParts[weekdayNum] ?? 4);
+    final String yemakandam = _formatDynamicWindow(sunrise, partMinutes, yamaParts[weekdayNum] ?? 3);
     final String kuligai = _formatDynamicWindow(sunrise, partMinutes, gulikaiParts[weekdayNum] ?? 5);
 
     // Abhijit Muhurtham (midday period)
@@ -535,7 +677,7 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
 
   static String _formatDynamicWindow(DateTime sunrise, double partMinutes, int partIndex) {
     final start = sunrise.add(Duration(minutes: (partIndex * partMinutes).round()));
-    final end = start.add(Duration(minutes: partMinutes.round()));
+    final end = sunrise.add(Duration(minutes: ((partIndex + 1) * partMinutes).round()));
     final f = DateFormat('hh:mm a');
     return '${f.format(start)} - ${f.format(end)}';
   }

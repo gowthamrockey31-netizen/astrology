@@ -74,15 +74,19 @@ class _JamamStatusCardWidgetState extends State<JamamStatusCardWidget> {
                   ],
                 ),
               ),
-              const Spacer(),
-              Text(
-                widget.isTamil
-                    ? '${schedule.weekdayNameTa} (${schedule.dayLordTa} ஆதிக்கம்)'
-                    : '${schedule.weekdayNameEn} (${schedule.dayLordEn} Day)',
-                style: const TextStyle(
-                  color: Color(0xFFFFD700),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  widget.isTamil
+                      ? '${schedule.weekdayNameTa} (${schedule.dayLordTa} ஆதிக்கம்)'
+                      : '${schedule.weekdayNameEn} (${schedule.dayLordEn} Day)',
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFFFFD700),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ],
@@ -153,34 +157,42 @@ class _JamamStatusCardWidgetState extends State<JamamStatusCardWidget> {
                       ),
                     ),
                     const SizedBox(height: 3),
-                    Row(
-                      children: [
-                        Text(
-                          widget.isTamil ? 'ஜாம அதிபதி: ' : 'Ruling Planet: ',
-                          style: const TextStyle(color: Colors.white70, fontSize: 12.5),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFD700).withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: const Color(0xFFFFD700), width: 0.8),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        children: [
+                          Text(
+                            widget.isTamil ? 'ஜாம அதிபதி: ' : 'Ruling Planet: ',
+                            style: const TextStyle(color: Colors.white70, fontSize: 12.5),
                           ),
-                          child: Text(
-                            widget.isTamil ? jamam.rulingPlanetTa : jamam.rulingPlanetEn,
-                            style: const TextStyle(
-                              color: Color(0xFFFFD700),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFD700).withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: const Color(0xFFFFD700), width: 0.8),
+                            ),
+                            child: Text(
+                              widget.isTamil ? jamam.rulingPlanetTa : jamam.rulingPlanetEn,
+                              style: const TextStyle(
+                                color: Color(0xFFFFD700),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 3),
-                    Text(
-                      '${_formatTime(jamam.startTime)} - ${_formatTime(jamam.endTime)} (${jamam.durationMinutes.toStringAsFixed(0)} நிமிடம்)',
-                      style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 11.5, fontWeight: FontWeight.w500),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${_formatTime(jamam.startTime)} - ${_formatTime(jamam.endTime)} (${jamam.durationMinutes.toStringAsFixed(0)} நிமிடம்)',
+                        style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 11.5, fontWeight: FontWeight.w500),
+                      ),
                     ),
                   ],
                 ),
@@ -196,17 +208,24 @@ class _JamamStatusCardWidgetState extends State<JamamStatusCardWidget> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    widget.isTamil
-                        ? 'சென்றது: ${jamam.elapsedMinutes.toStringAsFixed(0)} நிமிடம்'
-                        : 'Elapsed: ${jamam.elapsedMinutes.toStringAsFixed(0)} mins',
-                    style: const TextStyle(color: Colors.white60, fontSize: 10.5),
+                  Flexible(
+                    child: Text(
+                      widget.isTamil
+                          ? 'சென்றது: ${jamam.elapsedMinutes.toStringAsFixed(0)} நிமிடம்'
+                          : 'Elapsed: ${jamam.elapsedMinutes.toStringAsFixed(0)} mins',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white60, fontSize: 10.5),
+                    ),
                   ),
-                  Text(
-                    widget.isTamil
-                        ? 'மீதம்: ${jamam.remainingMinutes.toStringAsFixed(0)} நிமிடம்'
-                        : 'Remaining: ${jamam.remainingMinutes.toStringAsFixed(0)} mins',
-                    style: const TextStyle(color: Color(0xFFFFD700), fontSize: 10.5, fontWeight: FontWeight.bold),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      widget.isTamil
+                          ? 'மீதம்: ${jamam.remainingMinutes.toStringAsFixed(0)} நிமிடம்'
+                          : 'Remaining: ${jamam.remainingMinutes.toStringAsFixed(0)} mins',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Color(0xFFFFD700), fontSize: 10.5, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
@@ -232,27 +251,32 @@ class _JamamStatusCardWidgetState extends State<JamamStatusCardWidget> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildSunInfo(
-                  icon: Icons.wb_sunny_rounded,
-                  label: widget.isTamil ? 'சூரிய உதயம்' : 'Sunrise',
-                  time: _formatTime(schedule.sunrise),
-                  color: const Color(0xFFF59E0B),
+                Expanded(
+                  child: _buildSunInfo(
+                    icon: Icons.wb_sunny_rounded,
+                    label: widget.isTamil ? 'சூரிய உதயம்' : 'Sunrise',
+                    time: _formatTime(schedule.sunrise),
+                    color: const Color(0xFFF59E0B),
+                  ),
                 ),
                 Container(width: 1, height: 24, color: Colors.white12),
-                _buildSunInfo(
-                  icon: Icons.nightlight_round,
-                  label: widget.isTamil ? 'சூரிய அஸ்தமனம்' : 'Sunset',
-                  time: _formatTime(schedule.sunset),
-                  color: const Color(0xFF818CF8),
+                Expanded(
+                  child: _buildSunInfo(
+                    icon: Icons.nightlight_round,
+                    label: widget.isTamil ? 'அஸ்தமனம்' : 'Sunset',
+                    time: _formatTime(schedule.sunset),
+                    color: const Color(0xFF818CF8),
+                  ),
                 ),
                 Container(width: 1, height: 24, color: Colors.white12),
-                _buildSunInfo(
-                  icon: Icons.timelapse_rounded,
-                  label: widget.isTamil ? 'பகல் / இரவு அளவு' : 'Day / Night',
-                  time: '${(schedule.dayDurationMinutes / 60.0).toStringAsFixed(1)}h / ${(schedule.nightDurationMinutes / 60.0).toStringAsFixed(1)}h',
-                  color: const Color(0xFF34D399),
+                Expanded(
+                  child: _buildSunInfo(
+                    icon: Icons.timelapse_rounded,
+                    label: widget.isTamil ? 'பகல்/இரவு' : 'Day / Night',
+                    time: '${(schedule.dayDurationMinutes / 60.0).toStringAsFixed(1)}h / ${(schedule.nightDurationMinutes / 60.0).toStringAsFixed(1)}h',
+                    color: const Color(0xFF34D399),
+                  ),
                 ),
               ],
             ),
@@ -268,16 +292,20 @@ class _JamamStatusCardWidgetState extends State<JamamStatusCardWidget> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    _isScheduleExpanded
-                        ? (widget.isTamil ? '16 ஜாம அட்டவணையை மறைக்கவும்' : 'Hide 16-Jamam Schedule')
-                        : (widget.isTamil ? 'அனைத்து 16 ஜாம அட்டவணையை விரித்து பார்க்க' : 'View Full 16-Jamam Schedule'),
-                    style: const TextStyle(
-                      color: Color(0xFFFFD700),
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                  Flexible(
+                    child: Text(
+                      _isScheduleExpanded
+                          ? (widget.isTamil ? '16 ஜாம அட்டவணையை மறைக்கவும்' : 'Hide 16-Jamam Schedule')
+                          : (widget.isTamil ? 'அனைத்து 16 ஜாம அட்டவணையை விரித்து பார்க்க' : 'View Full 16-Jamam Schedule'),
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFFFFD700),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 4),
                   Icon(
                     _isScheduleExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                     color: const Color(0xFFFFD700),
@@ -304,19 +332,22 @@ class _JamamStatusCardWidgetState extends State<JamamStatusCardWidget> {
     required String time,
     required Color color,
   }) {
-    return Column(
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 14),
-            const SizedBox(width: 4),
-            Text(label, style: const TextStyle(color: Colors.white60, fontSize: 10)),
-          ],
-        ),
-        const SizedBox(height: 2),
-        Text(time, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
-      ],
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: color, size: 14),
+              const SizedBox(width: 4),
+              Text(label, style: const TextStyle(color: Colors.white60, fontSize: 10)),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(time, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold)),
+        ],
+      ),
     );
   }
 
@@ -368,7 +399,7 @@ class _JamamStatusCardWidgetState extends State<JamamStatusCardWidget> {
   }
 
   String _formatTime(DateTime dt) {
-    final hr = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
+    final hr = (dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour)).toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
     final amPm = dt.hour >= 12 ? 'PM' : 'AM';
     return '$hr:$min $amPm';

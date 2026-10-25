@@ -128,6 +128,19 @@ class CosmicDrawer extends StatelessWidget {
                     ),
                   ],
 
+                  _buildDrawerItem(
+                    icon: Icons.dashboard_customize_rounded,
+                    title: 'விரைவு ஆலோசனை (Quick Consultation)',
+                    subtitle: '4-Slot Mobile View & குடும்ப ஜாதகங்கள் (Max 5)',
+                    onTap: () => onSelectRoute('/quick_consultation'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.people_alt_rounded,
+                    title: 'குடும்ப ஜாதகங்கள் (Family Profiles)',
+                    subtitle: 'Offline Saved Profiles (Max 5) & Switching',
+                    onTap: () => onSelectRoute('/family_profiles'),
+                  ),
+
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: Divider(color: Colors.white12),
@@ -199,6 +212,12 @@ class CosmicDrawer extends StatelessWidget {
                     title: 'பிருகு நந்தி நாடி (முறை 1)',
                     subtitle: 'BNN Method 1 (1,5,9 → 3,11 → 7 → 2 → 12)',
                     onTap: () => onSelectRoute('/bnn_method1'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.alt_route_rounded,
+                    title: 'பிருகு நந்தி நாடி - BNN Method 2',
+                    subtitle: 'BNN Method 2 (காரகத்துவம் & சேர்க்கை விதிகள்)',
+                    onTap: () => onSelectRoute('/bnn_method_2'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.calculate_rounded,
@@ -288,8 +307,8 @@ class CosmicDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.hourglass_top_rounded,
-                    title: 'சுப முகூர்த்தம் / நல்ல நேரம்',
-                    subtitle: 'Professional Muhurtha / Nalla Neram Engine',
+                    title: 'சுப முகூர்த்தம்',
+                    subtitle: 'Subha Muhurtham Calculator',
                     onTap: () => onSelectRoute('/professional_muhurtha'),
                   ),
                   _buildDrawerItem(

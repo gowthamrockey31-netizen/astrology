@@ -11,17 +11,26 @@ import '../core/theme/app_colors.dart';
 class WeeklyGowriModal extends StatefulWidget {
   final int selectedWeekdayIndex; // 0=Sunday ... 6=Saturday
   final Function(int weekdayIndex)? onSelectWeekday;
+  final DateTime? sunrise;
+  final DateTime? sunset;
+  final DateTime? nextSunrise;
 
   const WeeklyGowriModal({
     super.key,
     required this.selectedWeekdayIndex,
     this.onSelectWeekday,
+    this.sunrise,
+    this.sunset,
+    this.nextSunrise,
   });
 
   static void show(
     BuildContext context, {
     required int selectedWeekdayIndex,
     Function(int weekdayIndex)? onSelectWeekday,
+    DateTime? sunrise,
+    DateTime? sunset,
+    DateTime? nextSunrise,
   }) {
     showModalBottomSheet(
       context: context,
@@ -34,6 +43,9 @@ class WeeklyGowriModal extends StatefulWidget {
       builder: (_) => WeeklyGowriModal(
         selectedWeekdayIndex: selectedWeekdayIndex,
         onSelectWeekday: onSelectWeekday,
+        sunrise: sunrise,
+        sunset: sunset,
+        nextSunrise: nextSunrise,
       ),
     );
   }
@@ -159,14 +171,34 @@ class _WeeklyGowriModalState extends State<WeeklyGowriModal> with SingleTickerPr
     );
   }
 
-  Widget _buildDayOrNightTable({required bool isDay}) {
-    final standardSlots = isDay
+  List<String> _getSlots({required bool isDay}) {
+    if (widget.sunrise != null && widget.sunset != null) {
+      if (isDay) {
+        return GowriPanchangamEngine.calculateDayGowriPeriods(
+          sunrise: widget.sunrise!,
+          sunset: widget.sunset!,
+          weekdayIndex: 0,
+        ).map((p) => p.timeRange).toList();
+      } else {
+        return GowriPanchangamEngine.calculateNightGowriPeriods(
+          sunset: widget.sunset!,
+          nextSunrise: widget.nextSunrise ?? widget.sunrise!.add(const Duration(days: 1)),
+          weekdayIndex: 0,
+        ).map((p) => p.timeRange).toList();
+      }
+    }
+    return isDay
         ? GowriPanchangamEngine.standardSlotsDay
         : GowriPanchangamEngine.standardSlotsNight;
+  }
+
+  Widget _buildDayOrNightTable({required bool isDay}) {
+    final slots = _getSlots(isDay: isDay);
+    final hasDynamic = widget.sunrise != null && widget.sunset != null;
 
     return ListView(
       children: [
-        // Standard Time Intervals Legend
+        // Time Intervals Legend
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           margin: const EdgeInsets.only(bottom: 10),
@@ -187,7 +219,9 @@ class _WeeklyGowriModalState extends State<WeeklyGowriModal> with SingleTickerPr
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'திட்டமிடப்பட்ட 8 கால இடைவெளிகள் (8 Standard Intervals):',
+                    hasDynamic
+                        ? 'கணக்கிடப்பட்ட 8 கால இடைவெளிகள் (8 Dynamic Intervals):'
+                        : 'திட்டமிடப்பட்ட 8 கால இடைவெளிகள் (8 Standard Intervals):',
                     style: GoogleFonts.outfit(
                       fontSize: 10.5,
                       fontWeight: FontWeight.bold,
@@ -208,7 +242,7 @@ class _WeeklyGowriModalState extends State<WeeklyGowriModal> with SingleTickerPr
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      '${i + 1}: ${standardSlots[i]}',
+                      '${i + 1}: ${slots[i]}',
                       style: GoogleFonts.outfit(fontSize: 9.5, color: Colors.white70),
                     ),
                   );
@@ -231,9 +265,7 @@ class _WeeklyGowriModalState extends State<WeeklyGowriModal> with SingleTickerPr
     final types = isDay
         ? GowriPanchangamEngine.dayGowri[weekdayIndex]!
         : GowriPanchangamEngine.nightGowri[weekdayIndex]!;
-    final standardSlots = isDay
-        ? GowriPanchangamEngine.standardSlotsDay
-        : GowriPanchangamEngine.standardSlotsNight;
+    final slots = _getSlots(isDay: isDay);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -307,7 +339,7 @@ class _WeeklyGowriModalState extends State<WeeklyGowriModal> with SingleTickerPr
               runSpacing: 6,
               children: List.generate(8, (i) {
                 final type = types[i];
-                final slotTiming = standardSlots[i];
+                final slotTiming = slots[i];
                 return Container(
                   width: (MediaQuery.of(context).size.width - 64) / 2,
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),

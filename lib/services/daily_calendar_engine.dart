@@ -1,7 +1,9 @@
 import 'package:intl/intl.dart';
 import '../models/daily_calendar_models.dart';
+import '../models/tamil_calendar_models.dart';
 import 'astrology_calculator.dart';
 import 'gowri_panchangam_engine.dart';
+import 'panchanga_provider.dart';
 import 'swiss_ephemeris_calculator.dart';
 import 'tithi_calculator.dart';
 
@@ -27,15 +29,39 @@ class DailyCalendarEngine {
   static const String nallaNeramNoteTa =
       'குறிப்பு: மேற்கண்ட நேரம் தோராயமானது. அதனால் அன்றைய தின சூரிய உதயத்திற்கு ஏற்ப மதிப்பீடு செய்து நல்ல நேரம் காண்க...';
 
+  /// Wednesday marriage warning (புதன்கிழமை அன்று திருமணத்தை தவிர்க்க)
+  static const String wednesdayMarriageWarning = 'புதன்கிழமை அன்று திருமணத்தை தவிர்க்க';
+
   /// Morning & Evening Nalla Neram windows by weekday (1=Mon ... 7=Sun)
   static const Map<int, Map<String, String>> nallaNeramByWeekday = {
-    1: {'morning': 'காலை 06:30 AM - 07:30 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'},
-    2: {'morning': 'காலை 07:30 AM - 08:30 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'},
-    3: {'morning': 'காலை 09:30 AM - 10:30 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'},
-    4: {'morning': 'காலை 09:30 AM - 10:30 AM', 'evening': 'மாலை 06:30 PM - 07:30 PM'},
-    5: {'morning': 'காலை 09:30 AM - 10:30 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'},
-    6: {'morning': 'காலை 07:30 AM - 08:30 AM', 'evening': 'மாலை 05:00 PM - 06:00 PM'},
-    7: {'morning': 'காலை 07:00 AM - 09:00 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'},
+    1: {
+      'morning': 'காலை 06:00 AM - 07:00 AM',
+      'evening': 'பகல் 12:00 PM - 01:30 PM',
+    },
+    2: {
+      'morning': 'காலை 10:30 AM - 11:00 AM',
+      'evening': 'மாலை 05:30 PM - 06:00 PM',
+    },
+    3: {
+      'morning': 'காலை 09:00 AM - 10:00 AM',
+      'evening': 'பகல் 01:30 PM - 03:00 PM, மாலை 04:30 PM - 06:00 PM',
+    },
+    4: {
+      'morning': 'காலை 09:00 AM - 10:30 AM',
+      'evening': 'பகல் 01:00 PM - 01:30 PM, மாலை 04:30 PM - 06:00 PM',
+    },
+    5: {
+      'morning': 'காலை 06:00 AM - 07:30 AM',
+      'evening': 'பகல் 01:00 PM - 01:30 PM, மாலை 05:00 PM - 06:00 PM',
+    },
+    6: {
+      'morning': 'காலை 10:30 AM - 12:00 PM',
+      'evening': 'மாலை 05:00 PM - 06:00 PM',
+    },
+    7: {
+      'morning': 'காலை 07:30 AM - 09:00 AM',
+      'evening': 'மாலை 02:00 PM - 03:00 PM',
+    },
   };
 
   /// Authoritative Gowri order for Day by weekday (1=Mon ... 7=Sun) from GowriPanchangamEngine
@@ -49,6 +75,27 @@ class DailyCalendarEngine {
     for (int d = 1; d <= 7; d++)
       d: (GowriPanchangamEngine.nightGowri[d % 7]!).map((t) => t.tamilName).toList(),
   };
+
+  /// Authoritative Tamil date calculation shared by Daily Calendar and Birth Chart
+  static ({String month, int day, String formatted}) calculateTamilDate(
+    DateTime date, {
+    double latitude = 13.0827,
+    double longitude = 80.2707,
+    double utcOffsetHours = 5.5,
+  }) {
+    final loc = PanchangaLocation(
+      city: 'DailyCalendarLocation',
+      latitude: latitude,
+      longitude: longitude,
+      timezone: utcOffsetHours,
+    );
+    final tamilDateObj = const AstronomicalPanchangaProvider().getTamilDate(date, location: loc);
+    return (
+      month: tamilDateObj.tamilMonth,
+      day: tamilDateObj.tamilDay,
+      formatted: '${tamilDateObj.tamilMonth} - ${tamilDateObj.tamilDay}',
+    );
+  }
 
   /// Calculate all Daily Calendar details for a given date and location
   static DailyCalendarData calculate({
@@ -82,10 +129,16 @@ class DailyCalendarEngine {
     final weekdayEn = DateFormat('EEEE').format(targetDate);
     final englishDateStr = DateFormat('dd / MM / yyyy').format(targetDate);
 
-    // 2. Tamil Date & Month
-    final tamilMonth = astroData.tamilMonthTa;
-    final tamilDay = astroData.tamilDay;
-    final tamilDateFormatted = astroData.tamilDateFormatted;
+    // 2. Tamil Date & Month (Calculated from authoritative Tamil solar calendar)
+    final tamilDateObj = calculateTamilDate(
+      targetDate,
+      latitude: latitude,
+      longitude: longitude,
+      utcOffsetHours: utcOffsetHours,
+    );
+    final tamilMonth = tamilDateObj.month;
+    final tamilDay = tamilDateObj.day;
+    final tamilDateFormatted = tamilDateObj.formatted;
 
     // 3. Tithi & Paksha at Sunrise
     final elongSunrise = (moonLongSunrise - sunLongSunrise + 360.0) % 360.0;
@@ -118,19 +171,10 @@ class DailyCalendarEngine {
     // 7. Nokku Naal
     final nokkuNaalTa = _calculateNokkuNaal(nakIdx);
 
-    // 8. Amirthathi Yoga
-    final rem = (weekdayIdx + nakIdx) % 3;
-    String amirthathiYogaTa;
-    if (rem == 0) {
-      amirthathiYogaTa = "அமிர்த யோகம் (மிக சுபம்)";
-    } else if (rem == 1) {
-      amirthathiYogaTa = "சித்த யோகம் (சுபம்)";
-    } else {
-      amirthathiYogaTa = "மரண யோகம் (கவனம் தேவை)";
-    }
-
-    // 9. Good Times & Gowri Periods
-    final nallaNeram = nallaNeramByWeekday[weekdayIdx] ?? {'morning': 'காலை 07:00 AM - 09:00 AM', 'evening': 'மாலை 04:30 PM - 05:30 PM'};
+    // 8. Good Times & Gowri Periods
+    final nallaNeram = nallaNeramByWeekday[weekdayIdx] ?? {'morning': 'காலை 07:30 AM - 09:00 AM', 'evening': 'மாலை 02:00 PM - 03:00 PM'};
+    // Wednesday marriage warning removed as per user requirement
+    const String? marriageWarning = null;
     final nextDaySunTimes = AstrologyCalculator.calculateSunriseSunset(
       targetDate.add(const Duration(days: 1)),
       latitude,
@@ -138,6 +182,13 @@ class DailyCalendarEngine {
       utcOffsetHours,
     );
     final nextDaySunrise = nextDaySunTimes['sunrise'] ?? sunrise.add(const Duration(days: 1));
+    final prevDaySunTimes = AstrologyCalculator.calculateSunriseSunset(
+      targetDate.subtract(const Duration(days: 1)),
+      latitude,
+      longitude,
+      utcOffsetHours,
+    );
+    final prevDaySunset = prevDaySunTimes['sunset'] ?? sunset.subtract(const Duration(days: 1));
     final gowriWeekdayIdx = weekdayIdx % 7; // Sunday=0, Monday=1 ... Saturday=6
     final dayGowri = GowriPanchangamEngine.calculateDayGowriPeriods(
       sunrise: sunrise,
@@ -164,8 +215,13 @@ class DailyCalendarEngine {
     final abhijitEnd = abhijitStart.add(Duration(minutes: muhurthaLenMins.round()));
     final abhijitMuhurtham = '${DateFormat('hh:mm a').format(abhijitStart)} - ${DateFormat('hh:mm a').format(abhijitEnd)}';
 
-    // 11. Chandrashtama
-    final moonRasiIdx = (moonLongSunrise / 30.0).floor() % 12;
+    // 11. Chandrashtama (Evaluated at midday to match astronomical panchangam & prevailing daytime moon)
+    final middayTime = DateTime(targetDate.year, targetDate.month, targetDate.day, 12, 0);
+    final smMidday = SwissEphemerisCalculator.calculateSunMoonSidereal(
+      middayTime,
+      utcOffsetHours: utcOffsetHours,
+    );
+    final moonRasiIdx = (smMidday.moon / 30.0).floor() % 12;
     final chandraRasiIdx = (moonRasiIdx - 7 + 12) % 12; // Sign experiencing Chandrashtama
     final chandrashtamaRasiTa = '${AstrologyCalculator.rasiNamesTa[chandraRasiIdx]} (${AstrologyCalculator.rasiNamesEn[chandraRasiIdx]})';
     final chandrashtamaNaks = _getNakshatrasForRasi(chandraRasiIdx);
@@ -216,6 +272,17 @@ class DailyCalendarEngine {
       nextName: nextNak,
       nextTiming: _formatTransitionStart(targetDate, nakEnd),
     );
+
+    // 8. Nama Yogam / Amirthathi Yoga (Calculated from Weekday + Nakshatra across active intervals)
+    final namaYogaInfo = calculateNamaYogaForDay(
+      weekdayIdx: weekdayIdx,
+      nakIdx: nakIdx,
+      targetDate: targetDate,
+      nakEnd: nakEnd,
+      nextDaySunrise: nextDaySunrise,
+    );
+    final String amirthathiYogaTa = namaYogaInfo.tamil;
+    final String amirthathiYogaEn = namaYogaInfo.english;
 
     final yogaEnd = _findNextBoundaryCrossing(
       startTime: sunrise,
@@ -363,9 +430,12 @@ class DailyCalendarEngine {
       sunsetStr: timeFormatter.format(sunset),
       sunriseTime: sunrise,
       sunsetTime: sunset,
+      nextSunriseTime: nextDaySunrise,
+      prevSunsetTime: prevDaySunset,
       morningNallaNeram: nallaNeram['morning']!,
       eveningNallaNeram: nallaNeram['evening']!,
       nallaNeramNote: nallaNeramNoteTa,
+      marriageWarning: marriageWarning,
       dayGowriPeriods: dayGowri,
       nightGowriPeriods: nightGowri,
       tithiNameTa: tithiName,
@@ -379,6 +449,7 @@ class DailyCalendarEngine {
       yogaNameTa: yogaNameTa,
       yogaTransition: yogaTrans,
       amirthathiYogaTa: amirthathiYogaTa,
+      amirthathiYogaEn: amirthathiYogaEn,
       karanaNameTa: karanaNameTa,
       karanaTransition: karanaTrans,
       chandrashtamaRasiTa: chandrashtamaRasiTa,
@@ -420,30 +491,6 @@ class DailyCalendarEngine {
     }
   }
 
-  static List<GowriPeriod> _calculateGowriPeriods(DateTime start, DateTime end, List<String> gowriNames) {
-    final totalMins = end.difference(start).inMinutes;
-    final sliceMins = totalMins / 8.0;
-    final formatter = DateFormat('hh:mm a');
-    final List<GowriPeriod> list = [];
-
-    const goodNames = ['உத்தி', 'அமிர்தம்', 'அமுதம்', 'சுபம்', 'சுகம்', 'லாபம்', 'தனம்'];
-
-    for (int i = 0; i < 8; i++) {
-      final pStart = start.add(Duration(minutes: (i * sliceMins).round()));
-      final pEnd = start.add(Duration(minutes: ((i + 1) * sliceMins).round()));
-      final name = gowriNames[i];
-      final isGood = goodNames.contains(name);
-
-      list.add(GowriPeriod(
-        nameTa: name,
-        timeRange: '${formatter.format(pStart)} - ${formatter.format(pEnd)}',
-        isGood: isGood,
-        natureTa: isGood ? 'சுபம் (நன்மை)' : 'அசுபம் (தவிர்க்கவும்)',
-      ));
-    }
-
-    return list;
-  }
 
   static int _getRahuPartIndex(int weekday) {
     // 1: Mon (1), 2: Tue (6), 3: Wed (4), 4: Thu (5), 5: Fri (3), 6: Sat (2), 7: Sun (7)
@@ -460,17 +507,7 @@ class DailyCalendarEngine {
   }
 
   static int _getYamaPartIndex(int weekday) {
-    // 1: Mon (3), 2: Tue (2), 3: Wed (1), 4: Thu (0), 5: Fri (4), 6: Sat (5), 7: Sun (6)
-    switch (weekday) {
-      case 1: return 3;
-      case 2: return 2;
-      case 3: return 1;
-      case 4: return 0;
-      case 5: return 4;
-      case 6: return 5;
-      case 7: return 6;
-      default: return 3;
-    }
+    return AstronomicalPanchangaProvider.yamaParts[weekday] ?? 3;
   }
 
   static int _getGulikaiPartIndex(int weekday) {
@@ -781,5 +818,209 @@ class DailyCalendarEngine {
     }
 
     return events;
+  }
+
+  /// Canonical Nama Yogam (அமிர்தாதி யோகம்) evaluation based on Weekday (1=Mon..7=Sun) and Nakshatra Index (0..26)
+  static NamaYogaType calculateNamaYoga(int weekdayIdx, int nakIdx) {
+    // 1. Prabala Arishta Yogam (பிரபலாரிஷ்ட யோகம் / கூடா நாள்)
+    switch (weekdayIdx) {
+      case 7: // ஞாயிறு (Sunday)
+        if (nakIdx == 1) return NamaYogaType.prabalaArishta; // பரணி (Bharani)
+        break;
+      case 1: // திங்கள் (Monday)
+        if (nakIdx == 13) return NamaYogaType.prabalaArishta; // சித்திரை (Chitra)
+        break;
+      case 2: // செவ்வாய் (Tuesday)
+        if (nakIdx == 20) return NamaYogaType.prabalaArishta; // உத்திராடம் (Uttara Ashadha)
+        break;
+      case 3: // புதன் (Wednesday)
+        if (nakIdx == 22) return NamaYogaType.prabalaArishta; // அவிட்டம் (Dhanishta)
+        break;
+      case 4: // வியாழன் (Thursday)
+        if (nakIdx == 17) return NamaYogaType.prabalaArishta; // கேட்டை (Jyeshtha)
+        break;
+      case 5: // வெள்ளி (Friday)
+        if (nakIdx == 19) return NamaYogaType.prabalaArishta; // பூராடம் (Purva Ashadha)
+        break;
+      case 6: // சனி (Saturday)
+        if (nakIdx == 26) return NamaYogaType.prabalaArishta; // ரேவதி (Revati)
+        break;
+    }
+
+    // 2. Marana Yogam (மரணயோகம்)
+    switch (weekdayIdx) {
+      case 7: // ஞாயிறு (Sunday)
+        if (nakIdx == 2 || nakIdx == 9 || nakIdx == 15 || nakIdx == 16 || nakIdx == 22) {
+          return NamaYogaType.marana;
+        }
+        break;
+      case 1: // திங்கள் (Monday)
+        if (nakIdx == 0 || nakIdx == 2 || nakIdx == 15 || nakIdx == 20) {
+          return NamaYogaType.marana;
+        }
+        break;
+      case 2: // செவ்வாய் (Tuesday)
+        if (nakIdx == 5 || nakIdx == 15 || nakIdx == 24) {
+          return NamaYogaType.marana;
+        }
+        break;
+      case 3: // புதன் (Wednesday)
+        if (nakIdx == 0 || nakIdx == 12) {
+          return NamaYogaType.marana;
+        }
+        break;
+      case 4: // வியாழன் (Thursday)
+        if (nakIdx == 2 || nakIdx == 4 || nakIdx == 5 || nakIdx == 11 || nakIdx == 16 || nakIdx == 23) {
+          return NamaYogaType.marana;
+        }
+        break;
+      case 5: // வெள்ளி (Friday)
+        if (nakIdx == 3 || nakIdx == 7 || nakIdx == 8 || nakIdx == 9 || nakIdx == 21) {
+          return NamaYogaType.marana;
+        }
+        break;
+      case 6: // சனி (Saturday)
+        if (nakIdx == 8 || nakIdx == 11 || nakIdx == 12 || nakIdx == 13 || nakIdx == 24) {
+          return NamaYogaType.marana;
+        }
+        break;
+    }
+
+    // 3. Amirtha Yogam (அமிர்தயோகம்)
+    switch (weekdayIdx) {
+      case 7: // ஞாயிறு (Sunday)
+        if (nakIdx == 11 || nakIdx == 12 || nakIdx == 18 || nakIdx == 20 || nakIdx == 21 || nakIdx == 25 || nakIdx == 26) {
+          return NamaYogaType.amirtha;
+        }
+        break;
+      case 1: // திங்கள் (Monday)
+        if (nakIdx == 3 || nakIdx == 4 || nakIdx == 6 || nakIdx == 11 || nakIdx == 14 || nakIdx == 21) {
+          return NamaYogaType.amirtha;
+        }
+        break;
+      case 2: // செவ்வாய் (Tuesday)
+        if (nakIdx == 0 || nakIdx == 3 || nakIdx == 11 || nakIdx == 18 || nakIdx == 25) {
+          return NamaYogaType.amirtha;
+        }
+        break;
+      case 3: // புதன் (Wednesday)
+        if (nakIdx == 2 || nakIdx == 4 || nakIdx == 10 || nakIdx == 11 || nakIdx == 16 || nakIdx == 19 || nakIdx == 20 || nakIdx == 24 || nakIdx == 26) {
+          return NamaYogaType.amirtha;
+        }
+        break;
+      case 4: // வியாழன் (Thursday)
+        if (nakIdx == 0 || nakIdx == 6 || nakIdx == 7 || nakIdx == 9 || nakIdx == 14 || nakIdx == 26) {
+          return NamaYogaType.amirtha;
+        }
+        break;
+      case 5: // வெள்ளி (Friday)
+        if (nakIdx == 0 || nakIdx == 12 || nakIdx == 18 || nakIdx == 26) {
+          return NamaYogaType.amirtha;
+        }
+        break;
+      case 6: // சனி (Saturday)
+        if (nakIdx == 2 || nakIdx == 3 || nakIdx == 9 || nakIdx == 14 || nakIdx == 23 || nakIdx == 25) {
+          return NamaYogaType.amirtha;
+        }
+        break;
+    }
+
+    // 4. Siddha Yogam (சித்தயோகம்) - Default / All other combinations
+    return NamaYogaType.siddha;
+  }
+
+  /// Resolve canonical Nakshatra index from name string (supporting alternate spellings)
+  static int resolveNakshatraIndex(String nakshatraName) {
+    final clean = nakshatraName.trim().toLowerCase();
+    const aliasMap = {
+      'அசுவினி': 0, 'அஸ்வினி': 0, 'ashwini': 0, 'aswini': 0,
+      'பரணி': 1, 'bharani': 1,
+      'கார்த்திகை': 2, 'கிருத்திகை': 2, 'krittika': 2, 'krithika': 2,
+      'ரோகிணி': 3, 'ரோஹிணி': 3, 'rohini': 3,
+      'மிருகசீரிஷம்': 4, 'மிருகசீரிடம்': 4, 'mrigashira': 4, 'mrigasira': 4,
+      'திருவாதிரை': 5, 'ஆருத்ரா': 5, 'ardra': 5, 'arudra': 5,
+      'புனர்பூசம்': 6, 'punarvasu': 6,
+      'பூசம்': 7, 'புஷ்யம்': 7, 'pushya': 7, 'pushyam': 7,
+      'ஆயில்யம்': 8, 'ஆயிலியம்': 8, 'ashlesha': 8, 'aslesha': 8,
+      'மகம்': 9, 'magha': 9, 'makam': 9,
+      'பூரம்': 10, 'purva phalguni': 10, 'pooram': 10,
+      'உத்திரம்': 11, 'uttara phalguni': 11, 'uthiram': 11,
+      'அஸ்தம்': 12, 'ஹஸ்தம்': 12, 'hasta': 12, 'hastham': 12,
+      'சித்திரை': 13, 'chitra': 13, 'chithirai': 13,
+      'சுவாதி': 14, 'ஸ்வாதி': 14, 'swati': 14, 'swathi': 14,
+      'விசாகம்': 15, 'vishakha': 15, 'visakam': 15,
+      'அனுஷம்': 16, 'அனுசம்': 16, 'anuradha': 16, 'anusham': 16,
+      'கேட்டை': 17, 'jyeshtha': 17, 'kettai': 17,
+      'மூலம்': 18, 'mula': 18, 'moolam': 18,
+      'பூராடம்': 19, 'purva ashadha': 19, 'pooradam': 19,
+      'உத்திராடம்': 20, 'uttara ashadha': 20, 'uthiradam': 20,
+      'திருவோணம்': 21, 'shravana': 21, 'thiruvonam': 21,
+      'அவிட்டம்': 22, 'dhanishta': 22, 'avittam': 22,
+      'சதயம்': 23, 'சதாபிஷேக்': 23, 'shatabhisha': 23, 'sadayam': 23,
+      'பூரட்டாதி': 24, 'purva bhadrapada': 24, 'poorattathi': 24,
+      'உத்திரட்டாதி': 25, 'உத்தரட்டாதி': 25, 'uttara bhadrapada': 25, 'uthirattathi': 25,
+      'ரேவதி': 26, 'revati': 26, 'revathi': 26,
+    };
+    if (aliasMap.containsKey(clean)) {
+      return aliasMap[clean]!;
+    }
+    final taIdx = AstrologyCalculator.nakshatrasTa.indexOf(nakshatraName.trim());
+    if (taIdx != -1) return taIdx;
+    final enIdx = AstrologyCalculator.nakshatrasEn.indexWhere((n) => n.toLowerCase() == clean);
+    if (enIdx != -1) return enIdx;
+    return 0;
+  }
+
+  /// Calculates dynamic Nama Yogam for a calendar day, incorporating Nakshatra transition times
+  static ({String tamil, String english, NamaYogaType primaryYoga, NamaYogaType? nextYoga}) calculateNamaYogaForDay({
+    required int weekdayIdx,
+    required int nakIdx,
+    required DateTime targetDate,
+    required DateTime nakEnd,
+    required DateTime nextDaySunrise,
+  }) {
+    final yoga1 = calculateNamaYoga(weekdayIdx, nakIdx);
+    final nextNakIdx = (nakIdx + 1) % 27;
+    final yoga2 = calculateNamaYoga(weekdayIdx, nextNakIdx);
+
+    // If Nakshatra transition occurs during this calendar/astrological day (before next sunrise)
+    if (nakEnd.isBefore(nextDaySunrise)) {
+      if (yoga1 == yoga2) {
+        return (
+          tamil: yoga1.tamilName,
+          english: yoga1.englishName,
+          primaryYoga: yoga1,
+          nextYoga: null,
+        );
+      } else {
+        final timingStr = _formatTransitionTime(targetDate, nakEnd);
+        final timingStrEn = _formatTransitionTimeEn(targetDate, nakEnd);
+        return (
+          tamil: '${yoga1.tamilName} ($timingStr), பின் ${yoga2.tamilName}',
+          english: '${yoga1.englishName} ($timingStrEn), then ${yoga2.englishName}',
+          primaryYoga: yoga1,
+          nextYoga: yoga2,
+        );
+      }
+    } else {
+      return (
+        tamil: '${yoga1.tamilName} (முழு நாளும்)',
+        english: '${yoga1.englishName} (Full Day)',
+        primaryYoga: yoga1,
+        nextYoga: null,
+      );
+    }
+  }
+
+  static String _formatTransitionTimeEn(DateTime targetCalendarDate, DateTime endDt) {
+    final timeStr = DateFormat('hh:mm a').format(endDt);
+    final isSameDay = targetCalendarDate.year == endDt.year &&
+        targetCalendarDate.month == endDt.month &&
+        targetCalendarDate.day == endDt.day;
+    if (isSameDay) {
+      return 'until today $timeStr';
+    } else {
+      return 'until tomorrow $timeStr';
+    }
   }
 }

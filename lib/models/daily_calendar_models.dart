@@ -2,21 +2,25 @@ import '../services/astrology_calculator.dart';
 
 /// Single Gowri Time Period (உத்தி, அமிர்தம், ரோகம், லாபம், தனம், விஷம், சுகம், சோரம்)
 class GowriPeriod {
+  final int periodNumber;
   final String nameTa;
   final String timeRange;
   final bool isGood;
   final String natureTa;
   final DateTime? startTime;
   final DateTime? endTime;
+  final bool isDay;
   final bool isCurrent;
 
   const GowriPeriod({
+    this.periodNumber = 1,
     required this.nameTa,
     required this.timeRange,
     required this.isGood,
     required this.natureTa,
     this.startTime,
     this.endTime,
+    this.isDay = true,
     this.isCurrent = false,
   });
 }
@@ -59,6 +63,19 @@ class PanchangamTransition {
     required this.nextName,
     required this.nextTiming,
   });
+}
+
+/// Canonical 4 Nama Yogam (அமிர்தாதி யோகம்) categories
+enum NamaYogaType {
+  amirtha(tamilName: 'அமிர்தயோகம்', englishName: 'Amirtha Yogam'),
+  siddha(tamilName: 'சித்தயோகம்', englishName: 'Siddha Yogam'),
+  marana(tamilName: 'மரணயோகம்', englishName: 'Marana Yogam'),
+  prabalaArishta(tamilName: 'பிரபலாரிஷ்ட யோகம்', englishName: 'Prabala Arishta Yogam');
+
+  final String tamilName;
+  final String englishName;
+
+  const NamaYogaType({required this.tamilName, required this.englishName});
 }
 
 /// Planet transit detail for Daily Calendar
@@ -112,11 +129,14 @@ class DailyCalendarData {
   final String sunsetStr;
   final DateTime sunriseTime;
   final DateTime sunsetTime;
+  final DateTime? nextSunriseTime;
+  final DateTime? prevSunsetTime;
 
   // Good Time periods
   final String morningNallaNeram;
   final String eveningNallaNeram;
   final String nallaNeramNote;
+  final String? marriageWarning;
   final List<GowriPeriod> dayGowriPeriods;
   final List<GowriPeriod> nightGowriPeriods;
 
@@ -135,6 +155,7 @@ class DailyCalendarData {
   final PanchangamTransition yogaTransition;
 
   final String amirthathiYogaTa;
+  final String? amirthathiYogaEn;
 
   final String karanaNameTa;
   final PanchangamTransition karanaTransition;
@@ -186,9 +207,12 @@ class DailyCalendarData {
     required this.sunsetStr,
     required this.sunriseTime,
     required this.sunsetTime,
+    this.nextSunriseTime,
+    this.prevSunsetTime,
     required this.morningNallaNeram,
     required this.eveningNallaNeram,
     this.nallaNeramNote = 'குறிப்பு: மேற்கண்ட நேரம் தோராயமானது. அதனால் அன்றைய தின சூரிய உதயத்திற்கு ஏற்ப மதிப்பீடு செய்து நல்ல நேரம் காண்க...',
+    this.marriageWarning,
     required this.dayGowriPeriods,
     required this.nightGowriPeriods,
     required this.tithiNameTa,
@@ -202,6 +226,7 @@ class DailyCalendarData {
     required this.yogaNameTa,
     required this.yogaTransition,
     required this.amirthathiYogaTa,
+    this.amirthathiYogaEn,
     required this.karanaNameTa,
     required this.karanaTransition,
     required this.chandrashtamaRasiTa,

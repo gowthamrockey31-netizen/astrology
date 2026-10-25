@@ -88,22 +88,32 @@ class Kp4ChartWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 6,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.grid_view_rounded, color: AppColors.primaryGold, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    'ராசி & பாவ ஆரம்ப முனைகள்',
-                    style: GoogleFonts.cinzel(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.lightGold,
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 290),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.grid_view_rounded, color: AppColors.primaryGold, size: 20),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'ராசி & பாவ ஆரம்ப முனைகள்',
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.cinzel(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.lightGold,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -204,75 +214,78 @@ class Kp4ChartWidget extends StatelessWidget {
                             width: 1,
                           ),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'KP METHOD 4',
-                              style: GoogleFonts.cinzel(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primaryGold,
-                                letterSpacing: 1.2,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              'ராசி & பாவ தொடக்கம்',
-                              style: GoogleFonts.outfit(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.lightGold,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Container(
-                              height: 1,
-                              width: 60,
-                              color: AppColors.primaryGold.withValues(alpha: 0.3),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'லக்னம்: ${result.ascendantSignTa} ${result.ascendantDegreeStr}',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.outfit(
-                                fontSize: 10,
-                                color: Colors.white70,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'KP Ayanamsa: ${result.ayanamsaStr}',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.outfit(
-                                fontSize: 9.5,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.redAccent,
-                                    shape: BoxShape.circle,
-                                  ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'KP METHOD 4',
+                                style: GoogleFonts.cinzel(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primaryGold,
+                                  letterSpacing: 1.2,
                                 ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'C1..C12 = பாவம்',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.redAccent,
-                                  ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                'ராசி & பாவ தொடக்கம்',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.lightGold,
                                 ),
-                              ],
-                            ),
-                          ],
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                height: 1,
+                                width: 60,
+                                color: AppColors.primaryGold.withValues(alpha: 0.3),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'லக்னம்: ${result.ascendantSignTa} ${result.ascendantDegreeStr}',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.outfit(
+                                  fontSize: 10,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'KP Ayanamsa: ${result.ayanamsaStr}',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.outfit(
+                                  fontSize: 9.5,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.redAccent,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'C1..C12 = பாவம்',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.redAccent,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -306,103 +319,106 @@ class Kp4ChartWidget extends StatelessWidget {
           width: 0.7,
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Sign Title Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  rasiTa,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
-                    fontSize: 8.5,
-                    fontWeight: FontWeight.bold,
-                    color: isAscendantSign ? AppColors.lightGold : AppColors.textSecondary,
+      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Sign Title Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text(
+                    rasiTa,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.outfit(
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.bold,
+                      color: isAscendantSign ? AppColors.lightGold : AppColors.textSecondary,
+                    ),
                   ),
                 ),
+                if (isAscendantSign)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 0.5),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryGold,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: Text(
+                      'லக்',
+                      style: GoogleFonts.outfit(
+                        fontSize: 7.5,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 2),
+
+            // RED Cusp Indicators (Part 1 Core Requirement)
+            if (cusps.isNotEmpty)
+              Wrap(
+                spacing: 2,
+                runSpacing: 2,
+                children: cusps.map((c) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.22),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.redAccent, width: 0.8),
+                    ),
+                    child: Text(
+                      'C${c.cuspNumber} ${c.degreeInRasi.toStringAsFixed(1)}°',
+                      style: GoogleFonts.outfit(
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.redAccent,
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
-              if (isAscendantSign)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 0.5),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryGold,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: Text(
-                    'லக்',
-                    style: GoogleFonts.outfit(
-                      fontSize: 7.5,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 2),
 
-          // RED Cusp Indicators (Part 1 Core Requirement)
-          if (cusps.isNotEmpty)
-            Wrap(
-              spacing: 2,
-              runSpacing: 2,
-              children: cusps.map((c) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.22),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.redAccent, width: 0.8),
-                  ),
-                  child: Text(
-                    'C${c.cuspNumber} ${c.degreeInRasi.toStringAsFixed(1)}°',
-                    style: GoogleFonts.outfit(
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.redAccent,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
+            const SizedBox(height: 2),
 
-          const Spacer(),
-
-          // Planets in this Sign
-          if (planets.isNotEmpty)
-            Wrap(
-              spacing: 2,
-              runSpacing: 1.5,
-              children: planets.map((p) {
-                final shortName = _planetShortTa[p.planet] ?? p.planet;
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 2.5, vertical: 0.5),
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundDeep.withValues(alpha: 0.8),
-                    borderRadius: BorderRadius.circular(3),
-                    border: Border.all(
-                      color: p.isRetrograde
-                          ? Colors.orangeAccent.withValues(alpha: 0.6)
-                          : AppColors.primaryGold.withValues(alpha: 0.3),
-                      width: 0.5,
+            // Planets in this Sign
+            if (planets.isNotEmpty)
+              Wrap(
+                spacing: 2,
+                runSpacing: 1.5,
+                children: planets.map((p) {
+                  final shortName = _planetShortTa[p.planet] ?? p.planet;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 2.5, vertical: 0.5),
+                    decoration: BoxDecoration(
+                      color: AppColors.backgroundDeep.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(3),
+                      border: Border.all(
+                        color: p.isRetrograde
+                            ? Colors.orangeAccent.withValues(alpha: 0.6)
+                            : AppColors.primaryGold.withValues(alpha: 0.3),
+                        width: 0.5,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    '${p.isRetrograde ? "Ⓞ" : ""}$shortName',
-                    style: GoogleFonts.outfit(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w600,
-                      color: p.isRetrograde ? Colors.orangeAccent : AppColors.lightGold,
+                    child: Text(
+                      '${p.isRetrograde ? "Ⓞ" : ""}$shortName',
+                      style: GoogleFonts.outfit(
+                        fontSize: 8,
+                        fontWeight: FontWeight.w600,
+                        color: p.isRetrograde ? Colors.orangeAccent : AppColors.lightGold,
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-        ],
+                  );
+                }).toList(),
+              ),
+          ],
+        ),
       ),
     );
   }

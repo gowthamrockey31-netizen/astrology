@@ -195,6 +195,19 @@ class Kp4Engine {
       planetRelations: planetRelations,
     );
 
+    // 8. Planet-to-Bhava Contact Mapping (Priority 1: Sub -> Priority 2: Sub-Sub -> Priority 3: Star)
+    final planetBhavaContacts = KpMethod4RelationEngine.calculatePlanetToBhavaContacts(
+      planets: planets,
+      cusps: cusps,
+      ascendantDegree: ascLong,
+    );
+
+    final planetToBhavas = KpMethod4RelationEngine.calculatePlanetToBhavaHouses(
+      planets: planets,
+      cusps: cusps,
+      ascendantDegree: ascLong,
+    );
+
     return KpResult(
       birthData: birthData,
       ascendantDegree: ascLong,
@@ -207,6 +220,8 @@ class Kp4Engine {
       planetRelations: planetRelations,
       houseRelations: houseRelations,
       dashaRelations: dashaRelations,
+      planetBhavaContacts: planetBhavaContacts,
+      planetToBhavas: planetToBhavas,
     );
   }
 

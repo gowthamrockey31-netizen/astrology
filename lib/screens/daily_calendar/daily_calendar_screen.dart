@@ -15,14 +15,15 @@ import '../../daily_rasi_palan/screens/daily_rasi_palan_screen.dart';
 
 /// Module Screen: தினசரி நாள்காட்டி (Daily Calendar & Panchangam)
 class DailyCalendarScreen extends StatefulWidget {
-  const DailyCalendarScreen({super.key});
+  final DateTime? initialDate;
+  const DailyCalendarScreen({super.key, this.initialDate});
 
   @override
   State<DailyCalendarScreen> createState() => _DailyCalendarScreenState();
 }
 
 class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
-  DateTime _selectedDate = DateTime.now();
+  late DateTime _selectedDate;
   late UserModel _user;
   late DailyCalendarData _calendarData;
   late String _currentCity;
@@ -46,6 +47,7 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedDate = widget.initialDate ?? DateTime.now();
     _loadUserAndCalculate();
   }
 
@@ -522,6 +524,12 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
                       WeeklyGowriModal.show(
                         context,
                         selectedWeekdayIndex: _selectedDate.weekday % 7,
+                        sunrise: _calendarData.sunriseTime,
+                        sunset: _calendarData.sunsetTime,
+                        nextSunrise: _calendarData.nextSunriseTime ??
+                            (_calendarData.nightGowriPeriods.isNotEmpty
+                                ? _calendarData.nightGowriPeriods.last.endTime
+                                : _calendarData.sunriseTime.add(const Duration(days: 1))),
                       );
                     },
                     borderRadius: BorderRadius.circular(6),
@@ -563,6 +571,7 @@ class _DailyCalendarScreenState extends State<DailyCalendarScreen> {
                         nightPeriods: _calendarData.nightGowriPeriods,
                         currentTime: queryTime,
                         weekdayIndex: _selectedDate.weekday % 7,
+                        prevSunset: _calendarData.prevSunsetTime,
                       );
 
                       return Column(

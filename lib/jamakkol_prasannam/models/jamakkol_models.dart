@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../services/astrology_calculator.dart';
 import 'jamam_models.dart';
 import 'jamakkol_planet_models.dart';
 
@@ -284,4 +285,108 @@ class JamakkolChartState {
     required this.nextHourSlots,
     required this.interpretation,
   });
+
+  /// Udayam Rasi index (0..11)
+  int get udayamRasi => udayam.rasiIndex;
+
+  /// Arudam Rasi index (0..11)
+  int get arudamRasi => arudam.rasiIndex;
+
+  /// Kavippu Rasi index (0..11)
+  int get kavippuRasi => kavippu.rasiIndex;
+
+  /// Jamakkol Rahu Kalam (Ra.Ka) Rasi Point index (0..11)
+  int get rahuKalamRasi {
+    for (final pt in upagrahas) {
+      if (pt.type == SpecialPointType.rahuKaalam) return pt.rasiIndex;
+    }
+    return 0;
+  }
+
+  /// Jamakkol Emakandam Rasi Point index (0..11)
+  int get emakandamRasi {
+    for (final pt in upagrahas) {
+      if (pt.type == SpecialPointType.yamakandam) return pt.rasiIndex;
+    }
+    return 0;
+  }
+
+  /// Jamakkol Mridyu Rasi Point index (0..11)
+  int get mridyuRasi {
+    for (final pt in upagrahas) {
+      if (pt.type == SpecialPointType.mrityu) return pt.rasiIndex;
+    }
+    return 0;
+  }
+
+  /// Jamakkol Mandi Rasi Point index (0..11)
+  int get mandiRasi {
+    for (final pt in upagrahas) {
+      if (pt.type == SpecialPointType.mandi) return pt.rasiIndex;
+    }
+    return 0;
+  }
+
+  /// Tamil Month name (மாதம், e.g. ஐப்பசி, கார்த்திகை)
+  String get tamilMonth {
+    final tDate = AstrologyCalculator.calculateTamilDate(
+      0.0,
+      date: queryDateTime,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      utcOffsetHours: location.timezone,
+    );
+    final month = tDate['month']?.toString();
+    if (month != null && month.isNotEmpty) return month;
+
+    double sunLon = 0.0;
+    for (final tp in transitPlanets) {
+      if (tp.nameEn == 'Sun' || tp.nameTa == 'சூரியன்') {
+        sunLon = tp.absoluteLongitude;
+        break;
+      }
+    }
+    final normLong = (sunLon % 360.0 + 360.0) % 360.0;
+    final int sunSign = (normLong / 30.0).floor() % 12;
+    if (sunSign >= 0 && sunSign < AstrologyCalculator.tamilMonthsTa.length) {
+      return AstrologyCalculator.tamilMonthsTa[sunSign];
+    }
+    return '';
+  }
+
+  /// Formatted Tamil Date (e.g. ஐப்பசி - 3)
+  String get tamilDateFormatted {
+    final tDate = AstrologyCalculator.calculateTamilDate(
+      0.0,
+      date: queryDateTime,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      utcOffsetHours: location.timezone,
+    );
+    final fmt = tDate['formatted']?.toString();
+    if (fmt != null && fmt.isNotEmpty) return fmt;
+
+    double sunLon = 0.0;
+    for (final tp in transitPlanets) {
+      if (tp.nameEn == 'Sun' || tp.nameTa == 'சூரியன்') {
+        sunLon = tp.absoluteLongitude;
+        break;
+      }
+    }
+    final normLong = (sunLon % 360.0 + 360.0) % 360.0;
+    final int sunSign = (normLong / 30.0).floor() % 12;
+    final int day = (normLong % 30.0).floor() + 1;
+    final month = (sunSign >= 0 && sunSign < AstrologyCalculator.tamilMonthsTa.length)
+        ? AstrologyCalculator.tamilMonthsTa[sunSign]
+        : '';
+    return month.isNotEmpty ? '$month - $day' : '';
+  }
+
+  /// Sun's Rasi index (0..11)
+  int get sunRasi {
+    for (final tp in transitPlanets) {
+      if (tp.nameEn == 'Sun' || tp.nameTa == 'சூரியன்') return tp.rasiIndex;
+    }
+    return 0;
+  }
 }

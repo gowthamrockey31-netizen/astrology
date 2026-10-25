@@ -203,13 +203,13 @@ void main() {
       final sunday = DateTime(2026, 9, 6); // Sunday
       final res = DailyCalendarEngine.calculate(targetDate: sunday);
 
-      // Sunday Morning Nalla Neram must be 07:00 AM - 09:00 AM, NOT 07:00 AM - 10:00 AM
-      expect(res.morningNallaNeram, 'காலை 07:00 AM - 09:00 AM');
+      // Sunday Morning Nalla Neram must be 07:30 AM - 09:00 AM, NOT 07:00 AM - 10:00 AM
+      expect(res.morningNallaNeram, 'காலை 07:30 AM - 09:00 AM');
       expect(res.morningNallaNeram.contains('10:00'), false);
-      expect(res.morningNallaNeram.contains('07:00 AM - 09:00 AM'), true);
+      expect(res.morningNallaNeram.contains('07:30 AM - 09:00 AM'), true);
 
-      // Sunday Evening Nalla Neram must be 04:30 PM - 05:30 PM (in Sukham), NOT 03:30 - 04:30 (in Choram)
-      expect(res.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
+      // Sunday Evening Nalla Neram must be 02:00 PM - 03:00 PM per handwritten table
+      expect(res.eveningNallaNeram, 'மாலை 02:00 PM - 03:00 PM');
 
       // Nalla Neram sunrise-based approximation note
       expect(res.nallaNeramNote, contains('குறிப்பு: மேற்கண்ட நேரம் தோராயமானது'));
@@ -245,9 +245,9 @@ void main() {
       final saturday = DateTime(2026, 9, 12);
       final satRes = DailyCalendarEngine.calculate(targetDate: saturday);
       expect(satRes.dayGowriPeriods.map((p) => p.nameTa).toList(),
-          ['சோரம்', 'உத்தி', 'விஷம்', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'சுகம்', 'உத்தி']);
+          ['சோரம்', 'உத்தி', 'விஷம்', 'அமிர்தம்', 'ரோகம்', 'லாபம்', 'தனம்', 'சுகம்']);
       expect(satRes.nightGowriPeriods.map((p) => p.nameTa).toList(),
-          ['லாபம்', 'தனம்', 'சுகம்', 'விஷம்', 'உத்தி', 'சோரம்', 'அமிர்தம்', 'ரோகம்']);
+          ['லாபம்', 'தனம்', 'சுகம்', 'சோரம்', 'உத்தி', 'விஷம்', 'அமிர்தம்', 'ரோகம்']);
     });
 
     test('TEST 11: Authentic 27-count Nendhiram & Jeevan verification', () {
@@ -299,52 +299,180 @@ void main() {
       // 1. Sunday (Sep 6, 2026)
       final sun1 = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 6));
       expect(sun1.weekdayTa, 'ஞாயிறு');
-      expect(sun1.morningNallaNeram, 'காலை 07:00 AM - 09:00 AM');
+      expect(sun1.morningNallaNeram, 'காலை 07:30 AM - 09:00 AM');
       expect(sun1.morningNallaNeram.contains('10:00'), false);
-      expect(sun1.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
+      expect(sun1.eveningNallaNeram, 'மாலை 02:00 PM - 03:00 PM');
       expect(sun1.nallaNeramNote, contains('குறிப்பு: மேற்கண்ட நேரம் தோராயமானது'));
 
       // 2. Monday (Sep 7, 2026)
       final mon = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 7));
       expect(mon.weekdayTa, 'திங்கள்');
-      expect(mon.morningNallaNeram, 'காலை 06:30 AM - 07:30 AM');
-      expect(mon.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
+      expect(mon.morningNallaNeram, 'காலை 06:00 AM - 07:00 AM');
+      expect(mon.eveningNallaNeram, 'பகல் 12:00 PM - 01:30 PM');
 
       // 3. Tuesday (Sep 8, 2026)
       final tue = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 8));
       expect(tue.weekdayTa, 'செவ்வாய்');
-      expect(tue.morningNallaNeram, 'காலை 07:30 AM - 08:30 AM');
-      expect(tue.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
+      expect(tue.morningNallaNeram, 'காலை 10:30 AM - 11:00 AM');
+      expect(tue.eveningNallaNeram, 'மாலை 05:30 PM - 06:00 PM');
 
       // 4. Wednesday (Sep 9, 2026)
       final wed = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 9));
       expect(wed.weekdayTa, 'புதன்');
-      expect(wed.morningNallaNeram, 'காலை 09:30 AM - 10:30 AM');
-      expect(wed.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
+      expect(wed.marriageWarning, isNull);
+      expect(wed.morningNallaNeram, 'காலை 09:00 AM - 10:00 AM');
+      expect(wed.eveningNallaNeram, 'பகல் 01:30 PM - 03:00 PM, மாலை 04:30 PM - 06:00 PM');
 
       // 5. Thursday (Sep 10, 2026)
       final thu = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 10));
       expect(thu.weekdayTa, 'வியாழன்');
-      expect(thu.morningNallaNeram, 'காலை 09:30 AM - 10:30 AM');
-      expect(thu.eveningNallaNeram, 'மாலை 06:30 PM - 07:30 PM');
+      expect(thu.marriageWarning, isNull);
+      expect(thu.morningNallaNeram, 'காலை 09:00 AM - 10:30 AM');
+      expect(thu.morningNallaNeram.contains('திருமணத்தை தவிர்க்க'), false);
+      expect(thu.eveningNallaNeram, 'பகல் 01:00 PM - 01:30 PM, மாலை 04:30 PM - 06:00 PM');
 
       // 6. Friday (Sep 11, 2026)
       final fri = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 11));
       expect(fri.weekdayTa, 'வெள்ளி');
-      expect(fri.morningNallaNeram, 'காலை 09:30 AM - 10:30 AM');
-      expect(fri.eveningNallaNeram, 'மாலை 04:30 PM - 05:30 PM');
+      expect(fri.morningNallaNeram, 'காலை 06:00 AM - 07:30 AM');
+      expect(fri.eveningNallaNeram, 'பகல் 01:00 PM - 01:30 PM, மாலை 05:00 PM - 06:00 PM');
 
       // 7. Saturday (Sep 12, 2026)
       final sat = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 12));
       expect(sat.weekdayTa, 'சனி');
-      expect(sat.morningNallaNeram, 'காலை 07:30 AM - 08:30 AM');
+      expect(sat.morningNallaNeram, 'காலை 10:30 AM - 12:00 PM');
       expect(sat.eveningNallaNeram, 'மாலை 05:00 PM - 06:00 PM');
 
       // Another Sunday (Sep 13, 2026) to test multiple dates
       final sun2 = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 9, 13));
       expect(sun2.weekdayTa, 'ஞாயிறு');
-      expect(sun2.morningNallaNeram, 'காலை 07:00 AM - 09:00 AM');
+      expect(sun2.morningNallaNeram, 'காலை 07:30 AM - 09:00 AM');
       expect(sun2.morningNallaNeram.contains('10:00'), false);
+      expect(sun2.eveningNallaNeram, 'மாலை 02:00 PM - 03:00 PM');
+    });
+
+    test('TEST 14: Confirmed Tamil Date Validation Cases (Aadi 19 & Aippasi 5)', () {
+      // Case 1: 04-08-1998 -> Aadi 19 (must not display Aadi 18)
+      final case1 = DailyCalendarEngine.calculate(targetDate: DateTime(1998, 8, 4));
+      expect(case1.tamilMonth, equals('ஆடி'));
+      expect(case1.tamilDay, equals(19));
+      expect(case1.tamilDateFormatted, equals('ஆடி - 19'));
+
+      // Case 2: 21 October -> Aippasi 5 across various years
+      for (final y in [1998, 2020, 2024, 2025]) {
+        final case2 = DailyCalendarEngine.calculate(targetDate: DateTime(y, 10, 21));
+        expect(case2.tamilMonth, equals('ஐப்பசி'));
+        expect(case2.tamilDay, equals(5));
+        expect(case2.tamilDateFormatted, equals('ஐப்பசி - 5'));
+      }
+      final case2026 = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 10, 21));
+      expect(case2026.tamilMonth, equals('ஐப்பசி'));
+      expect(case2026.tamilDay, equals(4));
+
+      // Transitions and middle of months across all 12 Tamil months
+      final transitions = [
+        (DateTime(2026, 4, 14), 'சித்திரை', 1),
+        (DateTime(2026, 5, 14), 'சித்திரை', 31),
+        (DateTime(2026, 5, 15), 'வைகாசி', 1),
+        (DateTime(2026, 6, 15), 'ஆனி', 1),
+        (DateTime(2026, 7, 16), 'ஆனி', 32),
+        (DateTime(2026, 7, 17), 'ஆடி', 1),
+        (DateTime(2026, 8, 17), 'ஆவணி', 1),
+        (DateTime(2026, 9, 17), 'ஆவணி', 32),
+        (DateTime(2026, 9, 18), 'புரட்டாசி', 1),
+        (DateTime(2026, 10, 17), 'புரட்டாசி', 30),
+        (DateTime(2026, 10, 18), 'ஐப்பசி', 1),
+        (DateTime(2026, 11, 17), 'கார்த்திகை', 1),
+        (DateTime(2026, 12, 16), 'மார்கழி', 1),
+        (DateTime(2027, 1, 15), 'தை', 1),
+        (DateTime(2027, 2, 13), 'மாசி', 1),
+        (DateTime(2027, 3, 15), 'பங்குனி', 1),
+      ];
+      for (final t in transitions) {
+        final res = DailyCalendarEngine.calculate(targetDate: t.$1);
+        expect(res.tamilMonth, equals(t.$2));
+        expect(res.tamilDay, equals(t.$3));
+      }
+    });
+
+    test('TEST 15: Wednesday Marriage Warning Verification (Only on Wednesday)', () {
+      // Test across a full 7-day week
+      final wednesday = DateTime(2026, 9, 9);
+      final thu = DateTime(2026, 9, 10);
+      final fri = DateTime(2026, 9, 11);
+      final sat = DateTime(2026, 9, 12);
+      final sun = DateTime(2026, 9, 13);
+      final mon = DateTime(2026, 9, 14);
+      final tue = DateTime(2026, 9, 15);
+
+      // 1. Wednesday: MUST NOT display "புதன்கிழமை அன்று திருமணத்தை தவிர்க்க" (marriageWarning is null)
+      final wedRes = DailyCalendarEngine.calculate(targetDate: wednesday);
+      expect(wedRes.weekdayTa, equals('புதன்'));
+      expect(wedRes.marriageWarning, isNull);
+
+      // 2. Thursday: MUST NOT display warning and MUST have null marriageWarning
+      final thuRes = DailyCalendarEngine.calculate(targetDate: thu);
+      expect(thuRes.weekdayTa, equals('வியாழன்'));
+      expect(thuRes.marriageWarning, isNull);
+      expect(thuRes.morningNallaNeram.contains('திருமணத்தை தவிர்க்க'), isFalse);
+      expect(thuRes.nallaNeramNote.contains('வியாழன்'), isFalse);
+
+      // 3. Other weekdays: MUST NOT display the warning
+      for (final d in [fri, sat, sun, mon, tue]) {
+        final res = DailyCalendarEngine.calculate(targetDate: d);
+        expect(res.marriageWarning, isNull);
+        expect(res.morningNallaNeram.contains('திருமணத்தை தவிர்க்க'), isFalse);
+        expect(res.eveningNallaNeram.contains('திருமணத்தை தவிர்க்க'), isFalse);
+      }
+
+      // 4. Multiple Wednesdays across different months and years: all must have null marriageWarning
+      final otherWednesdays = [
+        DateTime(2024, 1, 3),
+        DateTime(2025, 6, 18),
+        DateTime(2026, 10, 7),
+        DateTime(2026, 10, 14),
+        DateTime(2026, 10, 21),
+      ];
+      for (final w in otherWednesdays) {
+        final res = DailyCalendarEngine.calculate(targetDate: w);
+        expect(res.weekdayTa, equals('புதன்'));
+        expect(res.marriageWarning, isNull);
+      }
+    });
+
+    test('TEST 14: 11 October 2026 Sandhitra/Chandrashtama Rasi displays Meenam (Pisces)', () {
+      final oct11 = DateTime(2026, 10, 11);
+      final res = DailyCalendarEngine.calculate(
+        targetDate: oct11,
+        latitude: 13.0827,
+        longitude: 80.2707,
+        utcOffsetHours: 5.5,
+      );
+
+      // Verify Chandrashtama Rasi displays Meenam (Pisces)
+      expect(res.chandrashtamaRasiTa, contains('மீனம்'));
+      expect(res.chandrashtamaRasiTa, contains('Pisces'));
+
+      // Verify Chandrashtama Nakshatras for Meenam
+      expect(res.chandrashtamaNakshatrasTa, contains('பூரட்டாதி'));
+      expect(res.chandrashtamaNakshatrasTa, contains('உத்தரட்டாதி'));
+      expect(res.chandrashtamaNakshatrasTa, contains('ரேவதி'));
+
+      // Verify adjacent dates transition consistency
+      final oct10 = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 10, 10));
+      expect(oct10.chandrashtamaRasiTa, contains('கும்பம்')); // Aquarius before Libra entry
+
+      final oct12 = DailyCalendarEngine.calculate(targetDate: DateTime(2026, 10, 12));
+      expect(oct12.chandrashtamaRasiTa, contains('மீனம்')); // Pisces while Moon is in Libra
+
+      // Verify other fields remain completely intact
+      expect(res.englishDate, '11 / 10 / 2026');
+      expect(res.weekdayTa, 'ஞாயிறு');
+      expect(res.weekdayEn, 'Sunday');
+      expect(res.nakshatraNameTa, 'சித்திரை');
+      expect(res.tithiNameTa, isNotEmpty);
+      expect(res.yogaNameTa, isNotEmpty);
+      expect(res.karanaNameTa, isNotEmpty);
     });
   });
 }

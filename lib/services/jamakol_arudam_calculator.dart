@@ -1,5 +1,6 @@
 import '../models/jamakol_arudam_model.dart';
 import 'astrology_calculator.dart';
+import '../jamakkol_prasannam/engine/kavippu_calculator.dart';
 
 /// Calculation Service for Jamakol Arudam (ஜாமகோள் ஆருடம்) Prasannam
 class JamakolArudamCalculator {
@@ -77,8 +78,17 @@ class JamakolArudamCalculator {
     );
 
     // 3. Kavippu (கவிப்பு): Obstruction point
-    // Formula: Kavippu = (Aarudam + 6) % 12 in classical table
-    final int kavippuRasiIdx = (aarudamRasiIdx + 6) % 12;
+    // Calculated using authentic Sun Veedhi + Aarudham clockwise distance from Udhayam
+    final int sunRasi1 = natal.sun.rasiIndex + 1;
+    final int sunVeedhi = KavippuCalculator.getSunVeedhiIndex(sunRasi1);
+    final int dist = KavippuCalculator.calculateClockwiseDistance(
+      aarudamRasi1: aarudamRasiIdx + 1,
+      sunVeedhiIndex: sunVeedhi,
+    );
+    final int kavippuRasiIdx = KavippuCalculator.calculateKavippuRasi1(
+      udayamRasi1: udhayamRasiIdx + 1,
+      clockwiseDistance: dist,
+    ) - 1;
     final kavippu = JamakolPlanet(
       nameTa: 'கவிப்பு (Kavippu)',
       symbol: 'கவி',

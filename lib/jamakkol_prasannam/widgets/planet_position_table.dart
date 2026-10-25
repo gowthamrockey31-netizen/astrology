@@ -44,12 +44,14 @@ class _PlanetPositionTableWidgetState extends State<PlanetPositionTableWidget> {
             children: [
               const Icon(Icons.table_chart_rounded, color: Color(0xFFFFD700), size: 20),
               const SizedBox(width: 8),
-              Text(
-                widget.isTamil ? 'கிரக நிலைகள் & பாகைகள்' : 'Planetary Positions & Degrees',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
+              Expanded(
+                child: Text(
+                  widget.isTamil ? 'கிரக நிலைகள் & பாகைகள்' : 'Planetary Positions & Degrees',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
               ),
             ],
@@ -280,6 +282,11 @@ class _PlanetPositionTableWidgetState extends State<PlanetPositionTableWidget> {
           if (pt.type == SpecialPointType.udayam) pointColor = const Color(0xFF60A5FA);
           if (pt.type == SpecialPointType.arudam) pointColor = const Color(0xFF34D399);
           if (pt.type == SpecialPointType.kavippu) pointColor = const Color(0xFFF87171);
+          if (pt.type == SpecialPointType.mandi) pointColor = const Color(0xFFF472B6);
+          if (pt.type == SpecialPointType.rahuKaalam) pointColor = const Color(0xFFC084FC);
+          if (pt.type == SpecialPointType.yamakandam) pointColor = const Color(0xFFFB923C);
+          if (pt.type == SpecialPointType.mrityu) pointColor = const Color(0xFFFB7185);
+          if (pt.type == SpecialPointType.lagna) pointColor = const Color(0xFF38BDF8);
 
           return DataRow(cells: [
             DataCell(Text(

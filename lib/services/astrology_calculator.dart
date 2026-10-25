@@ -2,6 +2,7 @@ import 'dart:math';
 import '../models/horoscope_calculation_result.dart';
 import 'tithi_calculator.dart';
 import 'swiss_ephemeris_calculator.dart';
+import 'daily_calendar_engine.dart';
 
 /// Representation of a planet or mathematical point position in sidereal astrology.
 class PlanetDetail {
@@ -423,12 +424,17 @@ class AstrologyCalculator {
     final sunriseMin = solarNoon - (hDeg * 4.0);
     final sunsetMin = solarNoon + (hDeg * 4.0);
 
-    final sH = sunriseMin ~/ 60;
-    final sM = (sunriseMin % 60).floor();
-    final sS = (((sunriseMin % 60) - sM) * 60.0).round().clamp(0, 59);
-    final eH = sunsetMin ~/ 60;
-    final eM = (sunsetMin % 60).floor();
-    final eS = (((sunsetMin % 60) - eM) * 60.0).round().clamp(0, 59);
+    // Round to nearest minute as per standard Indian Ephemeris & Panchangam convention
+    // (e.g. 5:57:44 rounds to 05:58:00)
+    final sRoundedMin = sunriseMin.round();
+    final sH = sRoundedMin ~/ 60;
+    final sM = sRoundedMin % 60;
+    final sS = 0;
+
+    final eRoundedMin = sunsetMin.round();
+    final eH = eRoundedMin ~/ 60;
+    final eM = eRoundedMin % 60;
+    final eS = 0;
 
     final sunrise = DateTime(dt.year, dt.month, dt.day, sH, sM, sS);
     final sunset = DateTime(dt.year, dt.month, dt.day, eH, eM, eS);
@@ -436,8 +442,28 @@ class AstrologyCalculator {
     return {'sunrise': sunrise, 'sunset': sunset};
   }
 
-  /// Calculate exact Tamil Date based on Sun's Sidereal Longitude
-  static Map<String, dynamic> calculateTamilDate(double sunSiderealLongitude) {
+  /// Calculate exact Tamil Date based on Gregorian Date (linked to Daily Calendar) or Sun Longitude
+  static Map<String, dynamic> calculateTamilDate(
+    double sunSiderealLongitude, {
+    DateTime? date,
+    double latitude = 13.0827,
+    double longitude = 80.2707,
+    double utcOffsetHours = 5.5,
+  }) {
+    if (date != null) {
+      final res = DailyCalendarEngine.calculateTamilDate(
+        date,
+        latitude: latitude,
+        longitude: longitude,
+        utcOffsetHours: utcOffsetHours,
+      );
+      return {
+        'month': res.month,
+        'day': res.day,
+        'formatted': res.formatted,
+      };
+    }
+
     final normLong = _normalizeDegrees(sunSiderealLongitude);
     final monthIdx = (normLong / 30.0).floor() % 12;
     final day = (normLong % 30.0).floor() + 1;
@@ -629,8 +655,14 @@ class AstrologyCalculator {
     // Yoga Calculation
     final yoga = calculateYoga(sunSid, moonSid);
 
-    // Tamil Date Calculation
-    final tamilDate = calculateTamilDate(sunSid);
+    // Tamil Date Calculation: Linked to authoritative Daily Calendar Tamil date calculation
+    final tamilDate = calculateTamilDate(
+      sunSid,
+      date: dateOfBirth,
+      latitude: latitude,
+      longitude: longitude,
+      utcOffsetHours: utcOffsetHours,
+    );
 
     // Birth Hora Calculation
     final birthHora = calculateHora(dateOfBirth, latitude: latitude, longitude: longitude, utcOffsetHours: utcOffsetHours);

@@ -44,9 +44,15 @@ class JamakkolResultScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(14),
-        child: Column(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            14,
+            14,
+            14,
+            MediaQuery.of(context).padding.bottom + 36,
+          ),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Report Header Card
@@ -88,7 +94,7 @@ class JamakkolResultScreen extends StatelessWidget {
                     style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                   Text(
-                    '${isTamil ? "ஜாமம்" : "Jamam"}: ${state.currentJamam.displayNameTa} (${isTamil ? "அதிபதி" : "Lord"}: ${state.currentJamam.rulingPlanetTa})',
+                    '${isTamil ? "மாதம்" : "Month"}: ${state.tamilMonth} • ${isTamil ? "ஜாமம்" : "Jamam"}: ${state.currentJamam.displayNameTa} (${isTamil ? "அதிபதி" : "Lord"}: ${state.currentJamam.rulingPlanetTa})',
                     style: const TextStyle(color: Color(0xFFFFD700), fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -214,9 +220,11 @@ class JamakkolResultScreen extends StatelessWidget {
                     children: [
                       const Icon(Icons.temple_hindu_rounded, color: Color(0xFFFFD700), size: 18),
                       const SizedBox(width: 8),
-                      Text(
-                        isTamil ? 'ஜோதிடப் பரிகாரம் & வழிகாட்டல்' : 'Remedy & Spiritual Guidance',
-                        style: const TextStyle(color: Color(0xFFFFD700), fontWeight: FontWeight.bold, fontSize: 13),
+                      Expanded(
+                        child: Text(
+                          isTamil ? 'ஜோதிடப் பரிகாரம் & வழிகாட்டல்' : 'Remedy & Spiritual Guidance',
+                          style: const TextStyle(color: Color(0xFFFFD700), fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
                       ),
                     ],
                   ),
@@ -231,6 +239,7 @@ class JamakkolResultScreen extends StatelessWidget {
             const SizedBox(height: 24),
           ],
         ),
+      ),
       ),
     );
   }
