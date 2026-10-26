@@ -171,6 +171,9 @@ class ProfessionalMuhurthaEngine {
       moonLong: moonLong,
       category: category,
       rules: activeRules,
+      sunrise: sunrise,
+      sunset: sunset,
+      location: location,
     );
 
     // Compatibility angas result
@@ -195,6 +198,9 @@ class ProfessionalMuhurthaEngine {
       karanaName: level1Day.karana.karanaName,
       isKaranaAuspicious: level1Day.karana.isSuitable,
       karanaReason: level1Day.karana.reason,
+      primaryNamaYoga: level1Day.yoga.primaryYoga,
+      nextNamaYoga: level1Day.yoga.nextYoga,
+      yogaTransitionTime: level1Day.yoga.transitionTime,
     );
 
     // ===============================================================
@@ -347,6 +353,9 @@ class ProfessionalMuhurthaEngine {
     required double moonLong,
     required MuhurthaCategory category,
     required SubhaMuhurthamRules rules,
+    DateTime? sunrise,
+    DateTime? sunset,
+    GeoLocation? location,
   }) {
     // 1. Vaaram
     final int weekdayNum = date.weekday; // 1=Mon..7=Sun
@@ -430,24 +439,89 @@ class ProfessionalMuhurthaEngine {
       reason: nakReason,
     );
 
-    // 4. Yoga (Amirthathi Yoga: Siddha, Amrita, Marana)
-    final int rem = (weekdayNum + nakIdx) % 3;
+    // 4. Yoga (Nama Yogam: Siddha, Amirtha, Marana, Prabala Arishta)
+    final SubhaNamaYogaType primaryYoga;
+    SubhaNamaYogaType? nextYoga;
+    DateTime? yogaTransitionTime;
     String amirthathiYoga;
     bool isYogaAuspicious;
     String yogaReason;
 
-    if (rem == 0) {
-      amirthathiYoga = 'அமிர்த யோகம்';
-      isYogaAuspicious = rules.allowedAmirthathiYogas.contains('அமிர்த யோகம்');
-      yogaReason = 'அமிர்த யோகம் - சகல சுப காரியங்களுக்கும் மிக உன்னதமானது';
-    } else if (rem == 1) {
-      amirthathiYoga = 'சித்த யோகம்';
-      isYogaAuspicious = rules.allowedAmirthathiYogas.contains('சித்த யோகம்');
-      yogaReason = 'சித்த யோகம் - காரிய வெற்றி தரக்கூடிய உகந்த யோகம்';
+    int activeNakIdx = nakIdx;
+    DateTime? nextSunrise;
+
+    if (sunrise != null && location != null) {
+      final smSunrise = SwissEphemerisCalculator.calculateSunMoonSidereal(
+        sunrise,
+        utcOffsetHours: location.timeZone,
+      );
+      activeNakIdx = (smSunrise.moon % 360.0 / nakSpan).floor() % 27;
+
+      final nextDay = DateTime(date.year, date.month, date.day + 1, 12, 0);
+      final nextSunTimes = AstrologyCalculator.calculateSunriseSunset(
+        nextDay,
+        location.latitude,
+        location.longitude,
+        location.timeZone,
+      );
+      nextSunrise = nextSunTimes['sunrise'];
+    }
+
+    primaryYoga = calculateNamaYoga(weekdayNum, activeNakIdx);
+
+    if (sunrise != null && nextSunrise != null && location != null) {
+      final nakEnd = _findNakshatraBoundaryCrossing(
+        startTime: sunrise,
+        endTime: nextSunrise,
+        currentIdx: activeNakIdx,
+        utcOffsetHours: location.timeZone,
+      );
+
+      if (nakEnd.isBefore(nextSunrise)) {
+        final nextNakIdx = (activeNakIdx + 1) % 27;
+        final candidateNextYoga = calculateNamaYoga(weekdayNum, nextNakIdx);
+        if (candidateNextYoga != primaryYoga) {
+          nextYoga = candidateNextYoga;
+          yogaTransitionTime = nakEnd;
+        }
+      }
+    }
+
+    if (nextYoga != null && yogaTransitionTime != null) {
+      final nextY = nextYoga;
+      final timingStr = _formatTransitionTime(date, yogaTransitionTime);
+      amirthathiYoga = '${primaryYoga.tamilLabel} ($timingStr வரை), பின் ${nextY.tamilLabel}';
+
+      final bool isPrimaryAllowed = rules.allowedAmirthathiYogas.any((a) =>
+          a == primaryYoga.tamilLabel ||
+          a == primaryYoga.englishLabel ||
+          primaryYoga.tamilLabel.contains(a)) || primaryYoga.isAuspicious;
+      final bool isNextAllowed = rules.allowedAmirthathiYogas.any((a) =>
+          a == nextY.tamilLabel ||
+          a == nextY.englishLabel ||
+          nextY.tamilLabel.contains(a)) || nextY.isAuspicious;
+
+      if (isPrimaryAllowed && isNextAllowed) {
+        isYogaAuspicious = true;
+        yogaReason = '${primaryYoga.tamilLabel} ($timingStr வரை) - ${primaryYoga.description}; பின் ${nextY.tamilLabel} - ${nextY.description}';
+      } else if (isPrimaryAllowed && !isNextAllowed) {
+        isYogaAuspicious = true;
+        yogaReason = '${primaryYoga.tamilLabel} ($timingStr வரை) சுப காரியங்களுக்கு உகந்தது; பின் ${nextY.tamilLabel} தொடங்குவதால் தவிர்க்கவும்';
+      } else if (!isPrimaryAllowed && isNextAllowed) {
+        final bool isTransitionInDay = sunset != null ? yogaTransitionTime.isBefore(sunset) : true;
+        isYogaAuspicious = isTransitionInDay;
+        yogaReason = '${primaryYoga.tamilLabel} ($timingStr வரை) தவிர்க்கப்பட வேண்டும்; பின் ${nextY.tamilLabel} சுப காரியங்களுக்கு உகந்தது';
+      } else {
+        isYogaAuspicious = false;
+        yogaReason = '${primaryYoga.tamilLabel} மற்றும் ${nextY.tamilLabel} இரண்டும் சுப காரியங்களுக்கு முற்றிலும் தவிர்க்கப்பட வேண்டும்';
+      }
     } else {
-      amirthathiYoga = 'மரண யோகம்';
-      isYogaAuspicious = false;
-      yogaReason = 'மரண யோகம் - சுப காரியங்களை முற்றிலும் தவிர்க்கவும்';
+      amirthathiYoga = primaryYoga.tamilLabel;
+      isYogaAuspicious = rules.allowedAmirthathiYogas.any((a) =>
+          a == primaryYoga.tamilLabel ||
+          a == primaryYoga.englishLabel ||
+          primaryYoga.tamilLabel.contains(a)) || primaryYoga.isAuspicious;
+      yogaReason = '${primaryYoga.tamilLabel} - ${primaryYoga.description}';
     }
 
     final yogaData = AstrologyCalculator.calculateYoga(sunLong, moonLong);
@@ -458,6 +532,9 @@ class ProfessionalMuhurthaEngine {
       amirthathiYoga: amirthathiYoga,
       isSuitable: isYogaAuspicious,
       reason: yogaReason,
+      primaryYoga: primaryYoga,
+      nextYoga: nextYoga,
+      transitionTime: yogaTransitionTime,
     );
 
     // 5. Karana
@@ -519,6 +596,9 @@ class ProfessionalMuhurthaEngine {
     required double moonLong,
     required MuhurthaCategory category,
     SubhaMuhurthamRules? rules,
+    DateTime? sunrise,
+    DateTime? sunset,
+    GeoLocation? location,
   }) {
     final l1 = evaluateLevel1Day(
       date: date,
@@ -526,6 +606,9 @@ class ProfessionalMuhurthaEngine {
       moonLong: moonLong,
       category: category,
       rules: rules ?? SubhaMuhurthamRules.standard(),
+      sunrise: sunrise,
+      sunset: sunset,
+      location: location,
     );
 
     return PanchangaAngasResult(
@@ -549,6 +632,9 @@ class ProfessionalMuhurthaEngine {
       karanaName: l1.karana.karanaName,
       isKaranaAuspicious: l1.karana.isSuitable,
       karanaReason: l1.karana.reason,
+      primaryNamaYoga: l1.yoga.primaryYoga,
+      nextNamaYoga: l1.yoga.nextYoga,
+      yogaTransitionTime: l1.yoga.transitionTime,
     );
   }
 
@@ -1420,5 +1506,215 @@ class ProfessionalMuhurthaEngine {
 
   static String _time(DateTime dt) {
     return DateFormat('hh:mm a').format(dt);
+  }
+
+  /// Evaluates Nama Yogam (அமிர்தாதி யோகம்) for Subha Muhurtham
+  /// based on Weekday (1=Mon .. 7=Sun) and Nakshatra Index (0..26)
+  /// using the authoritative weekday-nakshatra combinations.
+  static SubhaNamaYogaType calculateNamaYoga(int weekdayNum, int nakIdx) {
+    switch (weekdayNum) {
+      case 7: // ஞாயிறு (Sunday)
+        if (nakIdx == 1) {
+          // Bharani / பரணி
+          return SubhaNamaYogaType.prabalaArishta;
+        } else if (nakIdx == 11 || nakIdx == 18 || nakIdx == 20 || nakIdx == 21 || nakIdx == 25 || nakIdx == 26) {
+          // Uttara Phalguni, Mula, Uttara Ashadha, Shravana, Uttara Bhadrapada, Revati
+          return SubhaNamaYogaType.amirtha;
+        } else if (nakIdx == 9 || nakIdx == 15 || nakIdx == 16 || nakIdx == 17 || nakIdx == 22) {
+          // Magha, Vishakha, Anuradha, Jyeshtha, Dhanishta
+          return SubhaNamaYogaType.marana;
+        } else {
+          // Ashwini, Krittika, Rohini, Mrigashirsha, Ardra, Punarvasu, Pushya, Ashlesha,
+          // Purva Phalguni, Hasta, Chitra, Swati, Purva Ashadha, Shatabhisha, Purva Bhadrapada
+          return SubhaNamaYogaType.siddha;
+        }
+
+      case 1: // திங்கள் (Monday)
+        if (nakIdx == 13) {
+          // Chitra / சித்திரை
+          return SubhaNamaYogaType.prabalaArishta;
+        } else if (nakIdx == 3 || nakIdx == 6 || nakIdx == 14 || nakIdx == 21) {
+          // Rohini, Punarvasu, Swati, Shravana
+          return SubhaNamaYogaType.amirtha;
+        } else if (nakIdx == 2 || nakIdx == 9 || nakIdx == 15 || nakIdx == 19 || nakIdx == 20 || nakIdx == 24) {
+          // Krittika, Magha, Vishakha, Purva Ashadha, Uttara Ashadha, Purva Bhadrapada
+          return SubhaNamaYogaType.marana;
+        } else {
+          // Ashwini, Bharani, Mrigashirsha, Ardra, Pushya, Ashlesha, Purva Phalguni,
+          // Uttara Phalguni, Hasta, Anuradha, Jyeshtha, Mula, Dhanishta, Shatabhisha,
+          // Uttara Bhadrapada, Revati
+          return SubhaNamaYogaType.siddha;
+        }
+
+      case 2: // செவ்வாய் (Tuesday)
+        if (nakIdx == 20) {
+          // Uttara Ashadha / உத்திராடம்
+          return SubhaNamaYogaType.prabalaArishta;
+        } else if (nakIdx == 3 || nakIdx == 11 || nakIdx == 18 || nakIdx == 25) {
+          // Rohini, Uttara Phalguni, Mula, Uttara Bhadrapada
+          return SubhaNamaYogaType.amirtha;
+        } else if (nakIdx == 5 || nakIdx == 15 || nakIdx == 17 || nakIdx == 23 || nakIdx == 24) {
+          // Ardra, Vishakha, Jyeshtha, Shatabhisha, Purva Bhadrapada
+          return SubhaNamaYogaType.marana;
+        } else {
+          // Ashwini, Bharani, Krittika, Mrigashirsha, Punarvasu, Pushya, Ashlesha, Magha,
+          // Purva Phalguni, Hasta, Chitra, Swati, Anuradha, Purva Ashadha, Shravana,
+          // Dhanishta, Revati
+          return SubhaNamaYogaType.siddha;
+        }
+
+      case 3: // புதன் (Wednesday)
+        if (nakIdx == 22) {
+          // Dhanishta / அவிட்டம்
+          return SubhaNamaYogaType.prabalaArishta;
+        } else if (nakIdx == 2 || nakIdx == 10 || nakIdx == 11 || nakIdx == 19 || nakIdx == 20 || nakIdx == 24) {
+          // Krittika, Purva Phalguni, Uttara Phalguni, Purva Ashadha, Uttara Ashadha, Purva Bhadrapada
+          return SubhaNamaYogaType.amirtha;
+        } else if (nakIdx == 0 || nakIdx == 12 || nakIdx == 18 || nakIdx == 26) {
+          // Ashwini, Hasta, Mula, Revati
+          return SubhaNamaYogaType.marana;
+        } else {
+          // Bharani, Rohini, Mrigashirsha, Ardra, Punarvasu, Pushya, Ashlesha, Magha,
+          // Chitra, Swati, Vishakha, Anuradha, Jyeshtha, Shravana, Shatabhisha, Uttara Bhadrapada
+          return SubhaNamaYogaType.siddha;
+        }
+
+      case 4: // வியாழன் (Thursday)
+        if (nakIdx == 17) {
+          // Jyeshtha / கேட்டை
+          return SubhaNamaYogaType.prabalaArishta;
+        } else if (nakIdx == 0 || nakIdx == 6 || nakIdx == 9 || nakIdx == 14) {
+          // Ashwini, Punarvasu, Magha, Swati
+          return SubhaNamaYogaType.amirtha;
+        } else if (nakIdx == 2 || nakIdx == 3 || nakIdx == 4 || nakIdx == 5 || nakIdx == 11 || nakIdx == 23) {
+          // Krittika, Rohini, Mrigashirsha, Ardra, Uttara Phalguni, Shatabhisha
+          return SubhaNamaYogaType.marana;
+        } else {
+          // Bharani, Pushya, Ashlesha, Purva Phalguni, Hasta, Chitra, Vishakha, Anuradha,
+          // Mula, Purva Ashadha, Uttara Ashadha, Shravana, Dhanishta, Purva Bhadrapada,
+          // Uttara Bhadrapada, Revati
+          return SubhaNamaYogaType.siddha;
+        }
+
+      case 5: // வெள்ளி (Friday)
+        if (nakIdx == 19) {
+          // Purva Ashadha / பூராடம்
+          return SubhaNamaYogaType.prabalaArishta;
+        } else if (nakIdx == 0 || nakIdx == 12 || nakIdx == 18) {
+          // Ashwini, Hasta, Mula
+          return SubhaNamaYogaType.amirtha;
+        } else if (nakIdx == 3 || nakIdx == 7 || nakIdx == 8 || nakIdx == 9 || nakIdx == 17 || nakIdx == 21) {
+          // Rohini, Pushya, Ashlesha, Magha, Jyeshtha, Shravana
+          return SubhaNamaYogaType.marana;
+        } else {
+          // Bharani, Krittika, Mrigashirsha, Ardra, Punarvasu, Purva Phalguni,
+          // Uttara Phalguni, Chitra, Swati, Vishakha, Anuradha, Uttara Ashadha,
+          // Dhanishta, Shatabhisha, Purva Bhadrapada, Uttara Bhadrapada, Revati
+          return SubhaNamaYogaType.siddha;
+        }
+
+      case 6: // சனி (Saturday)
+        if (nakIdx == 26) {
+          // Revati / ரேவதி
+          return SubhaNamaYogaType.prabalaArishta;
+        } else if (nakIdx == 3 || nakIdx == 9 || nakIdx == 23) {
+          // Rohini, Magha, Shatabhisha
+          return SubhaNamaYogaType.amirtha;
+        } else if (nakIdx == 8 || nakIdx == 11 || nakIdx == 12 || nakIdx == 13 || nakIdx == 24) {
+          // Ashlesha, Uttara Phalguni, Hasta, Chitra, Purva Bhadrapada
+          return SubhaNamaYogaType.marana;
+        } else {
+          // Ashwini, Bharani, Krittika, Mrigashirsha, Ardra, Punarvasu, Pushya,
+          // Purva Phalguni, Swati, Vishakha, Anuradha, Jyeshtha, Mula, Purva Ashadha,
+          // Uttara Ashadha, Shravana, Dhanishta, Uttara Bhadrapada
+          return SubhaNamaYogaType.siddha;
+        }
+
+      default:
+        return SubhaNamaYogaType.siddha;
+    }
+  }
+
+  /// Calculates the exact timestamp when the Moon transitions to the next Nakshatra
+  static DateTime _findNakshatraBoundaryCrossing({
+    required DateTime startTime,
+    required DateTime endTime,
+    required int currentIdx,
+    required double utcOffsetHours,
+  }) {
+    const double span = 360.0 / 27.0;
+    final targetBoundary = ((currentIdx + 1) * span) % 360.0;
+    final effectiveTarget = (targetBoundary == 0.0) ? 360.0 : targetBoundary;
+
+    bool isPast(double angle) {
+      if (effectiveTarget == 360.0) {
+        return angle < (currentIdx * span) || angle >= 360.0;
+      }
+      return angle >= effectiveTarget;
+    }
+
+    DateTime lower = startTime;
+    DateTime upper = endTime;
+
+    // Coarse scan: 10-minute intervals
+    DateTime t = lower;
+    bool found = false;
+    while (t.isBefore(upper)) {
+      final nextT = t.add(const Duration(minutes: 10));
+      final a1 = SwissEphemerisCalculator.calculateSunMoonSidereal(t, utcOffsetHours: utcOffsetHours).moon;
+      final a2 = SwissEphemerisCalculator.calculateSunMoonSidereal(nextT, utcOffsetHours: utcOffsetHours).moon;
+      if (!isPast(a1) && isPast(a2)) {
+        lower = t;
+        upper = nextT;
+        found = true;
+        break;
+      }
+      t = nextT;
+    }
+
+    if (!found) {
+      return endTime.add(const Duration(days: 1));
+    }
+
+    // Binary search (bisection) down to 1 second
+    while (upper.difference(lower).inSeconds > 1) {
+      final mid = lower.add(Duration(milliseconds: upper.difference(lower).inMilliseconds ~/ 2));
+      final aMid = SwissEphemerisCalculator.calculateSunMoonSidereal(mid, utcOffsetHours: utcOffsetHours).moon;
+      if (isPast(aMid)) {
+        upper = mid;
+      } else {
+        lower = mid;
+      }
+    }
+
+    final exact = lower.add(Duration(seconds: upper.difference(lower).inSeconds ~/ 2));
+    final roundedMinute = (exact.second >= 30) ? exact.minute + 1 : exact.minute;
+    return DateTime(exact.year, exact.month, exact.day, exact.hour, roundedMinute);
+  }
+
+  /// Formats transition time with Tamil time-of-day period
+  static String _formatTransitionTime(DateTime targetDate, DateTime dt) {
+    final hour = dt.hour;
+    String period;
+    if (hour >= 3 && hour < 6) {
+      period = 'அதிகாலை';
+    } else if (hour >= 6 && hour < 12) {
+      period = (hour >= 9) ? 'பகல்' : 'காலை';
+    } else if (hour >= 12 && hour < 16) {
+      period = 'மதியம்';
+    } else if (hour >= 16 && hour < 20) {
+      period = 'மாலை';
+    } else {
+      period = 'இரவு';
+    }
+    final timeStr = DateFormat('hh:mm a').format(dt);
+    final isSameDay = targetDate.year == dt.year &&
+        targetDate.month == dt.month &&
+        targetDate.day == dt.day;
+    if (isSameDay) {
+      return '$period $timeStr';
+    } else {
+      return 'நாளை $period $timeStr';
+    }
   }
 }

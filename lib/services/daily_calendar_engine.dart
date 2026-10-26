@@ -3,6 +3,7 @@ import '../models/daily_calendar_models.dart';
 import '../models/tamil_calendar_models.dart';
 import 'astrology_calculator.dart';
 import 'gowri_panchangam_engine.dart';
+import 'jaathaga_kurippugal_calculator.dart';
 import 'panchanga_provider.dart';
 import 'swiss_ephemeris_calculator.dart';
 import 'tithi_calculator.dart';
@@ -273,7 +274,8 @@ class DailyCalendarEngine {
       nextTiming: _formatTransitionStart(targetDate, nakEnd),
     );
 
-    // 8. Nama Yogam / Amirthathi Yoga (Calculated from Weekday + Nakshatra across active intervals)
+    // 8. Nama Yogam / Amirthathi Yoga (Linked to General Yoga)
+    final String amirthathiYogaTa = JaathagaKurippugalCalculator.calculateAmirthathiYoga(weekdayIdx, nakIdx);
     final namaYogaInfo = calculateNamaYogaForDay(
       weekdayIdx: weekdayIdx,
       nakIdx: nakIdx,
@@ -281,7 +283,6 @@ class DailyCalendarEngine {
       nakEnd: nakEnd,
       nextDaySunrise: nextDaySunrise,
     );
-    final String amirthathiYogaTa = namaYogaInfo.tamil;
     final String amirthathiYogaEn = namaYogaInfo.english;
 
     final yogaEnd = _findNextBoundaryCrossing(
@@ -820,113 +821,12 @@ class DailyCalendarEngine {
     return events;
   }
 
-  /// Canonical Nama Yogam (அமிர்தாதி யோகம்) evaluation based on Weekday (1=Mon..7=Sun) and Nakshatra Index (0..26)
+  /// Canonical Nama Yogam (அமிர்தாதி யோகம்) evaluation linked to General Yoga
   static NamaYogaType calculateNamaYoga(int weekdayIdx, int nakIdx) {
-    // 1. Prabala Arishta Yogam (பிரபலாரிஷ்ட யோகம் / கூடா நாள்)
-    switch (weekdayIdx) {
-      case 7: // ஞாயிறு (Sunday)
-        if (nakIdx == 1) return NamaYogaType.prabalaArishta; // பரணி (Bharani)
-        break;
-      case 1: // திங்கள் (Monday)
-        if (nakIdx == 13) return NamaYogaType.prabalaArishta; // சித்திரை (Chitra)
-        break;
-      case 2: // செவ்வாய் (Tuesday)
-        if (nakIdx == 20) return NamaYogaType.prabalaArishta; // உத்திராடம் (Uttara Ashadha)
-        break;
-      case 3: // புதன் (Wednesday)
-        if (nakIdx == 22) return NamaYogaType.prabalaArishta; // அவிட்டம் (Dhanishta)
-        break;
-      case 4: // வியாழன் (Thursday)
-        if (nakIdx == 17) return NamaYogaType.prabalaArishta; // கேட்டை (Jyeshtha)
-        break;
-      case 5: // வெள்ளி (Friday)
-        if (nakIdx == 19) return NamaYogaType.prabalaArishta; // பூராடம் (Purva Ashadha)
-        break;
-      case 6: // சனி (Saturday)
-        if (nakIdx == 26) return NamaYogaType.prabalaArishta; // ரேவதி (Revati)
-        break;
-    }
-
-    // 2. Marana Yogam (மரணயோகம்)
-    switch (weekdayIdx) {
-      case 7: // ஞாயிறு (Sunday)
-        if (nakIdx == 2 || nakIdx == 9 || nakIdx == 15 || nakIdx == 16 || nakIdx == 22) {
-          return NamaYogaType.marana;
-        }
-        break;
-      case 1: // திங்கள் (Monday)
-        if (nakIdx == 0 || nakIdx == 2 || nakIdx == 15 || nakIdx == 20) {
-          return NamaYogaType.marana;
-        }
-        break;
-      case 2: // செவ்வாய் (Tuesday)
-        if (nakIdx == 5 || nakIdx == 15 || nakIdx == 24) {
-          return NamaYogaType.marana;
-        }
-        break;
-      case 3: // புதன் (Wednesday)
-        if (nakIdx == 0 || nakIdx == 12) {
-          return NamaYogaType.marana;
-        }
-        break;
-      case 4: // வியாழன் (Thursday)
-        if (nakIdx == 2 || nakIdx == 4 || nakIdx == 5 || nakIdx == 11 || nakIdx == 16 || nakIdx == 23) {
-          return NamaYogaType.marana;
-        }
-        break;
-      case 5: // வெள்ளி (Friday)
-        if (nakIdx == 3 || nakIdx == 7 || nakIdx == 8 || nakIdx == 9 || nakIdx == 21) {
-          return NamaYogaType.marana;
-        }
-        break;
-      case 6: // சனி (Saturday)
-        if (nakIdx == 8 || nakIdx == 11 || nakIdx == 12 || nakIdx == 13 || nakIdx == 24) {
-          return NamaYogaType.marana;
-        }
-        break;
-    }
-
-    // 3. Amirtha Yogam (அமிர்தயோகம்)
-    switch (weekdayIdx) {
-      case 7: // ஞாயிறு (Sunday)
-        if (nakIdx == 11 || nakIdx == 12 || nakIdx == 18 || nakIdx == 20 || nakIdx == 21 || nakIdx == 25 || nakIdx == 26) {
-          return NamaYogaType.amirtha;
-        }
-        break;
-      case 1: // திங்கள் (Monday)
-        if (nakIdx == 3 || nakIdx == 4 || nakIdx == 6 || nakIdx == 11 || nakIdx == 14 || nakIdx == 21) {
-          return NamaYogaType.amirtha;
-        }
-        break;
-      case 2: // செவ்வாய் (Tuesday)
-        if (nakIdx == 0 || nakIdx == 3 || nakIdx == 11 || nakIdx == 18 || nakIdx == 25) {
-          return NamaYogaType.amirtha;
-        }
-        break;
-      case 3: // புதன் (Wednesday)
-        if (nakIdx == 2 || nakIdx == 4 || nakIdx == 10 || nakIdx == 11 || nakIdx == 16 || nakIdx == 19 || nakIdx == 20 || nakIdx == 24 || nakIdx == 26) {
-          return NamaYogaType.amirtha;
-        }
-        break;
-      case 4: // வியாழன் (Thursday)
-        if (nakIdx == 0 || nakIdx == 6 || nakIdx == 7 || nakIdx == 9 || nakIdx == 14 || nakIdx == 26) {
-          return NamaYogaType.amirtha;
-        }
-        break;
-      case 5: // வெள்ளி (Friday)
-        if (nakIdx == 0 || nakIdx == 12 || nakIdx == 18 || nakIdx == 26) {
-          return NamaYogaType.amirtha;
-        }
-        break;
-      case 6: // சனி (Saturday)
-        if (nakIdx == 2 || nakIdx == 3 || nakIdx == 9 || nakIdx == 14 || nakIdx == 23 || nakIdx == 25) {
-          return NamaYogaType.amirtha;
-        }
-        break;
-    }
-
-    // 4. Siddha Yogam (சித்தயோகம்) - Default / All other combinations
-    return NamaYogaType.siddha;
+    final rem = (weekdayIdx + nakIdx) % 3;
+    if (rem == 0) return NamaYogaType.amirtha;
+    if (rem == 1) return NamaYogaType.siddha;
+    return NamaYogaType.marana;
   }
 
   /// Resolve canonical Nakshatra index from name string (supporting alternate spellings)
@@ -982,12 +882,14 @@ class DailyCalendarEngine {
     final yoga1 = calculateNamaYoga(weekdayIdx, nakIdx);
     final nextNakIdx = (nakIdx + 1) % 27;
     final yoga2 = calculateNamaYoga(weekdayIdx, nextNakIdx);
+    final generalTa1 = JaathagaKurippugalCalculator.calculateAmirthathiYoga(weekdayIdx, nakIdx);
+    final generalTa2 = JaathagaKurippugalCalculator.calculateAmirthathiYoga(weekdayIdx, nextNakIdx);
 
     // If Nakshatra transition occurs during this calendar/astrological day (before next sunrise)
     if (nakEnd.isBefore(nextDaySunrise)) {
       if (yoga1 == yoga2) {
         return (
-          tamil: yoga1.tamilName,
+          tamil: generalTa1,
           english: yoga1.englishName,
           primaryYoga: yoga1,
           nextYoga: null,
@@ -996,7 +898,7 @@ class DailyCalendarEngine {
         final timingStr = _formatTransitionTime(targetDate, nakEnd);
         final timingStrEn = _formatTransitionTimeEn(targetDate, nakEnd);
         return (
-          tamil: '${yoga1.tamilName} ($timingStr), பின் ${yoga2.tamilName}',
+          tamil: '$generalTa1 ($timingStr), பின் $generalTa2',
           english: '${yoga1.englishName} ($timingStrEn), then ${yoga2.englishName}',
           primaryYoga: yoga1,
           nextYoga: yoga2,
@@ -1004,7 +906,7 @@ class DailyCalendarEngine {
       }
     } else {
       return (
-        tamil: '${yoga1.tamilName} (முழு நாளும்)',
+        tamil: generalTa1,
         english: '${yoga1.englishName} (Full Day)',
         primaryYoga: yoga1,
         nextYoga: null,

@@ -303,52 +303,70 @@ class JamakkolPlanetCalculator {
   }
 
   /// Calculates Jamakkol Mandi Longitude dynamically:
-  /// Day base: Sun=336°, Mon=282°, Tue=288°, Wed=234°, Thu=210°, Fri=186°, Sat=162°
-  /// Night base: Sun=60°, Mon=6°, Tue=342°, Wed=126°, Thu=102°, Fri=78°, Sat=84°
+  /// Classical Jamakkol rule: Mandi = Sun Longitude + Mandi Offset
+  /// Day offsets from Sun: Sun=156°, Mon=132°, Tue=108°, Wed=84°, Thu=60°, Fri=36°, Sat=12°
+  /// Night offsets from Sun: Sun=240°, Mon=216°, Tue=192°, Wed=336°, Thu=312°, Fri=288°, Sat=264°
   static double calculateMandiLongitude({
     required int weekdayNumber,
-    required double sunDegInRasi,
+    double? sunLongitude,
+    double? sunDegInRasi,
     required bool isDay,
   }) {
-    const mandiDayBases = {7: 336.0, 1: 282.0, 2: 288.0, 3: 234.0, 4: 210.0, 5: 186.0, 6: 162.0};
-    const mandiNightBases = {7: 60.0, 1: 6.0, 2: 342.0, 3: 126.0, 4: 102.0, 5: 78.0, 6: 84.0};
+    const mandiDayOffsets = {7: 156.0, 1: 132.0, 2: 108.0, 3: 84.0, 4: 60.0, 5: 36.0, 6: 12.0};
+    const mandiNightOffsets = {7: 240.0, 1: 216.0, 2: 192.0, 3: 336.0, 4: 312.0, 5: 288.0, 6: 264.0};
 
-    final double base = isDay ? (mandiDayBases[weekdayNumber] ?? 336.0) : (mandiNightBases[weekdayNumber] ?? 60.0);
-    return normalize(base + sunDegInRasi);
+    final double offset = isDay ? (mandiDayOffsets[weekdayNumber] ?? 156.0) : (mandiNightOffsets[weekdayNumber] ?? 240.0);
+    final double baseSun = sunLongitude ?? (150.0 + (sunDegInRasi ?? 0.0));
+    return normalize(baseSun + offset);
   }
 
   /// Calculates Jamakkol Mandi Rasi point
   static int calculateMandiRasi({
     required int weekdayNumber,
-    required double sunDegInRasi,
+    double? sunLongitude,
+    double? sunDegInRasi,
     required bool isDay,
   }) {
-    final lon = calculateMandiLongitude(weekdayNumber: weekdayNumber, sunDegInRasi: sunDegInRasi, isDay: isDay);
+    final lon = calculateMandiLongitude(
+      weekdayNumber: weekdayNumber,
+      sunLongitude: sunLongitude,
+      sunDegInRasi: sunDegInRasi,
+      isDay: isDay,
+    );
     return (lon / 30.0).floor() % 12;
   }
 
-  /// Calculates Jamakkol Mridyu Longitude dynamically from Sun degree in Rasi:
-  /// Day base: Sun=240°, Mon=186°, Tue=192°, Wed=306°, Thu=282°, Fri=258°, Sat=234°
-  /// Night base: Sun=132°, Mon=78°, Tue=54°, Wed=30°, Thu=6°, Fri=342°, Sat=156°
+  /// Calculates Jamakkol Mridyu Longitude dynamically:
+  /// Classical Jamakkol rule: Mrityu = Sun Longitude + Mrityu Offset
+  /// Day offsets from Sun: Sun=60°, Mon=36°, Tue=12°, Wed=156°, Thu=132°, Fri=108°, Sat=84°
+  /// Night offsets from Sun: Sun=312°, Mon=288°, Tue=264°, Wed=240°, Thu=216°, Fri=192°, Sat=336°
   static double calculateMridyuLongitude({
     required int weekdayNumber,
-    required double sunDegInRasi,
+    double? sunLongitude,
+    double? sunDegInRasi,
     required bool isDay,
   }) {
-    const mrityuDayBases = {7: 240.0, 1: 186.0, 2: 192.0, 3: 306.0, 4: 282.0, 5: 258.0, 6: 234.0};
-    const mrityuNightBases = {7: 132.0, 1: 78.0, 2: 54.0, 3: 30.0, 4: 6.0, 5: 342.0, 6: 156.0};
+    const mrityuDayOffsets = {7: 60.0, 1: 36.0, 2: 12.0, 3: 156.0, 4: 132.0, 5: 108.0, 6: 84.0};
+    const mrityuNightOffsets = {7: 312.0, 1: 288.0, 2: 264.0, 3: 240.0, 4: 216.0, 5: 192.0, 6: 336.0};
 
-    final double base = isDay ? (mrityuDayBases[weekdayNumber] ?? 240.0) : (mrityuNightBases[weekdayNumber] ?? 132.0);
-    return normalize(base + sunDegInRasi);
+    final double offset = isDay ? (mrityuDayOffsets[weekdayNumber] ?? 60.0) : (mrityuNightOffsets[weekdayNumber] ?? 312.0);
+    final double baseSun = sunLongitude ?? (150.0 + (sunDegInRasi ?? 0.0));
+    return normalize(baseSun + offset);
   }
 
   /// Calculates Jamakkol Mridyu Rasi point
   static int calculateMridyuRasi({
     required int weekdayNumber,
-    required double sunDegInRasi,
+    double? sunLongitude,
+    double? sunDegInRasi,
     required bool isDay,
   }) {
-    final lon = calculateMridyuLongitude(weekdayNumber: weekdayNumber, sunDegInRasi: sunDegInRasi, isDay: isDay);
+    final lon = calculateMridyuLongitude(
+      weekdayNumber: weekdayNumber,
+      sunLongitude: sunLongitude,
+      sunDegInRasi: sunDegInRasi,
+      isDay: isDay,
+    );
     return (lon / 30.0).floor() % 12;
   }
 
@@ -369,6 +387,7 @@ class JamakkolPlanetCalculator {
     // Mandi calculation
     final double mandiLon = calculateMandiLongitude(
       weekdayNumber: dtWeekday,
+      sunLongitude: sunLongitude,
       sunDegInRasi: sunDegInRasi,
       isDay: isDay,
     );
@@ -384,6 +403,7 @@ class JamakkolPlanetCalculator {
     // 3. Jamakkol Mridyu Rasi Point (Mridyu)
     final double mrityuLon = calculateMridyuLongitude(
       weekdayNumber: dtWeekday,
+      sunLongitude: sunLongitude,
       sunDegInRasi: sunDegInRasi,
       isDay: isDay,
     );

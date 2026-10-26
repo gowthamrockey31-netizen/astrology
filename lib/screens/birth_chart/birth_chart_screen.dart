@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/user_model.dart';
+import '../../services/astrology_calculator.dart';
 import '../../services/auth_service.dart';
 import '../../services/geocoding_service.dart';
+import '../../services/profile_service.dart';
 import '../../widgets/cosmic_background.dart';
 import '../../widgets/south_indian_jathagam_widget.dart';
 
@@ -23,15 +25,30 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
   void initState() {
     super.initState();
     _loadUser();
+    ProfileService().addListener(_onProfileChanged);
+  }
+
+  @override
+  void dispose() {
+    ProfileService().removeListener(_onProfileChanged);
+    super.dispose();
+  }
+
+  void _onProfileChanged() {
+    if (mounted) {
+      setState(() {
+        _loadUser();
+      });
+    }
   }
 
   void _loadUser() {
-    final current = AuthService.currentUser;
-    if (current != null && current.dob == '1995-08-15' && current.placeOfBirth.toLowerCase().contains('chennai')) {
+    final current = AuthService.currentUser ?? ProfileService().activeProfile;
+    if (current != null) {
       _user = current;
     } else {
       _user = UserModel(
-        id: 'default_seeker',
+        id: 'prof_self',
         name: 'Divine Seeker',
         mobile: '+919876543210',
         gender: 'Male',
@@ -54,9 +71,32 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     }
   }
 
+  DateTime _parseDob(String dobStr) {
+    final direct = DateTime.tryParse(dobStr.trim());
+    if (direct != null) return direct;
+    try {
+      if (dobStr.contains('/')) {
+        final parts = dobStr.split('/');
+        if (parts.length == 3) {
+          if (parts[0].length == 4) {
+            return DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+          } else {
+            return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+          }
+        }
+      } else if (dobStr.contains('-')) {
+        final parts = dobStr.split('-');
+        if (parts.length == 3 && parts[0].length <= 2) {
+          return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+        }
+      }
+    } catch (_) {}
+    return DateTime(1995, 8, 15);
+  }
+
   void _showUpdateBirthDetailsDialog() {
     final nameCtrl = TextEditingController(text: _user.name);
-    DateTime selectedDob = DateTime.tryParse(_user.dob) ?? DateTime(1995, 8, 15);
+    DateTime selectedDob = _parseDob(_user.dob);
     TimeOfDay selectedTob = const TimeOfDay(hour: 8, minute: 30);
     try {
       final rawTob = _user.timeOfBirth.trim();
@@ -141,7 +181,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                               final picked = await showDatePicker(
                                 context: context,
                                 initialDate: selectedDob,
-                                firstDate: DateTime(1940),
+                                firstDate: DateTime(1900),
                                 lastDate: DateTime.now(),
                                 builder: (context, child) {
                                   return Theme(
@@ -405,9 +445,17 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                           backgroundColor: AppColors.primaryGold,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
-                        onPressed: () {
-                          final lat = double.tryParse(latCtrl.text.trim());
-                          final lon = double.tryParse(lonCtrl.text.trim());
+                        onPressed: () async {
+                          double? lat = double.tryParse(latCtrl.text.trim());
+                          double? lon = double.tryParse(lonCtrl.text.trim());
+                          if (lat == null || lon == null) {
+                            final resolved = GeocodingService.resolvePlace(pobCtrl.text.trim());
+                            if (resolved != null) {
+                              lat = resolved.latitude;
+                              lon = resolved.longitude;
+                            }
+                          }
+
                           if (lat == null || lon == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -419,32 +467,95 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
                           }
 
                           final isoDob = DateFormat('yyyy-MM-dd').format(selectedDob);
+                          final rawTob = tobCtrl.text.trim();
+                          final savedTob = rawTob.isNotEmpty ? rawTob : selectedTob.format(context);
+
+                          final resolvedLoc = GeocodingService.resolvePlace(pobCtrl.text.trim());
+                          final cityName = (resolvedLoc != null && resolvedLoc.cityName.isNotEmpty)
+                              ? resolvedLoc.cityName
+                              : (_user.city.isNotEmpty ? _user.city : pobCtrl.text.trim());
+                          final stateName = (resolvedLoc != null && resolvedLoc.state.isNotEmpty)
+                              ? resolvedLoc.state
+                              : (_user.state.isNotEmpty ? _user.state : 'Tamil Nadu');
+                          final countryName = (resolvedLoc != null && resolvedLoc.country.isNotEmpty)
+                              ? resolvedLoc.country
+                              : (_user.country.isNotEmpty ? _user.country : 'India');
+
+                          // Recalculate Zodiac, Nakshatra, Lagna for consistency
+                          String calculatedZodiac = _user.zodiac;
+                          String calculatedNakshatra = _user.nakshatra;
+                          String calculatedLagna = _user.lagna;
+                          try {
+                            final birthDateTime = DateTime(
+                              selectedDob.year,
+                              selectedDob.month,
+                              selectedDob.day,
+                              selectedTob.hour,
+                              selectedTob.minute,
+                            );
+                            final astroData = AstrologyCalculator.calculateHoroscope(
+                              dateOfBirth: birthDateTime,
+                              latitude: lat,
+                              longitude: lon,
+                              utcOffsetHours: _user.timezone,
+                            );
+                            calculatedZodiac = "${astroData.moon.rasiNameEn} (${astroData.moon.rasiNameTa})";
+                            calculatedNakshatra = "${astroData.moon.nakshatraNameEn} (${astroData.moon.nakshatraNameTa})";
+                            calculatedLagna = "${astroData.lagna.rasiNameEn} (${astroData.lagna.rasiNameTa})";
+                          } catch (_) {}
+
                           final updatedUser = _user.copyWith(
                             name: nameCtrl.text.trim(),
                             dob: isoDob,
-                            timeOfBirth: tobCtrl.text.trim(),
+                            timeOfBirth: savedTob,
                             placeOfBirth: pobCtrl.text.trim(),
+                            city: cityName,
+                            state: stateName,
+                            country: countryName,
+                            zodiac: calculatedZodiac,
+                            nakshatra: calculatedNakshatra,
+                            lagna: calculatedLagna,
                             gender: selectedGender,
                             latitude: lat,
                             longitude: lon,
                           );
 
+                          // 1. Direct active session memory update
                           AuthService.updateCurrentUser(updatedUser);
+
+                          // 2. Persistent storage update via ProfileService
+                          final profileService = ProfileService();
+                          if (profileService.profiles.any((p) => p.id == updatedUser.id)) {
+                            await profileService.updateProfile(updatedUser);
+                          } else if (profileService.activeProfile != null) {
+                            final activeId = profileService.activeProfileId ?? profileService.profiles.first.id;
+                            await profileService.updateProfile(updatedUser.copyWith(id: activeId));
+                          } else if (profileService.isInitialized) {
+                            await profileService.addProfile(updatedUser);
+                          }
+
+                          // 3. Cloud/API update if online
+                          AuthService.updateUserProfile(updatedUser);
+
                           setState(() {
                             _user = updatedUser;
                           });
 
-                          Navigator.of(ctx).pop();
+                          if (ctx.mounted) {
+                            Navigator.of(ctx).pop();
+                          }
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'பிறப்பு விவரங்கள் புதுப்பிக்கப்பட்டன. ஜாதகம் மறு கணக்கீடு செய்யப்பட்டது!',
-                                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.black),
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'பிறப்பு விவரங்கள் புதுப்பிக்கப்பட்டன. ஜாதகம் மறு கணக்கீடு செய்யப்பட்டது!',
+                                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.black),
+                                ),
+                                backgroundColor: AppColors.primaryGold,
                               ),
-                              backgroundColor: AppColors.primaryGold,
-                            ),
-                          );
+                            );
+                          }
                         },
                         child: Text(
                           'சேமி & மறு கணக்கீடு செய் (Update Chart)',

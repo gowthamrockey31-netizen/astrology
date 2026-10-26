@@ -132,17 +132,63 @@ class NakshatraEvaluation {
   });
 }
 
+/// Four Classical Nama Yogam Types for Subha Muhurtham
+enum SubhaNamaYogaType {
+  amirtha(
+    tamilLabel: 'அமிர்தயோகம்',
+    englishLabel: 'Amirtha Yogam',
+    isAuspicious: true,
+    description: 'சகல சுப காரியங்களுக்கும் மிக உன்னதமானது',
+  ),
+  siddha(
+    tamilLabel: 'சித்தயோகம்',
+    englishLabel: 'Siddha Yogam',
+    isAuspicious: true,
+    description: 'காரிய வெற்றி தரக்கூடிய உகந்த யோகம்',
+  ),
+  marana(
+    tamilLabel: 'மரணயோகம்',
+    englishLabel: 'Marana Yogam',
+    isAuspicious: false,
+    description: 'சுப காரியங்களை முற்றிலும் தவிர்க்கவும்',
+  ),
+  prabalaArishta(
+    tamilLabel: 'பிரபலாரிஷ்ட யோகம்',
+    englishLabel: 'Prabala Arishta Yogam',
+    isAuspicious: false,
+    description: 'சுப காரியங்களுக்கு முற்றிலும் விலக்கப்பட வேண்டிய தோஷ யோகம்',
+  );
+
+  final String tamilLabel;
+  final String englishLabel;
+  final bool isAuspicious;
+  final String description;
+
+  const SubhaNamaYogaType({
+    required this.tamilLabel,
+    required this.englishLabel,
+    required this.isAuspicious,
+    required this.description,
+  });
+}
+
 class YogaEvaluation {
   final String yogaName;
   final String amirthathiYoga;
   final bool isSuitable;
   final String reason;
+  final SubhaNamaYogaType? primaryYoga;
+  final SubhaNamaYogaType? nextYoga;
+  final DateTime? transitionTime;
 
   const YogaEvaluation({
     required this.yogaName,
     required this.amirthathiYoga,
     required this.isSuitable,
     required this.reason,
+    this.primaryYoga,
+    this.nextYoga,
+    this.transitionTime,
   });
 }
 
@@ -361,6 +407,10 @@ class PanchangaAngasResult {
   final bool isKaranaAuspicious;
   final String karanaReason;
 
+  final SubhaNamaYogaType? primaryNamaYoga;
+  final SubhaNamaYogaType? nextNamaYoga;
+  final DateTime? yogaTransitionTime;
+
   const PanchangaAngasResult({
     required this.tithiName,
     required this.tithiNumber,
@@ -382,6 +432,9 @@ class PanchangaAngasResult {
     required this.karanaName,
     required this.isKaranaAuspicious,
     required this.karanaReason,
+    this.primaryNamaYoga,
+    this.nextNamaYoga,
+    this.yogaTransitionTime,
   });
 }
 

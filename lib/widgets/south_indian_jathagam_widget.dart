@@ -43,13 +43,15 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
     super.initState();
     _useLivePrasannam = widget.isLivePanchangam;
     _liveCurrentTime = DateTime.now();
-    _liveClockTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted && _useLivePrasannam) {
-        setState(() {
-          _liveCurrentTime = DateTime.now();
-        });
-      }
-    });
+    if (_useLivePrasannam) {
+      _liveClockTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (mounted && _useLivePrasannam) {
+          setState(() {
+            _liveCurrentTime = DateTime.now();
+          });
+        }
+      });
+    }
   }
 
   @override

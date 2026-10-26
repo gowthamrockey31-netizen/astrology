@@ -395,7 +395,7 @@ class JaathagaKurippugalCalculator {
     final anuYogiLord = avaYogiLords[(nakIdx + 3) % 9];
 
     // Amirthathi Yoga
-    final amirthathiStr = _calculateAmirthathiYoga(dt.weekday, moon.nakshatraIndex);
+    final amirthathiStr = calculateAmirthathiYoga(dt.weekday, moon.nakshatraIndex);
 
     // Mukkuna Velai (ஜாதக அலங்காரம் - முக்குண வேளை முறை)
     final mukkunaStr = calculateMukkunaVelai(
@@ -521,7 +521,7 @@ class JaathagaKurippugalCalculator {
     };
   }
 
-  static String _calculateAmirthathiYoga(int weekday, int nakshatraIndex) {
+  static String calculateAmirthathiYoga(int weekday, int nakshatraIndex) {
     final rem = (weekday + nakshatraIndex) % 3;
     if (rem == 0) return "அமிர்த யோகம் (சுபம்)";
     if (rem == 1) return "சித்த யோகம் (நன்மை)";

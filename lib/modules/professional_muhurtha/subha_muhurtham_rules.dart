@@ -156,9 +156,17 @@ class SubhaMuhurthamRules {
     26, // Revati / ரேவதி
   ];
 
-  /// Suitable Yogas: Siddha Yoga, Amrita Yoga. Avoided: Marana Yoga
-  static const List<String> canonicalAllowedYogas = ['சித்த யோகம்', 'அமிர்த யோகம்'];
-  static const List<String> canonicalAvoidedYogas = ['மரண யோகம்'];
+  /// Suitable Yogas: Siddha Yoga, Amirtha Yoga. Avoided: Marana Yoga, Prabala Arishta Yoga
+  static const List<String> canonicalAllowedYogas = [
+    'சித்த யோகம்', 'அமிர்த யோகம்',
+    'சித்தயோகம்', 'அமிர்தயோகம்',
+    'Siddha Yogam', 'Amirtha Yogam',
+  ];
+  static const List<String> canonicalAvoidedYogas = [
+    'மரண யோகம்', 'மரணயோகம்',
+    'பிரபலாரிஷ்ட யோகம்', 'பிரபலாரிஷ்டயோகம்',
+    'Marana Yogam', 'Prabala Arishta Yogam',
+  ];
 
   /// Suitable Karanas: Bava, Balava, Kaulava, Taitula, Garaja, Vanija / Vanijai
   static const List<String> canonicalAllowedKaranas = [
