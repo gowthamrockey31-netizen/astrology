@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:astrocall/jamakkol_prasannam/engine/jamakkol_engine.dart';
 import 'package:astrocall/jamakkol_prasannam/engine/jamakkol_planet_calculator.dart';
 import 'package:astrocall/jamakkol_prasannam/models/jamakkol_models.dart';
 import 'package:astrocall/jamakkol_prasannam/models/jamakkol_planet_models.dart';
+import 'package:astrocall/jamakkol_prasannam/widgets/jamakkol_chart.dart';
 
 void main() {
   group('Jamakkol Prasannam - Mrityu and Mandi Placement Regression Tests', () {
@@ -124,6 +126,38 @@ void main() {
       );
 
       expect((lonAfter - lonBefore).abs(), closeTo(0.2, 0.001));
+    });
+
+    testWidgets('5. Full UI Chart Widget renders Mandi in Kumbam and Mrityu in Vrichikam matching reference', (tester) async {
+      final query = DateTime(2026, 10, 26, 17, 7, 0);
+      final chart = JamakkolEngine.calculateChart(
+        queryDateTime: query,
+        location: JamakkolLocation.defaultChennai,
+        isLive: false,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: JamakkolChartWidget(state: chart, isTamil: true),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      // Mandi badge (மாந் 20° 50') must be rendered in the chart
+      expect(find.text('மாந் 20° 50\''), findsOneWidget);
+
+      // Mrityu badge (மிரு 14° 50') must be rendered in the chart
+      expect(find.text('மிரு 14° 50\''), findsOneWidget);
+
+      // Verify Center Dashboard contains Mrityu in Vrichikam
+      expect(find.text('விருச்சிகம்'), findsWidgets);
+
+      // Verify Sunrise is 5:58 AM
+      expect(find.textContaining('5:58 AM'), findsWidgets);
     });
   });
 }

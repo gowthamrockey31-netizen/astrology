@@ -1,3 +1,5 @@
+import 'jaathaga_kurippugal_model.dart';
+
 /// Location details required for accurate Panchanga calculation
 class PanchangaLocation {
   final String city;
@@ -125,6 +127,7 @@ class CalendarDay {
   final String yoga;
   final String karana;
   final String amirthathiYoga;
+  final List<AmirthathiYogaSegment> amirthathiYogaSegments;
 
   // Nokku Dinam
   final NokkuDinamType nokkuDinam;
@@ -179,6 +182,7 @@ class CalendarDay {
     required this.yoga,
     required this.karana,
     required this.amirthathiYoga,
+    this.amirthathiYogaSegments = const [],
     required this.nokkuDinam,
     required this.isMuhurtham,
     this.muhurthamType,

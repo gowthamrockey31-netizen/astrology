@@ -635,7 +635,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
     const skyPlanetColor = Color(0xFF81C784); // Radiant Emerald Green
     const upagrahaColor = Color(0xFFCE93D8); // Radiant Lavender
     final houseNumberColor = AppColors.lightGold.withValues(alpha: 0.85);
-    const rasiNameColor = AppColors.lightGold;
+    const rasiNameColor = Colors.white;
 
     const double sideBorderWidth = 28.0;
     const double topBottomBorderHeight = 24.0;
@@ -916,7 +916,7 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                                         child: Text(
                                           rasiName,
                                           style: GoogleFonts.outfit(
-                                            fontSize: 8.5,
+                                            fontSize: 7.0,
                                             fontWeight: (isSelected || isSoonyam) ? FontWeight.bold : FontWeight.w600,
                                             color: isSelected ? const Color(0xFFFFD700) : rasiNameColor,
                                           ),
@@ -1823,11 +1823,11 @@ class _SouthIndianJathagamWidgetState extends State<SouthIndianJathagamWidget> {
                 child: Text(
                   rasiName,
                   style: GoogleFonts.outfit(
-                    fontSize: 10.0,
+                    fontSize: 8.0,
                     fontWeight: FontWeight.bold,
                     color: isSelected
                         ? const Color(0xFFFFD700)
-                        : (isSoonyam ? const Color(0xFFFFB74D) : AppColors.lightGold),
+                        : (isSoonyam ? const Color(0xFFFFB74D) : Colors.white),
                   ),
                   maxLines: 1,
                 ),

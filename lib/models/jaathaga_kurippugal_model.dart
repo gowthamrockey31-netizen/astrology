@@ -1,3 +1,28 @@
+/// Represents a single Amirthathi Yogam time segment during the Panchangam day
+class AmirthathiYogaSegment {
+  final String yogaName;
+  final String nakshatraName;
+  final int nakshatraIndex;
+  final DateTime startTime;
+  final DateTime endTime;
+  final Duration duration;
+  final String formattedDuration;
+  final String formattedNazhigai;
+  final String displayText;
+
+  const AmirthathiYogaSegment({
+    required this.yogaName,
+    required this.nakshatraName,
+    required this.nakshatraIndex,
+    required this.startTime,
+    required this.endTime,
+    required this.duration,
+    required this.formattedDuration,
+    required this.formattedNazhigai,
+    required this.displayText,
+  });
+}
+
 /// Model representing structured Horoscope Notes (ஜாதக குறிப்புகள்)
 class JaathagaKurippugalResult {
   // Birth Profile
@@ -24,6 +49,7 @@ class JaathagaKurippugalResult {
   final String yoga;
   final String karanam;
   final String amirthathiYoga;
+  final List<AmirthathiYogaSegment> amirthathiYogaSegments;
   final String mukkunaVelai;
 
   // Sun Timings
@@ -76,6 +102,7 @@ class JaathagaKurippugalResult {
     required this.yoga,
     required this.karanam,
     required this.amirthathiYoga,
+    this.amirthathiYogaSegments = const [],
     required this.mukkunaVelai,
     required this.sunrise,
     required this.sunset,

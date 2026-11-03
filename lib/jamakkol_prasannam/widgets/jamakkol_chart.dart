@@ -285,7 +285,7 @@ class JamakkolChartWidget extends StatelessWidget {
           fit: BoxFit.scaleDown,
           alignment: Alignment.center,
           child: SizedBox(
-            width: 250,
+            width: 320,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,

@@ -166,20 +166,76 @@ class Kp4Engine {
       );
     }
 
-    // 5. Graha Thodarbhu (Planet Relations) via centralized relation engine
+    // 5. Planet-to-Bhava Contact Mapping (Priority 1: Sub -> Priority 2: Sub-Sub -> Priority 3: Star)
+    // with exact fallback integration using relatedHouses, finalSignificators, and PlanetPosition
+    final Map<String, List<BhavaContact>> planetBhavaContacts = {};
+    final Map<String, List<KpHouseNumber>> planetToBhavas = {};
+    final Map<String, List<int>> finalSignificators = {};
+
+    for (final PlanetPosition planet in planets) {
+      // Step 1: Calculate the planet's existing KP house connections using the current calculation engine
+      final resolved = KpMethod4RelationEngine.resolvePlanetContacts(
+        targetPlanet: planet.planet,
+        cusps: cusps,
+      );
+
+      final List<int> relatedHouses = resolved.houses.map((h) => h.house).toList();
+
+      // Check for valid numeric coordinates
+      if (planet.longitude.isNaN || planet.longitude.isInfinite || cusps.isEmpty || ascLong.isNaN) {
+        finalSignificators[planet.planet] = const [];
+        planetToBhavas[planet.planet] = const [];
+        planetBhavaContacts[planet.planet] = const [];
+        continue;
+      }
+
+      // Condition A & C: Integrate user-supplied fallback logic
+      final planetSignIndex = (planet.longitude / 30).floor();
+      final fallbackHouseNumbers = applyFallbackHouse(
+        relatedHouses: relatedHouses,
+        planetSignIndex: planetSignIndex,
+        ascendantLongitude: ascLong,
+      );
+
+      finalSignificators[planet.planet] = fallbackHouseNumbers;
+
+      if (relatedHouses.isNotEmpty) {
+        // Condition A: If one or more valid house connections exist, preserve the existing result exactly
+        planetToBhavas[planet.planet] = resolved.houses;
+        planetBhavaContacts[planet.planet] = resolved.contacts;
+      } else {
+        // Condition C: Apply fallback occupied house from Lagna for planet with no cusp connections
+        final houseObjs = fallbackHouseNumbers.map((h) => KpHouseNumber(h)).toList();
+        planetToBhavas[planet.planet] = houseObjs;
+
+        final contactObjs = fallbackHouseNumbers
+            .map((h) => BhavaContact(
+                  bhava: h,
+                  planet: planet.planet,
+                  sourceLevel: KpSourceLevel.SUB_LORD,
+                ))
+            .toList();
+        planetBhavaContacts[planet.planet] = contactObjs;
+      }
+    }
+
+    // 6. Graha Thodarbhu (Planet Relations) via centralized relation engine
+    // Passes planetToBhavas so that lords with fallback houses (e.g. Ketu) never display '-'
     final planetRelations = KpMethod4RelationEngine.calculatePlanetRelations(
       planets: planets,
       cusps: cusps,
+      ascendantDegree: ascLong,
+      planetToBhavas: planetToBhavas,
     );
 
-    // 6. Bhava Graha Thodarbhu (House Relations)
+    // 7. Bhava Graha Thodarbhu (House Relations)
     final houseRelations = KpMethod4RelationEngine.calculateHouseRelations(
       cusps: cusps,
       planets: planets,
       planetRelations: planetRelations,
     );
 
-    // 7. Active Dasha / Bhukti / Antara / Sookshma
+    // 8. Active Dasha / Bhukti / Antara / Sookshma
     final moonPlanet = planets.firstWhere((p) => p.planet == 'Moon');
     final activeDashaLords = _calculateActiveDashaLords(
       moonLongitude: moonPlanet.longitude,
@@ -193,19 +249,6 @@ class Kp4Engine {
       antaraLord: activeDashaLords.antara,
       sookshmaLord: activeDashaLords.sookshma,
       planetRelations: planetRelations,
-    );
-
-    // 8. Planet-to-Bhava Contact Mapping (Priority 1: Sub -> Priority 2: Sub-Sub -> Priority 3: Star)
-    final planetBhavaContacts = KpMethod4RelationEngine.calculatePlanetToBhavaContacts(
-      planets: planets,
-      cusps: cusps,
-      ascendantDegree: ascLong,
-    );
-
-    final planetToBhavas = KpMethod4RelationEngine.calculatePlanetToBhavaHouses(
-      planets: planets,
-      cusps: cusps,
-      ascendantDegree: ascLong,
     );
 
     return KpResult(
@@ -222,7 +265,42 @@ class Kp4Engine {
       dashaRelations: dashaRelations,
       planetBhavaContacts: planetBhavaContacts,
       planetToBhavas: planetToBhavas,
+      finalSignificators: finalSignificators,
     );
+  }
+
+  /// Calculates house number from the planet's sign index and ascendant longitude
+  /// Formula: ((signIndex - ascSign + 12) % 12) + 1 where ascSign = (ascendantLongitude / 30).floor()
+  static int houseFromAscendantSign({
+    required int signIndex,
+    required double ascendantLongitude,
+  }) {
+    final ascSign = (ascendantLongitude / 30).floor();
+    return ((signIndex - ascSign + 12) % 12) + 1;
+  }
+
+  /// Evaluates related houses and applies fallback occupied house if empty
+  static List<int> applyFallbackHouse({
+    required List<int> relatedHouses,
+    required int planetSignIndex,
+    required double ascendantLongitude,
+  }) {
+    final houses = relatedHouses
+        .where((h) => h >= 1 && h <= 12)
+        .toSet()
+        .toList()
+      ..sort();
+
+    if (houses.isNotEmpty) {
+      return houses;
+    }
+
+    final fallbackHouse = houseFromAscendantSign(
+      signIndex: planetSignIndex,
+      ascendantLongitude: ascendantLongitude,
+    );
+
+    return [fallbackHouse];
   }
 
   /// Calculates Star Lord, Sub Lord, and Sub-Sub Lord proportionally
@@ -512,3 +590,6 @@ class Kp4Engine {
     return result;
   }
 }
+
+/// Alias for compatibility with user specifications
+typedef KpEngine = Kp4Engine;

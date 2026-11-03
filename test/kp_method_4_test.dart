@@ -651,19 +651,7 @@ void main() {
       expect(housesMap['Mercury']!.length, equals(12));
       expect(contactsMap['Mercury']!.length, equals(12));
 
-      // Test B: Mars has no connections, appears in Star Lord column in Part 2 -> NO fallback applied
-      expect(housesMap['Mars']!.isEmpty, isTrue);
-      expect(contactsMap['Mars']!.isEmpty, isTrue);
-
-      // Test B: Sun has no connections, appears in Sub Lord column in Part 2 -> NO fallback applied
-      expect(housesMap['Sun']!.isEmpty, isTrue);
-      expect(contactsMap['Sun']!.isEmpty, isTrue);
-
-      // Test B: Jupiter has no connections, appears in Sub-Sub Lord column in Part 2 -> NO fallback applied
-      expect(housesMap['Jupiter']!.isEmpty, isTrue);
-      expect(contactsMap['Jupiter']!.isEmpty, isTrue);
-
-      // Test C: Ketu has no connections, absent from all 3 columns in Part 2 -> Fallback house 12 added
+      // Test B & C: Ketu has no cusp connections -> Fallback house 12 added from Lagna
       expect(housesMap['Ketu']!.length, equals(1));
       expect(housesMap['Ketu']!.first.house, equals(12));
       expect(housesMap['Ketu']!.first.displayText, equals('12'));

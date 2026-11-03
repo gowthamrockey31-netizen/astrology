@@ -3,6 +3,8 @@ import '../models/horoscope_calculation_result.dart';
 import '../models/jaathaga_kurippugal_model.dart';
 import '../models/user_model.dart';
 import 'astrology_calculator.dart';
+import 'swiss_ephemeris_calculator.dart';
+import 'daily_calendar_engine.dart';
 
 /// Master Attributes for each of the 27 Nakshatras
 class NakshatraAttributes {
@@ -395,7 +397,15 @@ class JaathagaKurippugalCalculator {
     final anuYogiLord = avaYogiLords[(nakIdx + 3) % 9];
 
     // Amirthathi Yoga
-    final amirthathiStr = calculateAmirthathiYoga(dt.weekday, moon.nakshatraIndex);
+    final amirthathiSegments = calculateAmirthathiYogamSegments(
+      birthDateTime: dt,
+      latitude: user.latitude,
+      longitude: user.longitude,
+      utcOffsetHours: user.timezone,
+    );
+    final amirthathiStr = amirthathiSegments.isNotEmpty
+        ? amirthathiSegments.map((s) => s.displayText).join('\n\n')
+        : 'சித்த யோகம்';
 
     // Mukkuna Velai (ஜாதக அலங்காரம் - முக்குண வேளை முறை)
     final mukkunaStr = calculateMukkunaVelai(
@@ -447,6 +457,7 @@ class JaathagaKurippugalCalculator {
       yoga: astroData.yogaNameTa,
       karanam: astroData.karanaNameTa,
       amirthathiYoga: amirthathiStr,
+      amirthathiYogaSegments: amirthathiSegments,
       mukkunaVelai: mukkunaStr,
       sunrise: sunriseFormatted,
       sunset: sunsetFormatted,
@@ -521,12 +532,201 @@ class JaathagaKurippugalCalculator {
     };
   }
 
-  static String calculateAmirthathiYoga(int weekday, int nakshatraIndex) {
-    final rem = (weekday + nakshatraIndex) % 3;
-    if (rem == 0) return "அமிர்த யோகம் (சுபம்)";
-    if (rem == 1) return "சித்த யோகம் (நன்மை)";
-    return "மரண யோகம் (கவனம் தேவை)";
+  /// Formats Tamil time-of-day period for Yogam display (காலை, மதியம், மாலை, இரவு, அதிகாலை)
+  static String getTamilPeriodForYogam(DateTime dt) {
+    final hour = dt.hour;
+    if (hour >= 4 && hour < 5) return 'அதிகாலை';
+    if (hour >= 5 && hour < 12) return 'காலை';
+    if (hour >= 12 && hour < 16) return 'மதியம்';
+    if (hour >= 16 && hour < 20) return 'மாலை';
+    return 'இரவு';
   }
+
+  /// Formats Tamil time string with period prefix (e.g. 'காலை 06:00', 'இரவு 08:15', 'மறுநாள் காலை 05:57')
+  static String formatTamilYogamTime(DateTime dt, {bool isNextDay = false}) {
+    final period = getTamilPeriodForYogam(dt);
+    final timeStr = DateFormat('hh:mm').format(dt);
+    final prefix = isNextDay ? 'மறுநாள் ' : '';
+    return '$prefix$period $timeStr';
+  }
+
+  /// High precision conversion of Duration to Nazhigai and Vinadi
+  /// 1 Nazhigai = 24 minutes (1440 seconds), 1 Vinadi = 24 seconds
+  static ({int nazhigai, int vinadi, String formatted}) calculateNazhigaiAndVinadi(Duration duration) {
+    final totalSecs = duration.inSeconds.abs();
+    int nazhigai = totalSecs ~/ 1440;
+    final remSecs = totalSecs % 1440;
+    int vinadi = (remSecs / 24.0).round();
+    if (vinadi >= 60) {
+      nazhigai += 1;
+      vinadi = 0;
+    }
+    return (
+      nazhigai: nazhigai,
+      vinadi: vinadi,
+      formatted: '$nazhigai நாழிகை $vinadi வினாடி',
+    );
+  }
+
+  /// Authentic Sunrise-to-Sunrise Amirthathi Yogam calculation for General Panchangam
+  /// Detects all Nakshatra transitions between local sunrise and next day's local sunrise,
+  /// maps them to the 4 canonical Yogams based on Panchangam weekday, and calculates exact durations.
+  static List<AmirthathiYogaSegment> calculateAmirthathiYogamSegments({
+    required DateTime birthDateTime,
+    required double latitude,
+    required double longitude,
+    required double utcOffsetHours,
+  }) {
+    // 1. Sunrise on birth date
+    final sunTimesBirthDay = AstrologyCalculator.calculateSunriseSunset(
+      birthDateTime,
+      latitude,
+      longitude,
+      utcOffsetHours,
+    );
+    final sunriseBirthDay = sunTimesBirthDay['sunrise']!;
+
+    DateTime startSunrise;
+    DateTime nextSunrise;
+
+    // A Panchangam day begins at local sunrise. If birth occurred before sunrise,
+    // the Panchangam day began at the previous calendar day's sunrise.
+    if (birthDateTime.isBefore(sunriseBirthDay)) {
+      final prevDay = birthDateTime.subtract(const Duration(days: 1));
+      startSunrise = AstrologyCalculator.calculateSunriseSunset(
+        prevDay,
+        latitude,
+        longitude,
+        utcOffsetHours,
+      )['sunrise']!;
+      nextSunrise = sunriseBirthDay;
+    } else {
+      startSunrise = sunriseBirthDay;
+      final nextDay = birthDateTime.add(const Duration(days: 1));
+      nextSunrise = AstrologyCalculator.calculateSunriseSunset(
+        nextDay,
+        latitude,
+        longitude,
+        utcOffsetHours,
+      )['sunrise']!;
+    }
+
+    // Panchangam weekday is fixed at sunrise and does not reset at midnight (1=Mon..7=Sun)
+    final int weekdayIdx = startSunrise.weekday;
+    const double nakSpan = 360.0 / 27.0; // 13° 20' = 13.333333333333334 degrees
+
+    // Helper to find exact Nakshatra boundary crossing
+    DateTime findNakshatraEnd(DateTime fromTime, int nakIdx) {
+      final targetBoundary = ((nakIdx + 1) * nakSpan) % 360.0;
+      final effectiveTarget = (targetBoundary == 0.0) ? 360.0 : targetBoundary;
+
+      bool isPast(double angle) {
+        if (effectiveTarget == 360.0) {
+          return angle < (nakIdx * nakSpan) || angle >= 360.0;
+        }
+        return angle >= effectiveTarget;
+      }
+
+      DateTime lower = fromTime;
+      DateTime upper = fromTime.add(const Duration(hours: 36));
+
+      // Coarse scan in 10-minute intervals
+      DateTime t = lower;
+      while (t.isBefore(upper)) {
+        final nextT = t.add(const Duration(minutes: 10));
+        final a1 = SwissEphemerisCalculator.calculateSunMoonSidereal(t, utcOffsetHours: utcOffsetHours).moon;
+        final a2 = SwissEphemerisCalculator.calculateSunMoonSidereal(nextT, utcOffsetHours: utcOffsetHours).moon;
+        if (!isPast(a1) && isPast(a2)) {
+          lower = t;
+          upper = nextT;
+          break;
+        }
+        t = nextT;
+      }
+
+      // Binary search down to 1-second precision
+      while (upper.difference(lower).inSeconds > 1) {
+        final mid = lower.add(Duration(milliseconds: upper.difference(lower).inMilliseconds ~/ 2));
+        final aMid = SwissEphemerisCalculator.calculateSunMoonSidereal(mid, utcOffsetHours: utcOffsetHours).moon;
+        if (isPast(aMid)) {
+          upper = mid;
+        } else {
+          lower = mid;
+        }
+      }
+
+      final exact = lower.add(Duration(seconds: upper.difference(lower).inSeconds ~/ 2));
+      final exactMinuteRounded = (exact.second >= 30)
+          ? exact.add(Duration(seconds: 60 - exact.second))
+          : exact.subtract(Duration(seconds: exact.second));
+      return DateTime(
+        exactMinuteRounded.year,
+        exactMinuteRounded.month,
+        exactMinuteRounded.day,
+        exactMinuteRounded.hour,
+        exactMinuteRounded.minute,
+      );
+    }
+
+    final segments = <AmirthathiYogaSegment>[];
+    DateTime currStart = startSunrise;
+
+    // Traverse all Nakshatra segments from startSunrise to nextSunrise
+    while (currStart.isBefore(nextSunrise)) {
+      final moonAngle = SwissEphemerisCalculator.calculateSunMoonSidereal(currStart, utcOffsetHours: utcOffsetHours).moon;
+      int nakIdx = (moonAngle / nakSpan).floor() % 27;
+
+      DateTime nakEnd = findNakshatraEnd(currStart, nakIdx);
+
+      // Boundary condition: If Nakshatra ended right at sunrise
+      if (!nakEnd.isAfter(currStart)) {
+        nakIdx = (nakIdx + 1) % 27;
+        nakEnd = findNakshatraEnd(currStart.add(const Duration(minutes: 1)), nakIdx);
+      }
+
+      final segEnd = nakEnd.isAfter(nextSunrise) ? nextSunrise : nakEnd;
+      final dur = segEnd.difference(currStart);
+
+      if (dur.inMinutes > 0) {
+        final yogaType = DailyCalendarEngine.calculateNamaYoga(weekdayIdx, nakIdx);
+        final nakName = AstrologyCalculator.nakshatrasTa[nakIdx];
+        final nazhiInfo = calculateNazhigaiAndVinadi(dur);
+        final durHours = dur.inHours;
+        final durMins = dur.inMinutes % 60;
+        final formattedDur = '$durHours மணி $durMins நிமிடம்';
+
+        final startStr = formatTamilYogamTime(currStart, isNextDay: currStart.day != startSunrise.day);
+        final endStr = formatTamilYogamTime(segEnd, isNextDay: segEnd.day != startSunrise.day);
+
+        final line1 = '${yogaType.tamilName} – $nakName';
+        final line2 = '$startStr – $endStr ($formattedDur / ${nazhiInfo.formatted})';
+
+        segments.add(AmirthathiYogaSegment(
+          yogaName: yogaType.tamilName,
+          nakshatraName: nakName,
+          nakshatraIndex: nakIdx,
+          startTime: currStart,
+          endTime: segEnd,
+          duration: dur,
+          formattedDuration: formattedDur,
+          formattedNazhigai: nazhiInfo.formatted,
+          displayText: '$line1\n$line2',
+        ));
+      }
+
+      if (!segEnd.isBefore(nextSunrise)) {
+        break;
+      }
+      currStart = segEnd;
+    }
+
+    return segments;
+  }
+
+  static String calculateAmirthathiYoga(int weekday, int nakshatraIndex) {
+    return DailyCalendarEngine.calculateNamaYoga(weekday, nakshatraIndex).tamilName;
+  }
+
 
   /// Mukkuna Velai Calculation (ஜாதக அலங்காரம் - முக்குண வேளை கணிதம்)
   /// Each Mukkuna Velai is 3.75 Nazhigai (மூன்றே முக்கால் நாழிகை = 90 minutes).

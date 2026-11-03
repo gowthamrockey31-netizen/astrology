@@ -3,6 +3,8 @@ import '../data/tamil_festivals_data.dart';
 import '../data/tamil_nadu_holidays.dart';
 import '../models/tamil_calendar_models.dart';
 import 'astrology_calculator.dart';
+import 'daily_calendar_engine.dart';
+import 'jaathaga_kurippugal_calculator.dart';
 import 'swiss_ephemeris_calculator.dart';
 import 'tithi_calculator.dart';
 
@@ -546,16 +548,16 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
     final karanaData = AstrologyCalculator.calculateKarana(sun.longitude, moon.longitude);
     final String karanaName = karanaData['nameTa'] as String;
 
-    // Amirthathi Yoga
-    final int rem = (weekdayNum + nakIdx) % 3;
-    String amirthathiYoga;
-    if (rem == 0) {
-      amirthathiYoga = 'அமிர்த யோகம்';
-    } else if (rem == 1) {
-      amirthathiYoga = 'சித்த யோகம்';
-    } else {
-      amirthathiYoga = 'மரண யோகம்';
-    }
+    // Amirthathi Yoga (Sunrise to Next Sunrise with Nakshatra Transitions)
+    final amirthathiSegments = JaathagaKurippugalCalculator.calculateAmirthathiYogamSegments(
+      birthDateTime: midday,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      utcOffsetHours: location.timezone,
+    );
+    final String amirthathiYoga = amirthathiSegments.isNotEmpty
+        ? amirthathiSegments.map((s) => s.displayText).join('\n\n')
+        : DailyCalendarEngine.calculateNamaYoga(weekdayNum, nakIdx).tamilName;
 
     // 9. Location-Aware Timings (8-part solar daytime division)
     final int dayMinutes = sunset.difference(sunrise).inMinutes;
@@ -620,6 +622,7 @@ class AstronomicalPanchangaProvider implements PanchangaProvider {
       yoga: yogaName,
       karana: karanaName,
       amirthathiYoga: amirthathiYoga,
+      amirthathiYogaSegments: amirthathiSegments,
       nokkuDinam: nokkuDinam,
       isMuhurtham: isMuhurtham,
       muhurthamType: muhurthamType,

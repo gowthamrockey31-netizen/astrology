@@ -419,6 +419,7 @@ class KpResult {
   final List<DashaRelation> dashaRelations;
   final Map<String, List<BhavaContact>> planetBhavaContacts;
   final Map<String, List<KpHouseNumber>> planetToBhavas;
+  final Map<String, List<int>> finalSignificators;
 
   const KpResult({
     required this.birthData,
@@ -434,6 +435,7 @@ class KpResult {
     required this.dashaRelations,
     this.planetBhavaContacts = const {},
     this.planetToBhavas = const {},
+    this.finalSignificators = const {},
   });
 
   PlanetPosition getPlanet(String name) {
@@ -475,6 +477,15 @@ class KpResult {
         .firstWhere(
           (e) => KpPlanetUtils.isSamePlanet(e.key, name),
           orElse: () => MapEntry(name, <KpHouseNumber>[]),
+        )
+        .value;
+  }
+
+  List<int> getFinalSignificatorsForPlanet(String name) {
+    return finalSignificators.entries
+        .firstWhere(
+          (e) => KpPlanetUtils.isSamePlanet(e.key, name),
+          orElse: () => MapEntry(name, <int>[]),
         )
         .value;
   }
