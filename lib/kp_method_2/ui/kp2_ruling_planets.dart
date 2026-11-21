@@ -45,54 +45,105 @@ class KP2RulingPlanetsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 14),
 
-          // 7 Ruling Planet Components in clean rows
+          // Day Lord
           _buildRulingRow(
             icon: Icons.calendar_month_rounded,
             title: 'கிழமை நாதன் (Day Lord)',
             planet: rulingPlanets.dayLord,
             color: Colors.amber,
           ),
-          const SizedBox(height: 8),
-          _buildRulingRow(
-            icon: Icons.nightlight_round,
-            title: 'சந்திரன் நின்ற ராசி நாதன் (Moon Sign Lord)',
-            planet: rulingPlanets.moonSignLord,
-            color: Colors.lightBlueAccent,
-          ),
-          const SizedBox(height: 8),
-          _buildRulingRow(
-            icon: Icons.star_border_rounded,
-            title: 'சந்திரன் நின்ற நட்சத்திர நாதன் (Moon Star Lord)',
-            planet: rulingPlanets.moonStarLord,
-            color: Colors.cyanAccent,
-          ),
-          const SizedBox(height: 8),
-          _buildRulingRow(
-            icon: Icons.subdirectory_arrow_right_rounded,
-            title: 'சந்திரன் நின்ற உப நாதன் (Moon Sub Lord)',
-            planet: rulingPlanets.moonSubLord,
-            color: AppColors.primaryGold,
+          const SizedBox(height: 14),
+
+          // 1. Transit Ascendant — Five Ruling Planets
+          Text(
+            'லக்ன ஆளும் கிரகங்கள் (Transit Ascendant - 5 Ruling Planets):',
+            style: GoogleFonts.notoSansTamil(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: AppColors.lightGold,
+            ),
           ),
           const SizedBox(height: 8),
           _buildRulingRow(
             icon: Icons.accessibility_new_rounded,
-            title: 'லக்னம் நின்ற ராசி நாதன் (Ascendant Sign Lord)',
+            title: '1. லக்னம் நின்ற ராசி நாதன் (Ascendant Sign Lord)',
             planet: rulingPlanets.ascSignLord,
             color: Colors.tealAccent,
           ),
           const SizedBox(height: 8),
           _buildRulingRow(
             icon: Icons.star_rounded,
-            title: 'லக்னம் நின்ற நட்சத்திர நாதன் (Ascendant Star Lord)',
+            title: '2. லக்னம் நின்ற நட்சத்திர நாதன் (Ascendant Star Lord)',
             planet: rulingPlanets.ascStarLord,
             color: Colors.purpleAccent,
           ),
           const SizedBox(height: 8),
           _buildRulingRow(
             icon: Icons.filter_tilt_shift_rounded,
-            title: 'லக்னம் நின்ற உப நாதன் (Ascendant Sub Lord)',
+            title: '3. லக்னம் நின்ற உப நாதன் (Ascendant Sub Lord)',
             planet: rulingPlanets.ascSubLord,
             color: Colors.orangeAccent,
+          ),
+          const SizedBox(height: 8),
+          _buildRulingRow(
+            icon: Icons.lens_blur_rounded,
+            title: '4. லக்னம் நின்ற உப-உப நாதன் (Ascendant Sub-Sub Lord)',
+            planet: rulingPlanets.ascSubSubLord,
+            color: Colors.deepOrangeAccent,
+          ),
+          const SizedBox(height: 8),
+          _buildRulingRow(
+            icon: Icons.grain_rounded,
+            title: '5. லக்னம் நின்ற உப-உப-உப நாதன் (Ascendant Sub-Sub-Sub Lord)',
+            planet: rulingPlanets.ascSubSubSubLord,
+            color: Colors.amberAccent,
+          ),
+
+          const SizedBox(height: 14),
+
+          // 2. Transit Moon — Five Ruling Planets
+          Text(
+            'சந்திர ஆளும் கிரகங்கள் (Transit Moon - 5 Ruling Planets):',
+            style: GoogleFonts.notoSansTamil(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: AppColors.lightGold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildRulingRow(
+            icon: Icons.nightlight_round,
+            title: '1. சந்திரன் நின்ற ராசி நாதன் (Moon Sign Lord)',
+            planet: rulingPlanets.moonSignLord,
+            color: Colors.lightBlueAccent,
+          ),
+          const SizedBox(height: 8),
+          _buildRulingRow(
+            icon: Icons.star_border_rounded,
+            title: '2. சந்திரன் நின்ற நட்சத்திர நாதன் (Moon Star Lord)',
+            planet: rulingPlanets.moonStarLord,
+            color: Colors.cyanAccent,
+          ),
+          const SizedBox(height: 8),
+          _buildRulingRow(
+            icon: Icons.subdirectory_arrow_right_rounded,
+            title: '3. சந்திரன் நின்ற உப நாதன் (Moon Sub Lord)',
+            planet: rulingPlanets.moonSubLord,
+            color: AppColors.primaryGold,
+          ),
+          const SizedBox(height: 8),
+          _buildRulingRow(
+            icon: Icons.fiber_manual_record_rounded,
+            title: '4. சந்திரன் நின்ற உப-உப நாதன் (Moon Sub-Sub Lord)',
+            planet: rulingPlanets.moonSubSubLord,
+            color: Colors.pinkAccent,
+          ),
+          const SizedBox(height: 8),
+          _buildRulingRow(
+            icon: Icons.blur_on_rounded,
+            title: '5. சந்திரன் நின்ற உப-உப-உப நாதன் (Moon Sub-Sub-Sub Lord)',
+            planet: rulingPlanets.moonSubSubSubLord,
+            color: Colors.greenAccent,
           ),
 
           const SizedBox(height: 18),

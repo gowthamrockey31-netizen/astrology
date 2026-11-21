@@ -45,7 +45,7 @@ class _ProfessionalMuhurthaPageState extends State<ProfessionalMuhurthaPage> {
 
   DateTime _selectedDate = DateTime.now();
   MuhurthaCategory _category = MuhurthaCategory.generalSubha;
-  MuhurthamRulePreset _rulePreset = MuhurthamRulePreset.standard;
+  MuhurthamRulePreset _rulePreset = MuhurthamRulePreset.extended;
 
   bool _isPersonalized = false;
   int _birthNakshatra = 0; // Ashwini
@@ -295,16 +295,8 @@ class _ProfessionalMuhurthaPageState extends State<ProfessionalMuhurthaPage> {
                       const SizedBox(height: 18),
                     ],
 
-                    // 7. Panchanga Five Angas (Tithi, Vara, Nakshatra, Yoga, Karana)
-                    _buildFiveAngasCard(r),
-                    const SizedBox(height: 18),
-
                     // 8. Automatically Excluded Inauspicious Periods (Rahu, Yama, Gulikai, Visha, Sandhya)
                     _buildInauspiciousPeriodsCard(r),
-                    const SizedBox(height: 18),
-
-                    // 9. Traditional Balas & Checks (Tara Bala, Chandra Bala, Guru Bala, Surya Bala, Month, Kathiri)
-                    _buildSpecialBalasCard(r),
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -455,64 +447,6 @@ class _ProfessionalMuhurthaPageState extends State<ProfessionalMuhurthaPage> {
                 child: InkWell(
                   onTap: () {
                     setState(() {
-                      _rulePreset = MuhurthamRulePreset.standard;
-                    });
-                    _recalculate();
-                  },
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: _rulePreset == MuhurthamRulePreset.standard
-                          ? AppColors.primaryGold.withValues(alpha: 0.2)
-                          : AppColors.backgroundLight,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: _rulePreset == MuhurthamRulePreset.standard
-                            ? AppColors.primaryGold
-                            : AppColors.borderGold.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              _rulePreset == MuhurthamRulePreset.standard
-                                  ? Icons.radio_button_checked
-                                  : Icons.radio_button_off,
-                              size: 14,
-                              color: _rulePreset == MuhurthamRulePreset.standard
-                                  ? AppColors.primaryGold
-                                  : AppColors.textSecondary,
-                            ),
-                            const SizedBox(width: 6),
-                            const Text(
-                              'பாரம்பரியம் (List 1)',
-                              style: TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 3),
-                        const Text(
-                          '16 நட்சத்திரங்கள் • சதுர்த்தி விலக்கு',
-                          style: TextStyle(color: AppColors.textSecondary, fontSize: 10.5),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
                       _rulePreset = MuhurthamRulePreset.extended;
                     });
                     _recalculate();
@@ -534,27 +468,13 @@ class _ProfessionalMuhurthaPageState extends State<ProfessionalMuhurthaPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              _rulePreset == MuhurthamRulePreset.extended
-                                  ? Icons.radio_button_checked
-                                  : Icons.radio_button_off,
-                              size: 14,
-                              color: _rulePreset == MuhurthamRulePreset.extended
-                                  ? AppColors.primaryGold
-                                  : AppColors.textSecondary,
-                            ),
-                            const SizedBox(width: 6),
-                            const Text(
-                              'விரிவாக்கப்பட்டது (List 2)',
-                              style: TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                        const Text(
+                          'விரிவாக்கப்பட்டது',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 3),
                         const Text(
@@ -858,7 +778,7 @@ class _ProfessionalMuhurthaPageState extends State<ProfessionalMuhurthaPage> {
       iconData = Icons.verified;
       statusTitle = 'உத்தம சுப முகூர்த்த நாள்';
     } else if (isDayPassed) {
-      bannerColor = const Color(0xFF3B82F6);
+      bannerColor = const Color(0xFF10B981);
       iconData = Icons.event_available;
       statusTitle = 'பொது சுப நாள் (முகூர்த்த லக்னம் தேவை)';
     } else {
@@ -1854,128 +1774,6 @@ class _ProfessionalMuhurthaPageState extends State<ProfessionalMuhurthaPage> {
     );
   }
 
-  /// Panchanga 5 Angas Card
-  Widget _buildFiveAngasCard(MuhurthaResult r) {
-    final a = r.angas;
-
-    return AstroCard(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.auto_stories, color: AppColors.primaryGold, size: 20),
-              const SizedBox(width: 8),
-              const Text(
-                'பஞ்சாங்க பஞ்ச அங்கங்கள் (Five Angas)',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _buildAngaRow(
-            title: '1. திதி',
-            value: '${a.tithiName} (${a.paksha})',
-            isGood: a.isTithiPreferred,
-            reason: a.tithiReason,
-          ),
-          const Divider(color: Colors.white10, height: 16),
-          _buildAngaRow(
-            title: '2. வாரம் (கிழமை)',
-            value: a.weekdayName,
-            isGood: a.isVaraPreferred,
-            reason: a.varaReason,
-          ),
-          const Divider(color: Colors.white10, height: 16),
-          _buildAngaRow(
-            title: '3. நட்சத்திரம்',
-            value: a.nakshatraName,
-            isGood: a.isNakshatraSuitable,
-            reason: a.nakshatraReason,
-          ),
-          const Divider(color: Colors.white10, height: 16),
-          _buildAngaRow(
-            title: '4. யோகம்',
-            value: '${a.yogaName} • ${a.amirthathiYoga}',
-            isGood: a.isYogaAuspicious,
-            reason: a.yogaReason,
-          ),
-          const Divider(color: Colors.white10, height: 16),
-          _buildAngaRow(
-            title: '5. கரணம்',
-            value: a.karanaName,
-            isGood: a.isKaranaAuspicious,
-            reason: a.karanaReason,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAngaRow({
-    required String title,
-    required String value,
-    required bool isGood,
-    required String reason,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  color: AppColors.lightGold,
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: isGood ? const Color(0x3310B981) : const Color(0x33EF4444),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                isGood ? 'உகந்தது' : 'தவிர்க்கவும்',
-                style: TextStyle(
-                  color: isGood ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          reason,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 11.5,
-          ),
-        ),
-      ],
-    );
-  }
-
   /// Automatically Excluded Inauspicious Periods Card
   Widget _buildInauspiciousPeriodsCard(MuhurthaResult r) {
     return AstroCard(
@@ -2061,156 +1859,6 @@ class _ProfessionalMuhurthaPageState extends State<ProfessionalMuhurthaPage> {
           }),
         ],
       ),
-    );
-  }
-
-  /// Traditional Balas and Checks Card
-  Widget _buildSpecialBalasCard(MuhurthaResult r) {
-    return AstroCard(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.verified_user, color: AppColors.primaryGold, size: 20),
-              const SizedBox(width: 8),
-              const Text(
-                'பாரம்பரிய முகூர்த்த பலன்கள் & விதிகள்',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Month Rule & Month Sunyam
-          _buildBalaTile(
-            title: 'மாத விதி & மாத சூன்யம்',
-            badge: r.isMonthPreferred ? 'உகந்த மாதம்' : 'விலக்க வேண்டிய மாதம்',
-            isGood: r.isMonthPreferred,
-            description: '${r.monthRestrictionReason}\nமாத சூன்ய ராசிகள்: ${r.monthSunyamRasis.isEmpty ? "இல்லை" : r.monthSunyamRasis.join(", ")}',
-          ),
-          const Divider(color: Colors.white10, height: 16),
-
-          // Kari Naal (கரி நாள்)
-          _buildBalaTile(
-            title: 'கரி நாள் (Kari Day Check)',
-            badge: r.level2Avoidance.kariDayCheck.isKariDay ? 'கரி நாள் (Avoid)' : 'கரி நாள் இல்லை (Safe)',
-            isGood: r.level2Avoidance.kariDayCheck.isSuitable,
-            description: r.level2Avoidance.kariDayCheck.reason,
-          ),
-          const Divider(color: Colors.white10, height: 16),
-
-          // Kathiri / Agni Nakshatra
-          _buildBalaTile(
-            title: 'அக்னி நட்சத்திரம் (கத்திரி வெயில்)',
-            badge: r.isKathiriAgniActive ? 'கத்திரி காலம்' : 'பாதிப்பு இல்லை',
-            isGood: !r.isKathiriAgniActive,
-            description: r.kathiriReason,
-          ),
-
-          if (_isPersonalized) ...[
-            const Divider(color: Colors.white10, height: 16),
-
-            // Tara Bala
-            if (r.taraBala != null)
-              _buildBalaTile(
-                title: 'தாராபலம் (Tara Bala)',
-                badge: r.taraBala!.status,
-                isGood: r.taraBala!.isAccepted,
-                description: '${r.taraBala!.taraName} (எண்: ${r.taraBala!.taraNumber}) - ${r.taraBala!.reason}',
-              ),
-
-            // Chandra Bala
-            if (r.chandraBala != null) ...[
-              const Divider(color: Colors.white10, height: 16),
-              _buildBalaTile(
-                title: 'சந்திரபலம் (Chandra Bala)',
-                badge: r.chandraBala!.status,
-                isGood: !r.chandraBala!.isChandrashtama && r.chandraBala!.isPreferred,
-                description: 'பிறந்த ராசி: ${r.chandraBala!.birthRasi} → அன்றைய சந்திரன்: ${r.chandraBala!.moonRasi} (${r.chandraBala!.relativeHouse}-ம் இடம்) - ${r.chandraBala!.reason}',
-              ),
-            ],
-
-            // Guru Bala (Marriage specific)
-            if (r.guruBala != null && _category == MuhurthaCategory.marriage) ...[
-              const Divider(color: Colors.white10, height: 16),
-              _buildBalaTile(
-                title: 'குருபலம் (திருமணத்திற்கு உகந்தது)',
-                badge: r.guruBala!.status,
-                isGood: r.guruBala!.isAuspicious,
-                description: 'ஜென்ம ராசிக்கு குரு ${r.guruBala!.relativeHouse}-ம் இடத்தில் சஞ்சாரம் (${r.guruBala!.jupiterRasi}) - ${r.guruBala!.reason}',
-              ),
-            ],
-
-            // Surya Bala
-            if (r.suryaBala != null) ...[
-              const Divider(color: Colors.white10, height: 16),
-              _buildBalaTile(
-                title: 'சூரிய பலம் (Surya Bala)',
-                badge: r.suryaBala!.status,
-                isGood: r.suryaBala!.isAuspicious,
-                description: 'ஜென்ம ராசிக்கு சூரியன் ${r.suryaBala!.relativeHouse}-ம் இடத்தில் சஞ்சாரம் (${r.suryaBala!.sunRasi}) - ${r.suryaBala!.reason}',
-              ),
-            ],
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBalaTile({
-    required String title,
-    required String badge,
-    required bool isGood,
-    required String description,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: isGood ? const Color(0x3310B981) : const Color(0x33EF4444),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                badge,
-                style: TextStyle(
-                  color: isGood ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 3),
-        Text(
-          description,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 11.5,
-            height: 1.3,
-          ),
-        ),
-      ],
     );
   }
 

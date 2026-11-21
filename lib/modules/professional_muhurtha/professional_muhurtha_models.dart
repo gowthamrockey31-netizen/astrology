@@ -104,6 +104,9 @@ class TithiEvaluation {
   final bool isSuitable;
   final String? conflictNote;
   final String reason;
+  final DateTime? transitionTime;
+  final int? nextTithiNumber;
+  final String? nextTithiName;
 
   const TithiEvaluation({
     required this.tithiNumber,
@@ -113,6 +116,9 @@ class TithiEvaluation {
     required this.isSuitable,
     this.conflictNote,
     required this.reason,
+    this.transitionTime,
+    this.nextTithiNumber,
+    this.nextTithiName,
   });
 }
 
@@ -122,6 +128,9 @@ class NakshatraEvaluation {
   final bool isSuitable;
   final String? conflictNote;
   final String reason;
+  final DateTime? transitionTime;
+  final int? nextNakshatraIndex;
+  final String? nextNakshatraName;
 
   const NakshatraEvaluation({
     required this.nakshatraIndex,
@@ -129,6 +138,9 @@ class NakshatraEvaluation {
     required this.isSuitable,
     this.conflictNote,
     required this.reason,
+    this.transitionTime,
+    this.nextNakshatraIndex,
+    this.nextNakshatraName,
   });
 }
 
@@ -172,6 +184,25 @@ enum SubhaNamaYogaType {
   });
 }
 
+/// Represents a discrete Amirthathi Yoga period within the sunrise-to-sunrise Panchangam day
+class SubhaYogaPeriod {
+  final SubhaNamaYogaType yoga;
+  final int nakshatraIndex;
+  final String nakshatraName;
+  final DateTime startTime;
+  final DateTime endTime;
+  final String formattedTime;
+
+  const SubhaYogaPeriod({
+    required this.yoga,
+    required this.nakshatraIndex,
+    required this.nakshatraName,
+    required this.startTime,
+    required this.endTime,
+    required this.formattedTime,
+  });
+}
+
 class YogaEvaluation {
   final String yogaName;
   final String amirthathiYoga;
@@ -180,6 +211,7 @@ class YogaEvaluation {
   final SubhaNamaYogaType? primaryYoga;
   final SubhaNamaYogaType? nextYoga;
   final DateTime? transitionTime;
+  final List<SubhaYogaPeriod>? periods;
 
   const YogaEvaluation({
     required this.yogaName,
@@ -189,6 +221,7 @@ class YogaEvaluation {
     this.primaryYoga,
     this.nextYoga,
     this.transitionTime,
+    this.periods,
   });
 }
 
@@ -196,11 +229,15 @@ class KaranaEvaluation {
   final String karanaName;
   final bool isSuitable;
   final String reason;
+  final DateTime? transitionTime;
+  final String? nextKaranaName;
 
   const KaranaEvaluation({
     required this.karanaName,
     required this.isSuitable,
     required this.reason,
+    this.transitionTime,
+    this.nextKaranaName,
   });
 }
 
@@ -343,6 +380,10 @@ class MuhurthaLagnaEvaluation {
   final bool house8Checked;
   final String house8Reason;
 
+  final bool house12Checked;
+  final String house12Reason;
+
+  final String sunCheck;
   final String marsCheck;
   final String saturnCheck;
   final String rahuCheck;
@@ -365,6 +406,9 @@ class MuhurthaLagnaEvaluation {
     required this.house7Reason,
     required this.house8Checked,
     required this.house8Reason,
+    this.house12Checked = true,
+    this.house12Reason = '12-ம் இடம் சுத்தி (விரய தோஷம் இல்லை)',
+    this.sunCheck = 'சூரியன்: சுத்தி',
     required this.marsCheck,
     required this.saturnCheck,
     required this.rahuCheck,
@@ -410,6 +454,10 @@ class PanchangaAngasResult {
   final SubhaNamaYogaType? primaryNamaYoga;
   final SubhaNamaYogaType? nextNamaYoga;
   final DateTime? yogaTransitionTime;
+  final List<SubhaYogaPeriod>? yogaPeriods;
+  final DateTime? nakshatraTransitionTime;
+  final DateTime? tithiTransitionTime;
+  final DateTime? karanaTransitionTime;
 
   const PanchangaAngasResult({
     required this.tithiName,
@@ -435,6 +483,10 @@ class PanchangaAngasResult {
     this.primaryNamaYoga,
     this.nextNamaYoga,
     this.yogaTransitionTime,
+    this.yogaPeriods,
+    this.nakshatraTransitionTime,
+    this.tithiTransitionTime,
+    this.karanaTransitionTime,
   });
 }
 

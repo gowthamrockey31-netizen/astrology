@@ -88,6 +88,14 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
 
   MarriagePoruthamResult? _poruthamResult;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _calculateMarriagePorutham();
+    });
+  }
+
   Future<void> _pickDate({required bool isMale}) async {
     final initialDate = isMale ? _maleDob : _femaleDob;
     final picked = await showDatePicker(
@@ -215,6 +223,8 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
           femaleStarIndex: fMoon.nakshatraIndex,
           femalePada: fMoon.pada,
           femaleRasiIndex: fMoon.rasiIndex,
+          maleAstroData: maleData,
+          femaleAstroData: femaleData,
         );
 
         setState(() {
@@ -362,6 +372,13 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
 
                   const SizedBox(height: 24),
 
+                  // Section Header: Bhava Samyam Dhosham (Part 3)
+                  _buildResultsSectionHeader('பாவ சாம்ய தோஷம் (Bhava Samyam Dhosham)'),
+                  const SizedBox(height: 12),
+                  _buildBhavaSamyamSection(),
+
+                  const SizedBox(height: 24),
+
                   // Section Header: Overall Conclusion (Requirement 10)
                   _buildResultsSectionHeader('மொத்த பொருத்தம்'),
                   const SizedBox(height: 12),
@@ -389,7 +406,10 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => setState(() => _calculationMode = 0),
+              onTap: () {
+                setState(() => _calculationMode = 0);
+                _calculateMarriagePorutham();
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
@@ -410,7 +430,10 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
           ),
           Expanded(
             child: GestureDetector(
-              onTap: () => setState(() => _calculationMode = 1),
+              onTap: () {
+                setState(() => _calculationMode = 1);
+                _calculateMarriagePorutham();
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
@@ -621,7 +644,10 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
                 label: 'நட்சத்திரம்',
                 selectedIndex: _maleManualStarIndex,
                 onChanged: (val) {
-                  if (val != null) setState(() => _maleManualStarIndex = val);
+                  if (val != null) {
+                    setState(() => _maleManualStarIndex = val);
+                    _calculateMarriagePorutham();
+                  }
                 },
               ),
               const SizedBox(height: 10),
@@ -632,7 +658,10 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
                       label: 'பாதம்',
                       selectedPada: _maleManualPada,
                       onChanged: (val) {
-                        if (val != null) setState(() => _maleManualPada = val);
+                        if (val != null) {
+                          setState(() => _maleManualPada = val);
+                          _calculateMarriagePorutham();
+                        }
                       },
                     ),
                   ),
@@ -642,7 +671,10 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
                       label: 'ராசி',
                       selectedIndex: _maleManualRasiIndex,
                       onChanged: (val) {
-                        if (val != null) setState(() => _maleManualRasiIndex = val);
+                        if (val != null) {
+                          setState(() => _maleManualRasiIndex = val);
+                          _calculateMarriagePorutham();
+                        }
                       },
                     ),
                   ),
@@ -671,7 +703,10 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
                 label: 'நட்சத்திரம்',
                 selectedIndex: _femaleManualStarIndex,
                 onChanged: (val) {
-                  if (val != null) setState(() => _femaleManualStarIndex = val);
+                  if (val != null) {
+                    setState(() => _femaleManualStarIndex = val);
+                    _calculateMarriagePorutham();
+                  }
                 },
               ),
               const SizedBox(height: 10),
@@ -682,7 +717,10 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
                       label: 'பாதம்',
                       selectedPada: _femaleManualPada,
                       onChanged: (val) {
-                        if (val != null) setState(() => _femaleManualPada = val);
+                        if (val != null) {
+                          setState(() => _femaleManualPada = val);
+                          _calculateMarriagePorutham();
+                        }
                       },
                     ),
                   ),
@@ -692,7 +730,10 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
                       label: 'ராசி',
                       selectedIndex: _femaleManualRasiIndex,
                       onChanged: (val) {
-                        if (val != null) setState(() => _femaleManualRasiIndex = val);
+                        if (val != null) {
+                          setState(() => _femaleManualRasiIndex = val);
+                          _calculateMarriagePorutham();
+                        }
                       },
                     ),
                   ),
@@ -794,7 +835,7 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
           items: List.generate(27, (i) {
             return DropdownMenuItem<int>(
               value: i,
-              child: Text("${i + 1}. ${AstrologyCalculator.nakshatrasTa[i]}"),
+              child: Text("${i + 1}. ${PoruthamCalculator.nakshatraNamesTa[i]}"),
             );
           }),
           onChanged: onChanged,
@@ -885,12 +926,12 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
     final femaleName = _femaleNameController.text.trim().isNotEmpty ? _femaleNameController.text.trim() : 'பெண் ஜாதகர்';
 
     final maleRasi = _maleMoon != null ? _maleMoon!.rasiNameTa : AstrologyCalculator.rasiNamesTa[_maleManualRasiIndex];
-    final maleStar = _maleMoon != null ? _maleMoon!.nakshatraNameTa : AstrologyCalculator.nakshatrasTa[_maleManualStarIndex];
+    final maleStar = _maleMoon != null ? PoruthamCalculator.nakshatraNamesTa[_maleMoon!.nakshatraIndex] : PoruthamCalculator.nakshatraNamesTa[_maleManualStarIndex];
     final malePada = _maleMoon != null ? _maleMoon!.pada : _maleManualPada;
     final maleLagna = _maleLagna != null ? _maleLagna!.rasiNameTa : 'அறியப்படவில்லை';
 
     final femaleRasi = _femaleMoon != null ? _femaleMoon!.rasiNameTa : AstrologyCalculator.rasiNamesTa[_femaleManualRasiIndex];
-    final femaleStar = _femaleMoon != null ? _femaleMoon!.nakshatraNameTa : AstrologyCalculator.nakshatrasTa[_femaleManualStarIndex];
+    final femaleStar = _femaleMoon != null ? PoruthamCalculator.nakshatraNamesTa[_femaleMoon!.nakshatraIndex] : PoruthamCalculator.nakshatraNamesTa[_femaleManualStarIndex];
     final femalePada = _femaleMoon != null ? _femaleMoon!.pada : _femaleManualPada;
     final femaleLagna = _femaleLagna != null ? _femaleLagna!.rasiNameTa : 'அறியப்படவில்லை';
 
@@ -1133,7 +1174,22 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
+                          if (item.femaleInfoTa != null || item.maleInfoTa != null || item.metricInfoTa != null) ...[
+                            const SizedBox(height: 5),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 4,
+                              children: [
+                                if (item.femaleInfoTa != null)
+                                  _buildTag(item.femaleInfoTa!, Colors.purpleAccent),
+                                if (item.maleInfoTa != null)
+                                  _buildTag(item.maleInfoTa!, Colors.blueAccent),
+                                if (item.metricInfoTa != null)
+                                  _buildTag(item.metricInfoTa!, Colors.amberAccent),
+                              ],
+                            ),
+                          ],
+                          const SizedBox(height: 5),
                           Text(
                             item.descriptionTa,
                             style: GoogleFonts.outfit(fontSize: 11, color: AppColors.textSecondary),
@@ -1148,6 +1204,374 @@ class _MarriagePoruthamScreenState extends State<MarriagePoruthamScreen> {
             ],
           );
         }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildTag(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withOpacity(0.4), width: 0.6),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.outfit(fontSize: 9.5, fontWeight: FontWeight.w600, color: color),
+      ),
+    );
+  }
+
+  Widget _buildBhavaSamyamSection() {
+    final bhavaSamyam = _poruthamResult?.bhavaSamyam ?? const BhavaSamyamResult();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderGold.withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section Title & Status Badge
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 28,
+                      height: 28,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: bhavaSamyam.isMatched
+                            ? Colors.green.shade900.withOpacity(0.3)
+                            : (bhavaSamyam.status == PoruthamStatus.notMatched
+                                ? Colors.red.shade900.withOpacity(0.3)
+                                : Colors.amber.shade900.withOpacity(0.3)),
+                        border: Border.all(
+                          color: bhavaSamyam.isMatched
+                              ? Colors.greenAccent
+                              : (bhavaSamyam.status == PoruthamStatus.notMatched
+                                  ? Colors.redAccent
+                                  : Colors.amberAccent),
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        bhavaSamyam.isMatched
+                            ? Icons.check
+                            : (bhavaSamyam.status == PoruthamStatus.notMatched
+                                ? Icons.close
+                                : Icons.info_outline),
+                        size: 16,
+                        color: bhavaSamyam.isMatched
+                            ? Colors.greenAccent
+                            : (bhavaSamyam.status == PoruthamStatus.notMatched
+                                ? Colors.redAccent
+                                : Colors.amberAccent),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        bhavaSamyam.titleTa,
+                        style: GoogleFonts.cinzel(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.lightGold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: bhavaSamyam.isMatched
+                      ? Colors.green.withOpacity(0.15)
+                      : (bhavaSamyam.status == PoruthamStatus.notMatched
+                          ? Colors.red.withOpacity(0.15)
+                          : Colors.amber.withOpacity(0.15)),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: bhavaSamyam.isMatched
+                        ? Colors.greenAccent
+                        : (bhavaSamyam.status == PoruthamStatus.notMatched
+                            ? Colors.redAccent
+                            : Colors.amberAccent),
+                    width: 0.8,
+                  ),
+                ),
+                child: Text(
+                  bhavaSamyam.statusTextTa,
+                  style: GoogleFonts.outfit(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: bhavaSamyam.isMatched
+                        ? Colors.greenAccent
+                        : (bhavaSamyam.status == PoruthamStatus.notMatched
+                            ? Colors.redAccent
+                            : Colors.amberAccent),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // If detailed tables are available (Mode A)
+          if (bhavaSamyam.hasDetailedData &&
+              bhavaSamyam.maleChart != null &&
+              bhavaSamyam.femaleChart != null) ...[
+            // Section A: Male Horoscope Table
+            _buildBhavaDoshamTable(bhavaSamyam.maleChart!),
+
+            const SizedBox(height: 20),
+
+            // Section B: Female Horoscope Table
+            _buildBhavaDoshamTable(bhavaSamyam.femaleChart!),
+
+            const SizedBox(height: 16),
+            const Divider(color: AppColors.borderGold, thickness: 0.8),
+            const SizedBox(height: 12),
+
+            // Comparison Summary (Page 69 format)
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundMid,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: bhavaSamyam.isMatched
+                      ? Colors.greenAccent.withOpacity(0.4)
+                      : Colors.redAccent.withOpacity(0.4),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'ஆண் ஜாதகத்தில் பாவதோச அளவு',
+                        style: GoogleFonts.outfit(fontSize: 13, color: AppColors.lightGold),
+                      ),
+                      Text(
+                        bhavaSamyam.maleChart!.totalAmountStr,
+                        style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'பெண் ஜாதகத்தில் பாவ தோச அளவு',
+                        style: GoogleFonts.outfit(fontSize: 13, color: AppColors.lightGold),
+                      ),
+                      Text(
+                        bhavaSamyam.femaleChart!.totalAmountStr,
+                        style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'தோஷ அளவு வேறுபாடு (Difference)',
+                        style: GoogleFonts.outfit(fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                      Text(
+                        bhavaSamyam.differenceStr,
+                        style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primaryGold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  const Divider(color: Colors.white12, height: 1),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(
+                        bhavaSamyam.isMatched ? Icons.check_circle_outline : Icons.highlight_off,
+                        size: 18,
+                        color: bhavaSamyam.isMatched ? Colors.greenAccent : Colors.redAccent,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          bhavaSamyam.comparisonConclusionTa,
+                          style: GoogleFonts.outfit(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: bhavaSamyam.isMatched ? Colors.greenAccent : Colors.redAccent,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            // Mode B info or pending notice
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundMid,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.amberAccent.withOpacity(0.3)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.info_outline, color: Colors.amberAccent, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      bhavaSamyam.descriptionTa,
+                      style: GoogleFonts.outfit(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBhavaDoshamTable(BhavaDoshamChartData chartData) {
+    const headerStyle = TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryGold);
+    const cellStyle = TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white);
+    const labelStyle = TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.lightGold);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          chartData.titleTa,
+          style: GoogleFonts.cinzel(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.lightGold),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.backgroundMid.withOpacity(0.6),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.borderGold.withOpacity(0.5)),
+          ),
+          child: Column(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                child: Table(
+                  border: TableBorder.all(color: AppColors.borderGold.withOpacity(0.3), width: 0.8),
+                  columnWidths: const {
+                    0: FlexColumnWidth(2.0), // ஸ்தானம்
+                    1: FlexColumnWidth(1.2), // 1
+                    2: FlexColumnWidth(1.2), // 2
+                    3: FlexColumnWidth(1.2), // 4
+                    4: FlexColumnWidth(1.2), // 7
+                    5: FlexColumnWidth(1.2), // 8
+                    6: FlexColumnWidth(1.2), // 12
+                    7: FlexColumnWidth(1.8), // பாவ அளவு
+                  },
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  children: [
+                    // Header Row
+                    TableRow(
+                      decoration: BoxDecoration(color: AppColors.primaryGold.withOpacity(0.15)),
+                      children: [
+                        _buildTableCell('ஸ்தானம்', style: headerStyle),
+                        _buildTableCell('1', style: headerStyle),
+                        _buildTableCell('2', style: headerStyle),
+                        _buildTableCell('4', style: headerStyle),
+                        _buildTableCell('7', style: headerStyle),
+                        _buildTableCell('8', style: headerStyle),
+                        _buildTableCell('12', style: headerStyle),
+                        _buildTableCell('பாவ அளவு', style: headerStyle),
+                      ],
+                    ),
+                    // Data Rows (Lagna, Moon, Venus)
+                    ...chartData.rows.map((row) {
+                      return TableRow(
+                        children: [
+                          _buildTableCell(row.refNameTa, style: labelStyle),
+                          _buildTableCell(row.getOccupantsString(1), style: cellStyle),
+                          _buildTableCell(row.getOccupantsString(2), style: cellStyle),
+                          _buildTableCell(row.getOccupantsString(4), style: cellStyle),
+                          _buildTableCell(row.getOccupantsString(7), style: cellStyle),
+                          _buildTableCell(row.getOccupantsString(8), style: cellStyle),
+                          _buildTableCell(row.getOccupantsString(12), style: cellStyle),
+                          _buildTableCell(
+                            row.rowAmountStr,
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.amberAccent),
+                          ),
+                        ],
+                      );
+                    }),
+                  ],
+                ),
+              ),
+              // Total Row Footer
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryGold.withOpacity(0.12),
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
+                  border: Border(top: BorderSide(color: AppColors.borderGold.withOpacity(0.4))),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'மொத்த பாவ அளவு',
+                      style: GoogleFonts.cinzel(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryGold),
+                    ),
+                    Text(
+                      chartData.totalAmountStr,
+                      style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.primaryGold),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTableCell(String text, {TextStyle? style}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+      alignment: Alignment.center,
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: style ?? const TextStyle(fontSize: 11, color: Colors.white),
       ),
     );
   }

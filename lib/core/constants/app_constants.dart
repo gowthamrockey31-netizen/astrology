@@ -1,6 +1,8 @@
 class AppConstants {
   static const String appName = 'AstroDashaCare';
   static const String appSubtitle = 'Digital Consulting Center';
+  static const String appVersion = '1.0.5';
+  static const int buildNumber = 5;
 
   // Platform Commission
   static const double platformCommissionRate = 0.20; // 20%

@@ -112,20 +112,7 @@ class ProfessionalMuhurthaEngine {
     final activeRules = rules ?? SubhaMuhurthamRules.defaultRules;
     final cleanDate = DateTime(date.year, date.month, date.day, 12, 0);
 
-    // 1. Julian Day & Ayanamsa from existing Swiss Ephemeris engine
-    final jd = SwissEphemerisCalculator.getJulianDay(cleanDate, utcOffsetHours: location.timeZone);
-    final ayanamsa = SwissEphemerisCalculator.calculateLahiriAyanamsa(jd);
-
-    // 2. Accurate Planetary Positions from existing Swiss Ephemeris engine
-    final planets = SwissEphemerisCalculator.calculatePlanetaryPositions(
-      jd: jd,
-      ayanamsa: ayanamsa,
-    );
-    final sunLong = planets['Sun']!.longitude;
-    final moonLong = planets['Moon']!.longitude;
-    final jupiterLong = planets['Jupiter']!.longitude;
-
-    // 3. Exact Sunrise & Sunset from existing shared engine
+    // 1. Exact Sunrise & Sunset from existing shared engine
     final sunTimes = AstrologyCalculator.calculateSunriseSunset(
       cleanDate,
       location.latitude,
@@ -136,11 +123,30 @@ class ProfessionalMuhurthaEngine {
     final sunset = sunTimes['sunset']!;
     final solarNoon = sunrise.add(Duration(milliseconds: (sunset.difference(sunrise).inMilliseconds / 2).round()));
 
+    // 2. Exact planetary positions at actual sunrise (prevailing morning Panchangam)
+    final jdSunrise = SwissEphemerisCalculator.getJulianDay(sunrise, utcOffsetHours: location.timeZone);
+    final ayanamsaSunrise = SwissEphemerisCalculator.calculateLahiriAyanamsa(jdSunrise);
+    final planetsSunrise = SwissEphemerisCalculator.calculatePlanetaryPositions(
+      jd: jdSunrise,
+      ayanamsa: ayanamsaSunrise,
+    );
+    final sunLongSunrise = planetsSunrise['Sun']!.longitude;
+    final moonLongSunrise = planetsSunrise['Moon']!.longitude;
+    final jupiterLongSunrise = planetsSunrise['Jupiter']!.longitude;
+
+    // 3. Julian Day & Ayanamsa at standard noon for daytime Lagna checks
+    final jd = SwissEphemerisCalculator.getJulianDay(cleanDate, utcOffsetHours: location.timeZone);
+    final ayanamsa = SwissEphemerisCalculator.calculateLahiriAyanamsa(jd);
+    final planets = SwissEphemerisCalculator.calculatePlanetaryPositions(
+      jd: jd,
+      ayanamsa: ayanamsa,
+    );
+
     // 4. Tamil Solar Calendar Date
-    final sunRasiIdx = (sunLong / 30.0).floor() % 12;
+    final sunRasiIdx = (sunLongSunrise / 30.0).floor() % 12;
     final tamilMonthIdx = sunRasiIdx;
     final tamilMonth = tamilMonths[tamilMonthIdx];
-    final tamilDay = (sunLong % 30.0).floor() + 1;
+    final tamilDay = (sunLongSunrise % 30.0).floor() + 1;
     final int tamilYearCycle = ((cleanDate.year - 1987) % 60 + 60) % 60;
     final String tamilYearName = AstronomicalPanchangaProvider.tamilYearsTa[tamilYearCycle];
 
@@ -149,26 +155,26 @@ class ProfessionalMuhurthaEngine {
     final List<String> monthSunyamRasis = sunyaRasiIndices.map((idx) => rasiNamesTa[idx]).toList();
 
     // Agni Nakshatra (Kathiri): Sun in Krittika (26.6667° to 40.0° longitude)
-    final bool isKathiriAgniActive = (sunLong >= 26.6667 && sunLong < 40.0);
+    final bool isKathiriAgniActive = (sunLongSunrise >= 26.6667 && sunLongSunrise < 40.0);
     final String kathiriReason = isKathiriAgniActive
         ? 'அக்னி நட்சத்திரம் (கத்திரி வெயில்) காலம் - பூமி பூஜை, வீடு கட்ட ஆரம்பிக்க தவிர்க்கவும்'
         : 'அக்னி நட்சத்திர பாதிப்பு இல்லை';
 
-    // 5. Inauspicious Periods Calculation
+    // 5. Inauspicious Periods Calculation (using sunrise moon longitude)
     final inauspiciousPeriods = calculateInauspiciousPeriods(
       sunrise: sunrise,
       sunset: sunset,
       weekday: cleanDate.weekday,
-      moonLong: moonLong,
+      moonLong: moonLongSunrise,
     );
 
     // ===============================================================
-    // LEVEL 1: GENERAL DAY SUITABILITY EVALUATION
+    // LEVEL 1: GENERAL DAY SUITABILITY EVALUATION (Morning Window: Sunrise to 12:00 PM)
     // ===============================================================
     final level1Day = evaluateLevel1Day(
       date: cleanDate,
-      sunLong: sunLong,
-      moonLong: moonLong,
+      sunLong: sunLongSunrise,
+      moonLong: moonLongSunrise,
       category: category,
       rules: activeRules,
       sunrise: sunrise,
@@ -191,7 +197,7 @@ class ProfessionalMuhurthaEngine {
       nakshatraIndex: level1Day.nakshatra.nakshatraIndex,
       isNakshatraSuitable: level1Day.nakshatra.isSuitable,
       nakshatraReason: level1Day.nakshatra.reason,
-      yogaName: level1Day.yoga.yogaName,
+      yogaName: level1Day.yoga.amirthathiYoga,
       amirthathiYoga: level1Day.yoga.amirthathiYoga,
       isYogaAuspicious: level1Day.yoga.isSuitable,
       yogaReason: level1Day.yoga.reason,
@@ -201,6 +207,10 @@ class ProfessionalMuhurthaEngine {
       primaryNamaYoga: level1Day.yoga.primaryYoga,
       nextNamaYoga: level1Day.yoga.nextYoga,
       yogaTransitionTime: level1Day.yoga.transitionTime,
+      yogaPeriods: level1Day.yoga.periods,
+      nakshatraTransitionTime: level1Day.nakshatra.transitionTime,
+      tithiTransitionTime: level1Day.tithi.transitionTime,
+      karanaTransitionTime: level1Day.karana.transitionTime,
     );
 
     // ===============================================================
@@ -233,9 +243,9 @@ class ProfessionalMuhurthaEngine {
       level3Jathaga = evaluateLevel3Jathaga(
         birthProfile: birthProfile,
         targetNakshatra: level1Day.nakshatra.nakshatraIndex,
-        moonLong: moonLong,
-        jupiterLong: jupiterLong,
-        sunLong: sunLong,
+        moonLong: moonLongSunrise,
+        jupiterLong: jupiterLongSunrise,
+        sunLong: sunLongSunrise,
         category: category,
         rules: activeRules,
       );
@@ -362,16 +372,99 @@ class ProfessionalMuhurthaEngine {
     final String weekdayName = weekdaysTa[weekdayNum - 1];
     final bool isVaaramAllowed = rules.allowedWeekdays.contains(weekdayNum);
 
-    // 2. Tithi
-    final tithiDetail = TithiCalculator.calculateTithi(
-      sunLongitude: sunLong,
-      moonLongitude: moonLong,
+    // Morning evaluation window: Actual local sunrise to 12:00 PM local time
+    final DateTime morningStart = sunrise ?? DateTime(date.year, date.month, date.day, 6, 0);
+    final DateTime standardNoon = DateTime(date.year, date.month, date.day, 12, 0);
+    final DateTime morningEnd = standardNoon.isAfter(morningStart)
+        ? standardNoon
+        : morningStart.add(const Duration(hours: 6));
+
+    final double sSunLong;
+    final double sMoonLong;
+    final double nSunLong;
+    final double nMoonLong;
+
+    if (sunrise != null && location != null) {
+      final smStart = SwissEphemerisCalculator.calculateSunMoonSidereal(morningStart, utcOffsetHours: location.timeZone);
+      sSunLong = smStart.sun;
+      sMoonLong = smStart.moon;
+
+      final smEnd = SwissEphemerisCalculator.calculateSunMoonSidereal(morningEnd, utcOffsetHours: location.timeZone);
+      nSunLong = smEnd.sun;
+      nMoonLong = smEnd.moon;
+    } else {
+      sSunLong = sunLong;
+      sMoonLong = moonLong;
+      nSunLong = sunLong;
+      nMoonLong = moonLong;
+    }
+
+    // 2. Tithi Evaluation (Sunrise to 12:00 PM)
+    final sunriseTithi = TithiCalculator.calculateTithi(
+      sunLongitude: sSunLong,
+      moonLongitude: sMoonLong,
     );
-    final tNum = tithiDetail.tithiNumber;
-    final int singleTNum = (tNum > 15) ? (tNum - 15) : tNum;
+    final noonTithi = TithiCalculator.calculateTithi(
+      sunLongitude: nSunLong,
+      moonLongitude: nMoonLong,
+    );
+
+    DateTime? tithiTransitionTime;
+    if (sunrise != null && location != null && noonTithi.tithiNumber != sunriseTithi.tithiNumber) {
+      tithiTransitionTime = _findBoundaryTransition(
+        start: morningStart,
+        end: morningEnd,
+        timeZone: location.timeZone,
+        getIndex: (sm) => TithiCalculator.calculateTithi(sunLongitude: sm.sun, moonLongitude: sm.moon).tithiNumber,
+      );
+    }
+
+    final int sTNum = sunriseTithi.tithiNumber;
+    final int sSingleTNum = (sTNum > 15) ? (sTNum - 15) : sTNum;
+    final bool isSunriseTithiAllowed = rules.allowedTithis.contains(sSingleTNum);
+    final bool isSunriseTithiAvoided = rules.avoidedTithis.contains(sTNum) || rules.avoidedTithis.contains(sSingleTNum);
+    final bool isSunriseTithiSuitable = isSunriseTithiAllowed && !isSunriseTithiAvoided;
+
+    bool isNextTithiSuitable = false;
+    if (tithiTransitionTime != null) {
+      final int nTNum = noonTithi.tithiNumber;
+      final int nSingleTNum = (nTNum > 15) ? (nTNum - 15) : nTNum;
+      final bool isNextTithiAllowed = rules.allowedTithis.contains(nSingleTNum);
+      final bool isNextTithiAvoided = rules.avoidedTithis.contains(nTNum) || rules.avoidedTithis.contains(nSingleTNum);
+      isNextTithiSuitable = isNextTithiAllowed && !isNextTithiAvoided;
+    }
+
+    // Give priority to prevailing sunrise Tithi; if either period before noon is suitable, mark suitable
+    final bool isTithiSuitable = isSunriseTithiSuitable || isNextTithiSuitable;
+    final int activeTNum = isSunriseTithiSuitable ? sTNum : (isNextTithiSuitable ? noonTithi.tithiNumber : sTNum);
+    final int activeSingleTNum = (activeTNum > 15) ? (activeTNum - 15) : activeTNum;
+    final String? tithiConflictNote = SubhaMuhurthamRules.getTithiConflictNote(activeSingleTNum);
+
+    String tithiName;
+    String tithiReason;
+    if (tithiTransitionTime != null) {
+      final timingStr = _formatTransitionTime(date, tithiTransitionTime);
+      tithiName = '${sunriseTithi.tithiNameTa} ($timingStr வரை), பின் ${noonTithi.tithiNameTa}';
+      if (isSunriseTithiSuitable && isNextTithiSuitable) {
+        tithiReason = '${sunriseTithi.tithiNameTa} ($timingStr வரை) மற்றும் பின் வரும் ${noonTithi.tithiNameTa} இரண்டும் சுப முகூர்த்தத்திற்கு உகந்தவை';
+      } else if (isSunriseTithiSuitable) {
+        tithiReason = '${sunriseTithi.tithiNameTa} ($timingStr வரை) சுப காரியங்களுக்கு உகந்த சிறந்த திதியாகும்; பின் ${noonTithi.tithiNameTa}';
+      } else {
+        tithiReason = '${sunriseTithi.tithiNameTa} ($timingStr வரை) தவிர்க்கப்பட வேண்டிய திதி; பின் ${noonTithi.tithiNameTa} சுப காரியங்களுக்கு உகந்தது';
+      }
+    } else {
+      tithiName = sunriseTithi.tithiNameTa;
+      if (isSunriseTithiSuitable) {
+        tithiReason = '${sunriseTithi.tithiNameTa} சுப காரியங்களுக்கு உகந்த சிறந்த திதியாகும் (Suitable Tithi)';
+      } else if (isSunriseTithiAvoided) {
+        tithiReason = '${sunriseTithi.tithiNameTa} சுப முகூர்த்தத்திற்கு தவிர்க்கப்பட வேண்டிய திதியாகும் (Avoided Tithi)';
+      } else {
+        tithiReason = '${sunriseTithi.tithiNameTa} மத்திம திதி (விலக்கப்பட வேண்டும்)';
+      }
+    }
 
     // Check Valarpirai Sunday
-    final bool isShuklaPaksha = tithiDetail.pakshaTa.contains('வளர்பிறை');
+    final bool isShuklaPaksha = sunriseTithi.pakshaTa.contains('வளர்பிறை');
     final bool isValarpiraiSunday = (weekdayNum == 7 && isShuklaPaksha);
 
     String vaaramReason;
@@ -391,55 +484,82 @@ class ProfessionalMuhurthaEngine {
       reason: vaaramReason,
     );
 
-    // Tithi check based on active rules
-    final bool isTithiAllowed = rules.allowedTithis.contains(singleTNum);
-    final bool isTithiExplicitlyAvoided = rules.avoidedTithis.contains(tNum) || rules.avoidedTithis.contains(singleTNum);
-    final bool isTithiSuitable = isTithiAllowed && !isTithiExplicitlyAvoided;
-
-    final String? tithiConflictNote = SubhaMuhurthamRules.getTithiConflictNote(singleTNum);
-
-    String tithiReason;
-    if (isTithiSuitable) {
-      tithiReason = '${tithiDetail.tithiNameTa} சுப காரியங்களுக்கு உகந்த சிறந்த திதியாகும் (Suitable Tithi)';
-    } else if (isTithiExplicitlyAvoided) {
-      tithiReason = '${tithiDetail.tithiNameTa} சுப முகூர்த்தத்திற்கு தவிர்க்கப்பட வேண்டிய திதியாகும் (Avoided Tithi)';
-    } else {
-      tithiReason = '${tithiDetail.tithiNameTa} மத்திம திதி (விலக்கப்பட வேண்டும்)';
-    }
-
     final tithiEval = TithiEvaluation(
-      tithiNumber: tNum,
-      singleTithiNumber: singleTNum,
-      tithiName: tithiDetail.tithiNameTa,
-      paksha: tithiDetail.pakshaTa,
+      tithiNumber: activeTNum,
+      singleTithiNumber: activeSingleTNum,
+      tithiName: tithiName,
+      paksha: sunriseTithi.pakshaTa,
       isSuitable: isTithiSuitable,
       conflictNote: tithiConflictNote,
       reason: tithiReason,
+      transitionTime: tithiTransitionTime,
+      nextTithiNumber: tithiTransitionTime != null ? noonTithi.tithiNumber : null,
+      nextTithiName: tithiTransitionTime != null ? noonTithi.tithiNameTa : null,
     );
 
-    // 3. Nakshatra
+    // 3. Nakshatra Evaluation (Sunrise to 12:00 PM)
     const nakSpan = 360.0 / 27.0;
-    final int nakIdx = (moonLong % 360.0 / nakSpan).floor() % 27;
-    final String nakName = nakshatrasTa[nakIdx];
-    final bool isNakSuitable = rules.allowedNakshatras.contains(nakIdx);
-    final String? nakConflictNote = SubhaMuhurthamRules.getNakshatraConflictNote(nakIdx);
+    final int sunriseNakIdx = (sMoonLong % 360.0 / nakSpan).floor() % 27;
+    final int noonNakIdx = (nMoonLong % 360.0 / nakSpan).floor() % 27;
 
+    DateTime? nakTransitionTime;
+    if (sunrise != null && location != null && noonNakIdx != sunriseNakIdx) {
+      nakTransitionTime = _findBoundaryTransition(
+        start: morningStart,
+        end: morningEnd,
+        timeZone: location.timeZone,
+        getIndex: (sm) => (sm.moon % 360.0 / nakSpan).floor() % 27,
+      );
+    }
+
+    final String sunriseNakName = nakshatrasTa[sunriseNakIdx];
+    final bool isSunriseNakSuitable = rules.allowedNakshatras.contains(sunriseNakIdx);
+
+    bool isNextNakSuitable = false;
+    String nextNakName = '';
+    if (nakTransitionTime != null) {
+      nextNakName = nakshatrasTa[noonNakIdx];
+      isNextNakSuitable = rules.allowedNakshatras.contains(noonNakIdx);
+    }
+
+    // Give priority to prevailing sunrise Nakshatra; if either period before noon is suitable, mark suitable
+    final bool isNakSuitable = isSunriseNakSuitable || isNextNakSuitable;
+    final int activeNakIdx = isSunriseNakSuitable ? sunriseNakIdx : (isNextNakSuitable ? noonNakIdx : sunriseNakIdx);
+    final String? nakConflictNote = SubhaMuhurthamRules.getNakshatraConflictNote(activeNakIdx);
+
+    String nakName;
     String nakReason;
-    if (isNakSuitable) {
-      nakReason = '$nakName சுப முகூர்த்தத்திற்கு பரிந்துரைக்கப்பட்ட உத்தம நட்சத்திரங்களில் ஒன்றாகும் (Suitable Nakshatra)';
+    if (nakTransitionTime != null) {
+      final timingStr = _formatTransitionTime(date, nakTransitionTime);
+      nakName = '$sunriseNakName ($timingStr வரை), பின் $nextNakName';
+      if (isSunriseNakSuitable && isNextNakSuitable) {
+        nakReason = '$sunriseNakName ($timingStr வரை) மற்றும் பின் வரும் $nextNakName இரண்டும் சுப முகூர்த்தத்திற்கு உகந்தவை';
+      } else if (isSunriseNakSuitable) {
+        nakReason = '$sunriseNakName ($timingStr வரை) சுப முகூர்த்தத்திற்கு உகந்த உத்தம நட்சத்திரம்; பின் $nextNakName (விலக்கப்பட வேண்டும்)';
+      } else {
+        nakReason = '$sunriseNakName ($timingStr வரை) விலக்கப்பட வேண்டும்; பின் $nextNakName சுப முகூர்த்தத்திற்கு உகந்தது';
+      }
     } else {
-      nakReason = '$nakName சுப முகூர்த்தத்திற்கு பரிந்துரைக்கப்படாத நட்சத்திரம் (விலக்கப்பட வேண்டும்)';
+      nakName = sunriseNakName;
+      nakReason = isNakSuitable
+          ? '$nakName சுப முகூர்த்தத்திற்கு பரிந்துரைக்கப்பட்ட உத்தம நட்சத்திரங்களில் ஒன்றாகும் (Suitable Nakshatra)'
+          : '$nakName சுப முகூர்த்தத்திற்கு பரிந்துரைக்கப்படாத நட்சத்திரம் (விலக்கப்பட வேண்டும்)';
     }
 
     final nakshatraEval = NakshatraEvaluation(
-      nakshatraIndex: nakIdx,
+      nakshatraIndex: activeNakIdx,
       nakshatraName: nakName,
       isSuitable: isNakSuitable,
       conflictNote: nakConflictNote,
       reason: nakReason,
+      transitionTime: nakTransitionTime,
+      nextNakshatraIndex: nakTransitionTime != null ? noonNakIdx : null,
+      nextNakshatraName: nakTransitionTime != null ? nextNakName : null,
     );
 
     // 4. Yoga (Nama Yogam: Siddha, Amirtha, Marana, Prabala Arishta)
+    // Strictly Amirthathi Yoga classification based on weekday and Nakshatra
+    final List<SubhaYogaPeriod> yogaPeriods;
     final SubhaNamaYogaType primaryYoga;
     SubhaNamaYogaType? nextYoga;
     DateTime? yogaTransitionTime;
@@ -447,16 +567,7 @@ class ProfessionalMuhurthaEngine {
     bool isYogaAuspicious;
     String yogaReason;
 
-    int activeNakIdx = nakIdx;
-    DateTime? nextSunrise;
-
     if (sunrise != null && location != null) {
-      final smSunrise = SwissEphemerisCalculator.calculateSunMoonSidereal(
-        sunrise,
-        utcOffsetHours: location.timeZone,
-      );
-      activeNakIdx = (smSunrise.moon % 360.0 / nakSpan).floor() % 27;
-
       final nextDay = DateTime(date.year, date.month, date.day + 1, 12, 0);
       final nextSunTimes = AstrologyCalculator.calculateSunriseSunset(
         nextDay,
@@ -464,101 +575,197 @@ class ProfessionalMuhurthaEngine {
         location.longitude,
         location.timeZone,
       );
-      nextSunrise = nextSunTimes['sunrise'];
-    }
+      final nextSunrise = nextSunTimes['sunrise']!;
 
-    primaryYoga = calculateNamaYoga(weekdayNum, activeNakIdx);
-
-    if (sunrise != null && nextSunrise != null && location != null) {
-      final nakEnd = _findNakshatraBoundaryCrossing(
-        startTime: sunrise,
-        endTime: nextSunrise,
-        currentIdx: activeNakIdx,
+      yogaPeriods = calculateSunriseToSunriseYogaPeriods(
+        targetDate: date,
+        sunrise: sunrise,
+        nextSunrise: nextSunrise,
+        panchangamWeekday: weekdayNum,
         utcOffsetHours: location.timeZone,
       );
-
-      if (nakEnd.isBefore(nextSunrise)) {
-        final nextNakIdx = (activeNakIdx + 1) % 27;
-        final candidateNextYoga = calculateNamaYoga(weekdayNum, nextNakIdx);
-        if (candidateNextYoga != primaryYoga) {
-          nextYoga = candidateNextYoga;
-          yogaTransitionTime = nakEnd;
-        }
-      }
+    } else {
+      final fallbackYoga = calculateNamaYoga(weekdayNum, sunriseNakIdx);
+      yogaPeriods = [
+        SubhaYogaPeriod(
+          yoga: fallbackYoga,
+          nakshatraIndex: sunriseNakIdx,
+          nakshatraName: sunriseNakName,
+          startTime: date,
+          endTime: date.add(const Duration(days: 1)),
+          formattedTime: 'முழு நாளும்',
+        ),
+      ];
     }
 
-    if (nextYoga != null && yogaTransitionTime != null) {
-      final nextY = nextYoga;
-      final timingStr = _formatTransitionTime(date, yogaTransitionTime);
-      amirthathiYoga = '${primaryYoga.tamilLabel} ($timingStr வரை), பின் ${nextY.tamilLabel}';
+    primaryYoga = yogaPeriods.first.yoga;
+    final distinctYogas = yogaPeriods.map((p) => p.yoga).toSet();
 
-      final bool isPrimaryAllowed = rules.allowedAmirthathiYogas.any((a) =>
-          a == primaryYoga.tamilLabel ||
-          a == primaryYoga.englishLabel ||
-          primaryYoga.tamilLabel.contains(a)) || primaryYoga.isAuspicious;
-      final bool isNextAllowed = rules.allowedAmirthathiYogas.any((a) =>
-          a == nextY.tamilLabel ||
-          a == nextY.englishLabel ||
-          nextY.tamilLabel.contains(a)) || nextY.isAuspicious;
-
-      if (isPrimaryAllowed && isNextAllowed) {
-        isYogaAuspicious = true;
-        yogaReason = '${primaryYoga.tamilLabel} ($timingStr வரை) - ${primaryYoga.description}; பின் ${nextY.tamilLabel} - ${nextY.description}';
-      } else if (isPrimaryAllowed && !isNextAllowed) {
-        isYogaAuspicious = true;
-        yogaReason = '${primaryYoga.tamilLabel} ($timingStr வரை) சுப காரியங்களுக்கு உகந்தது; பின் ${nextY.tamilLabel} தொடங்குவதால் தவிர்க்கவும்';
-      } else if (!isPrimaryAllowed && isNextAllowed) {
-        final bool isTransitionInDay = sunset != null ? yogaTransitionTime.isBefore(sunset) : true;
-        isYogaAuspicious = isTransitionInDay;
-        yogaReason = '${primaryYoga.tamilLabel} ($timingStr வரை) தவிர்க்கப்பட வேண்டும்; பின் ${nextY.tamilLabel} சுப காரியங்களுக்கு உகந்தது';
-      } else {
-        isYogaAuspicious = false;
-        yogaReason = '${primaryYoga.tamilLabel} மற்றும் ${nextY.tamilLabel} இரண்டும் சுப காரியங்களுக்கு முற்றிலும் தவிர்க்கப்பட வேண்டும்';
-      }
-    } else {
+    if (distinctYogas.length == 1) {
+      // One Nakshatra remains active throughout sunrise to next sunrise, OR
+      // The Yoga remains unchanged when the weekday and Nakshatra mapping produces the same classification.
       amirthathiYoga = primaryYoga.tamilLabel;
       isYogaAuspicious = rules.allowedAmirthathiYogas.any((a) =>
           a == primaryYoga.tamilLabel ||
           a == primaryYoga.englishLabel ||
           primaryYoga.tamilLabel.contains(a)) || primaryYoga.isAuspicious;
       yogaReason = '${primaryYoga.tamilLabel} - ${primaryYoga.description}';
+    } else if (yogaPeriods.length == 2 && yogaPeriods[0].yoga != yogaPeriods[1].yoga) {
+      // Exactly one transition between different yogas
+      final seg0 = yogaPeriods[0];
+      final seg1 = yogaPeriods[1];
+      nextYoga = seg1.yoga;
+      yogaTransitionTime = seg0.endTime;
+      final timingStr = _formatTransitionTime(date, seg0.endTime);
+      amirthathiYoga = '${seg0.yoga.tamilLabel} ($timingStr வரை), பின் ${seg1.yoga.tamilLabel}';
+
+      final bool isPrimaryAllowed = rules.allowedAmirthathiYogas.any((a) =>
+          a == seg0.yoga.tamilLabel ||
+          a == seg0.yoga.englishLabel ||
+          seg0.yoga.tamilLabel.contains(a)) || seg0.yoga.isAuspicious;
+      final bool isNextAllowed = rules.allowedAmirthathiYogas.any((a) =>
+          a == seg1.yoga.tamilLabel ||
+          a == seg1.yoga.englishLabel ||
+          seg1.yoga.tamilLabel.contains(a)) || seg1.yoga.isAuspicious;
+
+      if (isPrimaryAllowed && isNextAllowed) {
+        isYogaAuspicious = true;
+        yogaReason = '${seg0.yoga.tamilLabel} ($timingStr வரை) - ${seg0.yoga.description}; பின் ${seg1.yoga.tamilLabel} - ${seg1.yoga.description}';
+      } else if (isPrimaryAllowed && !isNextAllowed) {
+        isYogaAuspicious = true;
+        yogaReason = '${seg0.yoga.tamilLabel} ($timingStr வரை) சுப காரியங்களுக்கு உகந்தது; பின் ${seg1.yoga.tamilLabel} தொடங்குவதால் தவிர்க்கவும்';
+      } else if (!isPrimaryAllowed && isNextAllowed) {
+        final bool isTransitionInDay = sunset != null ? seg0.endTime.isBefore(sunset) : true;
+        isYogaAuspicious = isTransitionInDay;
+        yogaReason = '${seg0.yoga.tamilLabel} ($timingStr வரை) தவிர்க்கப்பட வேண்டும்; பின் ${seg1.yoga.tamilLabel} சுப காரியங்களுக்கு உகந்தது';
+      } else {
+        isYogaAuspicious = false;
+        yogaReason = '${seg0.yoga.tamilLabel} மற்றும் ${seg1.yoga.tamilLabel} இரண்டும் சுப காரியங்களுக்கு முற்றிலும் தவிர்க்கப்பட வேண்டும்';
+      }
+    } else {
+      // Multiple transitions: Merge adjacent periods with identical yoga
+      final mergedSegments = <SubhaYogaPeriod>[];
+      for (final p in yogaPeriods) {
+        if (mergedSegments.isEmpty) {
+          mergedSegments.add(p);
+        } else if (mergedSegments.last.yoga == p.yoga) {
+          final prev = mergedSegments.removeLast();
+          mergedSegments.add(SubhaYogaPeriod(
+            yoga: prev.yoga,
+            nakshatraIndex: prev.nakshatraIndex,
+            nakshatraName: prev.nakshatraName,
+            startTime: prev.startTime,
+            endTime: p.endTime,
+            formattedTime: '${_formatTransitionTime(date, prev.startTime)} – ${_formatTransitionTime(date, p.endTime)}',
+          ));
+        } else {
+          mergedSegments.add(p);
+        }
+      }
+
+      if (mergedSegments.length == 1) {
+        amirthathiYoga = mergedSegments.first.yoga.tamilLabel;
+        isYogaAuspicious = mergedSegments.first.yoga.isAuspicious;
+        yogaReason = '${mergedSegments.first.yoga.tamilLabel} - ${mergedSegments.first.yoga.description}';
+      } else {
+        nextYoga = mergedSegments[1].yoga;
+        yogaTransitionTime = mergedSegments[0].endTime;
+
+        final descParts = <String>[];
+        for (int i = 0; i < mergedSegments.length; i++) {
+          final m = mergedSegments[i];
+          if (i == 0) {
+            final tStr = _formatTransitionTime(date, m.endTime);
+            descParts.add('${m.yoga.tamilLabel} ($tStr வரை)');
+          } else if (i == mergedSegments.length - 1) {
+            descParts.add('பின் ${m.yoga.tamilLabel}');
+          } else {
+            final tStr = _formatTransitionTime(date, m.endTime);
+            descParts.add('பின் ${m.yoga.tamilLabel} ($tStr வரை)');
+          }
+        }
+        amirthathiYoga = descParts.join(', ');
+        isYogaAuspicious = mergedSegments.any((m) => m.yoga.isAuspicious);
+        yogaReason = amirthathiYoga;
+      }
     }
 
-    final yogaData = AstrologyCalculator.calculateYoga(sunLong, moonLong);
-    final String yogaName = yogaData['nameTa'] as String;
-
     final yogaEval = YogaEvaluation(
-      yogaName: yogaName,
+      yogaName: amirthathiYoga,
       amirthathiYoga: amirthathiYoga,
       isSuitable: isYogaAuspicious,
       reason: yogaReason,
       primaryYoga: primaryYoga,
       nextYoga: nextYoga,
       transitionTime: yogaTransitionTime,
+      periods: yogaPeriods,
     );
 
-    // 5. Karana
-    final karanaData = AstrologyCalculator.calculateKarana(sunLong, moonLong);
-    final String karanaName = karanaData['nameTa'] as String;
-    final String karanaEn = karanaData['nameEn'] as String;
+    // 5. Karana Evaluation (Sunrise to 12:00 PM)
+    final sunriseKaranaData = AstrologyCalculator.calculateKarana(sSunLong, sMoonLong);
+    final noonKaranaData = AstrologyCalculator.calculateKarana(nSunLong, nMoonLong);
+    final String sunriseKaranaName = sunriseKaranaData['nameTa'] as String;
+    final String sunriseKaranaEn = sunriseKaranaData['nameEn'] as String;
+    final bool isSunriseVishti = (sunriseKaranaEn == 'Vishti' || sunriseKaranaName.contains('பத்திரை'));
+    final bool isSunriseFixedAvoided = (sunriseKaranaEn == 'Shakuni' ||
+        sunriseKaranaEn == 'Chatushpada' ||
+        sunriseKaranaEn == 'Naga' ||
+        sunriseKaranaEn == 'Kimstughna');
+    final bool isSunriseKaranaSuitable = !isSunriseVishti && !isSunriseFixedAvoided;
 
-    final bool isVishti = (karanaEn == 'Vishti' || karanaName.contains('பத்திரை'));
-    final bool isFixedAvoided = (karanaEn == 'Shakuni' || karanaEn == 'Chatushpada' || karanaEn == 'Naga' || karanaEn == 'Kimstughna');
-    final bool isKaranaSuitable = !isVishti && !isFixedAvoided;
+    DateTime? karanaTransitionTime;
+    if (sunrise != null && location != null && noonKaranaData['index'] != sunriseKaranaData['index']) {
+      karanaTransitionTime = _findBoundaryTransition(
+        start: morningStart,
+        end: morningEnd,
+        timeZone: location.timeZone,
+        getIndex: (sm) => ((sm.moon - sm.sun + 360.0) % 360.0 / 6.0).floor() % 60,
+      );
+    }
 
+    bool isNextKaranaSuitable = false;
+    String nextKaranaName = '';
+    if (karanaTransitionTime != null) {
+      nextKaranaName = noonKaranaData['nameTa'] as String;
+      final String nextKaranaEn = noonKaranaData['nameEn'] as String;
+      final bool isNextVishti = (nextKaranaEn == 'Vishti' || nextKaranaName.contains('பத்திரை'));
+      final bool isNextFixedAvoided = (nextKaranaEn == 'Shakuni' ||
+          nextKaranaEn == 'Chatushpada' ||
+          nextKaranaEn == 'Naga' ||
+          nextKaranaEn == 'Kimstughna');
+      isNextKaranaSuitable = !isNextVishti && !isNextFixedAvoided;
+    }
+
+    final bool isKaranaSuitable = isSunriseKaranaSuitable || isNextKaranaSuitable;
+    String displayKaranaName;
     String karanaReason;
-    if (isVishti) {
-      karanaReason = 'விஷ்டி / பத்திரை கரணம் - சுப காரியங்களை தவிர்க்க வேண்டும்';
-    } else if (isFixedAvoided) {
-      karanaReason = '$karanaName ஸ்திர கரணம் - சுப முகூர்த்தங்களுக்கு விலக்கப்பட வேண்டும்';
+    if (karanaTransitionTime != null) {
+      final timingStr = _formatTransitionTime(date, karanaTransitionTime);
+      displayKaranaName = '$sunriseKaranaName ($timingStr வரை), பின் $nextKaranaName';
+      if (isSunriseKaranaSuitable && isNextKaranaSuitable) {
+        karanaReason = '$sunriseKaranaName ($timingStr வரை) மற்றும் பின் வரும் $nextKaranaName இரண்டும் சுப காரியங்களுக்கு உகந்தவை';
+      } else if (isSunriseKaranaSuitable) {
+        karanaReason = '$sunriseKaranaName ($timingStr வரை) சுப காரியங்களுக்கு உகந்த கரணம்; பின் $nextKaranaName';
+      } else {
+        karanaReason = '$sunriseKaranaName ($timingStr வரை) விலக்கப்பட வேண்டும்; பின் $nextKaranaName சுப காரியங்களுக்கு உகந்தது';
+      }
     } else {
-      karanaReason = '$karanaName சுப காரியங்களுக்கு உகந்த கரணம்';
+      displayKaranaName = sunriseKaranaName;
+      if (isSunriseVishti) {
+        karanaReason = 'விஷ்டி / பத்திரை கரணம் - சுப காரியங்களை தவிர்க்க வேண்டும்';
+      } else if (isSunriseFixedAvoided) {
+        karanaReason = '$displayKaranaName ஸ்திர கரணம் - சுப முகூர்த்தங்களுக்கு விலக்கப்பட வேண்டும்';
+      } else {
+        karanaReason = '$displayKaranaName சுப காரியங்களுக்கு உகந்த கரணம்';
+      }
     }
 
     final karanaEval = KaranaEvaluation(
-      karanaName: karanaName,
+      karanaName: displayKaranaName,
       isSuitable: isKaranaSuitable,
       reason: karanaReason,
+      transitionTime: karanaTransitionTime,
+      nextKaranaName: karanaTransitionTime != null ? nextKaranaName : null,
     );
 
     final bool isAllSuitable = vaaramEval.isSuitable &&
@@ -635,6 +842,7 @@ class ProfessionalMuhurthaEngine {
       primaryNamaYoga: l1.yoga.primaryYoga,
       nextNamaYoga: l1.yoga.nextYoga,
       yogaTransitionTime: l1.yoga.transitionTime,
+      yogaPeriods: l1.yoga.periods,
     );
   }
 
@@ -831,21 +1039,24 @@ class ProfessionalMuhurthaEngine {
       }
     }
 
-    // 2. 7th and 8th House Papa Graha Check
+    // 2. 7th, 8th and 12th House Papa Graha Check (Lagna Shuddhi)
     final int house7 = (lagnaRasi + 6) % 12;
     final int house8 = (lagnaRasi + 7) % 12;
+    final int house12 = (lagnaRasi + 11) % 12;
 
     final List<String> house7Grahas = [];
     final List<String> house8Grahas = [];
+    final List<String> house12Grahas = [];
     final List<String> violations = [];
 
-    // Checked Papa Grahas: Mars, Saturn, Rahu, Ketu
+    // Checked Papa Grahas: Sun, Mars, Saturn, Rahu, Ketu
     final papaList = activeRules.papaGrahas;
 
-    String marsCheck = 'செவ்வாய்: சுத்தி (7, 8-ல் இல்லை)';
-    String saturnCheck = 'சனி: சுத்தி (7, 8-ல் இல்லை)';
-    String rahuCheck = 'ராகு: சுத்தி (7, 8-ல் இல்லை)';
-    String ketuCheck = 'கேது: சுத்தி (7, 8-ல் இல்லை)';
+    String sunCheck = 'சூரியன்: சுத்தி (7, 8, 12-ல் இல்லை)';
+    String marsCheck = 'செவ்வாய்: சுத்தி (7, 8, 12-ல் இல்லை)';
+    String saturnCheck = 'சனி: சுத்தி (7, 8, 12-ல் இல்லை)';
+    String rahuCheck = 'ராகு: சுத்தி (7, 8, 12-ல் இல்லை)';
+    String ketuCheck = 'கேது: சுத்தி (7, 8, 12-ல் இல்லை)';
 
     for (final p in papaList) {
       final pos = planets[p];
@@ -857,6 +1068,7 @@ class ProfessionalMuhurthaEngine {
         if (pRasi == house7) {
           house7Grahas.add(pTa);
           violations.add('7-ம் இடத்தில் $pTa (ஜாமித்ர தோஷம்)');
+          if (p == 'Sun') sunCheck = 'சூரியன்: தோஷம் (7-ம் இடத்தில்)';
           if (p == 'Mars') marsCheck = 'செவ்வாய்: தோஷம் (7-ம் இடத்தில் ஜாமித்ர தோஷம்)';
           if (p == 'Saturn') saturnCheck = 'சனி: தோஷம் (7-ம் இடத்தில்)';
           if (p == 'Rahu') rahuCheck = 'ராகு: தோஷம் (7-ம் இடத்தில்)';
@@ -864,12 +1076,22 @@ class ProfessionalMuhurthaEngine {
         } else if (pRasi == house8) {
           house8Grahas.add(pTa);
           violations.add('8-ம் இடத்தில் $pTa (அஷ்டம தோஷம்)');
+          if (p == 'Sun') sunCheck = 'சூரியன்: தோஷம் (8-ம் இடத்தில்)';
           if (p == 'Mars') marsCheck = 'செவ்வாய்: தோஷம் (8-ம் இடத்தில் அஷ்டம தோஷம்)';
           if (p == 'Saturn') saturnCheck = 'சனி: தோஷம் (8-ம் இடத்தில்)';
           if (p == 'Rahu') rahuCheck = 'ராகு: தோஷம் (8-ம் இடத்தில்)';
           if (p == 'Ketu') ketuCheck = 'கேது: தோஷம் (8-ம் இடத்தில்)';
+        } else if (pRasi == house12) {
+          house12Grahas.add(pTa);
+          violations.add('12-ம் இடத்தில் $pTa (விரய தோஷம்)');
+          if (p == 'Sun') sunCheck = 'சூரியன்: தோஷம் (12-ம் இடத்தில்)';
+          if (p == 'Mars') marsCheck = 'செவ்வாய்: தோஷம் (12-ம் இடத்தில்)';
+          if (p == 'Saturn') saturnCheck = 'சனி: தோஷம் (12-ம் இடத்தில்)';
+          if (p == 'Rahu') rahuCheck = 'ராகு: தோஷம் (12-ம் இடத்தில்)';
+          if (p == 'Ketu') ketuCheck = 'கேது: தோஷம் (12-ம் இடத்தில்)';
         } else {
           final info = '$pTa: சுத்தி ($houseNum-ம் வீட்டில் உள்ளார்)';
+          if (p == 'Sun') sunCheck = info;
           if (p == 'Mars') marsCheck = info;
           if (p == 'Saturn') saturnCheck = info;
           if (p == 'Rahu') rahuCheck = info;
@@ -888,6 +1110,11 @@ class ProfessionalMuhurthaEngine {
         ? '8-ம் இடம் சுத்தி (அஷ்டம தோஷம் இல்லை - பாப கிரகங்கள் அற்றது)'
         : '8-ம் இடத்தில் பாப கிரகங்கள்: ${house8Grahas.join(', ')}';
 
+    final bool house12Checked = house12Grahas.isEmpty;
+    final String house12Reason = house12Checked
+        ? '12-ம் இடம் சுத்தி (விரய தோஷம் இல்லை - பாப கிரகங்கள் அற்றது)'
+        : '12-ம் இடத்தில் பாப கிரகங்கள்: ${house12Grahas.join(', ')}';
+
     // Ashtama Lagna Check from Birth Rasi
     bool isAshtamaLagna = false;
     if (birthProfile != null) {
@@ -898,10 +1125,10 @@ class ProfessionalMuhurthaEngine {
       }
     }
 
-    final bool isClean = house7Checked && house8Checked && !isAshtamaLagna;
+    final bool isClean = house7Checked && house8Checked && house12Checked && !isAshtamaLagna;
     final String status = isClean ? 'உத்தமம் (Lagna Shuddhi Passed)' : 'அசுத்தம் (Lagna Afflicted)';
     final String reason = isClean
-        ? '7 மற்றும் 8 ஆகிய இடங்களில் பாப கிரகங்கள் இல்லை; லக்னம் தூய்மையாக உள்ளது.'
+        ? '7, 8, 12 ஆகிய இடங்களில் பாப கிரகங்கள் இல்லை; லக்னம் தூய்மையாக உள்ளது.'
         : violations.join('; ');
 
     return MuhurthaLagnaEvaluation(
@@ -916,6 +1143,9 @@ class ProfessionalMuhurthaEngine {
       house7Reason: house7Reason,
       house8Checked: house8Checked,
       house8Reason: house8Reason,
+      house12Checked: house12Checked,
+      house12Reason: house12Reason,
+      sunCheck: sunCheck,
       marsCheck: marsCheck,
       saturnCheck: saturnCheck,
       rahuCheck: rahuCheck,
@@ -1370,20 +1600,53 @@ class ProfessionalMuhurthaEngine {
           rules: activeRules,
         );
 
-        // Check Panchaka Dosha
+        // Calculate dynamic active Nakshatra at time cur
+        const nakSpan = 360.0 / 27.0;
+        final smCur = SwissEphemerisCalculator.calculateSunMoonSidereal(cur, utcOffsetHours: location.timeZone);
+        final curNakIdx = (smCur.moon % 360.0 / nakSpan).floor() % 27;
+
+        // Check active Amirthathi Yoga at time cur (using constant Panchangam weekday from sunrise)
+        final panchangamWeekday = cleanDate.weekday;
+        final curYoga = calculateNamaYoga(panchangamWeekday, curNakIdx);
+        final bool isCurYogaAllowed = curYoga.isAuspicious &&
+            !activeRules.avoidedAmirthathiYogas.any((a) => a == curYoga.tamilLabel || a == curYoga.englishLabel);
+
+        // Dynamic active Tithi at time cur
+        final curTithi = TithiCalculator.calculateTithi(sunLongitude: smCur.sun, moonLongitude: smCur.moon);
+        final int curTNum = curTithi.tithiNumber;
+        final int curSingleTNum = (curTNum > 15) ? (curTNum - 15) : curTNum;
+        final bool isCurTithiAllowed = activeRules.allowedTithis.contains(curSingleTNum) &&
+            !activeRules.avoidedTithis.contains(curTNum) &&
+            !activeRules.avoidedTithis.contains(curSingleTNum);
+
+        // Dynamic active Karana at time cur
+        final curKarana = AstrologyCalculator.calculateKarana(smCur.sun, smCur.moon);
+        final String curKaranaEn = curKarana['nameEn'] as String;
+        final String curKaranaName = curKarana['nameTa'] as String;
+        final bool isCurKaranaAllowed = !(curKaranaEn == 'Vishti' ||
+            curKaranaName.contains('பத்திரை') ||
+            curKaranaEn == 'Shakuni' ||
+            curKaranaEn == 'Chatushpada' ||
+            curKaranaEn == 'Naga' ||
+            curKaranaEn == 'Kimstughna');
+
+        // Dynamic active Nakshatra suitability at time cur
+        final bool isCurNakAllowed = activeRules.allowedNakshatras.contains(curNakIdx);
+
+        // Check Panchaka Dosha using constant Panchangam weekday, dynamic Tithi, and dynamic Nakshatra at time cur
         final panchaka = evaluatePanchaka(
-          weekdayNum: cur.weekday,
-          tithiNum: angas.tithiNumber,
-          nakIdx: angas.nakshatraIndex,
+          weekdayNum: panchangamWeekday,
+          tithiNum: curTNum,
+          nakIdx: curNakIdx,
           lagnaRasi: lagnaRasi,
         );
 
-        // Filter: Must be Clean Lagna, Good Panchaka, and Not Month Sunyam
-        if (!isMonthSunyam && lagnaEval.isClean && panchaka.isGood) {
+        // Filter: Must be Clean Lagna, Good Panchaka, Auspicious Yoga, Allowed Nakshatra, Allowed Tithi, Allowed Karana, and Not Month Sunyam
+        if (!isMonthSunyam && lagnaEval.isClean && panchaka.isGood && isCurYogaAllowed && isCurNakAllowed && isCurTithiAllowed && isCurKaranaAllowed) {
           double score = 75.0;
-          if (angas.isTithiPreferred) score += 10;
+          if (isCurTithiAllowed) score += 10;
           if (angas.isVaraPreferred) score += 5;
-          if (angas.isNakshatraSuitable) score += 10;
+          if (isCurNakAllowed) score += 10;
 
           validMinutes.add((
             time: cur,
@@ -1688,8 +1951,109 @@ class ProfessionalMuhurthaEngine {
     }
 
     final exact = lower.add(Duration(seconds: upper.difference(lower).inSeconds ~/ 2));
-    final roundedMinute = (exact.second >= 30) ? exact.minute + 1 : exact.minute;
-    return DateTime(exact.year, exact.month, exact.day, exact.hour, roundedMinute);
+    final exactMinuteRounded = (exact.second >= 30)
+        ? exact.add(Duration(seconds: 60 - exact.second))
+        : exact.subtract(Duration(seconds: exact.second));
+    return DateTime(
+      exactMinuteRounded.year,
+      exactMinuteRounded.month,
+      exactMinuteRounded.day,
+      exactMinuteRounded.hour,
+      exactMinuteRounded.minute,
+    );
+  }
+
+  /// Traverses and returns all Amirthathi Yoga periods between sunrise and next sunrise.
+  /// Detects all Nakshatra transitions, boundary cases at sunrise or next sunrise,
+  /// and applies the constant Panchangam weekday throughout the full 24-hour day.
+  static List<SubhaYogaPeriod> calculateSunriseToSunriseYogaPeriods({
+    required DateTime targetDate,
+    required DateTime sunrise,
+    required DateTime nextSunrise,
+    required int panchangamWeekday,
+    required double utcOffsetHours,
+  }) {
+    const double nakSpan = 360.0 / 27.0;
+    final List<SubhaYogaPeriod> periods = [];
+
+    DateTime currStart = sunrise;
+
+    while (currStart.isBefore(nextSunrise)) {
+      final moonAngle = SwissEphemerisCalculator.calculateSunMoonSidereal(
+        currStart,
+        utcOffsetHours: utcOffsetHours,
+      ).moon;
+      int nakIdx = (moonAngle % 360.0 / nakSpan).floor() % 27;
+
+      DateTime nakEnd = _findNakshatraBoundaryCrossing(
+        startTime: currStart,
+        endTime: nextSunrise.add(const Duration(hours: 36)),
+        currentIdx: nakIdx,
+        utcOffsetHours: utcOffsetHours,
+      );
+
+      // Boundary condition: If Nakshatra ended right at or before currStart
+      if (!nakEnd.isAfter(currStart)) {
+        nakIdx = (nakIdx + 1) % 27;
+        nakEnd = _findNakshatraBoundaryCrossing(
+          startTime: currStart.add(const Duration(minutes: 1)),
+          endTime: nextSunrise.add(const Duration(hours: 36)),
+          currentIdx: nakIdx,
+          utcOffsetHours: utcOffsetHours,
+        );
+      }
+
+      final DateTime segEnd = nakEnd.isAfter(nextSunrise) ? nextSunrise : nakEnd;
+      if (segEnd.isAfter(currStart)) {
+        final yoga = calculateNamaYoga(panchangamWeekday, nakIdx);
+        final nakName = nakshatrasTa[nakIdx];
+        final startStr = _formatTransitionTime(targetDate, currStart);
+        final endStr = _formatTransitionTime(targetDate, segEnd);
+
+        periods.add(SubhaYogaPeriod(
+          yoga: yoga,
+          nakshatraIndex: nakIdx,
+          nakshatraName: nakName,
+          startTime: currStart,
+          endTime: segEnd,
+          formattedTime: '$startStr – $endStr',
+        ));
+      }
+
+      if (!segEnd.isBefore(nextSunrise)) {
+        break;
+      }
+      currStart = segEnd;
+    }
+
+    return periods;
+  }
+
+  /// Exact astronomical boundary transition finder using binary bisection
+  static DateTime? _findBoundaryTransition({
+    required DateTime start,
+    required DateTime end,
+    required double timeZone,
+    required int Function(({double sun, double moon, double ayanamsa})) getIndex,
+  }) {
+    final smStart = SwissEphemerisCalculator.calculateSunMoonSidereal(start, utcOffsetHours: timeZone);
+    final smEnd = SwissEphemerisCalculator.calculateSunMoonSidereal(end, utcOffsetHours: timeZone);
+    final startIndex = getIndex(smStart);
+    final endIndex = getIndex(smEnd);
+    if (startIndex == endIndex) return null;
+
+    DateTime low = start;
+    DateTime high = end;
+    while (high.difference(low).inSeconds > 30) {
+      final mid = low.add(Duration(seconds: (high.difference(low).inSeconds / 2).round()));
+      final smMid = SwissEphemerisCalculator.calculateSunMoonSidereal(mid, utcOffsetHours: timeZone);
+      if (getIndex(smMid) == startIndex) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+    }
+    return high;
   }
 
   /// Formats transition time with Tamil time-of-day period

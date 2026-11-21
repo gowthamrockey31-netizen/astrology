@@ -41,10 +41,27 @@ void main() {
         expect(cusp.subSubLord, isNotNull);
       }
 
-      // Verify Ruling Planets
-      expect(result.rulingPlanets.allPlanets.length, equals(7));
-      expect(result.rulingPlanets.uniquePlanets.length, inInclusiveRange(1, 7));
+      // Verify Ruling Planets (5 Transit Ascendant + 5 Transit Moon = 10 positions + Day Lord = 11 total)
+      expect(result.rulingPlanets.allPlanets.length, equals(11));
+      expect(result.rulingPlanets.tenRulingPlanets.length, equals(10));
+      expect(result.rulingPlanets.ascendantRulingPlanets.length, equals(5));
+      expect(result.rulingPlanets.moonRulingPlanets.length, equals(5));
+      expect(result.rulingPlanets.uniquePlanets.length, inInclusiveRange(1, 9));
       expect(result.rulingPlanets.dayLord, isNotNull);
+
+      // Verify Transit Ascendant 5 Rulers
+      expect(result.rulingPlanets.ascSignLord, isNotNull);
+      expect(result.rulingPlanets.ascStarLord, isNotNull);
+      expect(result.rulingPlanets.ascSubLord, isNotNull);
+      expect(result.rulingPlanets.ascSubSubLord, isNotNull);
+      expect(result.rulingPlanets.ascSubSubSubLord, isNotNull);
+
+      // Verify Transit Moon 5 Rulers
+      expect(result.rulingPlanets.moonSignLord, isNotNull);
+      expect(result.rulingPlanets.moonStarLord, isNotNull);
+      expect(result.rulingPlanets.moonSubLord, isNotNull);
+      expect(result.rulingPlanets.moonSubSubLord, isNotNull);
+      expect(result.rulingPlanets.moonSubSubSubLord, isNotNull);
 
       // Verify Significators & Advantage Filter
       expect(result.planetSignificators.length, equals(9));

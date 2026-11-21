@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
 import '../services/auth_service.dart';
 
@@ -172,27 +173,15 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/nakshatra_prasannam'),
                   ),
                   _buildDrawerItem(
-                    icon: Icons.hub_rounded,
-                    title: 'KP Astrology (உப நாத முறை)',
-                    subtitle: '12 Cusps, Placidus Sub & Sub-Sub Lords',
-                    onTap: () => onSelectRoute('/kp_astrology'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.help_center_rounded,
-                    title: 'KP Horary / பிரசன்னம் (1-249)',
-                    subtitle: 'பிரசன்ன எண் முறை துல்லிய ஜாதகம்',
-                    onTap: () => onSelectRoute('/kp_horary'),
-                  ),
-                  _buildDrawerItem(
                     icon: Icons.hub_outlined,
-                    title: '🌌 KP Method 4',
-                    subtitle: 'கே.பி முறை 4 - நட்சத்திர/உப தொடர்பு & பாவ கிரக தொடர்பு',
+                    title: '🌌 KP Method',
+                    subtitle: 'கே.பி முறை - நட்சத்திர/உப தொடர்பு & பாவ கிரக தொடர்பு',
                     onTap: () => onSelectRoute('/kp_method_4'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.alt_route_rounded,
-                    title: 'பிருகு நந்தி நாடி (முறை 1)',
-                    subtitle: 'BNN Method 1 (1,5,9 → 3,11 → 7 → 2 → 12)',
+                    title: 'பிருகு நந்தி நாடி',
+                    subtitle: 'BNN Method (1,5,9 → 3,11 → 7 → 2 → 12)',
                     onTap: () => onSelectRoute('/bnn_method1'),
                   ),
                   _buildDrawerItem(
@@ -206,12 +195,6 @@ class CosmicDrawer extends StatelessWidget {
                     title: 'எண்கணிதம் (Numerology)',
                     subtitle: 'பிறவி, விதி & பெயர் எண்கள் (Chaldean / Pythagorean)',
                     onTap: () => onSelectRoute('/numerology'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.wb_sunny_rounded,
-                    title: 'தினசரி கிரக நிலைகள் (Daily Ephemeris)',
-                    subtitle: 'தினசரி கோட்சார கிரக பாகைகள் & ராசி நிலைகள்',
-                    onTap: () => onSelectRoute('/daily_planet_positions'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.calendar_month_rounded,
@@ -282,12 +265,6 @@ class CosmicDrawer extends StatelessWidget {
                     onTap: () => onSelectRoute('/longevity'),
                   ),
                   _buildDrawerItem(
-                    icon: Icons.calendar_month_rounded,
-                    title: 'Live Panchangam',
-                    subtitle: 'Tithi, Nakshatra, Rahu Kalam',
-                    onTap: () => onSelectRoute('/panchang'),
-                  ),
-                  _buildDrawerItem(
                     icon: Icons.hourglass_top_rounded,
                     title: 'சுப முகூர்த்தம்',
                     subtitle: 'Subha Muhurtham Calculator',
@@ -298,12 +275,6 @@ class CosmicDrawer extends StatelessWidget {
                     title: 'தனிஷ்டா பஞ்சமி / திதி அடைப்பு',
                     subtitle: 'Dhanishta Panchami & Adaippu Calculator',
                     onTap: () => onSelectRoute('/dhanishta_panchami'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.smart_toy_rounded,
-                    title: 'AI Horoscope Assistant',
-                    subtitle: 'Ask AI Astrology Assistant',
-                    onTap: () => onSelectRoute('/ai_assistant'),
                   ),
 
                   const Padding(
@@ -351,36 +322,50 @@ class CosmicDrawer extends StatelessWidget {
 
             // Logout Footer
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: const BoxDecoration(
                 color: AppColors.backgroundMid,
                 border: Border(top: BorderSide(color: AppColors.borderGold, width: 0.5)),
               ),
-              child: Material(
-                color: Colors.transparent,
-                child: ListTile(
-                  leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
-                  title: Text(
-                    'Log Out',
-                    style: GoogleFonts.outfit(
-                      color: Colors.redAccent,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Material(
+                    color: Colors.transparent,
+                    child: ListTile(
+                      leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
+                      title: Text(
+                        'Log Out',
+                        style: GoogleFonts.outfit(
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'End active $role session',
+                        style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
+                      ),
+                      onTap: () {
+                        if (onLogout != null) {
+                          onLogout!();
+                        } else {
+                          AuthService.logout();
+                          onSelectRoute('/login');
+                        }
+                      },
                     ),
                   ),
-                  subtitle: Text(
-                    'End active $role session',
-                    style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 12),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${AppConstants.appName} v${AppConstants.appVersion}',
+                    style: GoogleFonts.outfit(
+                      color: AppColors.textSecondary.withValues(alpha: 0.6),
+                      fontSize: 11,
+                      letterSpacing: 0.5,
+                    ),
                   ),
-                  onTap: () {
-                    if (onLogout != null) {
-                      onLogout!();
-                    } else {
-                      AuthService.logout();
-                      onSelectRoute('/login');
-                    }
-                  },
-                ),
+                ],
               ),
             ),
           ],

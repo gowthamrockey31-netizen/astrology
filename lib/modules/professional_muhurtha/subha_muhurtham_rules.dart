@@ -93,7 +93,7 @@ class SubhaMuhurthamRules {
     this.checkSuryaBalam = true,
     this.checkLagnaLord = true,
     this.checkHouse7And8 = true,
-    this.papaGrahas = const ['Mars', 'Saturn', 'Rahu', 'Ketu'],
+    this.papaGrahas = const ['Sun', 'Mars', 'Saturn', 'Rahu', 'Ketu'],
   });
 
   // ===============================================================
@@ -178,8 +178,8 @@ class SubhaMuhurthamRules {
     'Vishti', 'Bhadra', 'Shakuni', 'Chatushpada', 'Naga', 'Kimstughna'
   ];
 
-  /// Avoided Tamil Months: Aadi (3), Purattasi (5), Margazhi (8)
-  static const List<int> canonicalAvoidedMonths = [3, 5, 8];
+  /// Avoided Tamil Months: Aadi (3), Purattasi (5), Margazhi (8), Maasi (10)
+  static const List<int> canonicalAvoidedMonths = [3, 5, 8, 10];
 
   /// Kari Days (கரி நாட்கள்) per Tamil solar month (tamilMonthIdx: 0..11)
   /// 0: Chithirai -> 6, 15

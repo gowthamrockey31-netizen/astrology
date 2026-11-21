@@ -35,7 +35,7 @@ class JamakkolChartWidget extends StatelessWidget {
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
         final chartSize = availableWidth.clamp(320.0, 680.0);
-        const double outerBorderPadding = 36.0;
+        final double outerBorderPadding = chartSize < 400 ? 38.0 : 42.0;
         final double innerGridSize = chartSize - (outerBorderPadding * 2);
 
         return Center(
@@ -136,6 +136,51 @@ class JamakkolChartWidget extends StatelessWidget {
     final gocharamPlanets = state.transitPlanetsByRasi[rasiIndex] ?? [];
     final specialPoints = state.specialPointsByRasi[rasiIndex] ?? [];
 
+    final List<Widget> cellBadges = [];
+
+    // Special 3 Pillars
+    if (isUdayam) {
+      cellBadges.add(
+        _buildPillarBadge(
+          label: isTamil ? 'உத' : 'UDY',
+          degree: state.udayam.formattedDms,
+          bgColor: const Color(0xFF2563EB),
+        ),
+      );
+    }
+    if (isArudam) {
+      cellBadges.add(
+        _buildPillarBadge(
+          label: isTamil ? 'ஆரு' : 'ARD',
+          degree: state.arudam.formattedDms,
+          bgColor: const Color(0xFF059669),
+        ),
+      );
+    }
+    if (isKavippu) {
+      cellBadges.add(
+        _buildPillarBadge(
+          label: isTamil ? 'கவி' : 'KAV',
+          degree: state.kavippu.formattedDms,
+          bgColor: const Color(0xFFDC2626),
+        ),
+      );
+    }
+
+    // Upagrahas & Special Points (Mandi, Mrityu, Ra.Ka, Emakandam, Lagna)
+    for (final pt in specialPoints) {
+      if (pt.type != SpecialPointType.udayam &&
+          pt.type != SpecialPointType.arudam &&
+          pt.type != SpecialPointType.kavippu) {
+        cellBadges.add(_buildUpagrahaBadge(pt));
+      }
+    }
+
+    // Gocharam / Transit Planets
+    for (final tp in gocharamPlanets) {
+      cellBadges.add(_buildTransitPlanetBadge(tp));
+    }
+
     Color cellBgColor = Colors.transparent;
     if (isUdayam) {
       cellBgColor = const Color(0xFF1E3A8A).withValues(alpha: 0.28);
@@ -196,71 +241,27 @@ class JamakkolChartWidget extends StatelessWidget {
               ),
             ),
 
-            // Planets & Special Points Content (Centered, scaled to never clip)
+            // Planets & Special Points Content (Centered, wrapped responsively, never overlapping)
             Positioned.fill(
-              top: 14,
-              left: 1,
-              right: 1,
+              top: 15,
+              left: 2,
+              right: 2,
               bottom: 2,
               child: Center(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.center,
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: cellSize - 2),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Special 3 Pillars
-                        Wrap(
-                          spacing: 2,
-                          runSpacing: 1,
-                          alignment: WrapAlignment.center,
-                          children: [
-                            if (isUdayam)
-                              _buildPillarBadge(
-                                label: isTamil ? 'உத' : 'UDY',
-                                degree: state.udayam.formattedDms,
-                                bgColor: const Color(0xFF2563EB),
-                              ),
-                            if (isArudam)
-                              _buildPillarBadge(
-                                label: isTamil ? 'ஆரு' : 'ARD',
-                                degree: state.arudam.formattedDms,
-                                bgColor: const Color(0xFF059669),
-                              ),
-                            if (isKavippu)
-                              _buildPillarBadge(
-                                label: isTamil ? 'கவி' : 'KAV',
-                                degree: state.kavippu.formattedDms,
-                                bgColor: const Color(0xFFDC2626),
-                              ),
-                          ],
-                        ),
-
-                        // Upagrahas & Special Points (Mandi, Mrityu, Ra.Ka, Emakandam, Lagna)
-                        Wrap(
-                          spacing: 2,
-                          runSpacing: 1,
-                          alignment: WrapAlignment.center,
-                          children: specialPoints
-                              .where((pt) =>
-                                  pt.type != SpecialPointType.udayam &&
-                                  pt.type != SpecialPointType.arudam &&
-                                  pt.type != SpecialPointType.kavippu)
-                              .map((u) => _buildUpagrahaBadge(u))
-                              .toList(),
-                        ),
-
-                        // Gocharam / Transit Planets
-                        Wrap(
-                          spacing: 2,
-                          runSpacing: 1,
-                          alignment: WrapAlignment.center,
-                          children: gocharamPlanets.map((tp) => _buildTransitPlanetBadge(tp)).toList(),
-                        ),
-                      ],
+                    constraints: BoxConstraints(
+                      maxWidth: cellSize - 4,
+                      maxHeight: cellSize - 17,
+                    ),
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 3.0,
+                      runSpacing: 2.5,
+                      children: cellBadges,
                     ),
                   ),
                 ),
@@ -437,75 +438,111 @@ class JamakkolChartWidget extends StatelessWidget {
   List<Widget> _buildOuterPlanetBadges(double chartSize, double padding, double innerGridSize) {
     final List<Widget> widgets = [];
     final cellSize = innerGridSize / 4.0;
-    final Map<String, int> cellBadgeCount = {};
 
+    // Group outer planets by their sector: borderSide_col_row
+    final Map<String, List<JamakkolPlanet>> planetsBySector = {};
     for (final jp in state.jamakkolPlanets) {
-      final cellKey = '${jp.borderSide}_${jp.gridCol}_${jp.gridRow}';
-      final int badgeIndex = cellBadgeCount[cellKey] ?? 0;
-      cellBadgeCount[cellKey] = badgeIndex + 1;
+      final sectorKey = '${jp.borderSide}_${jp.gridCol}_${jp.gridRow}';
+      planetsBySector.putIfAbsent(sectorKey, () => []).add(jp);
+    }
 
-      final double offset = badgeIndex * 26.0;
+    for (final entry in planetsBySector.entries) {
+      final sectorPlanets = entry.value;
+      // Sort planets by degreeInRasi so they appear in natural astrological order
+      sectorPlanets.sort((a, b) => a.degreeInRasi.compareTo(b.degreeInRasi));
+
+      final borderSide = sectorPlanets.first.borderSide;
+      final col = sectorPlanets.first.gridCol;
+      final row = sectorPlanets.first.gridRow;
 
       double left = 0;
       double top = 0;
+      double width = 0;
+      double height = 0;
+      bool isVerticalSide = false;
 
-      // Position along the top, right, bottom, left outer margins
-      switch (jp.borderSide) {
+      switch (borderSide) {
         case 0: // Top border
-          left = padding + (jp.gridCol * cellSize) + (cellSize * 0.05) + offset;
-          top = 4.0;
+          left = padding + (col * cellSize);
+          top = 1.0;
+          width = cellSize;
+          height = padding - 1.0;
+          isVerticalSide = false;
           break;
         case 1: // Right border
-          left = chartSize - padding + 2.0;
-          top = padding + (jp.gridRow * cellSize) + (cellSize * 0.1) + offset;
+          left = chartSize - padding + 1.0;
+          top = padding + (row * cellSize);
+          width = padding - 1.0;
+          height = cellSize;
+          isVerticalSide = true;
           break;
         case 2: // Bottom border
-          left = padding + (jp.gridCol * cellSize) + (cellSize * 0.05) + offset;
-          top = chartSize - padding + 4.0;
+          left = padding + (col * cellSize);
+          top = chartSize - padding;
+          width = cellSize;
+          height = padding - 1.0;
+          isVerticalSide = false;
           break;
         case 3: // Left border
         default:
-          left = 4.0;
-          top = padding + (jp.gridRow * cellSize) + (cellSize * 0.1) + offset;
+          left = 1.0;
+          top = padding + (row * cellSize);
+          width = padding - 1.0;
+          height = cellSize;
+          isVerticalSide = true;
           break;
       }
 
-      final isCurrentLord = jp.isCurrentJamamLord;
+      Widget content;
+      if (isVerticalSide) {
+        // Vertical sides (Left & Right): Stack badges vertically with clean spacing
+        content = Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1.5, vertical: 1.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: sectorPlanets.map((jp) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2.0),
+                  child: _buildOuterBadge(jp),
+                )).toList(),
+              ),
+            ),
+          ),
+        );
+      } else {
+        // Horizontal sides (Top & Bottom): Arrange badges in a Row with clean spacing
+        content = Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1.0, vertical: 1.5),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: sectorPlanets.map((jp) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2.5),
+                  child: _buildOuterBadge(jp),
+                )).toList(),
+              ),
+            ),
+          ),
+        );
+      }
 
       widgets.add(
         Positioned(
           left: left,
           top: top,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            decoration: BoxDecoration(
-              color: isCurrentLord
-                  ? const Color(0xFFF59E0B)
-                  : const Color(0xFF1E293B).withValues(alpha: 0.95),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: isCurrentLord ? const Color(0xFFFFD700) : const Color(0xFF64748B),
-                width: isCurrentLord ? 1.5 : 0.8,
-              ),
-              boxShadow: isCurrentLord
-                  ? [
-                      BoxShadow(
-                        color: const Color(0xFFFFD700).withValues(alpha: 0.5),
-                        blurRadius: 6,
-                        spreadRadius: 1,
-                      )
-                    ]
-                  : null,
-            ),
-            child: Text(
-              '${isTamil ? jp.shortTa : jp.shortEn} ${_formatOuterPlanetDegree(jp)}',
-              style: TextStyle(
-                color: isCurrentLord ? Colors.black : const Color(0xFFFDE68A),
-                fontSize: 8.5,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+          width: width,
+          height: height,
+          child: content,
         ),
       );
     }
@@ -513,11 +550,70 @@ class JamakkolChartWidget extends StatelessWidget {
     return widgets;
   }
 
+  Widget _buildOuterBadge(JamakkolPlanet jp) {
+    final isCurrentLord = jp.isCurrentJamamLord;
+    final dms = _formatOuterPlanetDegree(jp);
+    final label = isTamil ? jp.shortTa : jp.shortEn;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4.5, vertical: 2.0),
+      decoration: BoxDecoration(
+        color: isCurrentLord
+            ? const Color(0xFFF59E0B)
+            : const Color(0xFF091424),
+        borderRadius: BorderRadius.circular(5.0),
+        border: Border.all(
+          color: isCurrentLord
+              ? const Color(0xFFFFD700)
+              : const Color(0xFF38BDF8),
+          width: isCurrentLord ? 1.4 : 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isCurrentLord
+                ? const Color(0xFFFFD700).withValues(alpha: 0.45)
+                : const Color(0xFF0284C7).withValues(alpha: 0.3),
+            blurRadius: 4,
+            spreadRadius: 0.5,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 9.0,
+              fontWeight: FontWeight.w900,
+              color: isCurrentLord ? Colors.black : Colors.white,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 1.0),
+          Text(
+            dms,
+            style: TextStyle(
+              fontSize: 7.5,
+              fontWeight: FontWeight.w700,
+              color: isCurrentLord
+                  ? const Color(0xFF1E293B)
+                  : const Color(0xFF7DD3FC),
+              height: 1.1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _formatOuterPlanetDegree(JamakkolPlanet jp) {
     final double norm = (jp.absoluteLongitude % 360.0 + 360.0) % 360.0;
     final int d = norm.floor();
     final int m = ((norm - d) * 60.0).floor();
-    return "$d° ${m.toString().padLeft(2, '0')}'";
+    return "$d°${m.toString().padLeft(2, '0')}'";
   }
 
   Widget _buildPillarBadge({
@@ -526,11 +622,11 @@ class JamakkolChartWidget extends StatelessWidget {
     required Color bgColor,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 0.5),
-      padding: const EdgeInsets.symmetric(horizontal: 2.5, vertical: 0.5),
+      padding: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 1.0),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: BorderRadius.circular(3.0),
+        border: Border.all(color: Colors.white24, width: 0.5),
       ),
       child: Text(
         '$label $degree',
@@ -577,17 +673,17 @@ class JamakkolChartWidget extends StatelessWidget {
         : (m >= 60 ? "${d + 1}°" : "$d° ${m.toString().padLeft(2, '0')}'");
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 0.5, horizontal: 0.5),
-      padding: const EdgeInsets.symmetric(horizontal: 2.5, vertical: 0.8),
+      padding: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 1.0),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(2.5),
+        borderRadius: BorderRadius.circular(3.0),
+        border: Border.all(color: Colors.white24, width: 0.5),
       ),
       child: Text(
         '$label $degStr',
         style: TextStyle(
           color: txt,
-          fontSize: 7,
+          fontSize: 7.0,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -606,11 +702,11 @@ class JamakkolChartWidget extends StatelessWidget {
         : (m >= 60 ? "${d + 1}°" : "$d° ${m.toString().padLeft(2, '0')}'");
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 0.5),
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0.5),
+      padding: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 1.0),
       decoration: BoxDecoration(
         color: const Color(0xFF0F766E).withValues(alpha: 0.75),
-        borderRadius: BorderRadius.circular(2.5),
+        borderRadius: BorderRadius.circular(3.0),
+        border: Border.all(color: Colors.white24, width: 0.5),
       ),
       child: Text(
         '${isTamil ? tp.symbol : tp.nameEn.substring(0, 2)} $degStr$suffix',

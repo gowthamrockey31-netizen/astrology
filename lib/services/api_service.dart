@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 import '../models/astrologer_model.dart';
@@ -10,7 +11,14 @@ import '../models/wallet_transaction_model.dart';
 import '../models/panchang_model.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static String get baseUrl {
+    if (kIsWeb) {
+      final base = Uri.base;
+      final portSuffix = (base.hasPort && base.port != 80 && base.port != 443) ? ':${base.port}' : '';
+      return '${base.scheme}://${base.host}$portSuffix/api';
+    }
+    return 'http://127.0.0.1:8000/api';
+  }
   static const Duration _timeout = Duration(seconds: 3);
 
   // AUTH & USERS

@@ -504,7 +504,7 @@ class PdfGeneratorService {
     );
   }
 
-  /// 7. South Indian 4x4 Chart Box for PDF
+  /// 7. South Indian 4x4 Chart Box for PDF with Merged Central 2x2 Area
   static pw.Widget _buildSouthIndianChartBox(
     String chartTitle,
     HoroscopeCalculationResult astro, {
@@ -519,15 +519,65 @@ class PdfGeneratorService {
       rasiSymbols.putIfAbsent(idx, () => []).add(p.symbol);
     }
 
-    final gridToRasi = [11, 0, 1, 2, 10, -1, -1, 3, 9, -1, -1, 4, 8, 7, 6, 5];
+    pw.Widget buildHouseCell(
+      int rasiIdx, {
+      bool borderBottom = false,
+      bool borderRight = false,
+    }) {
+      final rasiName = AstrologyCalculator.rasiNamesTa[rasiIdx];
+      final symbols = rasiSymbols[rasiIdx] ?? [];
+
+      return pw.Container(
+        height: 32,
+        padding: const pw.EdgeInsets.all(1.5),
+        decoration: pw.BoxDecoration(
+          border: pw.Border(
+            bottom: borderBottom
+                ? const pw.BorderSide(color: PdfColors.black, width: 0.5)
+                : pw.BorderSide.none,
+            right: borderRight
+                ? const pw.BorderSide(color: PdfColors.black, width: 0.5)
+                : pw.BorderSide.none,
+          ),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            _txt(
+              rasiName,
+              style: pw.TextStyle(
+                font: fontReg,
+                fontFallback: fallbackFonts,
+                fontSize: 5.5,
+                color: PdfColors.grey700,
+              ),
+            ),
+            pw.Center(
+              child: _txt(
+                symbols.join(' '),
+                style: pw.TextStyle(
+                  font: fontBold,
+                  fontFallback: fallbackFonts,
+                  fontSize: 6.5,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return pw.Container(
       decoration: pw.BoxDecoration(border: pw.Border.all(color: PdfColors.black, width: 1)),
       child: pw.Column(
         children: [
           pw.Container(
-            color: PdfColors.grey200,
             padding: const pw.EdgeInsets.symmetric(vertical: 2),
+            decoration: const pw.BoxDecoration(
+              color: PdfColors.grey200,
+              border: pw.Border(bottom: pw.BorderSide(color: PdfColors.black, width: 0.5)),
+            ),
             child: pw.Center(
               child: _txt(
                 chartTitle,
@@ -539,67 +589,78 @@ class PdfGeneratorService {
               ),
             ),
           ),
-          pw.Table(
-            border: pw.TableBorder.all(color: PdfColors.black, width: 0.5),
-            children: List.generate(4, (row) {
-              return pw.TableRow(
-                children: List.generate(4, (col) {
-                  final idx = row * 4 + col;
-                  final rasiIdx = gridToRasi[idx];
-                  if (rasiIdx == -1) {
-                    if (row == 1 && col == 1) {
-                      return pw.Container(
-                        height: 32,
-                        child: pw.Center(
-                          child: _txt(
-                            chartTitle,
-                            style: pw.TextStyle(
-                              font: fontBold,
-                              fontFallback: fallbackFonts,
-                              fontSize: 8,
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                    return pw.Container(height: 32);
-                  }
-
-                  final rasiName = AstrologyCalculator.rasiNamesTa[rasiIdx];
-                  final symbols = rasiSymbols[rasiIdx] ?? [];
-
-                  return pw.Container(
-                    height: 32,
-                    padding: const pw.EdgeInsets.all(1.5),
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                      children: [
-                        _txt(
-                          rasiName,
-                          style: pw.TextStyle(
-                            font: fontReg,
-                            fontFallback: fallbackFonts,
-                            fontSize: 5.5,
-                            color: PdfColors.grey700,
-                          ),
-                        ),
-                        pw.Center(
-                          child: _txt(
-                            symbols.join(' '),
-                            style: pw.TextStyle(
-                              font: fontBold,
-                              fontFallback: fallbackFonts,
-                              fontSize: 6.5,
-                            ),
-                          ),
-                        ),
-                      ],
+          // Row 0: Top 4 Houses (Meenam, Mesham, Rishabam, Mithunam)
+          pw.Container(
+            decoration: const pw.BoxDecoration(
+              border: pw.Border(bottom: pw.BorderSide(color: PdfColors.black, width: 0.5)),
+            ),
+            child: pw.Row(
+              children: [
+                pw.Expanded(child: buildHouseCell(11, borderRight: true)),
+                pw.Expanded(child: buildHouseCell(0, borderRight: true)),
+                pw.Expanded(child: buildHouseCell(1, borderRight: true)),
+                pw.Expanded(child: buildHouseCell(2)),
+              ],
+            ),
+          ),
+          // Rows 1 & 2: Middle Section with Left houses, Merged 2x2 Center, and Right houses
+          pw.Container(
+            decoration: const pw.BoxDecoration(
+              border: pw.Border(bottom: pw.BorderSide(color: PdfColors.black, width: 0.5)),
+            ),
+            child: pw.Row(
+              children: [
+                // Left Column (flex: 1) -> Kumbam (Row 1), Makaram (Row 2)
+                pw.Expanded(
+                  flex: 1,
+                  child: pw.Column(
+                    children: [
+                      buildHouseCell(10, borderBottom: true, borderRight: true),
+                      buildHouseCell(9, borderRight: true),
+                    ],
+                  ),
+                ),
+                // Merged Central 2x2 Box (flex: 2) -> Single rectangular area displaying chart title
+                pw.Expanded(
+                  flex: 2,
+                  child: pw.Container(
+                    height: 64,
+                    decoration: const pw.BoxDecoration(
+                      border: pw.Border(right: pw.BorderSide(color: PdfColors.black, width: 0.5)),
                     ),
-                  );
-                }),
-              );
-            }),
+                    child: pw.Center(
+                      child: _txt(
+                        chartTitle,
+                        style: pw.TextStyle(
+                          font: fontBold,
+                          fontFallback: fallbackFonts,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Right Column (flex: 1) -> Kadagam (Row 1), Simmam (Row 2)
+                pw.Expanded(
+                  flex: 1,
+                  child: pw.Column(
+                    children: [
+                      buildHouseCell(3, borderBottom: true),
+                      buildHouseCell(4),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Row 3: Bottom 4 Houses (Dhanusu, Viruchigam, Thulam, Kanni)
+          pw.Row(
+            children: [
+              pw.Expanded(child: buildHouseCell(8, borderRight: true)),
+              pw.Expanded(child: buildHouseCell(7, borderRight: true)),
+              pw.Expanded(child: buildHouseCell(6, borderRight: true)),
+              pw.Expanded(child: buildHouseCell(5)),
+            ],
           ),
         ],
       ),
