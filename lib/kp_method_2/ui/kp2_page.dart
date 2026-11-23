@@ -319,7 +319,11 @@ class _KPMethod2PageState extends State<KPMethod2Page> {
               onEditProfile: _showEditProfileDialog,
             ),
             const SizedBox(height: 16),
-            KP2RulingPlanetsWidget(rulingPlanets: res.rulingPlanets),
+            KP2RulingPlanetsWidget(
+              rulingPlanets: res.rulingPlanets,
+              birthData: res.birthData,
+              onEditTransit: _showEditProfileDialog,
+            ),
           ],
         );
       case 1: // 9 Planets
@@ -337,7 +341,11 @@ class _KPMethod2PageState extends State<KPMethod2Page> {
       case 3: // Ruling Planets
         return Column(
           children: [
-            KP2RulingPlanetsWidget(rulingPlanets: res.rulingPlanets),
+            KP2RulingPlanetsWidget(
+              rulingPlanets: res.rulingPlanets,
+              birthData: res.birthData,
+              onEditTransit: _showEditProfileDialog,
+            ),
           ],
         );
       case 4: // Significators & Advantage
@@ -371,7 +379,11 @@ class _KPMethod2PageState extends State<KPMethod2Page> {
             const SizedBox(height: 16),
             KP2CuspsWidget(cusps: res.cusps),
             const SizedBox(height: 16),
-            KP2RulingPlanetsWidget(rulingPlanets: res.rulingPlanets),
+            KP2RulingPlanetsWidget(
+              rulingPlanets: res.rulingPlanets,
+              birthData: res.birthData,
+              onEditTransit: _showEditProfileDialog,
+            ),
             const SizedBox(height: 16),
             KP2SignificatorsWidget(
               planetSignificators: res.planetSignificators,

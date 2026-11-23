@@ -79,6 +79,30 @@ enum KP2Planet {
     }
   }
 
+  /// Short Tamil Abbreviation matching KP Tamil standard notation (e.g. சூரி, புத, சுக், குரு, கேது)
+  String get shortNameTa {
+    switch (this) {
+      case KP2Planet.sun:
+        return 'சூரி';
+      case KP2Planet.moon:
+        return 'சந்';
+      case KP2Planet.mars:
+        return 'செவ்';
+      case KP2Planet.mercury:
+        return 'புத';
+      case KP2Planet.jupiter:
+        return 'குரு';
+      case KP2Planet.venus:
+        return 'சுக்';
+      case KP2Planet.saturn:
+        return 'சனி';
+      case KP2Planet.rahu:
+        return 'ரா';
+      case KP2Planet.ketu:
+        return 'கேது';
+    }
+  }
+
   int get dashaYears {
     switch (this) {
       case KP2Planet.ketu:
